@@ -1,0 +1,766 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+/* Dark is the default palette, so "not light" is the correct test: it still
+   matches if the attribute is somehow missing. Neither variant is used anywhere
+   in the build today — they exist so a future `dark:` or `light:` utility works
+   without anyone having to rediscover this mechanism. */
+@custom-variant dark (&:where(:root:not([data-theme="light"]) *));
+@custom-variant light (&:where(:root[data-theme="light"] *));
+
+/* ==========================================================================
+   RAW TOKENS
+   Two palettes. Dark is the default and lives on bare :root, so a failure of
+   the inline theme script degrades to the shipped design rather than to
+   unstyled text. Light overrides only what must change, at
+   :root[data-theme="light"].
+
+   Every value is contrast-checked; the working is in docs/LIGHT-MODE-PLAN.md §3.
+   ========================================================================== */
+
+/* == TOKENS:DARK == */
+:root {
+  color-scheme: dark;
+
+  /* ---- font stacks. The --font-*-* vars come from next/font on <html>. ---- */
+  --stack-sans: var(--font-inter-tight), "Inter Tight", "Inter", system-ui,
+    -apple-system, "Segoe UI", sans-serif;
+  --stack-mono: var(--font-jetbrains-mono), "JetBrains Mono", ui-monospace,
+    SFMono-Regular, Menlo, Consolas, monospace;
+  --stack-quote: var(--font-playfair), "Playfair Display", Georgia,
+    "Times New Roman", serif;
+
+  /* ---- dark ground ---- */
+  --background: #1a1a1a;          /* charcoal, never pure black */
+  --foreground: #fafafa;          /* warm white. 16.7:1 */
+  --muted: #2e2e2e;               /* the one elevated surface. 1.28:1, was #232323 at 1.11:1 */
+  --muted-foreground: #b8b8b8;    /* 8.77:1 on ground, 1.90:1 below --foreground */
+  --faint: #8a8a8a;               /* 5.04:1. Small readable mono only, never a sentence. */
+  /* aria-hidden ornament only; if a user has to read it, it is --faint. */
+  --decorative: #333333;          /* 1.38:1. Shape, not text. */
+
+  --accent: #39ff14;              /* the one accent. 12.8:1 */
+  --accent-foreground: #1a1a1a;
+  --attention: #ffb020;           /* the second accent. 9.5:1 */
+  --attention-foreground: #1a1a1a;
+
+  --border: #333333;              /* hairlines. 1.38:1, was #262626 at 1.15:1 */
+  --border-strong: #666666;       /* every control boundary. 3.0:1, WCAG 1.4.11 */
+  --border-hover: #404040;
+
+  --card: #0f0f0f;
+  --card-foreground: #fafafa;
+  --input: #1a1a1a;
+  --ring: #39ff14;
+
+  /* ---- the tie hatch. Drawn OVER an --attention fill, so it must oppose it. ---- */
+  --hatch: rgba(26, 26, 26, 0.55);
+
+  /* ---- the grain and the wireframe wallpaper ---- */
+  --grain-opacity: 0.015;
+  --grain-blend: normal;
+  --matter-opacity: 0.14;
+
+  /* ---- THE INVERTING BAND.
+          "paper" is historical. These tokens mean "the band that OPPOSES the
+          page", not "white": in dark mode the band is paper, in light mode it is
+          charcoal. `.paper-band` and `vine.css` read only these names, so both
+          invert for free. Read docs/LIGHT-MODE-PLAN.md §2.4 before renaming.
+          NEVER put --accent on this band. #39FF14 on #FAFAFA is 1.30:1 — which
+          is exactly why --paper-accent exists. ---- */
+  --paper: #fafafa;
+  --paper-ink: #1a1a1a;
+  --paper-muted: #5f5f5f;         /* 6.1:1 on paper */
+  --paper-accent: #1b7a00;        /* 5.3:1 on paper */
+  --paper-border: #d4d4d4;
+  --paper-surface: #f0f0f0;
+  --paper-faint: #c8c8c8;
+  --paper-border-strong: #8f8f8f;
+  --paper-border-hover: #a3a3a3;
+
+  /* ---- shadcn compatibility aliases. Several components/ui primitives read
+          these names. Mapping them here means those files need no edits. ---- */
+  --primary: #fafafa;
+  --primary-foreground: #1a1a1a;
+  --secondary: #232323;
+  --secondary-foreground: #fafafa;
+  --popover: #0f0f0f;
+  --popover-foreground: #fafafa;
+  --destructive: #fafafa;         /* no red in this build. See plan 2.3. */
+
+  /* ---- motion ---- */
+  --ease: cubic-bezier(0.25, 0, 0, 1);
+
+  /* ---- layout ---- */
+  --topbar-h: 64px;
+  --nav-w: 240px;
+  --nav-w-collapsed: 72px;
+
+  /* ---- the theme switch. Must equal THEME_WIPE_MS in lib/theme.tsx. ---- */
+  --theme-wipe-ms: 620ms;
+}
+/* == /TOKENS:DARK == */
+
+/* == TOKENS:LIGHT == */
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  /* ---- paper ground ---- */
+  --background: #fafafa;          /* never pure white */
+  --foreground: #1a1a1a;          /* 16.7:1 */
+  --muted: #e8e8e8;               /* the one elevated surface. 1.17:1, was #f0f0f0 at 1.09:1 */
+  --muted-foreground: #4a4a4a;    /* 8.49:1 on ground, 1.96:1 below --foreground */
+  --faint: #6b6b6b;               /* 5.11:1. Small readable mono only, never a sentence. */
+  --decorative: #e0e0e0;          /* aria-hidden ornament only. Shape, not text. */
+
+  /* NEON IS ILLEGAL ON THIS GROUND. Neon green on paper is 1.30:1. */
+  --accent: #1b7a00;              /* 5.25:1 */
+  --accent-foreground: #fafafa;
+  --attention: #9a5a00;           /* 5.25:1 — deliberately equal to --accent */
+  --attention-foreground: #fafafa;
+
+  --border: #d4d4d4;              /* hairlines. 1.42:1, was #e6e6e6 at 1.20:1 */
+  --border-strong: #8f8f8f;       /* every control boundary. 3.10:1, WCAG 1.4.11 */
+  --border-hover: #a3a3a3;
+
+  /* Dark recesses the card below the ground; light raises it above. */
+  --card: #ffffff;
+  --card-foreground: #1a1a1a;
+  --input: #fafafa;
+  --ring: #1b7a00;
+
+  --hatch: rgba(250, 250, 250, 0.55);
+
+  --grain-opacity: 0.03;
+  --grain-blend: multiply;
+  --matter-opacity: 0.07;
+
+  /* ---- the inverting band, now charcoal ---- */
+  --paper: #1a1a1a;
+  --paper-ink: #fafafa;
+  --paper-muted: #8a8a8a;         /* 5.04:1 on charcoal */
+  --paper-accent: #39ff14;        /* neon is legal here: 12.8:1 */
+  --paper-border: #262626;
+  --paper-surface: #232323;
+  --paper-faint: #4a4a4a;
+  --paper-border-strong: #666666;
+  --paper-border-hover: #404040;
+
+  /* ---- shadcn compatibility aliases ---- */
+  --primary: #1a1a1a;
+  --primary-foreground: #fafafa;
+  --secondary: #f0f0f0;
+  --secondary-foreground: #1a1a1a;
+  --popover: #ffffff;
+  --popover-foreground: #1a1a1a;
+  --destructive: #1a1a1a;         /* no red in this build */
+}
+/* == /TOKENS:LIGHT == */
+
+@media (min-width: 768px) {
+  :root { --topbar-h: 80px; }
+}
+
+/* ==========================================================================
+   THEME MAPPING
+   `inline` means utilities emit the referenced value rather than another var().
+   ========================================================================== */
+
+@theme inline {
+  /* ---- colour ---- */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-faint: var(--faint);
+  --color-decorative: var(--decorative);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-attention: var(--attention);
+  --color-attention-foreground: var(--attention-foreground);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-border-hover: var(--border-hover);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-paper: var(--paper);
+  --color-paper-ink: var(--paper-ink);
+  --color-paper-muted: var(--paper-muted);
+  --color-paper-accent: var(--paper-accent);
+  --color-paper-border: var(--paper-border);
+  --color-paper-surface: var(--paper-surface);
+  --color-paper-faint: var(--paper-faint);
+  --color-paper-border-strong: var(--paper-border-strong);
+  --color-paper-border-hover: var(--paper-border-hover);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-destructive: var(--destructive);
+
+  /* ---- families ---- */
+  --font-sans: var(--stack-sans);
+  --font-mono: var(--stack-mono);
+  --font-quote: var(--stack-quote);
+
+  /* ---- type scale. Overrides Tailwind's defaults. See plan 2.4.
+          --text-sm and --text-base carry body copy sites site-wide (table
+          cells, list metas, callouts, inputs) and never a heading — Heading's
+          own scale bottoms out at --text-lg. Raised for legibility; --text-lg
+          and up are untouched, so a heading never moves. Note this now sits
+          --text-base (22px) above --text-lg/--text-xl (18/20px): deliberate,
+          per direct instruction, and it means body copy can read larger than
+          the smallest one or two heading levels at their base breakpoint.
+          --text-xs is raised to meet --text-lg (18px): the site-wide floor is
+          15px, but --text-xs also backs .label — kickers, table headers,
+          status marks, breadcrumbs — which appears on every single screen and
+          reads as small next to the now much larger body copy at anything
+          near the bare floor, so it sits a clean step above it instead. It can
+          no longer sit below --text-sm the way an "extra small" step normally
+          would. ---- */
+  --text-xs: 1.125rem;
+  --text-xs--line-height: 1.6;
+  --text-sm: 1.25rem;
+  --text-sm--line-height: 1.6;
+  --text-base: 1.375rem;
+  --text-base--line-height: 1.6;
+  --text-lg: 1.125rem;
+  --text-lg--line-height: 1.75;
+  --text-xl: 1.25rem;
+  --text-xl--line-height: 1.25;
+  --text-2xl: 1.5rem;
+  --text-2xl--line-height: 1.25;
+  --text-3xl: 2rem;
+  --text-3xl--line-height: 1.1;
+  --text-4xl: 2.5rem;
+  --text-4xl--line-height: 1.1;
+  --text-5xl: 3.5rem;
+  --text-5xl--line-height: 1.1;
+  --text-6xl: 4.5rem;
+  --text-6xl--line-height: 1.1;
+  --text-7xl: 6rem;
+  --text-7xl--line-height: 1;
+  --text-8xl: 8rem;
+  --text-8xl--line-height: 1;
+  --text-9xl: 10rem;
+  --text-9xl--line-height: 1;
+
+  /* ---- tracking ---- */
+  --tracking-tighter: -0.06em;
+  --tracking-tight: -0.04em;
+  --tracking-normal: -0.01em;
+  --tracking-wide: 0.05em;
+  --tracking-wider: 0.1em;
+  --tracking-widest: 0.2em;
+
+  /* ---- leading ---- */
+  --leading-none: 1;
+  --leading-tight: 1.1;
+  --leading-snug: 1.25;
+  --leading-normal: 1.6;
+  --leading-relaxed: 1.75;
+
+  /* ---- radius: zero, at every key, so a stray rounded-* renders sharp ---- */
+  --radius: 0px;
+  --radius-none: 0px;
+  --radius-xs: 0px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
+  --radius-3xl: 0px;
+  --radius-4xl: 0px;
+
+  /* ---- shadow: none, at every key, so a stray shadow-* renders nothing ---- */
+  --shadow-2xs: 0 0 #0000;
+  --shadow-xs: 0 0 #0000;
+  --shadow-sm: 0 0 #0000;
+  --shadow-md: 0 0 #0000;
+  --shadow-lg: 0 0 #0000;
+  --shadow-xl: 0 0 #0000;
+  --shadow-2xl: 0 0 #0000;
+}
+
+/* ==========================================================================
+   BASE
+   ========================================================================== */
+
+@layer base {
+  /* ---------------------------------------------------------- THE RADIUS LOCK
+   * Sharp edges are the single most-violated rule of this design system and a
+   * missed `rounded-lg` is invisible in a diff. This makes the rule structural.
+   * Do not remove it. Do not add an exception. SVG shapes are unaffected.
+   */
+  *,
+  *::before,
+  *::after {
+    border-radius: 0 !important;
+  }
+
+  /* ----------------------------------------------------------- THE FOCUS LOCK
+   * Several components/ui primitives carry `outline-none` in their class
+   * strings; a utility layer beats a base layer on a specificity tie, so
+   * without !important they would win and the element would have no visible
+   * focus state. This guarantees every focusable element has one.
+   */
+  *:focus-visible {
+    outline: 2px solid var(--accent) !important;
+    outline-offset: 2px !important;
+  }
+
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    font-family: var(--stack-sans);
+    -webkit-text-size-adjust: 100%;
+    scrollbar-color: var(--border-strong) transparent;
+  }
+
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-size: 1.375rem;
+    line-height: 1.6;
+    letter-spacing: -0.01em;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    /* Nothing may cause a horizontal scrollbar. Wide tables scroll inside
+       their own container; see DataTable. */
+    overflow-x: hidden;
+  }
+
+  /* Headings carry no default size: every heading in this build states its own
+     responsive size, weight and tracking explicitly. This block only removes
+     the browser defaults so an unstyled heading is obviously wrong. */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--stack-sans);
+    font-weight: 600;
+    font-size: inherit;
+    line-height: 1.1;
+  }
+
+  ::selection {
+    background: var(--accent);
+    color: var(--accent-foreground);
+  }
+
+  /* --------------------------------------------------------------- THE GRAIN
+   * Fractal noise at 1.5% over the whole viewport. pointer-events:none means it
+   * can never intercept a click, so the very high z-index is safe.
+   */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: var(--grain-opacity);
+    mix-blend-mode: var(--grain-blend);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+  }
+}
+
+/* ==========================================================================
+   COMPONENT CLASSES
+   Five classes only. Everything else is Tailwind utilities at the call site.
+   ========================================================================== */
+
+/* The one micro-type class. Labels, never sentences. Replaces the old .eyebrow.
+   Kickers, table headers, status marks, breadcrumbs, nav captions — this is on
+   every screen, several times over, so it has to scale with the body copy
+   around it rather than stay pinned at its old, now much smaller, value. */
+.label {
+  font-family: var(--stack-mono);
+  font-size: 1.125rem;
+  line-height: 1.4;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* Tabular figures wherever a number carries meaning and columns must align. */
+.nums {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* Editorial reading surface: study notes, parent summaries, learn concept notes.
+   The lede is the one place Playfair appears inside the product. */
+.prose-editorial {
+  max-width: 68ch;
+}
+.prose-editorial > p {
+  font-size: 1.375rem;
+  line-height: 1.75;
+  letter-spacing: -0.01em;
+  color: var(--foreground);
+}
+.prose-editorial > p + p {
+  margin-top: 1.5rem;
+}
+.prose-editorial > p:first-of-type {
+  font-family: var(--stack-quote);
+  font-size: 1.5rem;
+  line-height: 1.6;
+  letter-spacing: 0;
+}
+.prose-editorial > h2 {
+  margin-top: 4rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+  font-size: 1.125rem;
+  font-family: var(--stack-mono);
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+.prose-editorial > h2 + p {
+  margin-top: 1.5rem;
+}
+
+/* Quiet scrollbars on any element that scrolls inside the page. */
+.app-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+.app-scroll::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.app-scroll::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+}
+
+/* The sonner package injects its own stylesheet at runtime via a JS
+   `<style>` insert, which lands after ours and ships its own 13px/12px
+   defaults — invisible to a grep of our own files, but real text on every
+   screen that calls toast() (mark-read, content-review approve/reject,
+   review-panel decisions). !important because we cannot rely on load order
+   against a runtime-injected sheet. */
+.cn-toast[data-sonner-toast] {
+  font-size: 1.125rem !important;
+}
+.cn-toast[data-sonner-toast] [data-button] {
+  font-size: 0.9375rem !important;
+}
+
+/* The inverting band. Re-points every token so children written against the page
+   palette keep working, inverted, with no per-child overrides. In dark mode this
+   band is paper; in light mode it is charcoal. There must be NO literal colour
+   in this rule — every value comes from a --paper-* token so the inversion is
+   automatic. See docs/LIGHT-MODE-PLAN.md §2.4. */
+.paper-band {
+  background: var(--paper);
+  color: var(--paper-ink);
+  --background: var(--paper);
+  --foreground: var(--paper-ink);
+  --muted-foreground: var(--paper-muted);
+  --faint: var(--paper-faint);
+  --decorative: var(--paper-faint);
+  --accent: var(--paper-accent);
+  --accent-foreground: var(--paper);
+  --border: var(--paper-border);
+  --border-strong: var(--paper-border-strong);
+  --border-hover: var(--paper-border-hover);
+  --card: var(--paper);
+  --muted: var(--paper-surface);
+}
+
+/* THE HERO IS ALWAYS DARK. The WebGL brain's Fresnel alphas are compiled into
+   GLSL at material-construction time (lib/landing/three/teal-material.ts), so
+   the brain cannot be re-themed without rebuilding a 2.5MB scene — and a 10%
+   transparent neon-green object on #fafafa would be invisible anyway. The hero
+   is the theatre, and the theatre keeps the lights down in both themes.
+
+   In dark mode every declaration here re-points a token to the value it already
+   holds: a deliberate no-op. Do NOT "simplify" it away.
+   See docs/LIGHT-MODE-PLAN.md §2.5. */
+.ink-stage {
+  color-scheme: dark;
+  color: #fafafa;
+  --background: #1a1a1a;
+  --foreground: #fafafa;
+  --muted: #2e2e2e;
+  --muted-foreground: #b8b8b8;
+  --faint: #8a8a8a;
+  --decorative: #333333;
+  --accent: #39ff14;
+  --accent-foreground: #1a1a1a;
+  --attention: #ffb020;
+  --attention-foreground: #1a1a1a;
+  --border: #333333;
+  --border-strong: #666666;
+  --border-hover: #404040;
+  --card: #0f0f0f;
+}
+
+/* ==========================================================================
+   MOTION
+   ========================================================================== */
+
+/* Route enter. The entire product motion budget, alongside CSS hover states. */
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+.page-enter {
+  animation: page-enter 200ms var(--ease);
+}
+
+/* Scroll reveal, landing only. Exactly the design system's specification:
+   opacity 0 to 1, translateY 20px to 0, 500ms, 80ms stagger, 100ms lead-in.
+   Elements start hidden ONLY once JS marks the scope ready, so a no-JS render
+   shows every word and every crawler sees the copy. */
+[data-reveal-scope="ready"] [data-reveal] {
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity 500ms var(--ease),
+    transform 500ms var(--ease);
+  transition-delay: calc(100ms + var(--reveal-i, 0) * 80ms);
+}
+[data-reveal-scope="ready"] [data-reveal].is-revealed {
+  opacity: 1;
+  transform: none;
+}
+
+/* Route view transitions. Chrome is frozen so only page content swaps. */
+::view-transition { pointer-events: none; }
+::view-transition-group(topbar),
+::view-transition-group(worknav) {
+  animation: none;
+}
+::view-transition-old(.page-swap) {
+  animation: 200ms var(--ease) both page-swap-out;
+}
+::view-transition-new(.page-swap) {
+  animation: 200ms var(--ease) both page-swap-in;
+}
+@keyframes page-swap-out {
+  from { opacity: 1; transform: none; }
+  to   { opacity: 0; transform: translateY(-6px); }
+}
+@keyframes page-swap-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  [data-reveal-scope="ready"] [data-reveal],
+  [data-reveal-scope="ready"] [data-reveal].is-revealed {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+/* ==========================================================================
+   FOCUS MODE
+   FocusFrame sets data-focus on <html>. Chrome is suppressed, not removed: the
+   wordmark stays, so there is always a way home that is not the back button.
+   ========================================================================== */
+
+html[data-focus="true"] .workspace-nav,
+html[data-focus="true"] .topbar-breadcrumb,
+html[data-focus="true"] .topbar-menu {
+  display: none;
+}
+
+/* Chrome is frozen across route transitions; only page content swaps. */
+.topbar { view-transition-name: topbar; }
+.workspace-nav { view-transition-name: worknav; }
+
+/* Off-screen until focused, then parked over the top bar. */
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 60;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--accent);
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--stack-mono);
+  font-size: 1.125rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transform: translateY(-200%);
+  transition: transform 150ms var(--ease);
+}
+.skip-link:focus-visible {
+  transform: none;
+}
+
+/* The only loading indicator in the build. A hairline that draws itself,
+   left to right and back. Replaces every spinner. */
+@keyframes rule-sweep {
+  0%    { transform: scaleX(0); transform-origin: left center; }
+  50%   { transform: scaleX(1); transform-origin: left center; }
+  50.1% { transform: scaleX(1); transform-origin: right center; }
+  100%  { transform: scaleX(0); transform-origin: right center; }
+}
+.rule-sweep {
+  height: 2px;
+  background: var(--accent);
+  animation: rule-sweep 1.2s var(--ease) infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .rule-sweep { animation: none; transform: none; opacity: 0.5; }
+}
+
+/* ==========================================================================
+   THE THEME SWITCH
+   Two layers: this one (a CSS-only mark morph, works everywhere) and the
+   circular page wipe below (View Transition API, progressive enhancement).
+   ========================================================================== */
+
+.theme-toggle-mark {
+  /* The rays sit at the viewBox edge; overflow must not clip them mid-rotation. */
+  overflow: visible;
+}
+
+.theme-toggle-mark .tk-bite,
+.theme-toggle-mark .tk-rays,
+.theme-toggle-mark .tk-disc {
+  /* view-box + center puts every child's transform origin at (12,12), the disc
+     centre, which is what makes the rays counter-rotate around the sun rather
+     than around their own midpoints. */
+  transform-box: view-box;
+  transform-origin: center;
+  transition:
+    transform 420ms var(--ease),
+    opacity 420ms var(--ease);
+}
+
+/* ---- dark: the sun (the state you would move TO) ---- */
+.theme-toggle-mark .tk-bite { transform: none; }
+.theme-toggle-mark .tk-rays { opacity: 1; transform: rotate(0deg) scale(1); }
+.theme-toggle-mark .tk-disc { transform: scale(1) rotate(0deg); }
+
+/* ---- light: the moon ---- */
+:root[data-theme="light"] .theme-toggle-mark .tk-bite {
+  transform: translate(-8px, 9px);
+}
+:root[data-theme="light"] .theme-toggle-mark .tk-rays {
+  opacity: 0;
+  transform: rotate(-45deg) scale(0.5);
+}
+:root[data-theme="light"] .theme-toggle-mark .tk-disc {
+  transform: scale(1.06) rotate(-18deg);
+}
+
+/* The two directions are deliberately asymmetric, and the asymmetry is carried
+   by specificity alone — no JS, no extra state:
+     going TO light, the light rule (0,3,0) wins and the rays retract with no
+       delay, so the disc is already closing as they fold away;
+     going TO dark, the base rule (0,2,0) applies and the rays wait 90ms, so the
+       crescent has filled back into a full disc BEFORE the sun grows its rays.
+   Without this the rays sprout out of a crescent, which reads as a mistake. */
+.theme-toggle-mark .tk-rays { transition-delay: 90ms; }
+:root[data-theme="light"] .theme-toggle-mark .tk-rays { transition-delay: 0ms; }
+
+/* --------------------------------------------------------------- the wipe
+ * Everything here is scoped to :root[data-theme-switch="1"], which lib/theme.tsx
+ * sets immediately BEFORE calling startViewTransition and clears when the
+ * transition settles. That scoping is load-bearing: without it these rules would
+ * also fire on every route navigation, which is a different view transition with
+ * a stale --theme-r.
+ */
+
+/* (a) The chrome is normally frozen across route swaps by its own
+ *     view-transition-name. During a theme switch it must instead be part of the
+ *     root snapshot — otherwise the header and sidebar are lifted into their own
+ *     un-animated groups and the wipe sweeps around two static holes. */
+:root[data-theme-switch="1"] .topbar,
+:root[data-theme-switch="1"] .workspace-nav {
+  view-transition-name: none;
+}
+
+/* (b) The old view is held perfectly still underneath; the new view is revealed
+ *     through an expanding circle centred on the button that was pressed.
+ *     mix-blend-mode MUST be reset: the UA stylesheet sets plus-lighter on both
+ *     snapshots for its default cross-fade, which would make the wipe glow at
+ *     the seam instead of cutting cleanly. */
+:root[data-theme-switch="1"]::view-transition-old(root) {
+  animation: none;
+  mix-blend-mode: normal;
+  z-index: 1;
+}
+:root[data-theme-switch="1"]::view-transition-new(root) {
+  animation: theme-wipe var(--theme-wipe-ms) var(--ease) both;
+  mix-blend-mode: normal;
+  z-index: 2;
+}
+
+/* Custom properties inherit from the document element into the
+   ::view-transition pseudo tree, which is how these keyframes read the origin
+   lib/theme.tsx wrote. The fallbacks cover a switch fired before any origin was
+   recorded (e.g. from another tab's storage event). */
+@keyframes theme-wipe {
+  from {
+    clip-path: circle(0px at var(--theme-x, 50%) var(--theme-y, 50%));
+  }
+  to {
+    clip-path: circle(var(--theme-r, 150vmax) at var(--theme-x, 50%) var(--theme-y, 50%));
+  }
+}
+
+/* (c) Lift the mark out of the page snapshot so it stays live above the sweep
+ *     and cross-rotates, instead of being frozen into the image. Exactly one
+ *     ThemeToggle is ever mounted (TopBar renders landing OR product slots), so
+ *     the name is guaranteed unique — do not add a second one elsewhere without
+ *     giving it a different name. */
+:root[data-theme-switch="1"] .theme-toggle-mark {
+  view-transition-name: theme-knob;
+}
+:root[data-theme-switch="1"]::view-transition-group(theme-knob) {
+  z-index: 3;
+}
+:root[data-theme-switch="1"]::view-transition-image-pair(theme-knob) {
+  isolation: auto;
+}
+:root[data-theme-switch="1"]::view-transition-old(theme-knob),
+:root[data-theme-switch="1"]::view-transition-new(theme-knob) {
+  mix-blend-mode: normal;
+  animation-duration: 420ms;
+  animation-timing-function: var(--ease);
+  animation-fill-mode: both;
+}
+:root[data-theme-switch="1"]::view-transition-old(theme-knob) {
+  animation-name: theme-knob-out;
+}
+:root[data-theme-switch="1"]::view-transition-new(theme-knob) {
+  animation-name: theme-knob-in;
+}
+@keyframes theme-knob-out {
+  from { opacity: 1; transform: none; }
+  to   { opacity: 0; transform: rotate(-120deg) scale(0.3); }
+}
+@keyframes theme-knob-in {
+  from { opacity: 0; transform: rotate(120deg) scale(0.3); }
+  to   { opacity: 1; transform: none; }
+}

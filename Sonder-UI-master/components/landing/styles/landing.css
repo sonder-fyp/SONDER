@@ -1,0 +1,19 @@
+/*
+ * Landing root. Tokens come from globals.css; this file only scopes
+ * scroll-margin and containment for the tall vine subtree.
+ */
+
+.sonder-landing {
+  position: relative;
+  min-height: 100dvh;
+  color: var(--foreground);
+  /* color-scheme is inherited from :root. The hero pins its own via .ink-stage. */
+}
+
+.sonder-landing [id] {
+  scroll-margin-top: calc(var(--topbar-h) + 8px);
+}
+
+.sonder-landing .vine-scroller {
+  contain: layout style;
+}

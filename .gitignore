@@ -1,0 +1,25 @@
+# Initial FYP repository: local dataset work is added later by a reviewed change.
+/Data_Maths-Phy-Chem/
+
+# Installed dependencies and generated output.
+**/node_modules/
+**/.next/
+**/out/
+**/build/
+**/dist/
+**/coverage/
+**/*.tsbuildinfo
+**/next-env.d.ts
+**/__pycache__/
+**/*.pyc
+
+# Local environments and secrets.
+**/.env
+**/.env.*
+**/*.pem
+
+# Editor and operating-system files.
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

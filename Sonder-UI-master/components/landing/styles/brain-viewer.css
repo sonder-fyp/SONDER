@@ -1,0 +1,325 @@
+/*
+ * Styles for <BrainViewer/>. Extracted and trimmed from app/globals.css of the
+ * Anatomy Atelier app — only the rules the 3D viewer, its hotspot callout, the
+ * tool rail, the tip note, the auto-rotate switch, the caption and the loader
+ * need. All selectors are scoped under `.brain-viewer` so this file can be
+ * dropped into any app without collisions.
+ *
+ * The original relied on Tailwind's reset and on JS-injected `--font-serif` /
+ * `--font-sans` variables from an i18n font loader. Both are replaced here with
+ * self-contained values + real fallback stacks.
+ */
+
+.brain-viewer {
+  /* palette (from :root in globals.css) */
+  --bv-ink: #e8ffe0;
+  --bv-muted: #7aab70;
+  --bv-paper: #06181f;
+  --bv-line: rgba(57, 255, 20, 0.16);
+  --bv-coral: #39FF14;
+  --bv-lavender: #9dff7a;
+  --bv-glass: rgba(10, 38, 12, 0.72);
+  --bv-font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+  --bv-font-sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 320px;
+  overflow: hidden;
+  color: var(--bv-ink);
+  font-family: var(--bv-font-sans);
+  font-size: 15px;
+  /* Transparent so the Aether particle canvas shows through behind the brain. */
+  background: transparent;
+}
+
+/* Opt-in bordered "card" look, matching the original .viewer-shell. */
+.brain-viewer.framed {
+  border: 1px solid var(--bv-line);
+  border-radius: 26px;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(57, 255, 20, 0.1);
+}
+
+.brain-viewer * { box-sizing: border-box; }
+.brain-viewer button,
+.brain-viewer input { font: inherit; color: inherit; }
+.brain-viewer button:focus-visible,
+.brain-viewer canvas:focus-visible {
+  outline: 2px solid #39FF14;
+  outline-offset: 3px;
+}
+
+.brain-viewer .viewer-glow {
+  position: absolute;
+  width: 420px;
+  height: 420px;
+  left: 50%;
+  top: 47%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--bv-organ-accent, var(--bv-coral)), transparent 94%);
+  filter: blur(72px);
+  opacity: 0.75;
+  pointer-events: none;
+}
+
+.brain-viewer .three-mount { position: absolute; inset: 0; }
+.brain-viewer .three-mount canvas { width: 100%; height: 100%; display: block; touch-action: none; }
+
+/* ---------------------------------------------------------------- tool rail */
+
+.brain-viewer .viewer-tools {
+  position: absolute;
+  inset-inline-start: 18px;
+  top: 50%;
+  z-index: 3;
+  transform: translateY(-50%);
+  width: 62px;
+  padding: 8px 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border: 1px solid var(--bv-line);
+  border-radius: 20px;
+  background: var(--bv-glass);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+.brain-viewer .tool-button {
+  height: 60px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  cursor: pointer;
+  font: 500 15px/1 var(--bv-font-serif);
+}
+.brain-viewer .tool-button.active { color: var(--bv-coral); background: rgba(57, 255, 20, 0.12); }
+.brain-viewer .tool-button:last-child { border-top: 1px solid var(--bv-line); border-radius: 0 0 12px 12px; }
+
+/* ---------------------------------------------------------------- tip note */
+
+.brain-viewer .tip-note {
+  position: absolute;
+  inset-inline-end: 16px;
+  top: 18px;
+  z-index: 2;
+  width: 155px;
+  min-height: 140px;
+  padding: 14px 17px;
+  transform: rotate(-4deg);
+  background: rgba(12, 46, 55, 0.85);
+  box-shadow: 0 7px 18px rgba(0, 0, 0, 0.4);
+  color: #cdeef0;
+}
+.brain-viewer .tip-note span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--bv-lavender);
+  font: italic 15px "Comic Sans MS", "Bradley Hand", cursive;
+}
+.brain-viewer .tip-note p { margin: 8px 0 0; font: 500 15px/1.55 var(--bv-font-serif); }
+
+/* ---------------------------------------------------------- hotspot callout */
+
+/* Anchor point only — the viewer writes the transform each frame so tracking a
+   spinning model costs no React renders. The dots themselves live in the canvas. */
+.brain-viewer .hotspot-callout {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 5;
+  width: 0;
+  height: 0;
+  will-change: transform;
+}
+.brain-viewer .callout-body {
+  position: absolute;
+  top: -30px;
+  width: 168px;
+  padding: 10px 26px 11px 12px;
+  border: 1px solid rgba(57, 255, 20, 0.18);
+  border-radius: 13px;
+  background: rgba(8, 32, 40, 0.88);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--hotspot-color), transparent 78%), 0 12px 28px rgba(0, 0, 0, 0.5);
+  animation: bv-callout-in 0.26s cubic-bezier(0.2, 0.85, 0.3, 1);
+  transition: opacity 0.2s ease;
+}
+.brain-viewer .hotspot-callout[data-side="right"] .callout-body { left: 22px; }
+.brain-viewer .hotspot-callout[data-side="left"] .callout-body { right: 22px; }
+.brain-viewer .hotspot-callout[data-behind="true"] .callout-body { opacity: 0.3; }
+.brain-viewer .callout-body::before {
+  content: "";
+  position: absolute;
+  top: 32px;
+  width: 18px;
+  height: 1px;
+  background: var(--hotspot-color);
+  opacity: 0.55;
+}
+.brain-viewer .hotspot-callout[data-side="right"] .callout-body::before { right: 100%; }
+.brain-viewer .hotspot-callout[data-side="left"] .callout-body::before { left: 100%; }
+.brain-viewer .callout-body b { display: block; padding-inline-start: 13px; font: 500 15px var(--bv-font-serif); }
+.brain-viewer .callout-body b::before {
+  content: "";
+  position: absolute;
+  left: 12px;
+  top: 15px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--hotspot-color);
+}
+.brain-viewer .callout-body small {
+  display: block;
+  margin-top: 3px;
+  padding-inline-start: 13px;
+  color: var(--bv-muted);
+  font-size: 15px;
+  line-height: 1.35;
+}
+.brain-viewer .callout-close {
+  position: absolute;
+  top: 6px;
+  inset-inline-end: 6px;
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--bv-muted);
+  cursor: pointer;
+}
+.brain-viewer .callout-close:hover { background: rgba(57, 255, 20, 0.14); }
+@keyframes bv-callout-in { from { opacity: 0; transform: translateX(-6px) scale(0.96); } }
+
+/* Screen-reader equivalent of the in-canvas dots. */
+.brain-viewer .hotspot-index {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------- auto-rotate switch */
+
+.brain-viewer .auto-rotate {
+  position: absolute;
+  inset-inline-end: 17px;
+  bottom: 16px;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--bv-line);
+  border-radius: 13px;
+  padding: 8px 10px 8px 12px;
+  background: var(--bv-glass);
+  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  font: 500 15px var(--bv-font-serif);
+}
+.brain-viewer .switch { width: 29px; height: 17px; padding: 2px; border-radius: 99px; background: #274852; }
+.brain-viewer .switch i { display: block; width: 13px; height: 13px; border-radius: 50%; background: #d8f7f5; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.17); }
+.brain-viewer .switch.on { background: #39FF14; }
+.brain-viewer .switch.on i { margin-inline-start: 12px; }
+
+/* ---------------------------------------------------------------- caption */
+
+.brain-viewer .view-caption {
+  position: absolute;
+  inset-inline-start: 98px;
+  bottom: 17px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  color: var(--bv-muted);
+  font-size: 15px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.brain-viewer .view-caption strong {
+  color: var(--bv-ink);
+  font: 500 16px var(--bv-font-serif);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* ---------------------------------------------------------------- loader */
+
+.brain-viewer .model-loader {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 8px;
+  background: rgba(5, 21, 27, 0.55);
+  backdrop-filter: blur(4px);
+}
+.brain-viewer .model-loader strong { font: 500 18px var(--bv-font-serif); }
+.brain-viewer .model-loader span { color: var(--bv-muted); font-size: 15px; }
+.brain-viewer .loader-orbit {
+  width: 48px;
+  height: 48px;
+  border: 1px dashed var(--bv-coral);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--bv-coral);
+  animation: bv-orbit 2.4s linear infinite;
+}
+@keyframes bv-orbit { to { transform: rotate(360deg); } }
+
+/* ---------------------------------------------------------------- responsive */
+
+@media (max-width: 760px) {
+  .brain-viewer .viewer-tools {
+    top: auto;
+    bottom: 12px;
+    left: 10px;
+    right: 10px;
+    transform: none;
+    width: auto;
+    height: 61px;
+    flex-direction: row;
+    justify-content: space-around;
+    padding: 4px;
+    border-radius: 15px;
+  }
+  .brain-viewer .tool-button { width: 51px; height: 51px; }
+  .brain-viewer .tool-button:last-child { border: 0; border-radius: 12px; }
+  .brain-viewer .tool-button span { display: none; }
+  .brain-viewer .auto-rotate { bottom: 82px; right: 10px; }
+  .brain-viewer .view-caption { left: 12px; bottom: 84px; }
+  .brain-viewer .tip-note { width: 130px; min-height: 113px; padding: 11px; }
+  .brain-viewer .tip-note p { font-size: 15px; }
+  .brain-viewer .callout-body { width: 148px; top: -26px; }
+}
+
+@media (max-width: 470px) {
+  .brain-viewer .tip-note { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brain-viewer *,
+  .brain-viewer *::before,
+  .brain-viewer *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

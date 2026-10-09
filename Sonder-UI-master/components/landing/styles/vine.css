@@ -1,0 +1,331 @@
+/*
+ * The vine, flattened to a 2D line drawing on paper.
+ *
+ * The five stacked spine strokes that made this read as an emissive 3D tube are
+ * gone: one 2px ink line replaces them. Colours come from the paper tokens, not
+ * from the brain's palette, because the vine no longer shares a material with
+ * the brain. It is a printed diagram now.
+ *
+ * The SVG viewBox is 1:1 with CSS pixels, so every stroke-width here is already
+ * in px and needs no scaling.
+ */
+
+.vine-scroller {
+  --v-ink: var(--paper-ink);
+  --v-accent: var(--paper-accent);
+  --v-muted: var(--paper-muted);
+  --v-line: var(--paper-border);
+
+  /* CONSTRAINED. The centred spine swings within the gutter this leaves. If you
+     widen it you MUST lower VINE_AMP_FRAC in vine-theme.ts to match; the worked
+     constraint is in that file's comment. Do not change it. */
+  --v-card-w: min(400px, 34%);
+
+  --v-ease: cubic-bezier(0.25, 0, 0, 1);
+
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  overflow: visible;
+  color: var(--v-ink);
+}
+
+/* ----------------------------------------------------------------- the svg */
+
+.vine-scroller .vine-svg {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  pointer-events: none;
+  /* Do NOT add will-change / translateZ(0): this element is about 5000px tall
+     and promoting it forces a roughly 30MB composited layer. */
+}
+
+/* --------------------------------------------------------------- the spine */
+
+/* NOTE: stroke-dasharray / stroke-dashoffset are set inline on the parent <g>
+   and inherit down to these. Never declare stroke-dasharray here. */
+
+.vine-scroller .vine-seg path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.vine-scroller .vine-spine-line {
+  stroke: var(--v-ink);
+  stroke-width: 2;
+  opacity: 1;
+}
+
+/* --------------------------------------------------------------- tendrils */
+
+.vine-scroller .vine-tendril path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-dasharray: var(--vine-len);
+  stroke-dashoffset: var(--vine-len);
+  transition: stroke-dashoffset 500ms var(--v-ease);
+}
+.vine-scroller .vine-tendril.is-open path {
+  stroke-dashoffset: 0;
+}
+.vine-scroller .vine-tendril-core {
+  stroke: var(--v-ink);
+  stroke-width: 1.25;
+  opacity: 0.55;
+}
+
+/* ----------------------------------------------------------------- leaves */
+
+.vine-scroller .vine-leaf-body {
+  fill: var(--v-ink);
+  fill-opacity: 0;
+  stroke: var(--v-ink);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  opacity: 0.75;
+  stroke-dasharray: var(--vine-len);
+  stroke-dashoffset: var(--vine-len);
+  transition:
+    stroke-dashoffset 500ms var(--v-ease),
+    fill-opacity 500ms var(--v-ease) 120ms;
+}
+.vine-scroller .vine-leaf.is-open .vine-leaf-body {
+  stroke-dashoffset: 0;
+  fill-opacity: 0.08;
+}
+
+.vine-scroller .vine-leaf-rib {
+  fill: none;
+  stroke: var(--v-accent);
+  stroke-width: 0.9;
+  opacity: 0;
+  transition: opacity 500ms var(--v-ease) 150ms;
+}
+.vine-scroller .vine-leaf.is-open .vine-leaf-rib {
+  opacity: 0.7;
+}
+
+/* --------------------------------------------------- branches + node knots */
+
+.vine-scroller .vine-branch-core {
+  fill: none;
+  stroke: var(--v-ink);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  opacity: 0.85;
+  stroke-dasharray: var(--vine-len);
+  stroke-dashoffset: var(--vine-len);
+  transition: stroke-dashoffset 500ms var(--v-ease);
+}
+.vine-scroller .vine-branch.is-open .vine-branch-core {
+  stroke-dashoffset: 0;
+}
+
+.vine-scroller .vine-knot-ring,
+.vine-scroller .vine-knot-dot,
+.vine-scroller .vine-tip {
+  opacity: 0;
+  transition: opacity 500ms var(--v-ease) 120ms;
+}
+.vine-scroller .vine-branch.is-open .vine-knot-ring,
+.vine-scroller .vine-branch.is-open .vine-knot-dot,
+.vine-scroller .vine-branch.is-open .vine-tip {
+  opacity: 1;
+}
+
+.vine-scroller .vine-knot-ring {
+  fill: var(--paper);
+  stroke: var(--v-accent);
+  stroke-width: 2;
+}
+.vine-scroller .vine-knot-dot {
+  fill: var(--v-accent);
+}
+.vine-scroller .vine-tip {
+  fill: var(--v-accent);
+  stroke: none;
+}
+
+/* ------------------------------------------------------------------ layout */
+
+.vine-scroller .vine-rows {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+}
+
+.vine-scroller .vine-row {
+  /* Deliberately NOT positioned: the cards' offsetParent must stay the section,
+     because measure() reads offsetTop/offsetLeft relative to it. */
+  display: flex;
+  width: 100%;
+  min-height: 84vh;
+  align-items: center;
+  padding: 0 clamp(20px, 5vw, 72px);
+}
+.vine-scroller .vine-row:first-child {
+  padding-top: 22vh;
+}
+.vine-scroller .vine-row[data-side="left"] {
+  justify-content: flex-start;
+  --v-node-dx: -22px;
+}
+.vine-scroller .vine-row[data-side="right"] {
+  justify-content: flex-end;
+  --v-node-dx: 22px;
+}
+
+.vine-scroller .vine-tail {
+  height: 42vh;
+}
+
+/* ------------------------------------------------------------------- nodes */
+
+/*
+ * PURE TYPE. No border, no fill, no blur, no shadow. The two declarations that
+ * are load-bearing and must never be removed:
+ *   position: static  -> keeps offsetParent = the section, which measure() needs
+ *   width             -> the branch geometry is computed from the card's edge
+ */
+.vine-scroller .vine-node {
+  position: static;
+  width: var(--v-card-w);
+  padding: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.vine-scroller .vine-node-index {
+  margin: 0;
+  font-family: var(--stack-mono);
+  font-size: 1.125rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  color: var(--v-accent);
+}
+
+.vine-scroller .vine-node-eyebrow {
+  margin: 10px 0 0;
+  font-family: var(--stack-mono);
+  font-size: 1.125rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--v-muted);
+}
+
+.vine-scroller .vine-node-title {
+  margin: 20px 0 0;
+  font-family: var(--stack-sans);
+  font-weight: 600;
+  font-size: clamp(1.75rem, 2.6vw, 2.5rem);
+  line-height: 1.1;
+  letter-spacing: -0.04em;
+  color: var(--v-ink);
+}
+
+.vine-scroller .vine-node-body {
+  margin: 20px 0 0;
+  font-size: 1.375rem;
+  line-height: 1.6;
+  letter-spacing: -0.01em;
+  color: var(--v-muted);
+}
+
+.vine-scroller .vine-node-meta {
+  margin: 24px 0 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--v-line);
+  font-family: var(--stack-mono);
+  font-size: 1.125rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--v-accent);
+}
+
+/* ------------------------------------------------------------------ reveal */
+
+/*
+ * Cards are visible by default. Only once the component has mounted and
+ * measured (data-ready="true") do they start hidden, so with JS disabled or
+ * broken the copy is still fully readable and crawlers always see it.
+ *
+ * Timings match the design system's reveal spec: 500ms, 20px, 80ms stagger.
+ */
+.vine-scroller[data-ready="true"] .vine-node {
+  opacity: 0;
+  transform: translate3d(var(--v-node-dx, 0), 20px, 0);
+  transition:
+    opacity 500ms var(--v-ease),
+    transform 500ms var(--v-ease);
+}
+.vine-scroller[data-ready="true"] .vine-node.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+.vine-scroller[data-ready="true"] .vine-node-index,
+.vine-scroller[data-ready="true"] .vine-node-eyebrow,
+.vine-scroller[data-ready="true"] .vine-node-title,
+.vine-scroller[data-ready="true"] .vine-node-body,
+.vine-scroller[data-ready="true"] .vine-node-meta {
+  opacity: 0;
+  transform: translate3d(0, 20px, 0);
+  transition:
+    opacity 500ms var(--v-ease),
+    transform 500ms var(--v-ease);
+}
+.vine-scroller[data-ready="true"] .vine-node.is-visible .vine-node-index { opacity: 1; transform: none; transition-delay: 0ms; }
+.vine-scroller[data-ready="true"] .vine-node.is-visible .vine-node-eyebrow { opacity: 1; transform: none; transition-delay: 80ms; }
+.vine-scroller[data-ready="true"] .vine-node.is-visible .vine-node-title { opacity: 1; transform: none; transition-delay: 160ms; }
+.vine-scroller[data-ready="true"] .vine-node.is-visible .vine-node-body { opacity: 1; transform: none; transition-delay: 240ms; }
+.vine-scroller[data-ready="true"] .vine-node.is-visible .vine-node-meta { opacity: 1; transform: none; transition-delay: 320ms; }
+
+/* ------------------------------------------------------------------- rail */
+
+@media (max-width: 859px) {
+  .vine-scroller .vine-row,
+  .vine-scroller .vine-row[data-side="left"],
+  .vine-scroller .vine-row[data-side="right"] {
+    justify-content: flex-end;
+    min-height: 68vh;
+    /* 92px reserves the rail. It must exceed VINE_RAIL_X_MAX + VINE_RAIL_AMP
+       (= 56) by at least VINE_BRANCH_GAP (16) or the branch points backwards. */
+    padding-left: 92px;
+    padding-right: clamp(16px, 5vw, 32px);
+    --v-node-dx: 18px;
+  }
+  .vine-scroller .vine-node {
+    width: 100%;
+  }
+}
+
+/* --------------------------------------------------------- reduced motion */
+
+@media (prefers-reduced-motion: reduce) {
+  .vine-scroller .vine-tendril path,
+  .vine-scroller .vine-leaf-body,
+  .vine-scroller .vine-leaf-rib,
+  .vine-scroller .vine-branch-core,
+  .vine-scroller .vine-knot-ring,
+  .vine-scroller .vine-knot-dot,
+  .vine-scroller .vine-tip,
+  .vine-scroller[data-ready="true"] .vine-node {
+    transition: none !important;
+    animation: none !important;
+  }
+  .vine-scroller[data-ready="true"] .vine-node,
+  .vine-scroller[data-ready="true"] .vine-node-index,
+  .vine-scroller[data-ready="true"] .vine-node-eyebrow,
+  .vine-scroller[data-ready="true"] .vine-node-title,
+  .vine-scroller[data-ready="true"] .vine-node-body,
+  .vine-scroller[data-ready="true"] .vine-node-meta {
+    opacity: 1;
+    transform: none;
+    transition: none !important;
+  }
+}
