@@ -16,7 +16,7 @@ concurrency:
 jobs:
   ci:
     name: ci
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04 # Pinned so a runner image change does not alter CI behaviour unexpectedly.
     timeout-minutes: 15
     defaults:
       run:
