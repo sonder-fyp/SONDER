@@ -26,6 +26,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const mode = chromeMode(pathname);
   const consultant = isChatSurface(pathname);
 
+  // The dev component gallery carries no product chrome.
+  if (mode === "gallery") {
+    return <div className="relative z-[1] min-h-dvh bg-transparent">{children}</div>;
+  }
+
   return (
     <div className="relative z-[1] min-h-dvh bg-transparent">
       <a
