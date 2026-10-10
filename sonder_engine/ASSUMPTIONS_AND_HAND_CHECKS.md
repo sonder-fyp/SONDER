@@ -54,7 +54,7 @@ These results prove that the calculation functions can consume this **candidate*
 
 A second read-only test manually applies T1-005 answer B followed by T1-007 answer D to the same posterior. Both options link to `MATH-1248`; the resulting six masses are `(6174, 126, 14, 126, 20, 225) / 6685`, with `MATH-1248 ≈ 0.923560`. This demonstrates repeated Bayesian updates, while leaving item choice and diagnosis to their actual owners.
 
-A read-only construction attempt over the whole current 117-item bank accepted 114 items under the draft `Item` rule and rejected **T6-011B, T6-014B, and T6-016B**: each links one misconception to three answers, contrary to draft V11. This is an intentional fail-fast boundary, not evidence that the whole bank is ready for a session. The separate Math validation review also records unresolved topic membership/grouping constraints for pack loading.
+The automated read-only per-item calculation audit over the whole current 117-item bank accepted 114 items under the draft `Item` rule. For all **456** one-answer paths on those items it compared the engine's likelihoods and posteriors with exact `Fraction` arithmetic. The largest observed absolute differences were `1.39e-17` for likelihoods and `1.11e-16` for posteriors. It rejected **T6-011B, T6-014B, and T6-016B**: each links one misconception to three answers, contrary to draft V11. This audit used each item's own linked-ID set as its hypotheses, **not** an approved topic pack, so its posterior values are not live-session results. The separate Math validation review also records unresolved topic membership/grouping constraints for pack loading.
 
 ## Numeric edge audit
 

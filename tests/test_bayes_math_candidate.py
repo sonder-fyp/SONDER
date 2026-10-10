@@ -62,45 +62,6 @@ class CurrentMathCandidateTests(unittest.TestCase):
                     self.assertTrue(np.all(after >= 0))
                     self.assertAlmostEqual(float(after.sum()), 1.0, places=12)
 
-    def test_all_t1_answers_match_an_exact_fraction_reference(self):
-        # This independent audit uses exact rational arithmetic instead of
-        # the production float64 likelihood/posterior functions for expected
-        # values. It checks values, not just normalization.
-        hyps, items = current_t1_candidate()
-        self.assertEqual(len(hyps), 6)
-        exact_prior = [Fraction(7, 40)] * 4 + [Fraction(1, 4), Fraction(1, 20)]
-        for item_id, item in items.items():
-            L = likelihood_matrix(item, hyps, Params())
-            starting = prior(hyps, Params())
-            for answer in range(4):
-                exact_likelihood = []
-                for h in hyps:
-                    if h == "UNMODELLED":
-                        chance = Fraction(1, 4)
-                    else:
-                        predicted = (
-                            [j for j, links in enumerate(item.links) if h in links]
-                            if h != "NONE" else []
-                        )
-                        rate = Fraction(3, 10) if predicted else Fraction(1, 10)
-                        if not predicted:
-                            predicted = [item.correct_index]
-                        chance = ((1 - rate) / len(predicted) if answer in predicted
-                                  else rate / (4 - len(predicted)))
-                    exact_likelihood.append(chance)
-                joint = [a * b for a, b in zip(exact_prior, exact_likelihood)]
-                denominator = sum(joint)
-                expected = [float(weight / denominator) for weight in joint]
-                with self.subTest(item=item_id, answer=item.option_ids[answer]):
-                    np.testing.assert_allclose(
-                        L[:, answer], [float(chance) for chance in exact_likelihood],
-                        rtol=0, atol=3e-16,
-                    )
-                    np.testing.assert_allclose(
-                        update_posterior(starting, L, answer), expected,
-                        rtol=0, atol=3e-16,
-                    )
-
     def test_current_t1_005_matches_independent_fraction_calculation(self):
         hyps, items = current_t1_candidate()
         self.assertEqual(hyps, (
@@ -134,6 +95,64 @@ class CurrentMathCandidateTests(unittest.TestCase):
         # multiplication gives the following numerators over 6685.
         np.testing.assert_allclose(p, [6174 / 6685, 126 / 6685, 14 / 6685,
                                        126 / 6685, 20 / 6685, 225 / 6685], atol=1e-15)
+
+    def test_every_current_bank_item_allowed_by_v11_matches_exact_arithmetic(self):
+        # This is a per-item calculation audit, not an approved topic-pack
+        # simulation. Cross-topic membership and pack size remain unresolved.
+        rows = defaultdict(list)
+        with (DATA / "bank" / "items.csv").open(newline="", encoding="utf-8-sig") as source:
+            for row in csv.DictReader(source):
+                rows[row["item_id"]].append(row)
+        self.assertGreaterEqual(len(rows), 114)
+        rejected = set()
+        checked_paths = 0
+        for item_id, option_rows in rows.items():
+            option_rows.sort(key=lambda row: row["option_id"])
+            links = tuple(tuple(filter(None, row["misconceptions"].split("|")))
+                          for row in option_rows)
+            correct = [i for i, row in enumerate(option_rows) if row["is_correct"] == "True"]
+            self.assertEqual(len(correct), 1, item_id)
+            try:
+                item = Item(item_id, tuple(row["option_id"] for row in option_rows),
+                            correct[0], links)
+            except ValueError as exc:
+                self.assertIn("more than two options", str(exc), item_id)
+                rejected.add(item_id)
+                continue
+            ids = tuple(sorted({m for option in links for m in option}))
+            hyps = ids + ("NONE", "UNMODELLED")
+            self.assertGreaterEqual(len(ids), 1, item_id)
+            p = prior(hyps, Params())
+            L = likelihood_matrix(item, hyps, Params())
+            exact_prior = [Fraction(7, 10 * len(ids))] * len(ids)
+            exact_prior += [Fraction(1, 4), Fraction(1, 20)]
+            for answer in range(4):
+                chances = []
+                for h in hyps:
+                    if h == "UNMODELLED":
+                        chance = Fraction(1, 4)
+                    else:
+                        predicted = ([j for j, option in enumerate(links) if h in option]
+                                     if h != "NONE" else [])
+                        rate = Fraction(3, 10) if predicted else Fraction(1, 10)
+                        if not predicted:
+                            predicted = [item.correct_index]
+                        chance = ((1 - rate) / len(predicted) if answer in predicted
+                                  else rate / (4 - len(predicted)))
+                    chances.append(chance)
+                joint = [a * b for a, b in zip(exact_prior, chances)]
+                evidence = sum(joint)
+                with self.subTest(item=item_id, answer=item.option_ids[answer]):
+                    np.testing.assert_allclose(
+                        L[:, answer], [float(x) for x in chances], rtol=0, atol=3e-16
+                    )
+                    np.testing.assert_allclose(
+                        update_posterior(p, L, answer),
+                        [float(x / evidence) for x in joint], rtol=0, atol=3e-16,
+                    )
+                checked_paths += 1
+        self.assertTrue(rejected <= {"T6-011B", "T6-014B", "T6-016B"})
+        self.assertGreaterEqual(checked_paths, 456)
 
 
 if __name__ == "__main__":
