@@ -1,6 +1,6 @@
 """Pure diagnostic calculations; no storage, service, or UI dependencies."""
 
-from .bayes import prior
+from .bayes import likelihood_matrix, prior
 from .model import Item, Params, validate_hypotheses
 
-__all__ = ["Item", "Params", "prior", "validate_hypotheses"]
+__all__ = ["Item", "Params", "likelihood_matrix", "prior", "validate_hypotheses"]
