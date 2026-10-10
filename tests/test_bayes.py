@@ -29,9 +29,24 @@ class ContractAndPriorTests(unittest.TestCase):
     def test_invalid_assumptions_are_rejected(self):
         for kwargs in ({"slip": 0.0}, {"guess": 0.5}, {"prior_none": float("nan")},
                        {"prior_unmodelled": float("inf")},
+                       {"slip": np.nextafter(0.0, 1.0)},
+                       {"guess": np.nextafter(0.0, 1.0)},
+                       {"prior_unmodelled": np.nextafter(0.0, 1.0)},
                        {"prior_none": 0.80, "prior_unmodelled": 0.25}):
             with self.subTest(kwargs=kwargs), self.assertRaises(ValueError):
                 Params(**kwargs)
+
+    def test_smallest_accepted_assumptions_stay_representable(self):
+        params = Params(slip=1e-12, guess=1e-12,
+                        prior_none=1e-12, prior_unmodelled=1e-12)
+        hyps = ("M1", "NONE", "UNMODELLED")
+        item = Item("Q", ("A", "B", "C", "D"), 0, ((), ("M1",), (), ()))
+        p = prior(hyps, params)
+        L = likelihood_matrix(item, hyps, params)
+        self.assertTrue(np.all(p > 0))
+        self.assertTrue(np.all(L > 0))
+        self.assertAlmostEqual(float(p.sum()), 1.0, places=12)
+        np.testing.assert_allclose(L.sum(axis=1), 1.0, atol=1e-12)
 
     def test_item_rejects_invalid_mapping(self):
         good = Item("Q1", ("A", "B", "C", "D"), 0, ((), ("M1",), (), ()))
