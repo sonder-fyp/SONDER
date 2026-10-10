@@ -1,4 +1,4 @@
--- Behaviour test for sonder_iteration1.sql (revision 2). Synthetic data only; never run on Neon main.
+-- Behaviour test for sonder_iteration1.sql (revision 3). Synthetic data only; never run on Neon main.
 -- Run on an EMPTY throwaway database after applying the schema script:
 --   psql -X -q -d <scratch_db> -f docs/db/iteration1/tests/behaviour_test.sql
 -- Output: one "ok" NOTICE per rejected case (Nxx) and a "PASS" NOTICE per positive check (Pxx).
@@ -70,7 +70,7 @@ INSERT INTO topic_misconception (topic_revision_id,misconception_revision_id,mem
  ('00000000-0000-0000-0000-000000000045','00000000-0000-0000-0000-000000000057','home',3,''),
  ('00000000-0000-0000-0000-000000000042','00000000-0000-0000-0000-000000000057','cross_topic',NULL,'Cross-concept item: fraction stem testing the Percent topic misconception');
 INSERT INTO source_reference (id,citation_key,citation,licence) VALUES ('00000000-0000-0000-0000-000000000061','synthetic2026','Synthetic source','CC-BY-4.0');
-INSERT INTO item (id,topic_revision_id,target_misconception_revision_id,external_id,stem,origin,author_id,llm_assisted,assistance_note,stem_family) VALUES
+INSERT INTO item (id,topic_revision_id,target_misconception_revision_id,external_id,stem,origin,author_id,llm_assisted,assistance_note,twin_group) VALUES
  ('00000000-0000-0000-0000-000000000071','00000000-0000-0000-0000-000000000042','00000000-0000-0000-0000-000000000054','MATH-Q1','1/2 + 1/3 = ?','curated','00000000-0000-0000-0000-0000000000a1',true,'Drafted with an LLM, checked by the author','FAM-Q1'),
  ('00000000-0000-0000-0000-000000000072','00000000-0000-0000-0000-000000000042','00000000-0000-0000-0000-000000000055','MATH-Q2','Which is larger?','authored','00000000-0000-0000-0000-0000000000a1',false,'',NULL),
  ('00000000-0000-0000-0000-000000000073','00000000-0000-0000-0000-000000000042','00000000-0000-0000-0000-000000000055','MATH-Q1B','1/2 + 1/3 = ?','authored','00000000-0000-0000-0000-0000000000a1',false,'','FAM-Q1'),
@@ -112,6 +112,16 @@ INSERT INTO hypothesis (id,content_version_id,kind,misconception_revision_id) VA
  ('00000000-0000-0000-0000-000000000098','00000000-0000-0000-0000-000000000031','misconception','00000000-0000-0000-0000-000000000057'),
  ('00000000-0000-0000-0000-000000000093','00000000-0000-0000-0000-000000000031','none',NULL),
  ('00000000-0000-0000-0000-000000000094','00000000-0000-0000-0000-000000000031','unmodelled',NULL);
+-- Units (spec v2 2.1): UA uses the cross-topic companion M3; UB is the two-misconception core.
+INSERT INTO diagnostic_unit (id,content_version_id,unit_code,name) VALUES
+ ('00000000-0000-0000-0000-0000000000d1','00000000-0000-0000-0000-000000000031','UA','Fractions with a Percent companion'),
+ ('00000000-0000-0000-0000-0000000000d2','00000000-0000-0000-0000-000000000031','UB','Fractions core');
+INSERT INTO unit_hypothesis (unit_id,hypothesis_id,slot) VALUES
+ ('00000000-0000-0000-0000-0000000000d1','00000000-0000-0000-0000-000000000091',0),('00000000-0000-0000-0000-0000000000d1','00000000-0000-0000-0000-000000000092',1),('00000000-0000-0000-0000-0000000000d1','00000000-0000-0000-0000-000000000098',2),
+ ('00000000-0000-0000-0000-0000000000d2','00000000-0000-0000-0000-000000000091',0),('00000000-0000-0000-0000-0000000000d2','00000000-0000-0000-0000-000000000092',1);
+INSERT INTO unit_item (unit_id,item_id) VALUES
+ ('00000000-0000-0000-0000-0000000000d1','00000000-0000-0000-0000-000000000071'),('00000000-0000-0000-0000-0000000000d1','00000000-0000-0000-0000-000000000072'),('00000000-0000-0000-0000-0000000000d1','00000000-0000-0000-0000-000000000073'),('00000000-0000-0000-0000-0000000000d1','00000000-0000-0000-0000-000000000074'),
+ ('00000000-0000-0000-0000-0000000000d2','00000000-0000-0000-0000-000000000071'),('00000000-0000-0000-0000-0000000000d2','00000000-0000-0000-0000-000000000072');
 COMMIT;
 SELECT pg_temp.check('P41 three-link option and cross-topic target item committed',
   (SELECT count(*) FROM option_misconception WHERE option_id = '00000000-0000-0000-0000-000000000f41') = 3
@@ -145,8 +155,14 @@ SELECT pg_temp.expect_fail('N09 LLM-assisted item without an assistance note',
  $q$UPDATE sonder.item SET assistance_note = '' WHERE id = '00000000-0000-0000-0000-000000000071'$q$);
 SELECT pg_temp.expect_fail('N10 review of a draft item (not yet in review)',
  $q$INSERT INTO sonder.item_review (item_id,review_round,reviewer_id,decision,note) VALUES ('00000000-0000-0000-0000-000000000071',1,'00000000-0000-0000-0000-0000000000a2','approved','ok')$q$);
-SELECT pg_temp.expect_fail('N41 V11: one misconception on three options of one item',
- $q$INSERT INTO sonder.option_misconception (option_id,misconception_revision_id,rationale) VALUES ('00000000-0000-0000-0000-00000000007d','00000000-0000-0000-0000-000000000054','third option for M1')$q$);
+INSERT INTO option_misconception (option_id,misconception_revision_id,rationale,link_grade) VALUES ('00000000-0000-0000-0000-00000000007d','00000000-0000-0000-0000-000000000054','third option for M1 (stretch)','T');
+SELECT pg_temp.check('P48 spec v2 V11: one misconception on three options of an item is accepted, stored as a stretch link',
+  (SELECT count(*) FROM option_misconception om JOIN item_option o ON o.id = om.option_id WHERE o.item_id = '00000000-0000-0000-0000-000000000071' AND om.misconception_revision_id = '00000000-0000-0000-0000-000000000054') = 3
+  AND (SELECT link_grade FROM option_misconception WHERE option_id = '00000000-0000-0000-0000-00000000007d') = 'T');
+SELECT pg_temp.expect_fail('N41 link grade other than S or T',
+ $q$INSERT INTO sonder.option_misconception (option_id,misconception_revision_id,rationale,link_grade) VALUES ('00000000-0000-0000-0000-00000000008d','00000000-0000-0000-0000-000000000055','x','X')$q$);
+SELECT pg_temp.expect_fail('N64 a unit hypothesis that is NONE (units list misconceptions only)',
+ $q$INSERT INTO sonder.unit_hypothesis (unit_id,hypothesis_id,slot) VALUES ('00000000-0000-0000-0000-0000000000d2','00000000-0000-0000-0000-000000000093',2)$q$);
 SELECT pg_temp.expect_fail('N42 cross-topic membership without a reason',
  $q$INSERT INTO sonder.topic_misconception (topic_revision_id,misconception_revision_id,membership,target_minimum,review_note) VALUES ('00000000-0000-0000-0000-000000000045','00000000-0000-0000-0000-000000000054','cross_topic',NULL,'')$q$);
 SELECT pg_temp.expect_fail('N43 a second home topic for the same misconception',
@@ -185,6 +201,20 @@ SELECT pg_temp.expect_fail('N17 delete an approved item',
  $q$DELETE FROM sonder.item WHERE id = '00000000-0000-0000-0000-000000000071'$q$);
 SELECT pg_temp.expect_fail('N18 alter a recorded review',
  $q$UPDATE sonder.item_review SET note = 'rewritten' WHERE item_id = '00000000-0000-0000-0000-000000000071'$q$);
+SELECT pg_temp.expect_fail('N65 V5'': freeze with a unit item whose link is outside the unit',
+ $q$DO $d$ BEGIN
+   INSERT INTO sonder.diagnostic_unit (id,content_version_id,unit_code,name) VALUES ('00000000-0000-0000-0000-0000000000d9','00000000-0000-0000-0000-000000000031','UBAD','Missing M3');
+   INSERT INTO sonder.unit_hypothesis (unit_id,hypothesis_id,slot) VALUES ('00000000-0000-0000-0000-0000000000d9','00000000-0000-0000-0000-000000000091',0),('00000000-0000-0000-0000-0000000000d9','00000000-0000-0000-0000-000000000092',1);
+   INSERT INTO sonder.unit_item (unit_id,item_id) VALUES ('00000000-0000-0000-0000-0000000000d9','00000000-0000-0000-0000-000000000074');
+   UPDATE sonder.content_version SET pack_sha256 = repeat('ab',32), status = 'frozen' WHERE id = '00000000-0000-0000-0000-000000000031';
+ END $d$$q$);
+SELECT pg_temp.expect_fail('N66 unit slots with a gap',
+ $q$DO $d$ BEGIN
+   INSERT INTO sonder.diagnostic_unit (id,content_version_id,unit_code,name) VALUES ('00000000-0000-0000-0000-0000000000d8','00000000-0000-0000-0000-000000000031','UGAP','Gap');
+   INSERT INTO sonder.unit_hypothesis (unit_id,hypothesis_id,slot) VALUES ('00000000-0000-0000-0000-0000000000d8','00000000-0000-0000-0000-000000000091',0),('00000000-0000-0000-0000-0000000000d8','00000000-0000-0000-0000-000000000092',2);
+   INSERT INTO sonder.unit_item (unit_id,item_id) VALUES ('00000000-0000-0000-0000-0000000000d8','00000000-0000-0000-0000-000000000072');
+   UPDATE sonder.content_version SET pack_sha256 = repeat('ab',32), status = 'frozen' WHERE id = '00000000-0000-0000-0000-000000000031';
+ END $d$$q$);
 SELECT pg_temp.expect_fail('N19 freeze without a pack hash',
  $q$UPDATE sonder.content_version SET status = 'frozen' WHERE id = '00000000-0000-0000-0000-000000000031'$q$);
 
@@ -194,20 +224,22 @@ SELECT pg_temp.expect_fail('N20 rename a topic in the frozen pack',
  $q$UPDATE sonder.topic_revision SET name = 'Renamed' WHERE id = '00000000-0000-0000-0000-000000000042'$q$);
 SELECT pg_temp.expect_fail('N21 add an item to the frozen pack',
  $q$INSERT INTO sonder.item (topic_revision_id,target_misconception_revision_id,external_id,stem,origin,author_id) VALUES ('00000000-0000-0000-0000-000000000042','00000000-0000-0000-0000-000000000054','MATH-Q9','x','authored','00000000-0000-0000-0000-0000000000a1')$q$);
+SELECT pg_temp.expect_fail('N67 add an item to a unit of the frozen pack',
+ $q$INSERT INTO sonder.unit_item (unit_id,item_id) VALUES ('00000000-0000-0000-0000-0000000000d2','00000000-0000-0000-0000-000000000074')$q$);
 SELECT pg_temp.expect_fail('N22 unfreeze the pack',
  $q$UPDATE sonder.content_version SET status = 'draft' WHERE id = '00000000-0000-0000-0000-000000000031'$q$);
 SELECT pg_temp.expect_fail('N46 engine params with theta + theta_unmodelled <= 1 (P3)',
- $q$INSERT INTO sonder.engine_params (params_version,params_sha256,slip,guess,prior_none,prior_unmodelled,theta,theta_unmodelled,min_support,min_support_none,delta_sep,eig_floor,default_budget)
-    VALUES ('bad',repeat('d',64),0.1,0.3,0.25,0.05,0.6,0.3,3,3,0.05,0.01,8)$q$);
+ $q$INSERT INTO sonder.engine_params (params_version,params_sha256,slip,guess,prior_none,prior_unmodelled,theta,theta_unmodelled,min_support,min_support_none,delta_sep,eig_floor,default_budget,k_max,w_sound,w_stretch)
+    VALUES ('bad',repeat('d',64),0.1,0.3,0.25,0.05,0.6,0.3,3,3,0.05,0.01,8,8,1.0,0.5)$q$);
 SELECT pg_temp.expect_fail('N47 engine params with guess >= 0.5 (P1)',
- $q$INSERT INTO sonder.engine_params (params_version,params_sha256,slip,guess,prior_none,prior_unmodelled,theta,theta_unmodelled,min_support,min_support_none,delta_sep,eig_floor,default_budget)
-    VALUES ('bad2',repeat('e',64),0.1,0.5,0.25,0.05,0.8,0.5,3,3,0.05,0.01,8)$q$);
+ $q$INSERT INTO sonder.engine_params (params_version,params_sha256,slip,guess,prior_none,prior_unmodelled,theta,theta_unmodelled,min_support,min_support_none,delta_sep,eig_floor,default_budget,k_max,w_sound,w_stretch)
+    VALUES ('bad2',repeat('e',64),0.1,0.5,0.25,0.05,0.8,0.5,3,3,0.05,0.01,8,8,1.0,0.5)$q$);
 SELECT pg_temp.expect_fail('N48 engine params with min_support_none < min_support (P4)',
- $q$INSERT INTO sonder.engine_params (params_version,params_sha256,slip,guess,prior_none,prior_unmodelled,theta,theta_unmodelled,min_support,min_support_none,delta_sep,eig_floor,default_budget)
-    VALUES ('bad3',repeat('f',64),0.1,0.3,0.25,0.05,0.8,0.5,3,2,0.05,0.01,8)$q$);
+ $q$INSERT INTO sonder.engine_params (params_version,params_sha256,slip,guess,prior_none,prior_unmodelled,theta,theta_unmodelled,min_support,min_support_none,delta_sep,eig_floor,default_budget,k_max,w_sound,w_stretch)
+    VALUES ('bad3',repeat('f',64),0.1,0.3,0.25,0.05,0.8,0.5,3,2,0.05,0.01,8,8,1.0,0.5)$q$);
 BEGIN;
-INSERT INTO engine_params (id,params_version,params_sha256,slip,guess,prior_none,prior_unmodelled,theta,theta_unmodelled,min_support,min_support_none,delta_sep,eig_floor,default_budget)
- VALUES ('00000000-0000-0000-0000-000000000099','params-v1',repeat('c',64),0.10,0.30,0.25,0.05,0.80,0.50,3,3,0.05,0.01,8);
+INSERT INTO engine_params (id,params_version,params_sha256,slip,guess,prior_none,prior_unmodelled,theta,theta_unmodelled,min_support,min_support_none,delta_sep,eig_floor,default_budget,k_max,w_sound,w_stretch)
+ VALUES ('00000000-0000-0000-0000-000000000099','params-v1',repeat('c',64),0.10,0.20,0.25,0.05,0.80,0.50,3,3,0.05,0.01,8,8,1.0,0.5);
 INSERT INTO response_model (id,content_version_id,engine_params_id,model_code,source,calibration_note) VALUES
  ('00000000-0000-0000-0000-000000000095','00000000-0000-0000-0000-000000000031','00000000-0000-0000-0000-000000000099','prior-v1','prior','Assumed slip/guess; not calibrated');
 INSERT INTO response_parameter (response_model_id,hypothesis_id,slip,guess)
@@ -226,6 +258,20 @@ SELECT pg_temp.expect_fail('N23 freeze a response model with a non-normalised di
    UPDATE sonder.response_probability SET probability = probability + 0.01 WHERE option_id = '00000000-0000-0000-0000-00000000007a' AND hypothesis_id = '00000000-0000-0000-0000-000000000093';
    UPDATE sonder.response_model SET status = 'frozen' WHERE id = '00000000-0000-0000-0000-000000000095';
  END $d$$q$);
+CREATE OR REPLACE FUNCTION pg_temp.try_model(ver text, guess numeric, kmax integer) RETURNS void LANGUAGE plpgsql AS $$
+DECLARE ep uuid := gen_random_uuid(); rm uuid := gen_random_uuid();
+BEGIN
+ INSERT INTO sonder.engine_params (id,params_version,params_sha256,slip,guess,prior_none,prior_unmodelled,theta,theta_unmodelled,min_support,min_support_none,delta_sep,eig_floor,default_budget,k_max,w_sound,w_stretch)
+ VALUES (ep,ver,encode(sha256(convert_to(ver,'UTF8')),'hex'),0.10,guess,0.25,0.05,0.80,0.50,3,3,0.05,0.01,8,kmax,1.0,0.5);
+ INSERT INTO sonder.response_model (id,content_version_id,engine_params_id,model_code,source,calibration_note) VALUES (rm,'00000000-0000-0000-0000-000000000031',ep,ver,'prior','test');
+ INSERT INTO sonder.response_probability (response_model_id,hypothesis_id,option_id,probability)
+ SELECT rm, hypothesis_id, option_id, probability FROM sonder.response_probability WHERE response_model_id = '00000000-0000-0000-0000-000000000095';
+ UPDATE sonder.response_model SET status = 'frozen' WHERE id = rm;
+END $$;
+SELECT pg_temp.expect_fail('N68 P1: guess 0.30 with a misconception on three options of a unit item',
+ $q$SELECT pg_temp.try_model('p1-test',0.30,8)$q$);
+SELECT pg_temp.expect_fail('N69 k_max smaller than the largest unit',
+ $q$SELECT pg_temp.try_model('kmax-test',0.20,2)$q$);
 UPDATE response_model SET status = 'frozen' WHERE id = '00000000-0000-0000-0000-000000000095';
 INSERT INTO engine_release (id,release_code,code_hash,selection_policy)
  VALUES ('00000000-0000-0000-0000-000000000096','engine-0.1.0',repeat('c',40),'max EIG rounded to 1e-9; ties -> pack order');
@@ -237,8 +283,8 @@ SELECT pg_temp.expect_fail('N49 change engine params after use',
 CREATE OR REPLACE FUNCTION pg_temp.start_run(sid uuid, rkey text, first_item uuid, extra_candidates uuid[] DEFAULT '{}') RETURNS uuid LANGUAGE plpgsql AS $$
 DECLARE qid uuid := gen_random_uuid(); c uuid; r integer := 1;
 BEGIN
- INSERT INTO sonder.diagnostic_session (id,enrolment_id,response_model_id,engine_release_id,topic_revision_id,question_budget,request_key)
- VALUES (sid,'00000000-0000-0000-0000-0000000000e1','00000000-0000-0000-0000-000000000095','00000000-0000-0000-0000-000000000096','00000000-0000-0000-0000-000000000042',3,rkey);
+ INSERT INTO sonder.diagnostic_session (id,enrolment_id,response_model_id,engine_release_id,unit_id,question_budget,request_key)
+ VALUES (sid,'00000000-0000-0000-0000-0000000000e1','00000000-0000-0000-0000-000000000095','00000000-0000-0000-0000-000000000096','00000000-0000-0000-0000-0000000000d1',3,rkey);
  INSERT INTO sonder.session_hypothesis (session_id,hypothesis_id,slot,prior_probability) VALUES
   (sid,'00000000-0000-0000-0000-000000000091',0,0.7/3),(sid,'00000000-0000-0000-0000-000000000092',1,0.7/3),
   (sid,'00000000-0000-0000-0000-000000000098',2,0.7/3),(sid,'00000000-0000-0000-0000-000000000093',3,0.25),
@@ -295,7 +341,7 @@ SELECT pg_temp.expect_fail('N28 answer that reuses an earlier request key (idemp
  $q$INSERT INTO sonder.session_step (session_id,step_index,session_question_id,answer_option_id,request_key,calculation_ms,answer_note) VALUES ('00000000-0000-0000-0001-000000000001',1,'00000000-0000-0000-0001-000000000022','00000000-0000-0000-0000-00000000008a','ans-1',3,'n')$q$);
 SELECT pg_temp.expect_fail('N53 candidate ranking that increases in EIG',
  $q$DO $d$ DECLARE sid uuid := gen_random_uuid(); q uuid := gen_random_uuid(); BEGIN
-   INSERT INTO sonder.diagnostic_session (id,enrolment_id,response_model_id,engine_release_id,question_budget,request_key) VALUES (sid,'00000000-0000-0000-0000-0000000000e1','00000000-0000-0000-0000-000000000095','00000000-0000-0000-0000-000000000096',3,'rising-eig');
+   INSERT INTO sonder.diagnostic_session (id,enrolment_id,response_model_id,engine_release_id,unit_id,question_budget,request_key) VALUES (sid,'00000000-0000-0000-0000-0000000000e1','00000000-0000-0000-0000-000000000095','00000000-0000-0000-0000-000000000096','00000000-0000-0000-0000-0000000000d2',3,'rising-eig');
    INSERT INTO sonder.session_hypothesis (session_id,hypothesis_id,slot,prior_probability) VALUES
     (sid,'00000000-0000-0000-0000-000000000091',0,0.35),(sid,'00000000-0000-0000-0000-000000000092',1,0.35),(sid,'00000000-0000-0000-0000-000000000093',2,0.25),(sid,'00000000-0000-0000-0000-000000000094',3,0.05);
    INSERT INTO sonder.session_question (id,session_id,step_index,item_id,selection_reason,entropy_before,expected_ig) VALUES (q,sid,0,'00000000-0000-0000-0000-000000000071','x',2,0.5);
@@ -338,12 +384,12 @@ SELECT pg_temp.expect_fail('N32 question in a finished session',
 -- ================================================================ slot, prior and ranking checks on new runs
 SELECT pg_temp.expect_fail('N55 duplicate hypothesis slot in a run',
  $q$DO $d$ DECLARE sid uuid := gen_random_uuid(); BEGIN
-   INSERT INTO sonder.diagnostic_session (id,enrolment_id,response_model_id,engine_release_id,question_budget,request_key) VALUES (sid,'00000000-0000-0000-0000-0000000000e1','00000000-0000-0000-0000-000000000095','00000000-0000-0000-0000-000000000096',3,'dup-slot');
+   INSERT INTO sonder.diagnostic_session (id,enrolment_id,response_model_id,engine_release_id,unit_id,question_budget,request_key) VALUES (sid,'00000000-0000-0000-0000-0000000000e1','00000000-0000-0000-0000-000000000095','00000000-0000-0000-0000-000000000096','00000000-0000-0000-0000-0000000000d2',3,'dup-slot');
    INSERT INTO sonder.session_hypothesis (session_id,hypothesis_id,slot,prior_probability) VALUES (sid,'00000000-0000-0000-0000-000000000091',0,0.35),(sid,'00000000-0000-0000-0000-000000000092',0,0.35);
  END $d$$q$);
 SELECT pg_temp.expect_fail('N56 NONE placed before the misconceptions (slot order)',
  $q$DO $d$ DECLARE sid uuid := gen_random_uuid(); q uuid := gen_random_uuid(); BEGIN
-   INSERT INTO sonder.diagnostic_session (id,enrolment_id,response_model_id,engine_release_id,topic_revision_id,question_budget,request_key) VALUES (sid,'00000000-0000-0000-0000-0000000000e1','00000000-0000-0000-0000-000000000095','00000000-0000-0000-0000-000000000096','00000000-0000-0000-0000-000000000042',3,'bad-order');
+   INSERT INTO sonder.diagnostic_session (id,enrolment_id,response_model_id,engine_release_id,unit_id,question_budget,request_key) VALUES (sid,'00000000-0000-0000-0000-0000000000e1','00000000-0000-0000-0000-000000000095','00000000-0000-0000-0000-000000000096','00000000-0000-0000-0000-0000000000d2',3,'bad-order');
    INSERT INTO sonder.session_hypothesis (session_id,hypothesis_id,slot,prior_probability) VALUES
     (sid,'00000000-0000-0000-0000-000000000093',0,0.25),(sid,'00000000-0000-0000-0000-000000000091',1,0.35),(sid,'00000000-0000-0000-0000-000000000092',2,0.35),(sid,'00000000-0000-0000-0000-000000000094',3,0.05);
    INSERT INTO sonder.session_question (id,session_id,step_index,item_id,selection_reason,entropy_before,expected_ig) VALUES (q,sid,0,'00000000-0000-0000-0000-000000000071','x',2,0.5);
@@ -351,22 +397,42 @@ SELECT pg_temp.expect_fail('N56 NONE placed before the misconceptions (slot orde
  END $d$$q$);
 SELECT pg_temp.expect_fail('N57 NONE prior differs from the pinned engine parameters',
  $q$DO $d$ DECLARE sid uuid := gen_random_uuid(); q uuid := gen_random_uuid(); BEGIN
-   INSERT INTO sonder.diagnostic_session (id,enrolment_id,response_model_id,engine_release_id,topic_revision_id,question_budget,request_key) VALUES (sid,'00000000-0000-0000-0000-0000000000e1','00000000-0000-0000-0000-000000000095','00000000-0000-0000-0000-000000000096','00000000-0000-0000-0000-000000000042',3,'bad-prior');
+   INSERT INTO sonder.diagnostic_session (id,enrolment_id,response_model_id,engine_release_id,unit_id,question_budget,request_key) VALUES (sid,'00000000-0000-0000-0000-0000000000e1','00000000-0000-0000-0000-000000000095','00000000-0000-0000-0000-000000000096','00000000-0000-0000-0000-0000000000d2',3,'bad-prior');
    INSERT INTO sonder.session_hypothesis (session_id,hypothesis_id,slot,prior_probability) VALUES
     (sid,'00000000-0000-0000-0000-000000000091',0,0.3),(sid,'00000000-0000-0000-0000-000000000092',1,0.3),(sid,'00000000-0000-0000-0000-000000000093',2,0.35),(sid,'00000000-0000-0000-0000-000000000094',3,0.05);
    INSERT INTO sonder.session_question (id,session_id,step_index,item_id,selection_reason,entropy_before,expected_ig) VALUES (q,sid,0,'00000000-0000-0000-0000-000000000071','x',2,0.5);
    INSERT INTO sonder.question_candidate (session_question_id,item_id,rank,eig) VALUES (q,'00000000-0000-0000-0000-000000000071',1,0.5);
  END $d$$q$);
+SELECT pg_temp.expect_fail('N70 run shows an item that is not in its unit',
+ $q$DO $d$ DECLARE sid uuid := gen_random_uuid(); BEGIN
+   INSERT INTO sonder.diagnostic_session (id,enrolment_id,response_model_id,engine_release_id,unit_id,question_budget,request_key) VALUES (sid,'00000000-0000-0000-0000-0000000000e1','00000000-0000-0000-0000-000000000095','00000000-0000-0000-0000-000000000096','00000000-0000-0000-0000-0000000000d2',3,'out-of-unit');
+   INSERT INTO sonder.session_hypothesis (session_id,hypothesis_id,slot,prior_probability) VALUES
+    (sid,'00000000-0000-0000-0000-000000000091',0,0.35),(sid,'00000000-0000-0000-0000-000000000092',1,0.35),(sid,'00000000-0000-0000-0000-000000000093',2,0.25),(sid,'00000000-0000-0000-0000-000000000094',3,0.05);
+   INSERT INTO sonder.session_question (session_id,step_index,item_id,selection_reason,entropy_before,expected_ig) VALUES (sid,0,'00000000-0000-0000-0000-000000000074','x',2,0.5);
+ END $d$$q$);
+SELECT pg_temp.expect_fail('N71 run prior for a misconception outside its unit',
+ $q$DO $d$ DECLARE sid uuid := gen_random_uuid(); BEGIN
+   INSERT INTO sonder.diagnostic_session (id,enrolment_id,response_model_id,engine_release_id,unit_id,question_budget,request_key) VALUES (sid,'00000000-0000-0000-0000-0000000000e1','00000000-0000-0000-0000-000000000095','00000000-0000-0000-0000-000000000096','00000000-0000-0000-0000-0000000000d2',3,'foreign-hyp');
+   INSERT INTO sonder.session_hypothesis (session_id,hypothesis_id,slot,prior_probability) VALUES (sid,'00000000-0000-0000-0000-000000000098',0,0.35);
+ END $d$$q$);
+SELECT pg_temp.expect_fail('N72 run that omits one of its unit''s hypotheses',
+ $q$DO $d$ DECLARE sid uuid := gen_random_uuid(); q uuid := gen_random_uuid(); BEGIN
+   INSERT INTO sonder.diagnostic_session (id,enrolment_id,response_model_id,engine_release_id,unit_id,question_budget,request_key) VALUES (sid,'00000000-0000-0000-0000-0000000000e1','00000000-0000-0000-0000-000000000095','00000000-0000-0000-0000-000000000096','00000000-0000-0000-0000-0000000000d1',3,'short-list');
+   INSERT INTO sonder.session_hypothesis (session_id,hypothesis_id,slot,prior_probability) VALUES
+    (sid,'00000000-0000-0000-0000-000000000091',0,0.35),(sid,'00000000-0000-0000-0000-000000000092',1,0.35),(sid,'00000000-0000-0000-0000-000000000093',2,0.25),(sid,'00000000-0000-0000-0000-000000000094',3,0.05);
+   INSERT INTO sonder.session_question (id,session_id,step_index,item_id,selection_reason,entropy_before,expected_ig) VALUES (q,sid,0,'00000000-0000-0000-0000-000000000071','x',2,0.5);
+   INSERT INTO sonder.question_candidate (session_question_id,item_id,rank,eig) VALUES (q,'00000000-0000-0000-0000-000000000071',1,0.5);
+ END $d$$q$);
 SELECT pg_temp.expect_fail('N58 question without a candidate ranking',
  $q$DO $d$ DECLARE sid uuid := gen_random_uuid(); BEGIN
-   INSERT INTO sonder.diagnostic_session (id,enrolment_id,response_model_id,engine_release_id,question_budget,request_key) VALUES (sid,'00000000-0000-0000-0000-0000000000e1','00000000-0000-0000-0000-000000000095','00000000-0000-0000-0000-000000000096',3,'no-rank');
+   INSERT INTO sonder.diagnostic_session (id,enrolment_id,response_model_id,engine_release_id,unit_id,question_budget,request_key) VALUES (sid,'00000000-0000-0000-0000-0000000000e1','00000000-0000-0000-0000-000000000095','00000000-0000-0000-0000-000000000096','00000000-0000-0000-0000-0000000000d2',3,'no-rank');
    INSERT INTO sonder.session_hypothesis (session_id,hypothesis_id,slot,prior_probability) VALUES
     (sid,'00000000-0000-0000-0000-000000000091',0,0.35),(sid,'00000000-0000-0000-0000-000000000092',1,0.35),(sid,'00000000-0000-0000-0000-000000000093',2,0.25),(sid,'00000000-0000-0000-0000-000000000094',3,0.05);
    INSERT INTO sonder.session_question (session_id,step_index,item_id,selection_reason,entropy_before,expected_ig) VALUES (sid,0,'00000000-0000-0000-0000-000000000071','x',2,0.5);
  END $d$$q$);
 SELECT pg_temp.expect_fail('N59 rank-1 candidate is not the presented item',
  $q$DO $d$ DECLARE sid uuid := gen_random_uuid(); q uuid := gen_random_uuid(); BEGIN
-   INSERT INTO sonder.diagnostic_session (id,enrolment_id,response_model_id,engine_release_id,question_budget,request_key) VALUES (sid,'00000000-0000-0000-0000-0000000000e1','00000000-0000-0000-0000-000000000095','00000000-0000-0000-0000-000000000096',3,'wrong-rank1');
+   INSERT INTO sonder.diagnostic_session (id,enrolment_id,response_model_id,engine_release_id,unit_id,question_budget,request_key) VALUES (sid,'00000000-0000-0000-0000-0000000000e1','00000000-0000-0000-0000-000000000095','00000000-0000-0000-0000-000000000096','00000000-0000-0000-0000-0000000000d2',3,'wrong-rank1');
    INSERT INTO sonder.session_hypothesis (session_id,hypothesis_id,slot,prior_probability) VALUES
     (sid,'00000000-0000-0000-0000-000000000091',0,0.35),(sid,'00000000-0000-0000-0000-000000000092',1,0.35),(sid,'00000000-0000-0000-0000-000000000093',2,0.25),(sid,'00000000-0000-0000-0000-000000000094',3,0.05);
    INSERT INTO sonder.session_question (id,session_id,step_index,item_id,selection_reason,entropy_before,expected_ig) VALUES (q,sid,0,'00000000-0000-0000-0000-000000000071','x',2,0.5);
@@ -418,7 +484,7 @@ SELECT pg_temp.check('P46 abandoned run keeps its pending question', (SELECT cou
 
 -- ================================================================ class / context checks (unchanged rules)
 SELECT pg_temp.expect_fail('N33 Math run in a class that does not teach Math',
- $q$INSERT INTO sonder.diagnostic_session (enrolment_id,response_model_id,engine_release_id,question_budget,request_key) VALUES ('00000000-0000-0000-0000-0000000000e2','00000000-0000-0000-0000-000000000095','00000000-0000-0000-0000-000000000096',5,'x')$q$);
+ $q$INSERT INTO sonder.diagnostic_session (enrolment_id,response_model_id,engine_release_id,unit_id,question_budget,request_key) VALUES ('00000000-0000-0000-0000-0000000000e2','00000000-0000-0000-0000-000000000095','00000000-0000-0000-0000-000000000096','00000000-0000-0000-0000-0000000000d2',5,'x')$q$);
 SELECT pg_temp.expect_fail('N34 enrol a teacher account as a student',
  $q$INSERT INTO sonder.enrolment (class_id,student_id) VALUES ('00000000-0000-0000-0000-000000000021','00000000-0000-0000-0000-0000000000b1')$q$);
 SELECT pg_temp.expect_fail('N35 enrol the same student twice in one class',
@@ -435,7 +501,7 @@ SELECT pg_temp.expect_fail('N38 change a user''s role',
 SELECT pg_temp.expect_fail('N39 run against a draft (unfrozen) response model',
  $q$DO $d$ BEGIN
    INSERT INTO sonder.response_model (id,content_version_id,engine_params_id,model_code,source,calibration_note) VALUES ('00000000-0000-0000-0000-0000000000f9','00000000-0000-0000-0000-000000000031','00000000-0000-0000-0000-000000000099','draft-model','prior','x');
-   INSERT INTO sonder.diagnostic_session (enrolment_id,response_model_id,engine_release_id,question_budget,request_key) VALUES ('00000000-0000-0000-0000-0000000000e1','00000000-0000-0000-0000-0000000000f9','00000000-0000-0000-0000-000000000096',5,'y');
+   INSERT INTO sonder.diagnostic_session (enrolment_id,response_model_id,engine_release_id,unit_id,question_budget,request_key) VALUES ('00000000-0000-0000-0000-0000000000e1','00000000-0000-0000-0000-0000000000f9','00000000-0000-0000-0000-000000000096','00000000-0000-0000-0000-0000000000d2',5,'y');
  END $d$$q$);
 SELECT pg_temp.expect_fail('N40 delete audit history',
  $q$DELETE FROM sonder.audit_event$q$);

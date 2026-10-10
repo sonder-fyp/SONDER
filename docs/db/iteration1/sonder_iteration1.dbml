@@ -2,8 +2,8 @@
 // Generated from the PostgreSQL catalogue after running sonder_iteration1.sql; the SQL is authoritative.
 // Triggers (freeze, review, four-option, append-only and trace checks) are not expressible in DBML; see the plan.
 // The derived view sonder.step_support (support counts per step) is not drawn; see the plan.
-// Coverage: 38 tables, 229 columns, 61 foreign keys, 11 secondary indexes.
-// sonder_iteration1.sql SHA-256: 5d7422e7b2e620fa1772fe71ad9d2d0c8d06fe335271b709d41995896212b0f3
+// Coverage: 41 tables, 244 columns, 66 foreign keys, 11 secondary indexes.
+// sonder_iteration1.sql SHA-256: 30a7f0cc7c01b6dcf979b7697d8a801efd46c8d6f1f630e818cdd441bcbf943d
 
 Project Sonder_Iteration_1 {
   database_type: 'PostgreSQL'
@@ -292,7 +292,7 @@ Table sonder.item [headercolor: #8B5CF6] {
   llm_assisted boolean [not null, default: `false`]
   assistance_note text [not null, default: `''`]
   review_status text [not null, default: `'draft'`]
-  stem_family text
+  twin_group text
 
   indexes {
     (topic_revision_id, external_id) [unique, name: 'item_topic_revision_id_external_id_key']
@@ -306,10 +306,10 @@ Table sonder.item [headercolor: #8B5CF6] {
     `(origin IN ('authored', 'curated'))`
     `(review_status IN ('draft', 'in_review', 'approved', 'rejected'))`
     `(length(btrim(stem)) > 0)`
-    `((stem_family IS NULL) OR (length(btrim(stem_family)) > 0))`
+    `((twin_group IS NULL) OR (length(btrim(twin_group)) > 0))`
   }
 
-  Note: 'Math content pack. A four-option question: stem, topic, target misconception, author, LLM-assistance disclosure, review state, stem family for A/B twins. State machine on review_status: starts draft; allowed draft -> in_review, in_review -> approved, in_review -> rejected, rejected -> draft.'
+  Note: 'Math content pack. A four-option question: stem, topic, target misconception, author, LLM-assistance disclosure, review state, twin group for A/B twins. State machine on review_status: starts draft; allowed draft -> in_review, in_review -> approved, in_review -> rejected, rejected -> draft.'
 }
 
 Table sonder.item_option [headercolor: #8B5CF6] {
@@ -337,13 +337,18 @@ Table sonder.option_misconception [headercolor: #8B5CF6] {
   option_id uuid [not null]
   misconception_revision_id uuid [not null]
   rationale text [not null]
+  link_grade text [not null, default: `'S'`]
 
   indexes {
     (option_id, misconception_revision_id) [unique, name: 'option_misconception_option_id_misconception_revision_id_key']
     (misconception_revision_id, option_id) [name: 'option_mapping_reverse_idx', note: 'Q-matrix inspection: which options point at a misconception.']
   }
 
-  Note: 'Math content pack. Q-matrix: a wrong option\'s link to up to three misconceptions, with rationale; a misconception sits on at most two options of an item.'
+  checks {
+    `(link_grade IN ('S', 'T'))`
+  }
+
+  Note: 'Math content pack. Q-matrix: a wrong option\'s link to up to three misconceptions, with rationale and link grade (S sound, T stretch).'
 }
 
 Table sonder.item_source [headercolor: #8B5CF6] {
@@ -379,6 +384,54 @@ Table sonder.item_review [headercolor: #8B5CF6] {
   }
 
   Note: 'Math content pack. A recorded review decision (approved or rejected) by someone other than the author.'
+}
+
+Table sonder.diagnostic_unit [headercolor: #0EA5E9] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  content_version_id uuid [not null]
+  unit_code text [not null]
+  name text [not null]
+
+  indexes {
+    (content_version_id, unit_code) [unique, name: 'diagnostic_unit_content_version_id_unit_code_key']
+  }
+
+  checks {
+    `(length(btrim(name)) > 0)`
+    `(length(btrim(unit_code)) > 0)`
+  }
+
+  Note: 'Diagnostic units. The session scope (spec v2): a named unit of a pack with its own hypothesis list and item list.'
+}
+
+Table sonder.unit_hypothesis [headercolor: #0EA5E9] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  unit_id uuid [not null]
+  hypothesis_id uuid [not null]
+  slot smallint [not null]
+
+  indexes {
+    (unit_id, hypothesis_id) [unique, name: 'unit_hypothesis_unit_id_hypothesis_id_key']
+    (unit_id, slot) [unique, name: 'unit_hypothesis_unit_id_slot_key']
+  }
+
+  checks {
+    `(slot >= 0)`
+  }
+
+  Note: 'Diagnostic units. A unit\'s misconception hypotheses in slot order 0..k-1 (NONE and UNMODELLED follow implicitly).'
+}
+
+Table sonder.unit_item [headercolor: #0EA5E9] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  unit_id uuid [not null]
+  item_id uuid [not null]
+
+  indexes {
+    (unit_id, item_id) [unique, name: 'unit_item_unit_id_item_id_key']
+  }
+
+  Note: 'Diagnostic units. Which items a unit may ask; an item may belong to several units, and all its links must be unit hypotheses.'
 }
 
 Table sonder.hypothesis [headercolor: #F59E0B] {
@@ -424,9 +477,13 @@ Table sonder.engine_params [headercolor: #F59E0B] {
   delta_sep numeric [not null]
   eig_floor numeric [not null]
   default_budget integer [not null]
+  k_max integer [not null]
+  w_sound numeric [not null]
+  w_stretch numeric [not null]
   created_at timestamptz [not null, default: `now()`]
 
   checks {
+    `(w_stretch <= w_sound)`
     `((prior_none + prior_unmodelled) < (1))`
     `((theta + theta_unmodelled) > (1))`
     `(min_support_none >= min_support)`
@@ -434,6 +491,7 @@ Table sonder.engine_params [headercolor: #F59E0B] {
     `((delta_sep >= (0)) AND (delta_sep < 0.5))`
     `(eig_floor >= (0))`
     `((guess > (0)) AND (guess < 0.5))`
+    `(k_max >= 1)`
     `(min_support >= 1)`
     `(params_sha256 ~ '^[0-9a-f]{64}$')`
     `(length(btrim(params_version)) > 0)`
@@ -442,9 +500,11 @@ Table sonder.engine_params [headercolor: #F59E0B] {
     `((slip > (0)) AND (slip < 0.5))`
     `((theta > 0.5) AND (theta < (1)))`
     `((theta_unmodelled > (0)) AND (theta_unmodelled < (1)))`
+    `((w_sound > (0)) AND (w_sound <= (1)))`
+    `(w_stretch >= (0))`
   }
 
-  Note: 'Engine model (frozen inputs). One versioned, hashed engine parameter file: slip, guess, reserved priors, thresholds, support rules, budget (all assumed).'
+  Note: 'Engine model (frozen inputs). One versioned, hashed engine parameter file: slip, guess, reserved priors, thresholds, support rules, budget, K_MAX, link weights (all assumed).'
 }
 
 Table sonder.response_model [headercolor: #F59E0B] {
@@ -511,7 +571,7 @@ Table sonder.diagnostic_session [headercolor: #EF4444] {
   enrolment_id uuid [not null]
   response_model_id uuid [not null]
   engine_release_id uuid [not null]
-  topic_revision_id uuid
+  unit_id uuid [not null]
   question_budget integer [not null]
   request_key text [not null]
   started_at timestamptz [not null, default: `now()`]
@@ -531,7 +591,7 @@ Table sonder.diagnostic_session [headercolor: #EF4444] {
     `(status IN ('in_progress', 'diagnosed', 'none_detected', 'escalated_no_separator', 'escalated_exhausted', 'escalated_unmodelled', 'abandoned'))`
   }
 
-  Note: 'Diagnostic runs. One diagnostic run for one enrolment, pinned to a response model and engine release; outcome status. State machine on status: starts in_progress; allowed in_progress -> diagnosed, in_progress -> none_detected, in_progress -> escalated_no_separator, in_progress -> escalated_exhausted, in_progress -> escalated_unmodelled, in_progress -> abandoned.'
+  Note: 'Diagnostic runs. One diagnostic run for one enrolment on one diagnostic unit, pinned to a response model and engine release; outcome status. State machine on status: starts in_progress; allowed in_progress -> diagnosed, in_progress -> none_detected, in_progress -> escalated_no_separator, in_progress -> escalated_exhausted, in_progress -> escalated_unmodelled, in_progress -> abandoned.'
 }
 
 Table sonder.session_hypothesis [headercolor: #EF4444] {
@@ -551,7 +611,7 @@ Table sonder.session_hypothesis [headercolor: #EF4444] {
     `(slot >= 0)`
   }
 
-  Note: 'Diagnostic runs. Each hypothesis in a run, its slot (order used for ties and replay) and its prior probability.'
+  Note: 'Diagnostic runs. Each hypothesis in a run (exactly its unit\'s list plus NONE and UNMODELLED), its slot and its prior probability.'
 }
 
 Table sonder.session_question [headercolor: #EF4444] {
@@ -745,6 +805,12 @@ TableGroup "Math content pack" [color: #8B5CF6] {
   sonder.item_review
 }
 
+TableGroup "Diagnostic units" [color: #0EA5E9] {
+  sonder.diagnostic_unit
+  sonder.unit_hypothesis
+  sonder.unit_item
+}
+
 TableGroup "Engine model (frozen inputs)" [color: #F59E0B] {
   sonder.hypothesis
   sonder.engine_release
@@ -800,6 +866,11 @@ Ref: sonder.item_source.item_id > sonder.item.id [delete: cascade]
 Ref: sonder.item_source.source_id > sonder.source_reference.id [delete: restrict]
 Ref: sonder.item_review.item_id > sonder.item.id [delete: restrict]
 Ref: sonder.item_review.reviewer_id > sonder.app_user.id [delete: restrict]
+Ref: sonder.diagnostic_unit.content_version_id > sonder.content_version.id [delete: restrict]
+Ref: sonder.unit_hypothesis.hypothesis_id > sonder.hypothesis.id [delete: restrict]
+Ref: sonder.unit_hypothesis.unit_id > sonder.diagnostic_unit.id [delete: restrict]
+Ref: sonder.unit_item.item_id > sonder.item.id [delete: restrict]
+Ref: sonder.unit_item.unit_id > sonder.diagnostic_unit.id [delete: restrict]
 Ref: sonder.hypothesis.content_version_id > sonder.content_version.id [delete: restrict]
 Ref: sonder.hypothesis.misconception_revision_id > sonder.misconception_revision.id [delete: restrict]
 Ref: sonder.response_model.content_version_id > sonder.content_version.id [delete: restrict]
@@ -812,7 +883,7 @@ Ref: sonder.response_probability.response_model_id > sonder.response_model.id [d
 Ref: sonder.diagnostic_session.engine_release_id > sonder.engine_release.id [delete: restrict]
 Ref: sonder.diagnostic_session.enrolment_id > sonder.enrolment.id [delete: restrict]
 Ref: sonder.diagnostic_session.response_model_id > sonder.response_model.id [delete: restrict]
-Ref: sonder.diagnostic_session.topic_revision_id > sonder.topic_revision.id [delete: restrict]
+Ref: sonder.diagnostic_session.unit_id > sonder.diagnostic_unit.id [delete: restrict]
 Ref: sonder.session_hypothesis.hypothesis_id > sonder.hypothesis.id [delete: restrict]
 Ref: sonder.session_hypothesis.session_id > sonder.diagnostic_session.id [delete: restrict]
 Ref: sonder.session_question.item_id > sonder.item.id [delete: restrict]

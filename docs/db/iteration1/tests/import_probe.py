@@ -1,6 +1,9 @@
 """Throwaway import probe: load data/Maths_v2 into the Iteration 1 schema and report what fits.
 
 It prints SQL that runs inside ONE transaction and ends with ROLLBACK, so nothing is kept.
+It also declares the seven diagnostic units of spec v2 (docs/ENGINE_SPEC_DRAFT.md sections 1.2 and
+2.1), freezes the pack, and tries to freeze response models built with the spec's likelihood
+(section 3.1) at two guess rates, to show where rule P1 bites.
 Each item is loaded in its own sub-block; a rejected item is recorded with the database's
 reason and the load continues. This is NOT the real importer (task T05.07): accounts are
 synthetic placeholders and review attribution is not resolved (see the plan, section 12).
@@ -38,6 +41,20 @@ stems = collections.defaultdict(list)
 for iid, opts in items.items():
     stems[opts[0]["stem"].strip()].append(iid)
 family = {i: min(ids) for ids in stems.values() if len(ids) > 1 for i in ids}
+
+UNITS = [  # (code, name, items.csv labels, companion misconceptions)
+    ("U1", "Rounding", ["T1 Rounding"], []),
+    ("U2", "Conversion", ["T2 Fractions, decimals and percentage conversion"], []),
+    ("U3", "Percentage of an amount", ["T3 Percentage of an amount"], ["MATH-1074", "MATH-1651", "MATH-2359"]),
+    ("U4", "Choosing the operation", ["T4 Choosing the operation", "T5 cross-concept (operation version)"], ["MATH-2093"]),
+    ("U5", "Powers and roots", ["T5 Powers and roots"], []),
+    ("U6", "Time and unit conversion", ["T6 Time and unit conversion (seconds and hours)", "T6 x multiplication/division (operation version)",
+                                        "T6 x percentage / more / less than (time version)"], ["MATH-1416", "MATH-2359"]),
+    ("U7", "Negatives, inverse operations, fraction bar", ["T7 Negatives, inverse operations, fraction bar"], ["MATH-1514", "MATH-1773", "MATH-1715"]),
+]
+own = collections.defaultdict(list)
+for t in topics:
+    own[t["topic"].split(" ")[0]].append(t["MisconceptionId"])
 
 out = []
 w = out.append
@@ -80,7 +97,7 @@ for iid, opts in items.items():
     pre = iid.split("-")[0]
     fam = lit(family[iid]) if iid in family else "NULL"
     body = [f"DECLARE it uuid := gen_random_uuid(); op uuid; BEGIN",
-            f" INSERT INTO item (id,topic_revision_id,target_misconception_revision_id,external_id,stem,batch,origin,author_id,llm_assisted,assistance_note,stem_family) "
+            f" INSERT INTO item (id,topic_revision_id,target_misconception_revision_id,external_id,stem,batch,origin,author_id,llm_assisted,assistance_note,twin_group) "
             f" SELECT it, tr.id, mr.id, {lit(iid)}, {lit(f['stem'])}, {lit(f['batch'])}, 'authored', '00000000-0000-0000-0000-00000000aa01', true, {lit(note)}, {fam} "
             f" FROM topic_revision tr JOIN topic tp ON tp.id = tr.topic_id, misconception_revision mr JOIN misconception m ON m.id = mr.misconception_id "
             f" WHERE tp.external_id = {lit(pre)} AND m.external_id = {lit(f['target'])};"]
@@ -98,19 +115,58 @@ for iid, opts in items.items():
 
 w("INSERT INTO hypothesis (content_version_id,kind,misconception_revision_id) SELECT '00000000-0000-0000-0000-00000000bb02','misconception',id FROM misconception_revision;")
 w("INSERT INTO hypothesis (content_version_id,kind) VALUES ('00000000-0000-0000-0000-00000000bb02','none'),('00000000-0000-0000-0000-00000000bb02','unmodelled');")
+for code, name, labels, companions in UNITS:
+    pre = labels[0].split(" ")[0]
+    hyps = own[pre] + companions
+    w(f"INSERT INTO diagnostic_unit (content_version_id,unit_code,name) VALUES ('00000000-0000-0000-0000-00000000bb02',{lit(code)},{lit(name)});")
+    for slot, mid in enumerate(hyps):
+        w(f"INSERT INTO unit_hypothesis (unit_id,hypothesis_id,slot) SELECT u.id, h.id, {slot} FROM diagnostic_unit u, hypothesis h "
+          f"JOIN misconception_revision mr ON mr.id = h.misconception_revision_id JOIN misconception m ON m.id = mr.misconception_id "
+          f"WHERE u.unit_code = {lit(code)} AND m.external_id = {lit(mid)};")
+    w(f"INSERT INTO unit_item (unit_id,item_id) SELECT u.id, i.id FROM diagnostic_unit u, item i "
+      f"WHERE u.unit_code = {lit(code)} AND i.external_id IN ({','.join(lit(x) for x, o in items.items() if o[0]['topic'] in labels)});")
 w(f"""DO $f$ BEGIN
  UPDATE content_version SET pack_sha256 = {lit(pack_sha)}, status = 'frozen' WHERE id = '00000000-0000-0000-0000-00000000bb02';
  RAISE NOTICE 'FREEZE: pack froze successfully (items.csv sha256 {pack_sha[:12]}...)';
 EXCEPTION WHEN others THEN RAISE NOTICE 'FREEZE: refused -> %', SQLERRM; END $f$;""")
+w("""CREATE FUNCTION pg_temp.try_model(ver text, g numeric) RETURNS void LANGUAGE plpgsql AS $m$
+DECLARE ep uuid := gen_random_uuid(); rm uuid := gen_random_uuid();
+BEGIN
+ INSERT INTO engine_params (id,params_version,params_sha256,slip,guess,prior_none,prior_unmodelled,theta,theta_unmodelled,min_support,min_support_none,delta_sep,eig_floor,default_budget,k_max,w_sound,w_stretch)
+ VALUES (ep,ver,encode(sha256(convert_to(ver,'UTF8')),'hex'),0.10,g,0.25,0.05,0.80,0.50,3,3,0.05,0.01,8,8,1.0,0.5);
+ INSERT INTO response_model (id,content_version_id,engine_params_id,model_code,source,calibration_note)
+ VALUES (rm,'00000000-0000-0000-0000-00000000bb02',ep,ver,'prior','Spec v2 3.1 likelihood; assumed parameters');
+ -- Spec v2 3.1: P(o|h,i) = (1-e)/|P| on the predicted set, e/(4-|P|) elsewhere; UNMODELLED uniform.
+ INSERT INTO response_probability (response_model_id,hypothesis_id,option_id,probability)
+ SELECT rm, h.id, o.id,
+        CASE WHEN h.kind = 'unmodelled' THEN 0.25
+             WHEN s.n > 0 THEN CASE WHEN s.linked THEN (1 - g) / s.n ELSE g / (4 - s.n) END
+             ELSE CASE WHEN o.is_correct THEN 0.90 ELSE 0.10 / 3 END END
+ FROM hypothesis h CROSS JOIN item_option o JOIN item i ON i.id = o.item_id
+ CROSS JOIN LATERAL (SELECT count(*) FILTER (WHERE om.misconception_revision_id = h.misconception_revision_id) AS n,
+                            bool_or(om.option_id = o.id AND om.misconception_revision_id = h.misconception_revision_id) AS linked
+                     FROM item_option o2 LEFT JOIN option_misconception om ON om.option_id = o2.id WHERE o2.item_id = i.id) s
+ WHERE h.content_version_id = '00000000-0000-0000-0000-00000000bb02' AND i.review_status = 'approved';
+ UPDATE response_model SET status = 'frozen' WHERE id = rm;
+ RAISE NOTICE 'RESPONSE MODEL %: froze (guess %)', ver, g;
+EXCEPTION WHEN others THEN RAISE NOTICE 'RESPONSE MODEL %: refused -> %', ver, SQLERRM;
+END $m$;""")
+w("SELECT pg_temp.try_model('spec-default-guess-0.30', 0.30);")
+w("SELECT pg_temp.try_model('guess-0.24', 0.24);")
 w("\\echo '== loaded'")
 w("SELECT (SELECT count(*) FROM item) AS items, (SELECT count(*) FROM item_option) AS options, "
-  "(SELECT count(*) FROM option_misconception) AS links, (SELECT count(*) FROM item WHERE stem_family IS NOT NULL) AS twin_items, "
+  "(SELECT count(*) FROM option_misconception) AS links, (SELECT count(*) FROM item WHERE twin_group IS NOT NULL) AS twin_items, "
   "(SELECT count(*) FROM topic_misconception WHERE membership = 'cross_topic') AS cross_topic_rows;")
 w("\\echo '== loaded by group (operation-version twins = bank labels containing \"operation version\")'")
 w("SELECT CASE WHEN b.label LIKE '%operation version%' THEN 'operation-version twins' ELSE 'eligible (non-twin)' END AS grp, count(*) AS bank_items, "
   "count(*) FILTER (WHERE i.id IS NOT NULL) AS loaded, count(*) FILTER (WHERE r.item_id IS NOT NULL) AS rejected "
   "FROM (VALUES " + ",".join(f"({lit(i)},{lit(o[0]['topic'])})" for i, o in items.items()) + ") b(item_id,label) "
   "LEFT JOIN item i ON i.external_id = b.item_id LEFT JOIN probe_reject r ON r.item_id = b.item_id GROUP BY 1 ORDER BY 1;")
+w("\\echo '== units: k (hypotheses) and items'")
+w("SELECT u.unit_code, (SELECT count(*) FROM unit_hypothesis WHERE unit_id = u.id) AS k, (SELECT count(*) FROM unit_item WHERE unit_id = u.id) AS items "
+  "FROM diagnostic_unit u ORDER BY u.unit_code;")
+w("\\echo '== items in no unit'")
+w("SELECT external_id FROM item i WHERE NOT EXISTS (SELECT 1 FROM unit_item ui WHERE ui.item_id = i.id) ORDER BY external_id;")
 w("\\echo '== rejected items and reasons'")
 w("SELECT item_id, label, reason FROM probe_reject ORDER BY item_id;")
 w("ROLLBACK;")

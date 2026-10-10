@@ -1,5 +1,5 @@
 -- =====================================================================================
--- Sonder - Iteration 1 (Mid-1) database schema, revision 2. ONE self-contained script.
+-- Sonder - Iteration 1 (Mid-1) database schema, revision 3. ONE self-contained script.
 -- Target: PostgreSQL 16+ (Neon). Plain SQL only: no psql meta-commands, no extensions.
 --
 -- HOW TO RUN (Neon):
@@ -18,7 +18,11 @@
 -- (questions, answers, priors, posteriors, diagnosis or refusal) and an audit trail.
 -- Revision 2 (see plan section 12): cross-topic topic membership, option link cap 3, V11 (a
 -- misconception on at most 2 options of one item), refusal tie sets with a leader, hypothesis
--- slots, EIG candidate ranking, answer notes, a derived support view, engine_params, stem families.
+-- slots, EIG candidate ranking, answer notes, a derived support view, engine_params, twin groups.
+-- Revision 3 (plan section 12, aligned with docs/ENGINE_SPEC_DRAFT.md spec v2): diagnostic units
+-- replace topics as the session scope; V11 relaxed to the spec's limit (the P1 guess check at
+-- response-model freeze carries the real constraint); link grades; k_max and link weights in
+-- engine_params; twin_group (renamed from stem_family).
 -- Deferred to later iterations: teacher review, remediation/verification, parents,
 -- announcements/messaging, AI pipeline/provenance/evaluation and pgvector tables.
 -- =====================================================================================
@@ -165,8 +169,8 @@ CREATE TABLE IF NOT EXISTS item (
  llm_assisted boolean NOT NULL DEFAULT false,
  assistance_note text NOT NULL DEFAULT '',
  review_status text NOT NULL DEFAULT 'draft' CHECK (review_status IN ('draft','in_review','approved','rejected')),
- -- Items sharing a stem family (A/B twins) are never both shown in one run.
- stem_family text CHECK (stem_family IS NULL OR length(btrim(stem_family)) > 0),
+ -- Items sharing a twin group (A/B twins) are never both shown in one run.
+ twin_group text CHECK (twin_group IS NULL OR length(btrim(twin_group)) > 0),
  UNIQUE (topic_revision_id, external_id),
  CHECK (NOT llm_assisted OR length(btrim(assistance_note)) > 0)
 );
@@ -181,7 +185,10 @@ CREATE TABLE IF NOT EXISTS option_misconception (
  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
  option_id uuid NOT NULL REFERENCES item_option ON DELETE CASCADE,
  misconception_revision_id uuid NOT NULL REFERENCES misconception_revision ON DELETE RESTRICT,
- rationale text NOT NULL, UNIQUE (option_id, misconception_revision_id)
+ rationale text NOT NULL,
+ -- Spec v2 3.3: S = sound, T = stretch. The engine weights a stretch link by engine_params.w_stretch.
+ link_grade text NOT NULL DEFAULT 'S' CHECK (link_grade IN ('S','T')),
+ UNIQUE (option_id, misconception_revision_id)
 );
 CREATE TABLE IF NOT EXISTS item_source (
  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -209,6 +216,32 @@ CREATE TABLE IF NOT EXISTS hypothesis (
  CHECK ((kind = 'misconception') = (misconception_revision_id IS NOT NULL)),
  UNIQUE NULLS NOT DISTINCT (content_version_id, kind, misconception_revision_id)
 );
+
+-- ------------------------------------------------------------------ diagnostic units (spec v2 2.1)
+-- A unit is the session scope: an ordered list of misconception hypotheses (NONE and UNMODELLED
+-- are implicit, after them) and the items that belong to it. An item may belong to several units.
+-- Units are part of the pack: they are frozen with it.
+CREATE TABLE IF NOT EXISTS diagnostic_unit (
+ id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+ content_version_id uuid NOT NULL REFERENCES content_version ON DELETE RESTRICT,
+ unit_code text NOT NULL CHECK (length(btrim(unit_code)) > 0),
+ name text NOT NULL CHECK (length(btrim(name)) > 0),
+ UNIQUE (content_version_id, unit_code)
+);
+CREATE TABLE IF NOT EXISTS unit_hypothesis (
+ id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+ unit_id uuid NOT NULL REFERENCES diagnostic_unit ON DELETE RESTRICT,
+ hypothesis_id uuid NOT NULL REFERENCES hypothesis ON DELETE RESTRICT,
+ slot smallint NOT NULL CHECK (slot >= 0),
+ UNIQUE (unit_id, hypothesis_id), UNIQUE (unit_id, slot)
+ -- Misconception hypotheses only, slots 0..k-1. A run uses exactly this list, in this order.
+);
+CREATE TABLE IF NOT EXISTS unit_item (
+ id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+ unit_id uuid NOT NULL REFERENCES diagnostic_unit ON DELETE RESTRICT,
+ item_id uuid NOT NULL REFERENCES item ON DELETE RESTRICT,
+ UNIQUE (unit_id, item_id)
+);
 -- The engine code build. Numeric parameters live in engine_params, not here.
 CREATE TABLE IF NOT EXISTS engine_release (
  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -232,7 +265,11 @@ CREATE TABLE IF NOT EXISTS engine_params (
  delta_sep numeric NOT NULL CHECK (delta_sep >= 0 AND delta_sep < 0.5),
  eig_floor numeric NOT NULL CHECK (eig_floor >= 0),
  default_budget integer NOT NULL CHECK (default_budget >= 1),
+ k_max integer NOT NULL CHECK (k_max >= 1),
+ w_sound numeric NOT NULL CHECK (w_sound > 0 AND w_sound <= 1),
+ w_stretch numeric NOT NULL CHECK (w_stretch >= 0),
  created_at timestamptz NOT NULL DEFAULT now(),
+ CHECK (w_stretch <= w_sound),
  CHECK (prior_none + prior_unmodelled < 1),
  CHECK (theta + theta_unmodelled > 1),
  CHECK (min_support_none >= min_support)
@@ -269,7 +306,7 @@ CREATE TABLE IF NOT EXISTS diagnostic_session (
  enrolment_id uuid NOT NULL REFERENCES enrolment ON DELETE RESTRICT,
  response_model_id uuid NOT NULL REFERENCES response_model ON DELETE RESTRICT,
  engine_release_id uuid NOT NULL REFERENCES engine_release ON DELETE RESTRICT,
- topic_revision_id uuid REFERENCES topic_revision ON DELETE RESTRICT,
+ unit_id uuid NOT NULL REFERENCES diagnostic_unit ON DELETE RESTRICT,
  question_budget integer NOT NULL CHECK (question_budget > 0),
  request_key text NOT NULL, started_at timestamptz NOT NULL DEFAULT now(), ended_at timestamptz,
  status text NOT NULL DEFAULT 'in_progress' CHECK (status IN ('in_progress','diagnosed','none_detected',
@@ -414,7 +451,8 @@ CREATE OR REPLACE FUNCTION content_guard() RETURNS trigger LANGUAGE plpgsql SET 
 DECLARE v uuid; row_data jsonb; item_key uuid; frozen text; item_state text; applying text;
 BEGIN
  row_data := CASE WHEN TG_OP = 'DELETE' THEN to_jsonb(OLD) ELSE to_jsonb(NEW) END;
- IF TG_TABLE_NAME IN ('topic_revision','misconception_revision','hypothesis') THEN v := (row_data->>'content_version_id')::uuid;
+ IF TG_TABLE_NAME IN ('topic_revision','misconception_revision','hypothesis','diagnostic_unit') THEN v := (row_data->>'content_version_id')::uuid;
+ ELSIF TG_TABLE_NAME IN ('unit_hypothesis','unit_item') THEN SELECT content_version_id INTO v FROM diagnostic_unit WHERE id = (row_data->>'unit_id')::uuid;
  ELSIF TG_TABLE_NAME IN ('topic_misconception','item') THEN SELECT content_version_id INTO v FROM topic_revision WHERE id = (row_data->>'topic_revision_id')::uuid;
  ELSIF TG_TABLE_NAME = 'misconception_source' THEN SELECT content_version_id INTO v FROM misconception_revision WHERE id = (row_data->>'misconception_revision_id')::uuid;
  ELSE
@@ -469,6 +507,14 @@ BEGIN
   IF NEW.misconception_revision_id IS NULL THEN RETURN NEW; END IF;
   a := NEW.content_version_id;
   SELECT content_version_id INTO b FROM misconception_revision WHERE id = NEW.misconception_revision_id;
+ ELSIF TG_TABLE_NAME = 'unit_hypothesis' THEN
+  IF NOT EXISTS (SELECT 1 FROM hypothesis WHERE id = NEW.hypothesis_id AND kind = 'misconception')
+  THEN RAISE EXCEPTION 'A unit lists misconception hypotheses only (NONE and UNMODELLED are implicit)'; END IF;
+  SELECT content_version_id INTO a FROM diagnostic_unit WHERE id = NEW.unit_id;
+  SELECT content_version_id INTO b FROM hypothesis WHERE id = NEW.hypothesis_id AND kind = 'misconception';
+ ELSIF TG_TABLE_NAME = 'unit_item' THEN
+  SELECT content_version_id INTO a FROM diagnostic_unit WHERE id = NEW.unit_id;
+  SELECT t.content_version_id INTO b FROM item i JOIN topic_revision t ON t.id = i.topic_revision_id WHERE i.id = NEW.item_id;
  ELSE -- option_misconception
   SELECT t.content_version_id INTO a FROM item_option o JOIN item i ON i.id = o.item_id JOIN topic_revision t ON t.id = i.topic_revision_id WHERE o.id = NEW.option_id;
   SELECT content_version_id INTO b FROM misconception_revision WHERE id = NEW.misconception_revision_id;
@@ -478,8 +524,9 @@ BEGIN
 END $$;
 
 -- Deferred: at commit every item has exactly four options, exactly one correct, no link on
--- the correct option, at most three misconceptions per wrong option, and (rule V11) no
--- misconception linked to more than two options of the same item.
+-- the correct option, and at most three misconceptions per wrong option. Spec v2 rule V11 (a
+-- misconception on at most 3 options of an item) always holds here: only three options can carry
+-- links. The real limit is P1, checked when a response model is frozen (response_guard).
 CREATE OR REPLACE FUNCTION item_integrity() RETURNS trigger LANGUAGE plpgsql SET search_path = pg_catalog, sonder AS $$
 DECLARE k uuid; n integer; correct integer;
 BEGIN
@@ -491,8 +538,6 @@ BEGIN
  IF n <> 4 OR correct <> 1 THEN RAISE EXCEPTION 'Item % needs exactly four options and one correct option', k; END IF;
  IF EXISTS (SELECT 1 FROM item_option o JOIN option_misconception m ON m.option_id = o.id WHERE o.item_id = k GROUP BY o.id, o.is_correct HAVING count(*) > 3 OR o.is_correct)
  THEN RAISE EXCEPTION 'Item %: correct option has a misconception link, or a wrong option has more than three', k; END IF;
- IF EXISTS (SELECT 1 FROM item_option o JOIN option_misconception m ON m.option_id = o.id WHERE o.item_id = k GROUP BY m.misconception_revision_id HAVING count(*) > 2)
- THEN RAISE EXCEPTION 'Item %: a misconception is linked to more than two options (rule V11)', k; END IF;
  RETURN NULL;
 END $$;
 
@@ -538,13 +583,30 @@ BEGIN
   IF EXISTS (SELECT 1 FROM topic_misconception x JOIN topic_revision t ON t.id = x.topic_revision_id WHERE t.content_version_id = NEW.id AND x.membership = 'cross_topic'
              AND NOT EXISTS (SELECT 1 FROM topic_misconception h WHERE h.misconception_revision_id = x.misconception_revision_id AND h.membership = 'home'))
   THEN RAISE EXCEPTION 'Cannot freeze: a cross-topic misconception has no home topic in the pack'; END IF;
+  IF NOT EXISTS (SELECT 1 FROM diagnostic_unit WHERE content_version_id = NEW.id)
+  THEN RAISE EXCEPTION 'Cannot freeze: the pack declares no diagnostic unit'; END IF;
+  IF EXISTS (SELECT 1 FROM diagnostic_unit u WHERE u.content_version_id = NEW.id AND (
+       NOT EXISTS (SELECT 1 FROM unit_hypothesis WHERE unit_id = u.id)
+       OR (SELECT min(slot) <> 0 OR max(slot) <> count(*) - 1 FROM unit_hypothesis WHERE unit_id = u.id)
+       OR NOT EXISTS (SELECT 1 FROM unit_item WHERE unit_id = u.id)))
+  THEN RAISE EXCEPTION 'Cannot freeze: every unit needs hypotheses in slots 0..k-1 and at least one item'; END IF;
+  IF EXISTS (SELECT 1 FROM unit_item ui JOIN diagnostic_unit u ON u.id = ui.unit_id JOIN item i ON i.id = ui.item_id
+             WHERE u.content_version_id = NEW.id AND i.review_status <> 'approved')
+  THEN RAISE EXCEPTION 'Cannot freeze: a unit contains an item that is not approved'; END IF;
+  -- V5': every misconception linked on a unit's item is one of that unit's hypotheses.
+  IF EXISTS (SELECT 1 FROM unit_item ui JOIN diagnostic_unit u ON u.id = ui.unit_id
+             JOIN item_option o ON o.item_id = ui.item_id JOIN option_misconception om ON om.option_id = o.id
+             WHERE u.content_version_id = NEW.id
+               AND NOT EXISTS (SELECT 1 FROM unit_hypothesis uh JOIN hypothesis h ON h.id = uh.hypothesis_id
+                               WHERE uh.unit_id = u.id AND h.misconception_revision_id = om.misconception_revision_id))
+  THEN RAISE EXCEPTION 'Cannot freeze: a unit item links a misconception outside the unit (rule V5'')'; END IF;
  END IF;
  RETURN NEW;
 END $$;
 
 -- Response model: edited only while draft; frozen only when complete and normalised.
 CREATE OR REPLACE FUNCTION response_guard() RETURNS trigger LANGUAGE plpgsql SET search_path = pg_catalog, sonder AS $$
-DECLARE v uuid; a uuid; r uuid;
+DECLARE v uuid; a uuid; r uuid; prm engine_params; maxk integer; maxs integer;
 BEGIN
  IF TG_TABLE_NAME = 'response_model' THEN
   IF TG_OP = 'DELETE' OR OLD.status = 'frozen' THEN RAISE EXCEPTION 'Response model is retained/immutable once frozen'; END IF;
@@ -555,6 +617,16 @@ BEGIN
    IF EXISTS (SELECT 1 FROM item i JOIN topic_revision t ON t.id = i.topic_revision_id CROSS JOIN hypothesis h WHERE t.content_version_id = NEW.content_version_id AND h.content_version_id = NEW.content_version_id AND i.review_status = 'approved'
               AND NOT EXISTS (SELECT 1 FROM response_probability p JOIN item_option o ON o.id = p.option_id WHERE p.response_model_id = NEW.id AND o.item_id = i.id AND p.hypothesis_id = h.id))
    THEN RAISE EXCEPTION 'Response model does not cover every approved item and hypothesis'; END IF;
+   SELECT * INTO prm FROM engine_params WHERE id = NEW.engine_params_id;
+   SELECT max(k) INTO maxk FROM (SELECT count(*) AS k FROM unit_hypothesis uh JOIN diagnostic_unit u ON u.id = uh.unit_id
+                                 WHERE u.content_version_id = NEW.content_version_id GROUP BY uh.unit_id) x;
+   IF maxk > prm.k_max THEN RAISE EXCEPTION 'A unit has % hypotheses; engine_params.k_max is %', maxk, prm.k_max; END IF;
+   -- P1 (spec v2 3.6): for every predicted-set size s used by a unit item, guess < (4 - s) / 4.
+   SELECT max(n) INTO maxs FROM (SELECT count(*) AS n FROM unit_item ui JOIN diagnostic_unit u ON u.id = ui.unit_id
+                                 JOIN item_option o ON o.item_id = ui.item_id JOIN option_misconception om ON om.option_id = o.id
+                                 WHERE u.content_version_id = NEW.content_version_id GROUP BY ui.unit_id, ui.item_id, om.misconception_revision_id) y;
+   IF maxs IS NOT NULL AND prm.guess >= (4 - maxs) / 4.0
+   THEN RAISE EXCEPTION 'P1 fails: a unit item links one misconception to % options, which needs guess < %, but guess is %', maxs, (4 - maxs) / 4.0, prm.guess; END IF;
   END IF;
   RETURN NEW;
  END IF;
@@ -586,8 +658,8 @@ BEGIN
       OR NOT EXISTS (SELECT 1 FROM class_subject WHERE class_id = e.class_id AND subject_id = sub)
    THEN RAISE EXCEPTION 'Session needs an active enrolment in an active class that teaches this subject'; END IF;
   END IF;
-  IF NEW.topic_revision_id IS NOT NULL AND NOT EXISTS (SELECT 1 FROM topic_revision WHERE id = NEW.topic_revision_id AND content_version_id = v)
-  THEN RAISE EXCEPTION 'Session topic is outside the session pack'; END IF;
+  IF NOT EXISTS (SELECT 1 FROM diagnostic_unit WHERE id = NEW.unit_id AND content_version_id = v)
+  THEN RAISE EXCEPTION 'Session unit is outside the session pack'; END IF;
   RETURN NEW;
  END IF;
  SELECT * INTO s FROM diagnostic_session WHERE id = NEW.session_id FOR UPDATE;
@@ -597,11 +669,11 @@ BEGIN
   THEN RAISE EXCEPTION 'Invalid next question index or budget exhausted'; END IF;
   IF EXISTS (SELECT 1 FROM session_question q0 WHERE q0.session_id = s.id AND NOT EXISTS (SELECT 1 FROM session_step t WHERE t.session_question_id = q0.id))
   THEN RAISE EXCEPTION 'The previous question is still awaiting an answer'; END IF;
-  IF NOT EXISTS (SELECT 1 FROM item i JOIN topic_revision t ON t.id = i.topic_revision_id WHERE i.id = NEW.item_id AND t.content_version_id = v AND i.review_status = 'approved' AND (s.topic_revision_id IS NULL OR i.topic_revision_id = s.topic_revision_id))
-  THEN RAISE EXCEPTION 'Question is not an approved item in this session''s pack/topic'; END IF;
+  IF NOT EXISTS (SELECT 1 FROM item i JOIN unit_item ui ON ui.item_id = i.id WHERE i.id = NEW.item_id AND ui.unit_id = s.unit_id AND i.review_status = 'approved')
+  THEN RAISE EXCEPTION 'Question is not an approved item of this session''s unit'; END IF;
   IF EXISTS (SELECT 1 FROM session_question q0 JOIN item i0 ON i0.id = q0.item_id JOIN item i1 ON i1.id = NEW.item_id
-             WHERE q0.session_id = s.id AND i1.stem_family IS NOT NULL AND i0.stem_family = i1.stem_family)
-  THEN RAISE EXCEPTION 'A twin of this item (same stem family) was already shown in this session'; END IF;
+             WHERE q0.session_id = s.id AND i1.twin_group IS NOT NULL AND i0.twin_group = i1.twin_group)
+  THEN RAISE EXCEPTION 'A twin of this item (same twin group) was already shown in this session'; END IF;
  ELSIF TG_TABLE_NAME = 'session_step' THEN
   SELECT * INTO q FROM session_question WHERE id = NEW.session_question_id;
   SELECT item_id INTO a FROM item_option WHERE id = NEW.answer_option_id;
@@ -609,8 +681,10 @@ BEGIN
      OR NEW.step_index <> (SELECT count(*) FROM session_step WHERE session_id = s.id) OR NEW.answered_at < q.presented_at
   THEN RAISE EXCEPTION 'Invalid step or answer'; END IF;
  ELSIF TG_TABLE_NAME = 'session_hypothesis' THEN
-  IF s.status <> 'in_progress' OR EXISTS (SELECT 1 FROM session_question WHERE session_id = s.id) OR NOT EXISTS (SELECT 1 FROM hypothesis WHERE id = NEW.hypothesis_id AND content_version_id = v)
-  THEN RAISE EXCEPTION 'Priors must be set from the session pack before the first question'; END IF;
+  IF s.status <> 'in_progress' OR EXISTS (SELECT 1 FROM session_question WHERE session_id = s.id)
+     OR NOT EXISTS (SELECT 1 FROM hypothesis h WHERE h.id = NEW.hypothesis_id AND h.content_version_id = v
+                    AND (h.kind <> 'misconception' OR EXISTS (SELECT 1 FROM unit_hypothesis uh WHERE uh.unit_id = s.unit_id AND uh.hypothesis_id = h.id)))
+  THEN RAISE EXCEPTION 'Priors must be set from the session unit''s hypotheses before the first question'; END IF;
  ELSIF TG_TABLE_NAME = 'diagnosis' THEN
   IF s.status <> 'diagnosed' THEN RAISE EXCEPTION 'A diagnosis needs a diagnosed session'; END IF;
  ELSIF TG_TABLE_NAME = 'escalation' THEN
@@ -631,10 +705,10 @@ BEGIN
  SELECT content_version_id INTO v FROM response_model WHERE id = s.response_model_id;
  IF s.status <> 'in_progress' OR EXISTS (SELECT 1 FROM session_step WHERE session_question_id = q.id)
  THEN RAISE EXCEPTION 'Candidates are recorded only for the pending question of a running session'; END IF;
- IF NOT EXISTS (SELECT 1 FROM item i JOIN topic_revision t ON t.id = i.topic_revision_id WHERE i.id = NEW.item_id AND t.content_version_id = v AND i.review_status = 'approved' AND (s.topic_revision_id IS NULL OR i.topic_revision_id = s.topic_revision_id))
- THEN RAISE EXCEPTION 'Candidate is not an approved item in this session''s pack/topic'; END IF;
+ IF NOT EXISTS (SELECT 1 FROM item i JOIN unit_item ui ON ui.item_id = i.id WHERE i.id = NEW.item_id AND ui.unit_id = s.unit_id AND i.review_status = 'approved')
+ THEN RAISE EXCEPTION 'Candidate is not an approved item of this session''s unit'; END IF;
  IF EXISTS (SELECT 1 FROM session_question q0 JOIN item i0 ON i0.id = q0.item_id JOIN item i1 ON i1.id = NEW.item_id
-            WHERE q0.session_id = s.id AND q0.step_index < q.step_index AND (q0.item_id = NEW.item_id OR (i1.stem_family IS NOT NULL AND i0.stem_family = i1.stem_family)))
+            WHERE q0.session_id = s.id AND q0.step_index < q.step_index AND (q0.item_id = NEW.item_id OR (i1.twin_group IS NOT NULL AND i0.twin_group = i1.twin_group)))
  THEN RAISE EXCEPTION 'Candidate (or its twin) was already shown earlier in this session'; END IF;
  RETURN NEW;
 END $$;
@@ -671,6 +745,10 @@ BEGIN
      OR NOT EXISTS (SELECT 1 FROM session_hypothesis sh JOIN hypothesis h ON h.id = sh.hypothesis_id WHERE sh.session_id = sid AND h.kind = 'none' AND sh.slot = hcount - 2)
      OR NOT EXISTS (SELECT 1 FROM session_hypothesis sh JOIN hypothesis h ON h.id = sh.hypothesis_id WHERE sh.session_id = sid AND h.kind = 'unmodelled' AND sh.slot = hcount - 1)
   THEN RAISE EXCEPTION 'Hypothesis slots must be 0..k-1 for misconceptions, then NONE, then UNMODELLED'; END IF;
+  IF hcount <> (SELECT count(*) FROM unit_hypothesis WHERE unit_id = st.unit_id) + 2
+     OR EXISTS (SELECT 1 FROM session_hypothesis sh JOIN hypothesis h ON h.id = sh.hypothesis_id WHERE sh.session_id = sid AND h.kind = 'misconception'
+                AND NOT EXISTS (SELECT 1 FROM unit_hypothesis uh WHERE uh.unit_id = st.unit_id AND uh.hypothesis_id = sh.hypothesis_id AND uh.slot = sh.slot))
+  THEN RAISE EXCEPTION 'Run hypotheses must be exactly the unit''s list, in the unit''s order'; END IF;
   -- Reserved prior masses come from the pinned engine parameters.
   SELECT ep.* INTO prm FROM response_model r JOIN engine_params ep ON ep.id = r.engine_params_id WHERE r.id = st.response_model_id;
   IF EXISTS (SELECT 1 FROM session_hypothesis sh JOIN hypothesis h ON h.id = sh.hypothesis_id WHERE sh.session_id = sid
@@ -727,12 +805,12 @@ DO $$ DECLARE t text; BEGIN
  FOREACH t IN ARRAY ARRAY['class_teacher','enrolment'] LOOP
   EXECUTE format('CREATE OR REPLACE TRIGGER membership_check BEFORE INSERT OR UPDATE ON %I FOR EACH ROW EXECUTE FUNCTION membership_guard()', t);
  END LOOP;
- FOREACH t IN ARRAY ARRAY['topic_revision','misconception_revision','topic_misconception','item','item_option','option_misconception','item_source','misconception_source','hypothesis'] LOOP
+ FOREACH t IN ARRAY ARRAY['topic_revision','misconception_revision','topic_misconception','item','item_option','option_misconception','item_source','misconception_source','hypothesis','diagnostic_unit','unit_hypothesis','unit_item'] LOOP
   EXECUTE format('CREATE OR REPLACE TRIGGER a_content_guard BEFORE INSERT OR UPDATE OR DELETE ON %I FOR EACH ROW EXECUTE FUNCTION content_guard()', t);
-  EXECUTE format('CREATE OR REPLACE TRIGGER b_fixed_keys BEFORE UPDATE ON %I FOR EACH ROW EXECUTE FUNCTION fixed_keys(%L,%L,%L,%L,%L,%L,%L,%L,%L)', t,
-                 'id','content_version_id','item_id','option_id','topic_revision_id','misconception_revision_id','topic_id','misconception_id','author_id');
+  EXECUTE format('CREATE OR REPLACE TRIGGER b_fixed_keys BEFORE UPDATE ON %I FOR EACH ROW EXECUTE FUNCTION fixed_keys(%L,%L,%L,%L,%L,%L,%L,%L,%L,%L,%L)', t,
+                 'id','content_version_id','item_id','option_id','topic_revision_id','misconception_revision_id','topic_id','misconception_id','author_id','unit_id','hypothesis_id');
  END LOOP;
- FOREACH t IN ARRAY ARRAY['topic_revision','misconception_revision','topic_misconception','item','hypothesis','option_misconception'] LOOP
+ FOREACH t IN ARRAY ARRAY['topic_revision','misconception_revision','topic_misconception','item','hypothesis','option_misconception','unit_hypothesis','unit_item'] LOOP
   EXECUTE format('CREATE OR REPLACE TRIGGER c_scope BEFORE INSERT OR UPDATE ON %I FOR EACH ROW EXECUTE FUNCTION content_scope()', t);
  END LOOP;
  FOREACH t IN ARRAY ARRAY['item','item_option','option_misconception'] LOOP
@@ -768,7 +846,7 @@ CREATE OR REPLACE TRIGGER review_apply AFTER INSERT ON item_review FOR EACH ROW 
 CREATE OR REPLACE TRIGGER frozen BEFORE UPDATE OR DELETE ON content_version FOR EACH ROW EXECUTE FUNCTION freeze_guard();
 CREATE OR REPLACE TRIGGER frozen BEFORE UPDATE OR DELETE ON response_model FOR EACH ROW EXECUTE FUNCTION response_guard();
 CREATE OR REPLACE TRIGGER session_scope BEFORE UPDATE ON diagnostic_session FOR EACH ROW EXECUTE FUNCTION session_guard();
-CREATE OR REPLACE TRIGGER fixed_keys BEFORE UPDATE ON diagnostic_session FOR EACH ROW EXECUTE FUNCTION fixed_keys('id','enrolment_id','response_model_id','engine_release_id','topic_revision_id','question_budget','request_key','started_at');
+CREATE OR REPLACE TRIGGER fixed_keys BEFORE UPDATE ON diagnostic_session FOR EACH ROW EXECUTE FUNCTION fixed_keys('id','enrolment_id','response_model_id','engine_release_id','unit_id','question_budget','request_key','started_at');
 CREATE OR REPLACE TRIGGER fixed_keys BEFORE UPDATE ON class_teacher FOR EACH ROW EXECUTE FUNCTION fixed_keys('id','class_id','teacher_id','assigned_at');
 CREATE OR REPLACE TRIGGER fixed_keys BEFORE UPDATE ON enrolment FOR EACH ROW EXECUTE FUNCTION fixed_keys('id','class_id','student_id','joined_at');
 CREATE OR REPLACE TRIGGER fixed_keys BEFORE UPDATE ON response_model FOR EACH ROW EXECUTE FUNCTION fixed_keys('id','content_version_id','engine_params_id','model_code','source','calibration_note','created_at');
@@ -820,7 +898,7 @@ DECLARE
  expected_tables text[] := ARRAY['app_user','password_credential','auth_session','classroom','class_teacher','enrolment',
   'subject','class_subject','content_version','topic','topic_revision','misconception','misconception_revision',
   'topic_misconception','source_reference','misconception_source','item','item_option','option_misconception',
-  'item_source','item_review','hypothesis','engine_release','engine_params','response_model','response_parameter',
+  'item_source','item_review','hypothesis','diagnostic_unit','unit_hypothesis','unit_item','engine_release','engine_params','response_model','response_parameter',
   'response_probability','diagnostic_session','session_hypothesis','session_question','question_candidate','session_step',
   'step_posterior','diagnosis','diagnosis_candidate','escalation','escalation_candidate','audit_event'];
  expected_indexes text[] := ARRAY['auth_session_user_idx','teacher_classes_idx','student_classes_idx','misconception_catalogue_idx',
@@ -835,9 +913,9 @@ BEGIN
  IF missing IS NOT NULL THEN RAISE EXCEPTION 'Verification failed, missing indexes: %', missing; END IF;
  IF to_regclass('sonder.step_support') IS NULL THEN RAISE EXCEPTION 'Verification failed: view step_support missing'; END IF;
  SELECT count(*) INTO n FROM pg_constraint c JOIN pg_namespace s ON s.oid = c.connamespace WHERE s.nspname = 'sonder' AND c.contype = 'f';
- IF n <> 61 THEN RAISE EXCEPTION 'Verification failed: % foreign keys, expected 61', n; END IF;
+ IF n <> 66 THEN RAISE EXCEPTION 'Verification failed: % foreign keys, expected 66', n; END IF;
  SELECT count(*) INTO n FROM pg_trigger g JOIN pg_class c ON c.oid = g.tgrelid JOIN pg_namespace s ON s.oid = c.relnamespace WHERE s.nspname = 'sonder' AND NOT g.tgisinternal;
- IF n <> 102 THEN RAISE EXCEPTION 'Verification failed: % triggers, expected 102', n; END IF;
+ IF n <> 110 THEN RAISE EXCEPTION 'Verification failed: % triggers, expected 110', n; END IF;
 END $$;
 COMMIT;
 
