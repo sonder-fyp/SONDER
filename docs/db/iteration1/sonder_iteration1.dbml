@@ -1,0 +1,834 @@
+// Sonder - Iteration 1 (Mid-1) schema. Paste into https://dbdiagram.io/ to draw the ERD.
+// Generated from the PostgreSQL catalogue after running sonder_iteration1.sql; the SQL is authoritative.
+// Triggers (freeze, review, four-option, append-only and trace checks) are not expressible in DBML; see the plan.
+// The derived view sonder.step_support (support counts per step) is not drawn; see the plan.
+// Coverage: 38 tables, 229 columns, 61 foreign keys, 11 secondary indexes.
+// sonder_iteration1.sql SHA-256: 5d7422e7b2e620fa1772fe71ad9d2d0c8d06fe335271b709d41995896212b0f3
+
+Project Sonder_Iteration_1 {
+  database_type: 'PostgreSQL'
+  Note: 'Iteration 1 slice: users, classes, versioned Math content pack with review and Q-matrix, frozen response model, diagnostic runs with posteriors and refusals, audit. One schema: sonder.'
+}
+
+Table sonder.app_user [headercolor: #3B82F6] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  email text [not null, unique]
+  role text [not null]
+  display_name text [not null]
+  locale text [not null, default: `'en'`]
+  time_zone text [not null, default: `'Asia/Karachi'`]
+  status text [not null, default: `'active'`]
+  created_at timestamptz [not null, default: `now()`]
+
+  checks {
+    `(length(btrim(display_name)) > 0)`
+    `(email = lower(btrim(email)))`
+    `(role IN ('student', 'teacher', 'parent', 'admin'))`
+    `(status IN ('active', 'deactivated'))`
+  }
+
+  Note: 'Users and access. One account per person with a single role; deactivation keeps history. State machine on status: starts active; allowed active -> deactivated, deactivated -> active.'
+}
+
+Table sonder.password_credential [headercolor: #3B82F6] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  user_id uuid [not null, unique]
+  password_hash text [not null]
+  changed_at timestamptz [not null, default: `now()`]
+
+  Note: 'Users and access. The account\'s password hash, kept apart from the profile.'
+}
+
+Table sonder.auth_session [headercolor: #3B82F6] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  user_id uuid [not null]
+  token_hash text [not null, unique]
+  created_at timestamptz [not null, default: `now()`]
+  expires_at timestamptz [not null]
+  revoked_at timestamptz
+
+  indexes {
+    (user_id, expires_at) [name: 'auth_session_user_idx', note: 'Sign-in/sign-out: a user\'s live sessions by expiry.']
+  }
+
+  checks {
+    `(expires_at > created_at)`
+    `((revoked_at IS NULL) OR (revoked_at >= created_at))`
+  }
+
+  Note: 'Users and access. A login session: hashed token, expiry and revocation.'
+}
+
+Table sonder.classroom [headercolor: #10B981] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  name text [not null]
+  note text [not null, default: `''`]
+  join_code text [not null, unique]
+  grade_level smallint [not null, default: `8`]
+  time_zone text [not null, default: `'Asia/Karachi'`]
+  status text [not null, default: `'active'`]
+  created_at timestamptz [not null, default: `now()`]
+
+  checks {
+    `((grade_level >= 1) AND (grade_level <= 12))`
+    `((join_code = upper(btrim(join_code))) AND (length(join_code) >= 8))`
+    `(length(btrim(name)) > 0)`
+    `(status IN ('active', 'archived'))`
+  }
+
+  Note: 'Classes. A class a teacher creates and students join with a unique join code. State machine on status: starts active; allowed active -> archived, archived -> active.'
+}
+
+Table sonder.class_teacher [headercolor: #10B981] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  class_id uuid [not null]
+  teacher_id uuid [not null]
+  status text [not null, default: `'active'`]
+  assigned_at timestamptz [not null, default: `now()`]
+
+  indexes {
+    (class_id, teacher_id) [unique, name: 'class_teacher_class_id_teacher_id_key']
+    (teacher_id, class_id) [name: 'teacher_classes_idx', note: 'Teacher dashboard and class list: a teacher\'s active classes. Partial: WHERE (status = \'active\'::text).']
+  }
+
+  checks {
+    `(status IN ('active', 'departed'))`
+  }
+
+  Note: 'Classes. Which teachers teach a class (many-to-many); departure keeps attribution. State machine on status: starts active; allowed active -> departed, departed -> active.'
+}
+
+Table sonder.enrolment [headercolor: #10B981] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  class_id uuid [not null]
+  student_id uuid [not null]
+  status text [not null, default: `'active'`]
+  joined_at timestamptz [not null, default: `now()`]
+
+  indexes {
+    (class_id, student_id) [unique, name: 'enrolment_class_id_student_id_key']
+    (student_id, class_id) [name: 'student_classes_idx', note: 'Student class list and run start: a student\'s enrolments.']
+  }
+
+  checks {
+    `(status IN ('active', 'left'))`
+  }
+
+  Note: 'Classes. A student\'s membership of one class; one row per (class, student). State machine on status: starts active; allowed active -> left, left -> active.'
+}
+
+Table sonder.class_subject [headercolor: #10B981] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  class_id uuid [not null]
+  subject_id uuid [not null]
+
+  indexes {
+    (class_id, subject_id) [unique, name: 'class_subject_class_id_subject_id_key']
+  }
+
+  Note: 'Classes. Which subjects a class studies; a run needs its class to teach the pack\'s subject.'
+}
+
+Table sonder.subject [headercolor: #8B5CF6] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  code text [not null, unique]
+  name text [not null, unique]
+
+  checks {
+    `((code = upper(btrim(code))) AND (length(code) > 0))`
+  }
+
+  Note: 'Math content pack. A subject (Mathematics now; Physics and Chemistry later) that scopes codes and IDs.'
+}
+
+Table sonder.content_version [headercolor: #8B5CF6] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  subject_id uuid [not null]
+  version_code text [not null]
+  note text [not null, default: `''`]
+  pack_sha256 text
+  status text [not null, default: `'draft'`]
+  created_at timestamptz [not null, default: `now()`]
+
+  indexes {
+    (subject_id, version_code) [unique, name: 'content_version_subject_id_version_code_key']
+  }
+
+  checks {
+    `((status <> 'frozen') OR (pack_sha256 IS NOT NULL))`
+    `(pack_sha256 ~ '^[0-9a-f]{64}$')`
+    `(status IN ('draft', 'frozen'))`
+    `(length(btrim(version_code)) > 0)`
+  }
+
+  Note: 'Math content pack. One versioned content pack per subject; frozen packs are immutable and carry the pack file hash. State machine on status: starts draft; allowed draft -> frozen.'
+}
+
+Table sonder.topic [headercolor: #8B5CF6] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  subject_id uuid [not null]
+  external_id text [not null]
+
+  indexes {
+    (subject_id, external_id) [unique, name: 'topic_subject_id_external_id_key']
+  }
+
+  Note: 'Math content pack. Stable topic identity within a subject (external ID).'
+}
+
+Table sonder.topic_revision [headercolor: #8B5CF6] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  topic_id uuid [not null]
+  content_version_id uuid [not null]
+  name text [not null]
+  blurb text [not null, default: `''`]
+  grade8_in_scope boolean [not null, default: `true`]
+
+  indexes {
+    (content_version_id, topic_id) [unique, name: 'topic_revision_content_version_id_topic_id_key']
+  }
+
+  Note: 'Math content pack. The topic as it appears in one pack version (name, blurb).'
+}
+
+Table sonder.misconception [headercolor: #8B5CF6] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  subject_id uuid [not null]
+  code text [not null]
+  external_id text [not null]
+
+  indexes {
+    (subject_id, code) [unique, name: 'misconception_subject_id_code_key']
+    (subject_id, external_id) [unique, name: 'misconception_subject_id_external_id_key']
+  }
+
+  Note: 'Math content pack. Stable misconception identity: code unique per subject, plus external ID such as MATH-1379.'
+}
+
+Table sonder.misconception_revision [headercolor: #8B5CF6] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  misconception_id uuid [not null]
+  content_version_id uuid [not null]
+  name text [not null]
+  description text [not null]
+  cognitive_origin text [not null, default: `''`]
+  status text [not null, default: `'pending'`]
+  engine_tier smallint [not null]
+
+  indexes {
+    (content_version_id, misconception_id) [unique, name: 'misconception_revision_content_version_id_misconception_id_key']
+    (content_version_id, status) [name: 'misconception_catalogue_idx', note: 'Admin catalogue and pack validation: misconceptions in a pack by status.']
+  }
+
+  checks {
+    `((engine_tier <> 1) OR (status = 'validated'))`
+    `(engine_tier IN (1, 2))`
+    `(status IN ('pending', 'validated', 'catalogued_only', 'retired'))`
+  }
+
+  Note: 'Math content pack. The misconception\'s definition and engine readiness in one pack version. State machine on status: starts pending or validated or catalogued_only; allowed pending -> validated, pending -> catalogued_only, catalogued_only -> pending, validated -> retired, pending -> retired, catalogued_only -> retired.'
+}
+
+Table sonder.topic_misconception [headercolor: #8B5CF6] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  topic_revision_id uuid [not null]
+  misconception_revision_id uuid [not null]
+  membership text [not null, default: `'home'`]
+  target_minimum integer [default: `3`]
+  old_topic_label text
+  review_note text [not null, default: `''`]
+  disposition text [not null, default: `'keep'`]
+
+  indexes {
+    (topic_revision_id, misconception_revision_id) [unique, name: 'topic_misconception_topic_revision_id_misconception_revisio_key']
+    (misconception_revision_id) [unique, name: 'topic_misconception_home_idx', note: 'Integrity: each misconception has at most one home topic per pack (unique, partial). Partial: WHERE (membership = \'home\'::text).']
+  }
+
+  checks {
+    `((membership = 'home') = (target_minimum IS NOT NULL))`
+    `((membership = 'home') OR (length(btrim(review_note)) > 0))`
+    `(disposition IN ('keep', 'move', 'remove'))`
+    `(membership IN ('home', 'cross_topic'))`
+    `(target_minimum > 0)`
+  }
+
+  Note: 'Math content pack. Which misconceptions a topic covers: its home topic (with a coverage target) or a cross-topic membership (with a reason).'
+}
+
+Table sonder.source_reference [headercolor: #8B5CF6] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  citation_key text [not null, unique]
+  citation text [not null]
+  url text
+  licence text [not null]
+  scope_note text [not null, default: `''`]
+
+  Note: 'Math content pack. A citable source with its licence.'
+}
+
+Table sonder.misconception_source [headercolor: #8B5CF6] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  misconception_revision_id uuid [not null]
+  source_id uuid [not null]
+  locator text [not null, default: `''`]
+
+  indexes {
+    (misconception_revision_id, source_id, locator) [unique, name: 'misconception_source_misconception_revision_id_source_id_lo_key']
+  }
+
+  Note: 'Math content pack. Sources behind a misconception definition.'
+}
+
+Table sonder.item [headercolor: #8B5CF6] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  topic_revision_id uuid [not null]
+  target_misconception_revision_id uuid [not null]
+  external_id text [not null]
+  stem text [not null]
+  batch text
+  difficulty_est numeric
+  origin text [not null]
+  author_id uuid [not null]
+  llm_assisted boolean [not null, default: `false`]
+  assistance_note text [not null, default: `''`]
+  review_status text [not null, default: `'draft'`]
+  stem_family text
+
+  indexes {
+    (topic_revision_id, external_id) [unique, name: 'item_topic_revision_id_external_id_key']
+    (target_misconception_revision_id, review_status) [name: 'item_target_idx', note: 'Coverage check: approved items per target misconception.']
+    (topic_revision_id, review_status) [name: 'item_topic_idx', note: 'Engine pack export and topic picker: approved items under a topic.']
+  }
+
+  checks {
+    `((NOT llm_assisted) OR (length(btrim(assistance_note)) > 0))`
+    `((difficulty_est >= (0)) AND (difficulty_est <= (1)))`
+    `(origin IN ('authored', 'curated'))`
+    `(review_status IN ('draft', 'in_review', 'approved', 'rejected'))`
+    `(length(btrim(stem)) > 0)`
+    `((stem_family IS NULL) OR (length(btrim(stem_family)) > 0))`
+  }
+
+  Note: 'Math content pack. A four-option question: stem, topic, target misconception, author, LLM-assistance disclosure, review state, stem family for A/B twins. State machine on review_status: starts draft; allowed draft -> in_review, in_review -> approved, in_review -> rejected, rejected -> draft.'
+}
+
+Table sonder.item_option [headercolor: #8B5CF6] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  item_id uuid [not null]
+  label text [not null]
+  external_id text
+  option_text text [not null]
+  is_correct boolean [not null]
+
+  indexes {
+    (item_id, external_id) [unique, name: 'item_option_item_id_external_id_key']
+    (item_id, label) [unique, name: 'item_option_item_id_label_key']
+  }
+
+  checks {
+    `(label IN ('A', 'B', 'C', 'D'))`
+  }
+
+  Note: 'Math content pack. One of the four labelled options (A-D); exactly one is correct.'
+}
+
+Table sonder.option_misconception [headercolor: #8B5CF6] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  option_id uuid [not null]
+  misconception_revision_id uuid [not null]
+  rationale text [not null]
+
+  indexes {
+    (option_id, misconception_revision_id) [unique, name: 'option_misconception_option_id_misconception_revision_id_key']
+    (misconception_revision_id, option_id) [name: 'option_mapping_reverse_idx', note: 'Q-matrix inspection: which options point at a misconception.']
+  }
+
+  Note: 'Math content pack. Q-matrix: a wrong option\'s link to up to three misconceptions, with rationale; a misconception sits on at most two options of an item.'
+}
+
+Table sonder.item_source [headercolor: #8B5CF6] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  item_id uuid [not null]
+  source_id uuid [not null]
+  locator text [not null, default: `''`]
+
+  indexes {
+    (item_id, source_id, locator) [unique, name: 'item_source_item_id_source_id_locator_key']
+  }
+
+  Note: 'Math content pack. Sources behind an item (required at freeze for curated items).'
+}
+
+Table sonder.item_review [headercolor: #8B5CF6] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  item_id uuid [not null]
+  review_round integer [not null]
+  reviewer_id uuid [not null]
+  decision text [not null]
+  note text [not null]
+  decided_at timestamptz [not null, default: `now()`]
+
+  indexes {
+    (item_id, review_round) [unique, name: 'item_review_item_id_review_round_key']
+  }
+
+  checks {
+    `(decision IN ('approved', 'rejected'))`
+    `(length(btrim(note)) > 0)`
+    `(review_round > 0)`
+  }
+
+  Note: 'Math content pack. A recorded review decision (approved or rejected) by someone other than the author.'
+}
+
+Table sonder.hypothesis [headercolor: #F59E0B] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  content_version_id uuid [not null]
+  kind text [not null]
+  misconception_revision_id uuid
+
+  indexes {
+    (content_version_id, kind, misconception_revision_id) [unique, name: 'hypothesis_content_version_id_kind_misconception_revision_i_key', note: 'NULLS NOT DISTINCT']
+  }
+
+  checks {
+    `((kind = 'misconception') = (misconception_revision_id IS NOT NULL))`
+    `(kind IN ('misconception', 'none', 'unmodelled'))`
+  }
+
+  Note: 'Engine model (frozen inputs). The engine\'s candidate states in a pack: each misconception plus NONE and UNMODELLED.'
+}
+
+Table sonder.engine_release [headercolor: #F59E0B] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  release_code text [not null, unique]
+  code_hash text [not null]
+  selection_policy text [not null]
+  created_at timestamptz [not null, default: `now()`]
+
+  Note: 'Engine model (frozen inputs). An engine code build and its selection policy, pinned by every run.'
+}
+
+Table sonder.engine_params [headercolor: #F59E0B] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  params_version text [not null, unique]
+  params_sha256 text [not null, unique]
+  slip numeric [not null]
+  guess numeric [not null]
+  prior_none numeric [not null]
+  prior_unmodelled numeric [not null]
+  theta numeric [not null]
+  theta_unmodelled numeric [not null]
+  min_support integer [not null]
+  min_support_none integer [not null]
+  delta_sep numeric [not null]
+  eig_floor numeric [not null]
+  default_budget integer [not null]
+  created_at timestamptz [not null, default: `now()`]
+
+  checks {
+    `((prior_none + prior_unmodelled) < (1))`
+    `((theta + theta_unmodelled) > (1))`
+    `(min_support_none >= min_support)`
+    `(default_budget >= 1)`
+    `((delta_sep >= (0)) AND (delta_sep < 0.5))`
+    `(eig_floor >= (0))`
+    `((guess > (0)) AND (guess < 0.5))`
+    `(min_support >= 1)`
+    `(params_sha256 ~ '^[0-9a-f]{64}$')`
+    `(length(btrim(params_version)) > 0)`
+    `(prior_none > (0))`
+    `(prior_unmodelled > (0))`
+    `((slip > (0)) AND (slip < 0.5))`
+    `((theta > 0.5) AND (theta < (1)))`
+    `((theta_unmodelled > (0)) AND (theta_unmodelled < (1)))`
+  }
+
+  Note: 'Engine model (frozen inputs). One versioned, hashed engine parameter file: slip, guess, reserved priors, thresholds, support rules, budget (all assumed).'
+}
+
+Table sonder.response_model [headercolor: #F59E0B] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  content_version_id uuid [not null]
+  engine_params_id uuid [not null]
+  model_code text [not null]
+  source text [not null]
+  calibration_note text [not null]
+  status text [not null, default: `'draft'`]
+  created_at timestamptz [not null, default: `now()`]
+
+  indexes {
+    (content_version_id, model_code) [unique, name: 'response_model_content_version_id_model_code_key']
+  }
+
+  checks {
+    `(source IN ('prior', 'calibrated'))`
+    `(status IN ('draft', 'frozen'))`
+  }
+
+  Note: 'Engine model (frozen inputs). A versioned set of answer likelihoods for a frozen pack, built from one engine_params file. State machine on status: starts draft; allowed draft -> frozen.'
+}
+
+Table sonder.response_parameter [headercolor: #F59E0B] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  response_model_id uuid [not null]
+  hypothesis_id uuid [not null]
+  slip numeric [not null]
+  guess numeric [not null]
+
+  indexes {
+    (response_model_id, hypothesis_id) [unique, name: 'response_parameter_response_model_id_hypothesis_id_key']
+  }
+
+  checks {
+    `((guess >= (0)) AND (guess <= (1)))`
+    `((slip >= (0)) AND (slip <= (1)))`
+  }
+
+  Note: 'Engine model (frozen inputs). Slip and guess assumptions per hypothesis in a response model.'
+}
+
+Table sonder.response_probability [headercolor: #F59E0B] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  response_model_id uuid [not null]
+  hypothesis_id uuid [not null]
+  option_id uuid [not null]
+  probability numeric [not null]
+
+  indexes {
+    (response_model_id, hypothesis_id, option_id) [unique, name: 'response_probability_response_model_id_hypothesis_id_option_key']
+  }
+
+  checks {
+    `((probability >= (0)) AND (probability <= (1)))`
+  }
+
+  Note: 'Engine model (frozen inputs). P(option | hypothesis) for every approved item; four values summing to 1.'
+}
+
+Table sonder.diagnostic_session [headercolor: #EF4444] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  enrolment_id uuid [not null]
+  response_model_id uuid [not null]
+  engine_release_id uuid [not null]
+  topic_revision_id uuid
+  question_budget integer [not null]
+  request_key text [not null]
+  started_at timestamptz [not null, default: `now()`]
+  ended_at timestamptz
+  status text [not null, default: `'in_progress'`]
+
+  indexes {
+    (enrolment_id, request_key) [unique, name: 'diagnostic_session_enrolment_id_request_key_key']
+    (status, started_at) [name: 'session_outcome_idx', note: 'Teacher dashboard: finished runs by outcome (diagnosed, refused, abandoned). Partial: WHERE (status <> \'in_progress\'::text).']
+    (enrolment_id, started_at) [name: 'session_roster_idx', note: 'Student history and teacher class view: an enrolment\'s runs, newest first.']
+  }
+
+  checks {
+    `((status = 'in_progress') = (ended_at IS NULL))`
+    `((ended_at IS NULL) OR (ended_at >= started_at))`
+    `(question_budget > 0)`
+    `(status IN ('in_progress', 'diagnosed', 'none_detected', 'escalated_no_separator', 'escalated_exhausted', 'escalated_unmodelled', 'abandoned'))`
+  }
+
+  Note: 'Diagnostic runs. One diagnostic run for one enrolment, pinned to a response model and engine release; outcome status. State machine on status: starts in_progress; allowed in_progress -> diagnosed, in_progress -> none_detected, in_progress -> escalated_no_separator, in_progress -> escalated_exhausted, in_progress -> escalated_unmodelled, in_progress -> abandoned.'
+}
+
+Table sonder.session_hypothesis [headercolor: #EF4444] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  session_id uuid [not null]
+  hypothesis_id uuid [not null]
+  slot smallint [not null]
+  prior_probability numeric [not null]
+
+  indexes {
+    (session_id, hypothesis_id) [unique, name: 'session_hypothesis_session_id_hypothesis_id_key']
+    (session_id, slot) [unique, name: 'session_hypothesis_session_id_slot_key']
+  }
+
+  checks {
+    `((prior_probability >= (0)) AND (prior_probability <= (1)))`
+    `(slot >= 0)`
+  }
+
+  Note: 'Diagnostic runs. Each hypothesis in a run, its slot (order used for ties and replay) and its prior probability.'
+}
+
+Table sonder.session_question [headercolor: #EF4444] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  session_id uuid [not null]
+  step_index integer [not null]
+  item_id uuid [not null]
+  presented_at timestamptz [not null, default: `now()`]
+  selection_reason text [not null]
+  entropy_before numeric [not null]
+  expected_ig numeric [not null]
+
+  indexes {
+    (session_id, item_id) [unique, name: 'session_question_session_id_item_id_key']
+    (session_id, step_index) [unique, name: 'session_question_session_id_step_index_key']
+  }
+
+  checks {
+    `(entropy_before >= (0))`
+    `(expected_ig >= (0))`
+    `(step_index >= 0)`
+  }
+
+  Note: 'Diagnostic runs. A question shown at a step, with why it was chosen (entropy, expected information gain).'
+}
+
+Table sonder.question_candidate [headercolor: #EF4444] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  session_question_id uuid [not null]
+  item_id uuid [not null]
+  rank integer [not null]
+  eig numeric [not null]
+
+  indexes {
+    (session_question_id, item_id) [unique, name: 'question_candidate_session_question_id_item_id_key']
+    (session_question_id, rank) [unique, name: 'question_candidate_session_question_id_rank_key']
+  }
+
+  checks {
+    `(eig >= (0))`
+    `(rank >= 1)`
+  }
+
+  Note: 'Diagnostic runs. The ranked EIG of every candidate item considered for a shown question; rank 1 is the shown item.'
+}
+
+Table sonder.session_step [headercolor: #EF4444] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  session_id uuid [not null]
+  step_index integer [not null]
+  session_question_id uuid [not null, unique]
+  answer_option_id uuid [not null]
+  answered_at timestamptz [not null, default: `now()`]
+  request_key text [not null]
+  calculation_ms numeric [not null]
+  answer_note text [not null]
+
+  indexes {
+    (session_id, request_key) [unique, name: 'session_step_session_id_request_key_key']
+    (session_id, step_index) [unique, name: 'session_step_session_id_step_index_key']
+  }
+
+  checks {
+    `(length(btrim(answer_note)) > 0)`
+    `(calculation_ms >= (0))`
+    `(step_index >= 0)`
+  }
+
+  Note: 'Diagnostic runs. The student\'s answer to a shown question and the engine\'s answer note; append-only, idempotent by request key.'
+}
+
+Table sonder.step_posterior [headercolor: #EF4444] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  step_id uuid [not null]
+  session_hypothesis_id uuid [not null]
+  probability numeric [not null]
+
+  indexes {
+    (step_id, session_hypothesis_id) [unique, name: 'step_posterior_step_id_session_hypothesis_id_key']
+  }
+
+  checks {
+    `((probability >= (0)) AND (probability <= (1)))`
+  }
+
+  Note: 'Diagnostic runs. The posterior probability of each hypothesis after an answer.'
+}
+
+Table sonder.diagnosis [headercolor: #EF4444] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  session_id uuid [not null, unique]
+  created_at timestamptz [not null, default: `now()`]
+
+  Note: 'Diagnostic runs. The engine\'s conclusion for a diagnosed run.'
+}
+
+Table sonder.diagnosis_candidate [headercolor: #EF4444] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  diagnosis_id uuid [not null]
+  session_hypothesis_id uuid [not null]
+  rank smallint [not null]
+
+  indexes {
+    (diagnosis_id, rank) [unique, name: 'diagnosis_candidate_diagnosis_id_rank_key']
+    (diagnosis_id, session_hypothesis_id) [unique, name: 'diagnosis_candidate_diagnosis_id_session_hypothesis_id_key']
+  }
+
+  checks {
+    `(rank IN (1, 2))`
+  }
+
+  Note: 'Diagnostic runs. Rank 1 and rank 2 hypotheses of a diagnosis (confidence read from the last posterior).'
+}
+
+Table sonder.escalation [headercolor: #EF4444] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  session_id uuid [not null, unique]
+  reason text [not null]
+  leader_session_hypothesis_id uuid [not null]
+  created_at timestamptz [not null, default: `now()`]
+
+  checks {
+    `(length(btrim(reason)) > 0)`
+  }
+
+  Note: 'Diagnostic runs. The engine\'s explicit refusal: reason and leading hypothesis (no separator, budget exhausted, unmodelled).'
+}
+
+Table sonder.escalation_candidate [headercolor: #EF4444] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  escalation_id uuid [not null]
+  session_hypothesis_id uuid [not null]
+  rank smallint [not null]
+
+  indexes {
+    (escalation_id, rank) [unique, name: 'escalation_candidate_escalation_id_rank_key']
+    (escalation_id, session_hypothesis_id) [unique, name: 'escalation_candidate_escalation_id_session_hypothesis_id_key']
+  }
+
+  checks {
+    `(rank >= 1)`
+  }
+
+  Note: 'Diagnostic runs. The tied set behind a refusal (two or more for no separator), ranked; includes the leader.'
+}
+
+Table sonder.audit_event [headercolor: #64748B] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  actor_id uuid
+  event_type text [not null]
+  relation_name text [not null]
+  row_id uuid [not null]
+  request_key text
+  occurred_at timestamptz [not null, default: `now()`]
+  detail jsonb [not null, default: `'{}'`]
+
+  indexes {
+    (occurred_at, event_type) [name: 'audit_time_idx', note: 'Audit review: events in a time window.']
+  }
+
+  Note: 'Audit. Append-only log of important inserts, updates and freezes (who, what, when).'
+}
+
+TableGroup "Users and access" [color: #3B82F6] {
+  sonder.app_user
+  sonder.password_credential
+  sonder.auth_session
+}
+
+TableGroup "Classes" [color: #10B981] {
+  sonder.classroom
+  sonder.class_teacher
+  sonder.enrolment
+  sonder.class_subject
+}
+
+TableGroup "Math content pack" [color: #8B5CF6] {
+  sonder.subject
+  sonder.content_version
+  sonder.topic
+  sonder.topic_revision
+  sonder.misconception
+  sonder.misconception_revision
+  sonder.topic_misconception
+  sonder.source_reference
+  sonder.misconception_source
+  sonder.item
+  sonder.item_option
+  sonder.option_misconception
+  sonder.item_source
+  sonder.item_review
+}
+
+TableGroup "Engine model (frozen inputs)" [color: #F59E0B] {
+  sonder.hypothesis
+  sonder.engine_release
+  sonder.engine_params
+  sonder.response_model
+  sonder.response_parameter
+  sonder.response_probability
+}
+
+TableGroup "Diagnostic runs" [color: #EF4444] {
+  sonder.diagnostic_session
+  sonder.session_hypothesis
+  sonder.session_question
+  sonder.question_candidate
+  sonder.session_step
+  sonder.step_posterior
+  sonder.diagnosis
+  sonder.diagnosis_candidate
+  sonder.escalation
+  sonder.escalation_candidate
+}
+
+TableGroup "Audit" [color: #64748B] {
+  sonder.audit_event
+}
+
+Ref: sonder.app_user.id - sonder.password_credential.user_id [delete: cascade]
+Ref: sonder.auth_session.user_id > sonder.app_user.id [delete: cascade]
+Ref: sonder.class_teacher.class_id > sonder.classroom.id [delete: restrict]
+Ref: sonder.class_teacher.teacher_id > sonder.app_user.id [delete: restrict]
+Ref: sonder.enrolment.class_id > sonder.classroom.id [delete: restrict]
+Ref: sonder.enrolment.student_id > sonder.app_user.id [delete: restrict]
+Ref: sonder.class_subject.class_id > sonder.classroom.id [delete: restrict]
+Ref: sonder.class_subject.subject_id > sonder.subject.id [delete: restrict]
+Ref: sonder.content_version.subject_id > sonder.subject.id [delete: restrict]
+Ref: sonder.topic.subject_id > sonder.subject.id [delete: restrict]
+Ref: sonder.topic_revision.content_version_id > sonder.content_version.id [delete: restrict]
+Ref: sonder.topic_revision.topic_id > sonder.topic.id [delete: restrict]
+Ref: sonder.misconception.subject_id > sonder.subject.id [delete: restrict]
+Ref: sonder.misconception_revision.content_version_id > sonder.content_version.id [delete: restrict]
+Ref: sonder.misconception_revision.misconception_id > sonder.misconception.id [delete: restrict]
+Ref: sonder.topic_misconception.misconception_revision_id > sonder.misconception_revision.id [delete: restrict]
+Ref: sonder.topic_misconception.topic_revision_id > sonder.topic_revision.id [delete: restrict]
+Ref: sonder.misconception_source.misconception_revision_id > sonder.misconception_revision.id [delete: restrict]
+Ref: sonder.misconception_source.source_id > sonder.source_reference.id [delete: restrict]
+Ref: sonder.item.author_id > sonder.app_user.id [delete: restrict]
+Ref: sonder.item.target_misconception_revision_id > sonder.misconception_revision.id [delete: restrict]
+Ref: sonder.item.topic_revision_id > sonder.topic_revision.id [delete: restrict]
+Ref: sonder.item_option.item_id > sonder.item.id [delete: cascade]
+Ref: sonder.option_misconception.misconception_revision_id > sonder.misconception_revision.id [delete: restrict]
+Ref: sonder.option_misconception.option_id > sonder.item_option.id [delete: cascade]
+Ref: sonder.item_source.item_id > sonder.item.id [delete: cascade]
+Ref: sonder.item_source.source_id > sonder.source_reference.id [delete: restrict]
+Ref: sonder.item_review.item_id > sonder.item.id [delete: restrict]
+Ref: sonder.item_review.reviewer_id > sonder.app_user.id [delete: restrict]
+Ref: sonder.hypothesis.content_version_id > sonder.content_version.id [delete: restrict]
+Ref: sonder.hypothesis.misconception_revision_id > sonder.misconception_revision.id [delete: restrict]
+Ref: sonder.response_model.content_version_id > sonder.content_version.id [delete: restrict]
+Ref: sonder.response_model.engine_params_id > sonder.engine_params.id [delete: restrict]
+Ref: sonder.response_parameter.hypothesis_id > sonder.hypothesis.id [delete: restrict]
+Ref: sonder.response_parameter.response_model_id > sonder.response_model.id [delete: restrict]
+Ref: sonder.response_probability.hypothesis_id > sonder.hypothesis.id [delete: restrict]
+Ref: sonder.response_probability.option_id > sonder.item_option.id [delete: restrict]
+Ref: sonder.response_probability.response_model_id > sonder.response_model.id [delete: restrict]
+Ref: sonder.diagnostic_session.engine_release_id > sonder.engine_release.id [delete: restrict]
+Ref: sonder.diagnostic_session.enrolment_id > sonder.enrolment.id [delete: restrict]
+Ref: sonder.diagnostic_session.response_model_id > sonder.response_model.id [delete: restrict]
+Ref: sonder.diagnostic_session.topic_revision_id > sonder.topic_revision.id [delete: restrict]
+Ref: sonder.session_hypothesis.hypothesis_id > sonder.hypothesis.id [delete: restrict]
+Ref: sonder.session_hypothesis.session_id > sonder.diagnostic_session.id [delete: restrict]
+Ref: sonder.session_question.item_id > sonder.item.id [delete: restrict]
+Ref: sonder.session_question.session_id > sonder.diagnostic_session.id [delete: restrict]
+Ref: sonder.question_candidate.item_id > sonder.item.id [delete: restrict]
+Ref: sonder.question_candidate.session_question_id > sonder.session_question.id [delete: restrict]
+Ref: sonder.session_step.answer_option_id > sonder.item_option.id [delete: restrict]
+Ref: sonder.session_step.session_id > sonder.diagnostic_session.id [delete: restrict]
+Ref: sonder.session_question.id - sonder.session_step.session_question_id [delete: restrict]
+Ref: sonder.step_posterior.session_hypothesis_id > sonder.session_hypothesis.id [delete: restrict]
+Ref: sonder.step_posterior.step_id > sonder.session_step.id [delete: restrict]
+Ref: sonder.diagnostic_session.id - sonder.diagnosis.session_id [delete: restrict]
+Ref: sonder.diagnosis_candidate.diagnosis_id > sonder.diagnosis.id [delete: restrict]
+Ref: sonder.diagnosis_candidate.session_hypothesis_id > sonder.session_hypothesis.id [delete: restrict]
+Ref: sonder.escalation.leader_session_hypothesis_id > sonder.session_hypothesis.id [delete: restrict]
+Ref: sonder.diagnostic_session.id - sonder.escalation.session_id [delete: restrict]
+Ref: sonder.escalation_candidate.escalation_id > sonder.escalation.id [delete: restrict]
+Ref: sonder.escalation_candidate.session_hypothesis_id > sonder.session_hypothesis.id [delete: restrict]
+Ref: sonder.audit_event.actor_id > sonder.app_user.id [delete: restrict]
