@@ -1,0 +1,3 @@
+# Keep PDFs byte-for-byte: Git otherwise treats text-only PDFs as text and rewrites line endings
+# on Windows checkouts (core.autocrlf), which breaks the PDF cross-reference table.
+*.pdf binary
