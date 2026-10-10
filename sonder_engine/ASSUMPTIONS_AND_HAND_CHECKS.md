@@ -43,3 +43,13 @@ For a synthetic two-misconception item, A is correct, B links only M1, C links o
 | prior UNMODELLED .06 | .806793 | .162455 |
 
 These are one-answer changes only. They do **not** establish robustness of an eventual session outcome; that needs Harris's selector, Ahmed's stop/run loop, an accepted content pack, and separate end-to-end checks. A future versioned parameter file and content hash must be pinned to each session by the service.
+
+## Read-only current Maths bank exercise
+
+`tests/test_bayes_math_candidate.py` reads the current `Maths_v2` CSVs into `Item` objects **only in the test**. It checks that all 20 T1 rounding items produce positive, normalized six-by-four likelihood matrices and that every one of their 80 possible one-answer posteriors is finite and normalized. The production package itself still reads no CSV.
+
+For T1-005, the current stem asks for 48,630 rounded to the nearest 1,000. Option B is 48,600 and links to `MATH-1248`; D is the correct 49,000. Starting from the six-entry default prior, observing **B** gives posterior `(147, 21, 7, 21, 10, 15) / 221`, or about `(0.665158, 0.095023, 0.031674, 0.095023, 0.045249, 0.067873)`. Observing **D** instead gives `(0.039106, 0.039106, 0.351955, 0.039106, 0.502793, 0.027933)`. The large remaining mass on `MATH-1988` after D occurs because that misconception is not triggered on this item and therefore predicts the correct answer like `NONE`.
+
+These results prove that the calculation functions can consume this **candidate** content and produce reproducible numbers. They do not show automatic question choice, a stopping decision, a diagnosis, a real-student accuracy result, or UI/service integration. They also do not settle the T1 link-quality issues recorded in `validation/T1_ROUNDING_ITEM_REVIEW.md` on the separate data-review branch.
+
+A second read-only test manually applies T1-005 answer B followed by T1-007 answer D to the same posterior. Both options link to `MATH-1248`; the resulting six masses are `(6174, 126, 14, 126, 20, 225) / 6685`, with `MATH-1248 ≈ 0.923560`. This demonstrates repeated Bayesian updates, while leaving item choice and diagnosis to their actual owners.
