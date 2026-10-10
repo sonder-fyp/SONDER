@@ -12,6 +12,7 @@
 **/next-env.d.ts
 **/__pycache__/
 **/*.pyc
+**/*.egg-info/
 
 # Local environments and secrets.
 **/.env
