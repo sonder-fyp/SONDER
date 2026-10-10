@@ -1,0 +1,7 @@
+Link-soundness audit - B01, B02 (T1 Rounding; both in the bank). Independent auditor; not the owner's approval.
+Result: 10 links STRETCH, 0 FORCED.
+STRETCH (all MATH-1248 'rounds too little', where the marked option is the ORIGINAL NUMBER left unchanged = 'did not round'): B01 T1-001 C 3,908; T1-002 A 4,192; T1-008 C 6,243; T1-010 C 7.346. B02 T1-011 A 2,694; T1-013 B 12.43; T1-014 C 5,408; T1-015 B 3.76; T1-018 C 47.6; T1-020 A 9.64.
+Why: an unchanged number is indistinguishable from 'misread the question'; on 'nearest 10' and decimal items it is the ONLY possible 'too little' answer. Real 'too little' answers (a finer place value, e.g. 8,370 / 5,940 / 48,600 / 23,200 / 12,500) are sound.
+Checked and fine: all 13 shared 1379/2392 and 1988/2392 options are genuine collisions; direction check passed (every 1379 item rounds UP, every 1988 item rounds DOWN, no void link); all 'too much' links sound.
+Per-item note: in T1-002 and T1-014 the only 1248 option is the unchanged number, so those items never test a real 'too little'.
+Auditor suggestions: tag the 10 as [STRETCH LINK] with the reading 'did not round'; add items where a genuine partial round exists (nearest 1,000 -> the nearest-100 value; 1 d.p. on a 3-d.p. number -> the 2 d.p. value).

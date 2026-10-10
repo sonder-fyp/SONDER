@@ -1,0 +1,37 @@
+﻿item_id,topic,target,stem,option_id,option_text,is_correct,misconceptions,status
+T6-001,T6 Time and unit conversion,MATH-767,Convert 240 minutes into hours.,A,2.4 hours,False,MATH-161,draft
+T6-001,T6 Time and unit conversion,MATH-767,Convert 240 minutes into hours.,B,4 hours,True,,draft
+T6-001,T6 Time and unit conversion,MATH-767,Convert 240 minutes into hours.,C,24 hours,False,MATH-767,draft
+T6-001,T6 Time and unit conversion,MATH-767,Convert 240 minutes into hours.,D,"14,400 hours",False,MATH-1651|MATH-1074,draft
+T6-002,T6 Time and unit conversion,MATH-161,Fill the gap: 2.5 hours = ___ minutes.,A,250 minutes,False,MATH-161,draft
+T6-002,T6 Time and unit conversion,MATH-161,Fill the gap: 2.5 hours = ___ minutes.,B,25 minutes,False,MATH-767,draft
+T6-002,T6 Time and unit conversion,MATH-161,Fill the gap: 2.5 hours = ___ minutes.,C,120 minutes,False,,draft
+T6-002,T6 Time and unit conversion,MATH-161,Fill the gap: 2.5 hours = ___ minutes.,D,150 minutes,True,,draft
+T6-003,T6 Time and unit conversion,MATH-161,A bus journey takes 180 minutes. How many hours is the journey?,A,3 hours,True,,draft
+T6-003,T6 Time and unit conversion,MATH-161,A bus journey takes 180 minutes. How many hours is the journey?,B,1.8 hours,False,MATH-161,draft
+T6-003,T6 Time and unit conversion,MATH-161,A bus journey takes 180 minutes. How many hours is the journey?,C,18 hours,False,MATH-767,draft
+T6-003,T6 Time and unit conversion,MATH-161,A bus journey takes 180 minutes. How many hours is the journey?,D,"10,800 hours",False,MATH-1651|MATH-1074,draft
+T6-004,T6 Time and unit conversion,MATH-767,Which of these is the same as 2 hours 20 minutes?,A,220 minutes,False,MATH-161,draft
+T6-004,T6 Time and unit conversion,MATH-767,Which of these is the same as 2 hours 20 minutes?,B,40 minutes,False,MATH-767,draft
+T6-004,T6 Time and unit conversion,MATH-767,Which of these is the same as 2 hours 20 minutes?,C,140 minutes,True,,draft
+T6-004,T6 Time and unit conversion,MATH-767,Which of these is the same as 2 hours 20 minutes?,D,120 minutes,False,,draft
+T6-005,T6 Time and unit conversion,MATH-1651,"Ali, Bilal, Sana and Hira each change 120 minutes into hours. Ali: 1.2 hours. Bilal: 12 hours. Sana: 2 hours. Hira: 7,200 hours. Who is correct?",A,Ali,False,MATH-161,draft
+T6-005,T6 Time and unit conversion,MATH-1651,"Ali, Bilal, Sana and Hira each change 120 minutes into hours. Ali: 1.2 hours. Bilal: 12 hours. Sana: 2 hours. Hira: 7,200 hours. Who is correct?",B,Bilal,False,MATH-767,draft
+T6-005,T6 Time and unit conversion,MATH-1651,"Ali, Bilal, Sana and Hira each change 120 minutes into hours. Ali: 1.2 hours. Bilal: 12 hours. Sana: 2 hours. Hira: 7,200 hours. Who is correct?",C,Hira,False,MATH-1651|MATH-1074,draft
+T6-005,T6 Time and unit conversion,MATH-1651,"Ali, Bilal, Sana and Hira each change 120 minutes into hours. Ali: 1.2 hours. Bilal: 12 hours. Sana: 2 hours. Hira: 7,200 hours. Who is correct?",D,Sana,True,,draft
+T6-006,T6 Time and unit conversion,MATH-1074,Which statement is correct?,A,300 minutes = 3 hours,False,MATH-161,draft
+T6-006,T6 Time and unit conversion,MATH-1074,Which statement is correct?,B,300 minutes = 5 hours,True,,draft
+T6-006,T6 Time and unit conversion,MATH-1074,Which statement is correct?,C,300 minutes = 30 hours,False,MATH-767,draft
+T6-006,T6 Time and unit conversion,MATH-1074,Which statement is correct?,D,"300 minutes = 18,000 hours",False,MATH-1651|MATH-1074,draft
+T6-007,T6 Time and unit conversion,MATH-161,A school day is 6 hours long. How many minutes is that?,A,600 minutes,False,MATH-161,draft
+T6-007,T6 Time and unit conversion,MATH-161,A school day is 6 hours long. How many minutes is that?,B,60 minutes,False,MATH-767,draft
+T6-007,T6 Time and unit conversion,MATH-161,A school day is 6 hours long. How many minutes is that?,C,360 minutes,True,,draft
+T6-007,T6 Time and unit conversion,MATH-161,A school day is 6 hours long. How many minutes is that?,D,66 minutes,False,,draft
+T6-008,T6 Time and unit conversion,MATH-1651,Which of these is the same as 480 minutes?,A,8 hours,True,,draft
+T6-008,T6 Time and unit conversion,MATH-1651,Which of these is the same as 480 minutes?,B,4.8 hours,False,MATH-161,draft
+T6-008,T6 Time and unit conversion,MATH-1651,Which of these is the same as 480 minutes?,C,48 hours,False,MATH-767,draft
+T6-008,T6 Time and unit conversion,MATH-1651,Which of these is the same as 480 minutes?,D,"28,800 hours",False,MATH-1651|MATH-1074,draft
+T6-009,T6 Time and unit conversion,MATH-767,Which sentence is true?,A,4 hours = 400 minutes,False,MATH-161,draft
+T6-009,T6 Time and unit conversion,MATH-767,Which sentence is true?,B,4 hours = 40 minutes,False,MATH-767,draft
+T6-009,T6 Time and unit conversion,MATH-767,Which sentence is true?,C,4 hours = 240 minutes,True,,draft
+T6-009,T6 Time and unit conversion,MATH-767,Which sentence is true?,D,4 hours = 64 minutes,False,,draft

@@ -1,0 +1,21 @@
+﻿item_id,topic,target,stem,option_id,option_text,is_correct,misconceptions,status
+T2-021,"T2 Fractions, decimals and percentage conversion",MATH-61,A water tank is 0.35 full. What percentage of the tank is full?,A,3.5%,False,MATH-61,draft
+T2-021,"T2 Fractions, decimals and percentage conversion",MATH-61,A water tank is 0.35 full. What percentage of the tank is full?,B,0.35%,False,MATH-1965|MATH-2039,draft
+T2-021,"T2 Fractions, decimals and percentage conversion",MATH-61,A water tank is 0.35 full. What percentage of the tank is full?,C,53%,False,,draft
+T2-021,"T2 Fractions, decimals and percentage conversion",MATH-61,A water tank is 0.35 full. What percentage of the tank is full?,D,35%,True,,draft
+T2-022,"T2 Fractions, decimals and percentage conversion",MATH-1965,Write 0.25 as a percentage.,A,2.5%,False,MATH-61,draft
+T2-022,"T2 Fractions, decimals and percentage conversion",MATH-1965,Write 0.25 as a percentage.,B,25%,True,,draft
+T2-022,"T2 Fractions, decimals and percentage conversion",MATH-1965,Write 0.25 as a percentage.,C,0.25%,False,MATH-1965|MATH-2039,draft
+T2-022,"T2 Fractions, decimals and percentage conversion",MATH-1965,Write 0.25 as a percentage.,D,52%,False,,draft
+T2-023,"T2 Fractions, decimals and percentage conversion",MATH-2039,"In a garden, 7 out of 25 plants flowered. What percentage of the plants flowered?",A,28%,True,,draft
+T2-023,"T2 Fractions, decimals and percentage conversion",MATH-2039,"In a garden, 7 out of 25 plants flowered. What percentage of the plants flowered?",B,14%,False,MATH-658,draft
+T2-023,"T2 Fractions, decimals and percentage conversion",MATH-2039,"In a garden, 7 out of 25 plants flowered. What percentage of the plants flowered?",C,7%,False,MATH-2039,draft
+T2-023,"T2 Fractions, decimals and percentage conversion",MATH-2039,"In a garden, 7 out of 25 plants flowered. What percentage of the plants flowered?",D,70%,False,MATH-1715,draft
+T2-024,"T2 Fractions, decimals and percentage conversion",MATH-658,4 of the 25 pupils in a class wear glasses. What percentage of the class wears glasses?,A,8%,False,MATH-658,draft
+T2-024,"T2 Fractions, decimals and percentage conversion",MATH-658,4 of the 25 pupils in a class wear glasses. What percentage of the class wears glasses?,B,4%,False,MATH-2039,draft
+T2-024,"T2 Fractions, decimals and percentage conversion",MATH-658,4 of the 25 pupils in a class wear glasses. What percentage of the class wears glasses?,C,16%,True,,draft
+T2-024,"T2 Fractions, decimals and percentage conversion",MATH-658,4 of the 25 pupils in a class wear glasses. What percentage of the class wears glasses?,D,40%,False,MATH-1715,draft
+T2-025,"T2 Fractions, decimals and percentage conversion",MATH-1715,One fifth of a bag of flour was used. What percentage of the bag was used?,A,2%,False,MATH-658,draft
+T2-025,"T2 Fractions, decimals and percentage conversion",MATH-1715,One fifth of a bag of flour was used. What percentage of the bag was used?,B,20%,True,,draft
+T2-025,"T2 Fractions, decimals and percentage conversion",MATH-1715,One fifth of a bag of flour was used. What percentage of the bag was used?,C,1%,False,MATH-2039,draft
+T2-025,"T2 Fractions, decimals and percentage conversion",MATH-1715,One fifth of a bag of flour was used. What percentage of the bag was used?,D,10%,False,MATH-1715,draft

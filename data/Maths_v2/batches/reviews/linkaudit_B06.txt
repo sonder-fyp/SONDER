@@ -1,0 +1,6 @@
+Link-soundness audit - B06 (T4 choosing the operation; in the bank). Independent auditor; not the owner's approval.
+Result: 0 FORCED, 8 STRETCH.
+- MATH-1416 'adds instead of multiplies' on ALL FIVE 'groups of ... then less than' items (T4-001 Rs 7, 002 9, 003 9, 004 1, 005 9): the stem names the multiplicative structure ('each', 'groups of') so strongly that adding 5+8 is rare; also a partial chain (wrong step 1, correct step 2). Defensible but weak -> [STRETCH LINK].
+- MATH-228 'divides for less than' coincides with a stem figure: T4-003 option 6 (36/6 = the 'less than' amount), T4-006 option 4 (= the '4 more' figure), T4-007 option Rs 5 (= the 'Rs 5 more' figure). A student with no misconception could echo the stem number.
+Sound: all 126 links (29, 47, 49, 63, 31); all 1514/1773 links (counted once); 228 elsewhere.
+Auditor suggestions: change numbers so no distractor equals a stem figure (T4-003 '6 less' -> '4 less'; T4-006 '3 less' -> '6 less'; T4-007 -> 'Rs 4 more', 'Rs 2 less'); fix 'less seats'/'less students' wording; mark 1416 options [STRETCH LINK]; template monotony (all 10 are 'step 1, then less than'). Auditor's view: splitting B06 into A/B pairs is NOT needed for soundness, since every option keeps one step correct, so there is no cross-skill ambiguity.

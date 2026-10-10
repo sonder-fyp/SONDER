@@ -1,0 +1,7 @@
+Link-soundness audit - B07, B08 (T5 powers and roots; both in the bank). Independent auditor; not the owner's approval.
+Result: 1 FORCED, 5 STRETCH; all other links sound.
+FORCED: B08 T5-014 C 0.0625 (MATH-2359): the top and bottom are given explicitly, so a student has no reason to divide 4 by 64; believing division is commutative predicts no particular order; value also implausible.
+STRETCH: B07 T5-003 C 13.5, T5-004 B 108, T5-010 D 67.5 (MATH-734 'halving' applied to a CUBE root - 734 is about square roots); B08 T5-011 A 39 (1514/1773: the stem says 'subtract' outright; the misconception shows in ambiguous worded problems); B08 T5-014 A 60 (2093: the stem says 'on the top / on the bottom', reading the bar as subtract is unlikely).
+Structural: 414 and 734 give n/2 for both on every square-root item (T5-005..009); the only separating evidence is the three STRETCH cube-root links. Auditor recommends treating 414/734 as an inseparable pair, as with 1514/1773.
+Other: T5-003 'multiplied by itself three times' can be read as four factors; T5-009 C 16 also reachable by forgetting to add the root (skill outside the target); T5-016 B (27) and T5-005 B (9) equal a stem radicand.
+Sound: 126/228/1514 after a power or root step (T5-013, 015, 016); T5-002 '3+4' and '3x4' are sound 952/1072 links.

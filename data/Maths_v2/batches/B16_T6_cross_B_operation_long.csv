@@ -1,0 +1,13 @@
+﻿item_id,topic,target,stem,option_id,option_text,is_correct,misconceptions,status
+T6-019B,T6 x percentage / more / less than (operation version),MATH-2206,"What is 10% of 2 hours, in minutes?",A,130 minutes,False,MATH-2206,draft
+T6-019B,T6 x percentage / more / less than (operation version),MATH-2206,"What is 10% of 2 hours, in minutes?",B,10 minutes,False,MATH-2138,draft
+T6-019B,T6 x percentage / more / less than (operation version),MATH-2206,"What is 10% of 2 hours, in minutes?",C,12 minutes,True,,draft
+T6-019B,T6 x percentage / more / less than (operation version),MATH-2206,"What is 10% of 2 hours, in minutes?",D,"1,200 minutes",False,MATH-1651|MATH-1074,draft
+T6-020B,T6 x percentage / more / less than (operation version),MATH-228,Sara studies for 2 hours. Hina studies 15 minutes less than Sara. How many minutes does Hina study?,A,105 minutes,True,,draft
+T6-020B,T6 x percentage / more / less than (operation version),MATH-228,Sara studies for 2 hours. Hina studies 15 minutes less than Sara. How many minutes does Hina study?,B,8 minutes,False,MATH-228,draft
+T6-020B,T6 x percentage / more / less than (operation version),MATH-228,Sara studies for 2 hours. Hina studies 15 minutes less than Sara. How many minutes does Hina study?,C,135 minutes,False,MATH-1514|MATH-1773,draft
+T6-020B,T6 x percentage / more / less than (operation version),MATH-228,Sara studies for 2 hours. Hina studies 15 minutes less than Sara. How many minutes does Hina study?,D,120 minutes,False,,draft
+T6-021B,T6 x percentage / more / less than (operation version),MATH-126,Zara cycled for 3 hours. Ali cycled 40 minutes more than Zara. How many minutes did Ali cycle?,A,"7,200 minutes",False,MATH-126,draft
+T6-021B,T6 x percentage / more / less than (operation version),MATH-126,Zara cycled for 3 hours. Ali cycled 40 minutes more than Zara. How many minutes did Ali cycle?,B,140 minutes,False,,draft
+T6-021B,T6 x percentage / more / less than (operation version),MATH-126,Zara cycled for 3 hours. Ali cycled 40 minutes more than Zara. How many minutes did Ali cycle?,C,180 minutes,False,,draft
+T6-021B,T6 x percentage / more / less than (operation version),MATH-126,Zara cycled for 3 hours. Ali cycled 40 minutes more than Zara. How many minutes did Ali cycle?,D,220 minutes,True,,draft
