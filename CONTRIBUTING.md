@@ -12,10 +12,9 @@
 1. Branch off `dev`, work, push your feature branch.
 2. Open a PR into `dev`. CI runs automatically (install, lint, tests, build for the UI).
 3. Fix anything CI flags by pushing to the same branch.
-4. One teammate reviews and approves. Not the author. This matches the lead/reviewer pairing in the work division.
-5. Squash merge into `dev`.
-6. When `dev` is stable, open a PR from `dev` into `main` with the same CI and one approval, and merge with a regular merge commit. Do not squash, otherwise `dev` and `main` drift apart.
-7. Ahmed tags the evaluation commit on `main`.
+4. Merge into `dev` once CI is green. No approval from another team member is required.
+5. When `dev` is stable, open a PR from `dev` into `main` with CI green and one approval, and merge with a regular merge commit. Do not squash, otherwise `dev` and `main` drift apart.
+6. Ahmed tags the evaluation commit on `main`.
 
 ## Rules
 
