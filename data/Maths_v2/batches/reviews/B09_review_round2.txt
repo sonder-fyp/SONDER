@@ -1,0 +1,6 @@
+B09 (T6, 10 items) - reviewer agent report, round 2 (simulated owner review; not the owner's approval)
+VERDICT: REJECT. Variety still the problem: 7 of 10 items are minutes-to-hours with the identical distractor set (/100, /10, x60); only stem wording varies.
+Fixed since round 1: template repetition - NO (5 -> 7); untraceable 78 - yes; mixed answer forms - partly; 'Complete the table' - yes; non-integer divisions - yes.
+Issues: T6-002 C (150) and T6-007 D (300) are weak noise; absurd x60 options give answers away in context items (009 '25,200 hours' for a flight, 003 '10,800 hours', 010 '21,600 hours'); 005 'four friends' clunky.
+RATINGS (nat|clar|distr|var): 001 4/5/4/2, 002 4/5/3/3, 003 5/5/3/1, 004 4/4/4/5, 005 2/3/3/3, 006 3/4/3/3, 007 5/5/3/3, 008 4/5/3/1, 009 5/5/3/1, 010 5/5/3/1
+TOP FIXES: (1) replace 003/008/009 with different forms; (2) delete 010; keep at most 2 minutes-to-hours items; (3) cut absurd x60 options in context items; rewrite 005.

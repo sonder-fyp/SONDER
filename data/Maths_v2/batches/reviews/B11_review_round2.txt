@@ -1,0 +1,6 @@
+B11 (T7, 10 items) - reviewer agent report, round 2 (simulated owner review; not the owner's approval)
+VERDICT: APPROVE WITH CHANGES. Arithmetic correct; clone problems remain in two families; partial-application options still there.
+Fixed since round 1: divide-inverse clones - partly (002/005 share the same three distractor types); 'first two/last two' 1639 readings - no (001/004/008 structurally identical); slash fractions - yes ('a over b' clear, but not how a Grade 8 paper writes it); 'whole number' padding - yes; 1416 stretch - partly (still in 002 D and 005 D).
+Errors: none arithmetic. 1639 B/D not fair readings (derivable from other errors); 003/006 'as a decimal' on integer answers is odd and hints at 1715; unlinked 4 (cap 4).
+RATINGS (nat|clar|distr|var): 001 4/5/2/2, 002 4/5/3/3, 003 2/4/4/2, 004 5/5/2/3, 005 4/5/3/3, 006 2/4/4/1, 007 5/5/4/4, 008 5/5/2/2, 009 5/5/4/4, 010 4/5/4/3
+TOP FIXES: (1) keep one three-term 1639 item; others two-term in different forms, no first/last-pair options; (2) 003/006: drop 'as a decimal' for integer answers or use non-integer answers; make 006 a word problem (share 40 sweets among 8 children); (3) change one of 002/005; replace the 1416 option D.

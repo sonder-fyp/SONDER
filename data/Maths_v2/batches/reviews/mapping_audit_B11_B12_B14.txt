@@ -1,0 +1,4 @@
+Mapping-soundness audit (independent skeptical reviewer; not the owner's approval) - B11, B12, B14 after replacing forced links.
+Confirmed removed: 1416 in divide-inverse items; arbitrary 2271/2359 split in divide-inverse items; 1639 on subtraction items; 1715 on improper fractions.
+Flagged STRETCH: (1) 2093 giving negative 'decimals' (1-4 = -3) on T7-002/004/009/016 -> FIXED: now takes the smaller from the larger (4-1 = 3); (2) 1639 left-to-right 'first pair positive' partial reading on T7-001/006/010/011/012 -> no sound replacement; kept linked, marked [STRETCH LINK]; (3) B14 1416 mixed-step readings (6 options) -> no sound replacement; kept, marked [STRETCH LINK]; (4) T7-003 A shared 2271/1514/1773 (minor).
+All other links rated sound, including: all-positive 1639; 2093 on 40/8 and 16/4; 2359 'divides bottom by top'; 1715 on 1/n and 2/5; 2271/2359 in the multiply-inverse item; 3,600/seconds as 2359.

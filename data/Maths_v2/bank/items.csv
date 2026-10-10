@@ -1,0 +1,469 @@
+﻿item_id,topic,target,stem,option_id,option_text,is_correct,misconceptions,status,batch
+T1-001,T1 Rounding,MATH-1379,"A farm packed 3,908 kg of mangoes this season. What is this weight rounded to the nearest 10 kg?",A,"3,900",False,MATH-1379|MATH-2392,approved,B01
+T1-001,T1 Rounding,MATH-1379,"A farm packed 3,908 kg of mangoes this season. What is this weight rounded to the nearest 10 kg?",B,"3,910",True,,approved,B01
+T1-001,T1 Rounding,MATH-1379,"A farm packed 3,908 kg of mangoes this season. What is this weight rounded to the nearest 10 kg?",C,"3,908",False,MATH-1248,approved,B01
+T1-001,T1 Rounding,MATH-1379,"A farm packed 3,908 kg of mangoes this season. What is this weight rounded to the nearest 10 kg?",D,"4,000",False,,approved,B01
+T1-002,T1 Rounding,MATH-2392,"4,192 people watched a cricket match at the stadium. What is this number rounded to the nearest 10?",A,"4,192",False,MATH-1248,approved,B01
+T1-002,T1 Rounding,MATH-2392,"4,192 people watched a cricket match at the stadium. What is this number rounded to the nearest 10?",B,"4,200",False,MATH-1988|MATH-2392,approved,B01
+T1-002,T1 Rounding,MATH-2392,"4,192 people watched a cricket match at the stadium. What is this number rounded to the nearest 10?",C,"4,000",False,,approved,B01
+T1-002,T1 Rounding,MATH-2392,"4,192 people watched a cricket match at the stadium. What is this number rounded to the nearest 10?",D,"4,190",True,,approved,B01
+T1-003,T1 Rounding,MATH-1988,"A second-hand bicycle costs Rs 5,942. What is this price rounded to the nearest Rs 100?",A,"5,900",True,,approved,B01
+T1-003,T1 Rounding,MATH-1988,"A second-hand bicycle costs Rs 5,942. What is this price rounded to the nearest Rs 100?",B,"5,940",False,MATH-1248,approved,B01
+T1-003,T1 Rounding,MATH-1988,"A second-hand bicycle costs Rs 5,942. What is this price rounded to the nearest Rs 100?",C,"6,000",False,MATH-1988|MATH-2392,approved,B01
+T1-003,T1 Rounding,MATH-1988,"A second-hand bicycle costs Rs 5,942. What is this price rounded to the nearest Rs 100?",D,"10,000",False,,approved,B01
+T1-004,T1 Rounding,MATH-1379,"A school library has 7,068 books. What is this number rounded to the nearest 100?",A,"7,000",False,MATH-1379|MATH-2392,approved,B01
+T1-004,T1 Rounding,MATH-1379,"A school library has 7,068 books. What is this number rounded to the nearest 100?",B,"7,070",False,MATH-1248,approved,B01
+T1-004,T1 Rounding,MATH-1379,"A school library has 7,068 books. What is this number rounded to the nearest 100?",C,"7,100",True,,approved,B01
+T1-004,T1 Rounding,MATH-1379,"A school library has 7,068 books. What is this number rounded to the nearest 100?",D,"10,000",False,,approved,B01
+T1-005,T1 Rounding,MATH-2392,"A city has 48,630 residents. What is this number rounded to the nearest 1,000?",A,"48,000",False,MATH-1379,approved,B01
+T1-005,T1 Rounding,MATH-2392,"A city has 48,630 residents. What is this number rounded to the nearest 1,000?",B,"48,600",False,MATH-1248,approved,B01
+T1-005,T1 Rounding,MATH-2392,"A city has 48,630 residents. What is this number rounded to the nearest 1,000?",C,"50,000",False,MATH-2392,approved,B01
+T1-005,T1 Rounding,MATH-2392,"A city has 48,630 residents. What is this number rounded to the nearest 1,000?",D,"49,000",True,,approved,B01
+T1-006,T1 Rounding,MATH-1988,"A bus company carried 23,240 passengers last month. What is this number rounded to the nearest 1,000?",A,"20,000",False,MATH-2392,approved,B01
+T1-006,T1 Rounding,MATH-1988,"A bus company carried 23,240 passengers last month. What is this number rounded to the nearest 1,000?",B,"23,000",True,,approved,B01
+T1-006,T1 Rounding,MATH-1988,"A bus company carried 23,240 passengers last month. What is this number rounded to the nearest 1,000?",C,"23,200",False,MATH-1248,approved,B01
+T1-006,T1 Rounding,MATH-1988,"A bus company carried 23,240 passengers last month. What is this number rounded to the nearest 1,000?",D,"24,000",False,MATH-1988,approved,B01
+T1-007,T1 Rounding,MATH-1248,"The distance from Karachi to a village is 8,374 metres by road. What is this distance rounded to the nearest 100 metres?",A,"8,000",False,MATH-2392,approved,B01
+T1-007,T1 Rounding,MATH-1248,"The distance from Karachi to a village is 8,374 metres by road. What is this distance rounded to the nearest 100 metres?",B,"8,300",False,MATH-1379,approved,B01
+T1-007,T1 Rounding,MATH-1248,"The distance from Karachi to a village is 8,374 metres by road. What is this distance rounded to the nearest 100 metres?",C,"8,400",True,,approved,B01
+T1-007,T1 Rounding,MATH-1248,"The distance from Karachi to a village is 8,374 metres by road. What is this distance rounded to the nearest 100 metres?",D,"8,370",False,MATH-1248,approved,B01
+T1-008,T1 Rounding,MATH-1248,"A shop sold 6,243 pens in a year. What is this number rounded to the nearest 10?",A,"6,240",True,,approved,B01
+T1-008,T1 Rounding,MATH-1248,"A shop sold 6,243 pens in a year. What is this number rounded to the nearest 10?",B,"6,200",False,MATH-2392,approved,B01
+T1-008,T1 Rounding,MATH-1248,"A shop sold 6,243 pens in a year. What is this number rounded to the nearest 10?",C,"6,243",False,MATH-1248,approved,B01
+T1-008,T1 Rounding,MATH-1248,"A shop sold 6,243 pens in a year. What is this number rounded to the nearest 10?",D,"6,250",False,MATH-1988,approved,B01
+T1-009,T1 Rounding,MATH-1379,"A charity raised Rs 15,720. What is this amount rounded to the nearest Rs 1,000?",A,"15,000",False,MATH-1379,approved,B01
+T1-009,T1 Rounding,MATH-1379,"A charity raised Rs 15,720. What is this amount rounded to the nearest Rs 1,000?",B,"16,000",True,,approved,B01
+T1-009,T1 Rounding,MATH-1379,"A charity raised Rs 15,720. What is this amount rounded to the nearest Rs 1,000?",C,"15,700",False,MATH-1248,approved,B01
+T1-009,T1 Rounding,MATH-1379,"A charity raised Rs 15,720. What is this amount rounded to the nearest Rs 1,000?",D,"20,000",False,MATH-2392,approved,B01
+T1-010,T1 Rounding,MATH-2392,A parcel weighs 7.346 kg. What is its weight rounded to 2 decimal places?,A,7.30,False,MATH-2392,approved,B01
+T1-010,T1 Rounding,MATH-2392,A parcel weighs 7.346 kg. What is its weight rounded to 2 decimal places?,B,7.34,False,MATH-1379,approved,B01
+T1-010,T1 Rounding,MATH-2392,A parcel weighs 7.346 kg. What is its weight rounded to 2 decimal places?,C,7.346,False,MATH-1248,approved,B01
+T1-010,T1 Rounding,MATH-2392,A parcel weighs 7.346 kg. What is its weight rounded to 2 decimal places?,D,7.35,True,,approved,B01
+T1-011,T1 Rounding,MATH-1988,"A delivery van travelled 2,694 km this year. What is this distance rounded to the nearest 10 km?",A,"2,694",False,MATH-1248,approved,B02
+T1-011,T1 Rounding,MATH-1988,"A delivery van travelled 2,694 km this year. What is this distance rounded to the nearest 10 km?",B,"2,700",False,MATH-1988|MATH-2392,approved,B02
+T1-011,T1 Rounding,MATH-1988,"A delivery van travelled 2,694 km this year. What is this distance rounded to the nearest 10 km?",C,"2,690",True,,approved,B02
+T1-011,T1 Rounding,MATH-1988,"A delivery van travelled 2,694 km this year. What is this distance rounded to the nearest 10 km?",D,"2,680",False,,approved,B02
+T1-012,T1 Rounding,MATH-1988,"A mobile phone shop made Rs 8,943 in sales on Saturday. What is this amount rounded to the nearest Rs 100?",A,"8,900",True,,approved,B02
+T1-012,T1 Rounding,MATH-1988,"A mobile phone shop made Rs 8,943 in sales on Saturday. What is this amount rounded to the nearest Rs 100?",B,"8,940",False,MATH-1248,approved,B02
+T1-012,T1 Rounding,MATH-1988,"A mobile phone shop made Rs 8,943 in sales on Saturday. What is this amount rounded to the nearest Rs 100?",C,"9,000",False,MATH-1988|MATH-2392,approved,B02
+T1-012,T1 Rounding,MATH-1988,"A mobile phone shop made Rs 8,943 in sales on Saturday. What is this amount rounded to the nearest Rs 100?",D,"8,800",False,,approved,B02
+T1-013,T1 Rounding,MATH-1988,A sprinter ran 100 m in 12.43 seconds. What is this time rounded to 1 decimal place?,A,12.0,False,MATH-2392,approved,B02
+T1-013,T1 Rounding,MATH-1988,A sprinter ran 100 m in 12.43 seconds. What is this time rounded to 1 decimal place?,B,12.43,False,MATH-1248,approved,B02
+T1-013,T1 Rounding,MATH-1988,A sprinter ran 100 m in 12.43 seconds. What is this time rounded to 1 decimal place?,C,12.5,False,MATH-1988,approved,B02
+T1-013,T1 Rounding,MATH-1988,A sprinter ran 100 m in 12.43 seconds. What is this time rounded to 1 decimal place?,D,12.4,True,,approved,B02
+T1-014,T1 Rounding,MATH-2392,"A train carried 5,408 passengers in one week. What is this number rounded to the nearest 10?",A,"5,400",False,MATH-1379|MATH-2392,approved,B02
+T1-014,T1 Rounding,MATH-2392,"A train carried 5,408 passengers in one week. What is this number rounded to the nearest 10?",B,"5,410",True,,approved,B02
+T1-014,T1 Rounding,MATH-2392,"A train carried 5,408 passengers in one week. What is this number rounded to the nearest 10?",C,"5,408",False,MATH-1248,approved,B02
+T1-014,T1 Rounding,MATH-2392,"A train carried 5,408 passengers in one week. What is this number rounded to the nearest 10?",D,"5,420",False,,approved,B02
+T1-015,T1 Rounding,MATH-2392,A rope is 3.76 m long. What is its length rounded to 1 decimal place?,A,3.7,False,MATH-1379,approved,B02
+T1-015,T1 Rounding,MATH-2392,A rope is 3.76 m long. What is its length rounded to 1 decimal place?,B,3.76,False,MATH-1248,approved,B02
+T1-015,T1 Rounding,MATH-2392,A rope is 3.76 m long. What is its length rounded to 1 decimal place?,C,3.8,True,,approved,B02
+T1-015,T1 Rounding,MATH-2392,A rope is 3.76 m long. What is its length rounded to 1 decimal place?,D,4.0,False,MATH-2392,approved,B02
+T1-016,T1 Rounding,MATH-1379,"A village has 4,062 trees. What is this number rounded to the nearest 100?",A,"4,000",False,MATH-1379|MATH-2392,approved,B02
+T1-016,T1 Rounding,MATH-1379,"A village has 4,062 trees. What is this number rounded to the nearest 100?",B,"4,060",False,MATH-1248,approved,B02
+T1-016,T1 Rounding,MATH-1379,"A village has 4,062 trees. What is this number rounded to the nearest 100?",C,"4,200",False,,approved,B02
+T1-016,T1 Rounding,MATH-1379,"A village has 4,062 trees. What is this number rounded to the nearest 100?",D,"4,100",True,,approved,B02
+T1-017,T1 Rounding,MATH-1379,A bag of rice weighs 5.678 kg. What is its weight rounded to 2 decimal places?,A,5.67,False,MATH-1379,approved,B02
+T1-017,T1 Rounding,MATH-1379,A bag of rice weighs 5.678 kg. What is its weight rounded to 2 decimal places?,B,5.68,True,,approved,B02
+T1-017,T1 Rounding,MATH-1379,A bag of rice weighs 5.678 kg. What is its weight rounded to 2 decimal places?,C,5.678,False,MATH-1248,approved,B02
+T1-017,T1 Rounding,MATH-1379,A bag of rice weighs 5.678 kg. What is its weight rounded to 2 decimal places?,D,5.70,False,MATH-2392,approved,B02
+T1-018,T1 Rounding,MATH-1248,A tank holds 47.6 litres of water. What is this volume rounded to the nearest whole number?,A,48,True,,approved,B02
+T1-018,T1 Rounding,MATH-1248,A tank holds 47.6 litres of water. What is this volume rounded to the nearest whole number?,B,47,False,MATH-1379,approved,B02
+T1-018,T1 Rounding,MATH-1248,A tank holds 47.6 litres of water. What is this volume rounded to the nearest whole number?,C,47.6,False,MATH-1248,approved,B02
+T1-018,T1 Rounding,MATH-1248,A tank holds 47.6 litres of water. What is this volume rounded to the nearest whole number?,D,50,False,MATH-2392,approved,B02
+T1-019,T1 Rounding,MATH-1248,"A stadium hosted 12,468 visitors over a season. What is this number rounded to the nearest 1,000?",A,"10,000",False,MATH-2392,approved,B02
+T1-019,T1 Rounding,MATH-1248,"A stadium hosted 12,468 visitors over a season. What is this number rounded to the nearest 1,000?",B,"12,500",False,MATH-1248,approved,B02
+T1-019,T1 Rounding,MATH-1248,"A stadium hosted 12,468 visitors over a season. What is this number rounded to the nearest 1,000?",C,"12,000",True,,approved,B02
+T1-019,T1 Rounding,MATH-1248,"A stadium hosted 12,468 visitors over a season. What is this number rounded to the nearest 1,000?",D,"13,000",False,MATH-1988,approved,B02
+T1-020,T1 Rounding,MATH-1248,A phone is 9.64 mm thick. What is its thickness rounded to 1 decimal place?,A,9.64,False,MATH-1248,approved,B02
+T1-020,T1 Rounding,MATH-1248,A phone is 9.64 mm thick. What is its thickness rounded to 1 decimal place?,B,9.6,True,,approved,B02
+T1-020,T1 Rounding,MATH-1248,A phone is 9.64 mm thick. What is its thickness rounded to 1 decimal place?,C,9.7,False,MATH-1988,approved,B02
+T1-020,T1 Rounding,MATH-1248,A phone is 9.64 mm thick. What is its thickness rounded to 1 decimal place?,D,10.0,False,MATH-2392,approved,B02
+T2-001,"T2 Fractions, decimals and percentage conversion",MATH-61,A phone battery is 0.45 charged. What percentage of the battery is charged?,A,4.5%,False,MATH-61,approved,B03
+T2-001,"T2 Fractions, decimals and percentage conversion",MATH-61,A phone battery is 0.45 charged. What percentage of the battery is charged?,B,45%,True,,approved,B03
+T2-001,"T2 Fractions, decimals and percentage conversion",MATH-61,A phone battery is 0.45 charged. What percentage of the battery is charged?,C,0.45%,False,MATH-1965|MATH-2039,approved,B03
+T2-001,"T2 Fractions, decimals and percentage conversion",MATH-61,A phone battery is 0.45 charged. What percentage of the battery is charged?,D,54%,False,,approved,B03
+T2-002,"T2 Fractions, decimals and percentage conversion",MATH-61,Hira answered 0.6 of the questions correctly. Write 0.6 as a percentage.,A,60%,True,,approved,B03
+T2-002,"T2 Fractions, decimals and percentage conversion",MATH-61,Hira answered 0.6 of the questions correctly. Write 0.6 as a percentage.,B,6%,False,MATH-61,approved,B03
+T2-002,"T2 Fractions, decimals and percentage conversion",MATH-61,Hira answered 0.6 of the questions correctly. Write 0.6 as a percentage.,C,0.6%,False,MATH-1965|MATH-2039,approved,B03
+T2-002,"T2 Fractions, decimals and percentage conversion",MATH-61,Hira answered 0.6 of the questions correctly. Write 0.6 as a percentage.,D,600%,False,,approved,B03
+T2-003,"T2 Fractions, decimals and percentage conversion",MATH-1965,A cricketer hit 0.85 of his shots to the boundary. What is 0.85 as a percentage?,A,8.5%,False,MATH-61,approved,B03
+T2-003,"T2 Fractions, decimals and percentage conversion",MATH-1965,A cricketer hit 0.85 of his shots to the boundary. What is 0.85 as a percentage?,B,0.85%,False,MATH-1965|MATH-2039,approved,B03
+T2-003,"T2 Fractions, decimals and percentage conversion",MATH-1965,A cricketer hit 0.85 of his shots to the boundary. What is 0.85 as a percentage?,C,85%,True,,approved,B03
+T2-003,"T2 Fractions, decimals and percentage conversion",MATH-1965,A cricketer hit 0.85 of his shots to the boundary. What is 0.85 as a percentage?,D,58%,False,,approved,B03
+T2-004,"T2 Fractions, decimals and percentage conversion",MATH-1965,Write 0.05 as a percentage.,A,0.5%,False,MATH-61,approved,B03
+T2-004,"T2 Fractions, decimals and percentage conversion",MATH-1965,Write 0.05 as a percentage.,B,5%,True,,approved,B03
+T2-004,"T2 Fractions, decimals and percentage conversion",MATH-1965,Write 0.05 as a percentage.,C,0.05%,False,MATH-1965|MATH-2039,approved,B03
+T2-004,"T2 Fractions, decimals and percentage conversion",MATH-1965,Write 0.05 as a percentage.,D,50%,False,,approved,B03
+T2-005,"T2 Fractions, decimals and percentage conversion",MATH-2039,Zainab scored 6 out of 20 in a test. What is her score as a percentage?,A,30%,True,,approved,B03
+T2-005,"T2 Fractions, decimals and percentage conversion",MATH-2039,Zainab scored 6 out of 20 in a test. What is her score as a percentage?,B,12%,False,MATH-658,approved,B03
+T2-005,"T2 Fractions, decimals and percentage conversion",MATH-2039,Zainab scored 6 out of 20 in a test. What is her score as a percentage?,C,6%,False,MATH-2039,approved,B03
+T2-005,"T2 Fractions, decimals and percentage conversion",MATH-2039,Zainab scored 6 out of 20 in a test. What is her score as a percentage?,D,60%,False,MATH-1715,approved,B03
+T2-006,"T2 Fractions, decimals and percentage conversion",MATH-2039,Write 3/4 as a percentage.,A,6%,False,MATH-658,approved,B03
+T2-006,"T2 Fractions, decimals and percentage conversion",MATH-2039,Write 3/4 as a percentage.,B,3%,False,MATH-2039,approved,B03
+T2-006,"T2 Fractions, decimals and percentage conversion",MATH-2039,Write 3/4 as a percentage.,C,30%,False,MATH-1715,approved,B03
+T2-006,"T2 Fractions, decimals and percentage conversion",MATH-2039,Write 3/4 as a percentage.,D,75%,True,,approved,B03
+T2-007,"T2 Fractions, decimals and percentage conversion",MATH-658,Write 7/20 as a percentage.,A,14%,False,MATH-658,approved,B03
+T2-007,"T2 Fractions, decimals and percentage conversion",MATH-658,Write 7/20 as a percentage.,B,7%,False,MATH-2039,approved,B03
+T2-007,"T2 Fractions, decimals and percentage conversion",MATH-658,Write 7/20 as a percentage.,C,35%,True,,approved,B03
+T2-007,"T2 Fractions, decimals and percentage conversion",MATH-658,Write 7/20 as a percentage.,D,70%,False,MATH-1715,approved,B03
+T2-008,"T2 Fractions, decimals and percentage conversion",MATH-658,"In a class of 25 students, 9 walk to school. What percentage of the class walks to school?",A,18%,False,MATH-658,approved,B03
+T2-008,"T2 Fractions, decimals and percentage conversion",MATH-658,"In a class of 25 students, 9 walk to school. What percentage of the class walks to school?",B,36%,True,,approved,B03
+T2-008,"T2 Fractions, decimals and percentage conversion",MATH-658,"In a class of 25 students, 9 walk to school. What percentage of the class walks to school?",C,9%,False,MATH-2039,approved,B03
+T2-008,"T2 Fractions, decimals and percentage conversion",MATH-658,"In a class of 25 students, 9 walk to school. What percentage of the class walks to school?",D,90%,False,MATH-1715,approved,B03
+T2-009,"T2 Fractions, decimals and percentage conversion",MATH-1715,Write 2/5 as a percentage.,A,4%,False,MATH-658,approved,B03
+T2-009,"T2 Fractions, decimals and percentage conversion",MATH-1715,Write 2/5 as a percentage.,B,2%,False,MATH-2039,approved,B03
+T2-009,"T2 Fractions, decimals and percentage conversion",MATH-1715,Write 2/5 as a percentage.,C,20%,False,MATH-1715,approved,B03
+T2-009,"T2 Fractions, decimals and percentage conversion",MATH-1715,Write 2/5 as a percentage.,D,40%,True,,approved,B03
+T2-010,"T2 Fractions, decimals and percentage conversion",MATH-1715,Four fifths of a field is planted with wheat. What percentage of the field is planted?,A,80%,True,,approved,B03
+T2-010,"T2 Fractions, decimals and percentage conversion",MATH-1715,Four fifths of a field is planted with wheat. What percentage of the field is planted?,B,8%,False,MATH-658,approved,B03
+T2-010,"T2 Fractions, decimals and percentage conversion",MATH-1715,Four fifths of a field is planted with wheat. What percentage of the field is planted?,C,4%,False,MATH-2039,approved,B03
+T2-010,"T2 Fractions, decimals and percentage conversion",MATH-1715,Four fifths of a field is planted with wheat. What percentage of the field is planted?,D,40%,False,MATH-1715,approved,B03
+T2-011,"T2 Fractions, decimals and percentage conversion",MATH-61,A reservoir is 0.72 full. What percentage of the reservoir is full?,A,7.2%,False,MATH-61,approved,B04
+T2-011,"T2 Fractions, decimals and percentage conversion",MATH-61,A reservoir is 0.72 full. What percentage of the reservoir is full?,B,0.72%,False,MATH-1965|MATH-2039,approved,B04
+T2-011,"T2 Fractions, decimals and percentage conversion",MATH-61,A reservoir is 0.72 full. What percentage of the reservoir is full?,C,72%,True,,approved,B04
+T2-011,"T2 Fractions, decimals and percentage conversion",MATH-61,A reservoir is 0.72 full. What percentage of the reservoir is full?,D,27%,False,,approved,B04
+T2-012,"T2 Fractions, decimals and percentage conversion",MATH-61,Write 0.3 as a percentage.,A,30%,True,,approved,B04
+T2-012,"T2 Fractions, decimals and percentage conversion",MATH-61,Write 0.3 as a percentage.,B,3%,False,MATH-61,approved,B04
+T2-012,"T2 Fractions, decimals and percentage conversion",MATH-61,Write 0.3 as a percentage.,C,0.3%,False,MATH-1965|MATH-2039,approved,B04
+T2-012,"T2 Fractions, decimals and percentage conversion",MATH-61,Write 0.3 as a percentage.,D,300%,False,,approved,B04
+T2-013,"T2 Fractions, decimals and percentage conversion",MATH-1965,A shop gives a discount of 0.15 of the price. What is 0.15 as a percentage?,A,1.5%,False,MATH-61,approved,B04
+T2-013,"T2 Fractions, decimals and percentage conversion",MATH-1965,A shop gives a discount of 0.15 of the price. What is 0.15 as a percentage?,B,15%,True,,approved,B04
+T2-013,"T2 Fractions, decimals and percentage conversion",MATH-1965,A shop gives a discount of 0.15 of the price. What is 0.15 as a percentage?,C,0.15%,False,MATH-1965|MATH-2039,approved,B04
+T2-013,"T2 Fractions, decimals and percentage conversion",MATH-1965,A shop gives a discount of 0.15 of the price. What is 0.15 as a percentage?,D,51%,False,,approved,B04
+T2-014,"T2 Fractions, decimals and percentage conversion",MATH-1965,Bilal ate 0.9 of a pizza. Write 0.9 as a percentage.,A,9%,False,MATH-61,approved,B04
+T2-014,"T2 Fractions, decimals and percentage conversion",MATH-1965,Bilal ate 0.9 of a pizza. Write 0.9 as a percentage.,B,0.9%,False,MATH-1965|MATH-2039,approved,B04
+T2-014,"T2 Fractions, decimals and percentage conversion",MATH-1965,Bilal ate 0.9 of a pizza. Write 0.9 as a percentage.,C,90%,True,,approved,B04
+T2-014,"T2 Fractions, decimals and percentage conversion",MATH-1965,Bilal ate 0.9 of a pizza. Write 0.9 as a percentage.,D,19%,False,,approved,B04
+T2-015,"T2 Fractions, decimals and percentage conversion",MATH-2039,"In a quiz, Sana got 6 out of 25 correct. What is this as a percentage?",A,12%,False,MATH-658,approved,B04
+T2-015,"T2 Fractions, decimals and percentage conversion",MATH-2039,"In a quiz, Sana got 6 out of 25 correct. What is this as a percentage?",B,24%,True,,approved,B04
+T2-015,"T2 Fractions, decimals and percentage conversion",MATH-2039,"In a quiz, Sana got 6 out of 25 correct. What is this as a percentage?",C,6%,False,MATH-2039,approved,B04
+T2-015,"T2 Fractions, decimals and percentage conversion",MATH-2039,"In a quiz, Sana got 6 out of 25 correct. What is this as a percentage?",D,60%,False,MATH-1715,approved,B04
+T2-016,"T2 Fractions, decimals and percentage conversion",MATH-2039,Write 3/5 as a percentage.,A,6%,False,MATH-658,approved,B04
+T2-016,"T2 Fractions, decimals and percentage conversion",MATH-2039,Write 3/5 as a percentage.,B,3%,False,MATH-2039,approved,B04
+T2-016,"T2 Fractions, decimals and percentage conversion",MATH-2039,Write 3/5 as a percentage.,C,30%,False,MATH-1715,approved,B04
+T2-016,"T2 Fractions, decimals and percentage conversion",MATH-2039,Write 3/5 as a percentage.,D,60%,True,,approved,B04
+T2-017,"T2 Fractions, decimals and percentage conversion",MATH-658,Write 9/20 as a percentage.,A,45%,True,,approved,B04
+T2-017,"T2 Fractions, decimals and percentage conversion",MATH-658,Write 9/20 as a percentage.,B,18%,False,MATH-658,approved,B04
+T2-017,"T2 Fractions, decimals and percentage conversion",MATH-658,Write 9/20 as a percentage.,C,9%,False,MATH-2039,approved,B04
+T2-017,"T2 Fractions, decimals and percentage conversion",MATH-658,Write 9/20 as a percentage.,D,90%,False,MATH-1715,approved,B04
+T2-018,"T2 Fractions, decimals and percentage conversion",MATH-658,A tailor used 8 metres out of a 25 metre roll of cloth. What percentage of the roll was used?,A,16%,False,MATH-658,approved,B04
+T2-018,"T2 Fractions, decimals and percentage conversion",MATH-658,A tailor used 8 metres out of a 25 metre roll of cloth. What percentage of the roll was used?,B,8%,False,MATH-2039,approved,B04
+T2-018,"T2 Fractions, decimals and percentage conversion",MATH-658,A tailor used 8 metres out of a 25 metre roll of cloth. What percentage of the roll was used?,C,32%,True,,approved,B04
+T2-018,"T2 Fractions, decimals and percentage conversion",MATH-658,A tailor used 8 metres out of a 25 metre roll of cloth. What percentage of the roll was used?,D,80%,False,MATH-1715,approved,B04
+T2-019,"T2 Fractions, decimals and percentage conversion",MATH-1715,Write 1/4 as a percentage.,A,2%,False,MATH-658,approved,B04
+T2-019,"T2 Fractions, decimals and percentage conversion",MATH-1715,Write 1/4 as a percentage.,B,25%,True,,approved,B04
+T2-019,"T2 Fractions, decimals and percentage conversion",MATH-1715,Write 1/4 as a percentage.,C,1%,False,MATH-2039,approved,B04
+T2-019,"T2 Fractions, decimals and percentage conversion",MATH-1715,Write 1/4 as a percentage.,D,10%,False,MATH-1715,approved,B04
+T2-020,"T2 Fractions, decimals and percentage conversion",MATH-1715,"In a class of 20 students, 3 are left-handed. What percentage of the class is left-handed?",A,6%,False,MATH-658,approved,B04
+T2-020,"T2 Fractions, decimals and percentage conversion",MATH-1715,"In a class of 20 students, 3 are left-handed. What percentage of the class is left-handed?",B,3%,False,MATH-2039,approved,B04
+T2-020,"T2 Fractions, decimals and percentage conversion",MATH-1715,"In a class of 20 students, 3 are left-handed. What percentage of the class is left-handed?",C,30%,False,MATH-1715,approved,B04
+T2-020,"T2 Fractions, decimals and percentage conversion",MATH-1715,"In a class of 20 students, 3 are left-handed. What percentage of the class is left-handed?",D,15%,True,,approved,B04
+T2-021,"T2 Fractions, decimals and percentage conversion",MATH-61,A water tank is 0.35 full. What percentage of the tank is full?,A,3.5%,False,MATH-61,approved,B05
+T2-021,"T2 Fractions, decimals and percentage conversion",MATH-61,A water tank is 0.35 full. What percentage of the tank is full?,B,0.35%,False,MATH-1965|MATH-2039,approved,B05
+T2-021,"T2 Fractions, decimals and percentage conversion",MATH-61,A water tank is 0.35 full. What percentage of the tank is full?,C,53%,False,,approved,B05
+T2-021,"T2 Fractions, decimals and percentage conversion",MATH-61,A water tank is 0.35 full. What percentage of the tank is full?,D,35%,True,,approved,B05
+T2-022,"T2 Fractions, decimals and percentage conversion",MATH-1965,Write 0.25 as a percentage.,A,2.5%,False,MATH-61,approved,B05
+T2-022,"T2 Fractions, decimals and percentage conversion",MATH-1965,Write 0.25 as a percentage.,B,25%,True,,approved,B05
+T2-022,"T2 Fractions, decimals and percentage conversion",MATH-1965,Write 0.25 as a percentage.,C,0.25%,False,MATH-1965|MATH-2039,approved,B05
+T2-022,"T2 Fractions, decimals and percentage conversion",MATH-1965,Write 0.25 as a percentage.,D,52%,False,,approved,B05
+T2-023,"T2 Fractions, decimals and percentage conversion",MATH-2039,"In a garden, 7 out of 25 plants flowered. What percentage of the plants flowered?",A,28%,True,,approved,B05
+T2-023,"T2 Fractions, decimals and percentage conversion",MATH-2039,"In a garden, 7 out of 25 plants flowered. What percentage of the plants flowered?",B,14%,False,MATH-658,approved,B05
+T2-023,"T2 Fractions, decimals and percentage conversion",MATH-2039,"In a garden, 7 out of 25 plants flowered. What percentage of the plants flowered?",C,7%,False,MATH-2039,approved,B05
+T2-023,"T2 Fractions, decimals and percentage conversion",MATH-2039,"In a garden, 7 out of 25 plants flowered. What percentage of the plants flowered?",D,70%,False,MATH-1715,approved,B05
+T2-024,"T2 Fractions, decimals and percentage conversion",MATH-658,4 of the 25 pupils in a class wear glasses. What percentage of the class wears glasses?,A,8%,False,MATH-658,approved,B05
+T2-024,"T2 Fractions, decimals and percentage conversion",MATH-658,4 of the 25 pupils in a class wear glasses. What percentage of the class wears glasses?,B,4%,False,MATH-2039,approved,B05
+T2-024,"T2 Fractions, decimals and percentage conversion",MATH-658,4 of the 25 pupils in a class wear glasses. What percentage of the class wears glasses?,C,16%,True,,approved,B05
+T2-024,"T2 Fractions, decimals and percentage conversion",MATH-658,4 of the 25 pupils in a class wear glasses. What percentage of the class wears glasses?,D,40%,False,MATH-1715,approved,B05
+T2-025,"T2 Fractions, decimals and percentage conversion",MATH-1715,One fifth of a bag of flour was used. What percentage of the bag was used?,A,2%,False,MATH-658,approved,B05
+T2-025,"T2 Fractions, decimals and percentage conversion",MATH-1715,One fifth of a bag of flour was used. What percentage of the bag was used?,B,20%,True,,approved,B05
+T2-025,"T2 Fractions, decimals and percentage conversion",MATH-1715,One fifth of a bag of flour was used. What percentage of the bag was used?,C,1%,False,MATH-2039,approved,B05
+T2-025,"T2 Fractions, decimals and percentage conversion",MATH-1715,One fifth of a bag of flour was used. What percentage of the bag was used?,D,10%,False,MATH-1715,approved,B05
+T4-001,T4 Choosing the operation,MATH-1416,Ali buys 4 notebooks at Rs 6 each. Sara pays Rs 3 less than Ali. How much does Sara pay?,A,Rs 7,False,MATH-1416,approved,B06
+T4-001,T4 Choosing the operation,MATH-1416,Ali buys 4 notebooks at Rs 6 each. Sara pays Rs 3 less than Ali. How much does Sara pay?,B,Rs 21,True,,approved,B06
+T4-001,T4 Choosing the operation,MATH-1416,Ali buys 4 notebooks at Rs 6 each. Sara pays Rs 3 less than Ali. How much does Sara pay?,C,Rs 8,False,MATH-228,approved,B06
+T4-001,T4 Choosing the operation,MATH-1416,Ali buys 4 notebooks at Rs 6 each. Sara pays Rs 3 less than Ali. How much does Sara pay?,D,Rs 27,False,MATH-1514|MATH-1773,approved,B06
+T4-002,T4 Choosing the operation,MATH-1416,A baker makes 5 trays of buns with 8 buns on each tray. A second baker makes 4 less than the first baker. How many buns does the second baker make?,A,9,False,MATH-1416,approved,B06
+T4-002,T4 Choosing the operation,MATH-1416,A baker makes 5 trays of buns with 8 buns on each tray. A second baker makes 4 less than the first baker. How many buns does the second baker make?,B,10,False,MATH-228,approved,B06
+T4-002,T4 Choosing the operation,MATH-1416,A baker makes 5 trays of buns with 8 buns on each tray. A second baker makes 4 less than the first baker. How many buns does the second baker make?,C,44,False,MATH-1514|MATH-1773,approved,B06
+T4-002,T4 Choosing the operation,MATH-1416,A baker makes 5 trays of buns with 8 buns on each tray. A second baker makes 4 less than the first baker. How many buns does the second baker make?,D,36,True,,approved,B06
+T4-003,T4 Choosing the operation,MATH-1416,A truck carries 3 loads of 12 bricks each. A second truck carries 6 less than the first truck. How many bricks does the second truck carry?,A,30,True,,approved,B06
+T4-003,T4 Choosing the operation,MATH-1416,A truck carries 3 loads of 12 bricks each. A second truck carries 6 less than the first truck. How many bricks does the second truck carry?,B,9,False,MATH-1416,approved,B06
+T4-003,T4 Choosing the operation,MATH-1416,A truck carries 3 loads of 12 bricks each. A second truck carries 6 less than the first truck. How many bricks does the second truck carry?,C,6,False,MATH-228,approved,B06
+T4-003,T4 Choosing the operation,MATH-1416,A truck carries 3 loads of 12 bricks each. A second truck carries 6 less than the first truck. How many bricks does the second truck carry?,D,42,False,MATH-1514|MATH-1773,approved,B06
+T4-004,T4 Choosing the operation,MATH-1416,A cinema has 6 rows with 5 seats in each row. A small hall has 10 less seats than the cinema. How many seats are in the small hall?,A,1,False,MATH-1416,approved,B06
+T4-004,T4 Choosing the operation,MATH-1416,A cinema has 6 rows with 5 seats in each row. A small hall has 10 less seats than the cinema. How many seats are in the small hall?,B,3,False,MATH-228,approved,B06
+T4-004,T4 Choosing the operation,MATH-1416,A cinema has 6 rows with 5 seats in each row. A small hall has 10 less seats than the cinema. How many seats are in the small hall?,C,20,True,,approved,B06
+T4-004,T4 Choosing the operation,MATH-1416,A cinema has 6 rows with 5 seats in each row. A small hall has 10 less seats than the cinema. How many seats are in the small hall?,D,40,False,MATH-1514|MATH-1773,approved,B06
+T4-005,T4 Choosing the operation,MATH-1416,A teacher makes 7 groups of 4 students. Another class has 2 less students than this. How many students are in the other class?,A,9,False,MATH-1416,approved,B06
+T4-005,T4 Choosing the operation,MATH-1416,A teacher makes 7 groups of 4 students. Another class has 2 less students than this. How many students are in the other class?,B,14,False,MATH-228,approved,B06
+T4-005,T4 Choosing the operation,MATH-1416,A teacher makes 7 groups of 4 students. Another class has 2 less students than this. How many students are in the other class?,C,30,False,MATH-1514|MATH-1773,approved,B06
+T4-005,T4 Choosing the operation,MATH-1416,A teacher makes 7 groups of 4 students. Another class has 2 less students than this. How many students are in the other class?,D,26,True,,approved,B06
+T4-006,T4 Choosing the operation,MATH-126,Ali has 8 stickers. Sara has 4 more than Ali. Bilal has 3 less than Sara. How many stickers does Bilal have?,A,29,False,MATH-126,approved,B06
+T4-006,T4 Choosing the operation,MATH-126,Ali has 8 stickers. Sara has 4 more than Ali. Bilal has 3 less than Sara. How many stickers does Bilal have?,B,4,False,MATH-228,approved,B06
+T4-006,T4 Choosing the operation,MATH-126,Ali has 8 stickers. Sara has 4 more than Ali. Bilal has 3 less than Sara. How many stickers does Bilal have?,C,9,True,,approved,B06
+T4-006,T4 Choosing the operation,MATH-126,Ali has 8 stickers. Sara has 4 more than Ali. Bilal has 3 less than Sara. How many stickers does Bilal have?,D,15,False,MATH-1514|MATH-1773,approved,B06
+T4-007,T4 Choosing the operation,MATH-126,Zara saves Rs 10. Hina saves Rs 5 more than Zara. Maryam saves Rs 3 less than Hina. How much does Maryam save?,A,Rs 12,True,,approved,B06
+T4-007,T4 Choosing the operation,MATH-126,Zara saves Rs 10. Hina saves Rs 5 more than Zara. Maryam saves Rs 3 less than Hina. How much does Maryam save?,B,Rs 47,False,MATH-126,approved,B06
+T4-007,T4 Choosing the operation,MATH-126,Zara saves Rs 10. Hina saves Rs 5 more than Zara. Maryam saves Rs 3 less than Hina. How much does Maryam save?,C,Rs 5,False,MATH-228,approved,B06
+T4-007,T4 Choosing the operation,MATH-126,Zara saves Rs 10. Hina saves Rs 5 more than Zara. Maryam saves Rs 3 less than Hina. How much does Maryam save?,D,Rs 18,False,MATH-1514|MATH-1773,approved,B06
+T4-008,T4 Choosing the operation,MATH-126,A shop sells 6 kg of rice on Monday. On Tuesday it sells 9 kg more than on Monday. On Wednesday it sells 5 kg less than on Tuesday. How many kg does it sell on Wednesday?,A,49,False,MATH-126,approved,B06
+T4-008,T4 Choosing the operation,MATH-126,A shop sells 6 kg of rice on Monday. On Tuesday it sells 9 kg more than on Monday. On Wednesday it sells 5 kg less than on Tuesday. How many kg does it sell on Wednesday?,B,10,True,,approved,B06
+T4-008,T4 Choosing the operation,MATH-126,A shop sells 6 kg of rice on Monday. On Tuesday it sells 9 kg more than on Monday. On Wednesday it sells 5 kg less than on Tuesday. How many kg does it sell on Wednesday?,C,3,False,MATH-228,approved,B06
+T4-008,T4 Choosing the operation,MATH-126,A shop sells 6 kg of rice on Monday. On Tuesday it sells 9 kg more than on Monday. On Wednesday it sells 5 kg less than on Tuesday. How many kg does it sell on Wednesday?,D,20,False,MATH-1514|MATH-1773,approved,B06
+T4-009,T4 Choosing the operation,MATH-126,A bus has 12 passengers at the first stop. At the second stop it has 6 more than at the first stop. At the third stop it has 9 less than at the second stop. How many passengers are on the bus at the third stop?,A,63,False,MATH-126,approved,B06
+T4-009,T4 Choosing the operation,MATH-126,A bus has 12 passengers at the first stop. At the second stop it has 6 more than at the first stop. At the third stop it has 9 less than at the second stop. How many passengers are on the bus at the third stop?,B,2,False,MATH-228,approved,B06
+T4-009,T4 Choosing the operation,MATH-126,A bus has 12 passengers at the first stop. At the second stop it has 6 more than at the first stop. At the third stop it has 9 less than at the second stop. How many passengers are on the bus at the third stop?,C,27,False,MATH-1514|MATH-1773,approved,B06
+T4-009,T4 Choosing the operation,MATH-126,A bus has 12 passengers at the first stop. At the second stop it has 6 more than at the first stop. At the third stop it has 9 less than at the second stop. How many passengers are on the bus at the third stop?,D,9,True,,approved,B06
+T4-010,T4 Choosing the operation,MATH-126,Usman scores 7 goals in a season. Faizan scores 5 more than Usman. Danish scores 4 less than Faizan. How many goals does Danish score?,A,8,True,,approved,B06
+T4-010,T4 Choosing the operation,MATH-126,Usman scores 7 goals in a season. Faizan scores 5 more than Usman. Danish scores 4 less than Faizan. How many goals does Danish score?,B,31,False,MATH-126,approved,B06
+T4-010,T4 Choosing the operation,MATH-126,Usman scores 7 goals in a season. Faizan scores 5 more than Usman. Danish scores 4 less than Faizan. How many goals does Danish score?,C,3,False,MATH-228,approved,B06
+T4-010,T4 Choosing the operation,MATH-126,Usman scores 7 goals in a season. Faizan scores 5 more than Usman. Danish scores 4 less than Faizan. How many goals does Danish score?,D,16,False,MATH-1514|MATH-1773,approved,B06
+T5-001,T5 Powers and roots,MATH-952,What is the value of 5³?,A,8,False,MATH-952,approved,B07
+T5-001,T5 Powers and roots,MATH-952,What is the value of 5³?,B,125,True,,approved,B07
+T5-001,T5 Powers and roots,MATH-952,What is the value of 5³?,C,15,False,MATH-1072,approved,B07
+T5-001,T5 Powers and roots,MATH-952,What is the value of 5³?,D,243,False,,approved,B07
+T5-002,T5 Powers and roots,MATH-1072,Which of these is the same as 3⁴?,A,3 + 4,False,MATH-952,approved,B07
+T5-002,T5 Powers and roots,MATH-1072,Which of these is the same as 3⁴?,B,3 × 4,False,MATH-1072,approved,B07
+T5-002,T5 Powers and roots,MATH-1072,Which of these is the same as 3⁴?,C,3 × 3 × 3 × 3,True,,approved,B07
+T5-002,T5 Powers and roots,MATH-1072,Which of these is the same as 3⁴?,D,4 × 4 × 4,False,,approved,B07
+T5-003,T5 Powers and roots,MATH-414,A number multiplied by itself three times gives 27. What is the number?,A,3,True,,approved,B07
+T5-003,T5 Powers and roots,MATH-414,A number multiplied by itself three times gives 27. What is the number?,B,9,False,MATH-414,approved,B07
+T5-003,T5 Powers and roots,MATH-414,A number multiplied by itself three times gives 27. What is the number?,C,13.5,False,MATH-734,approved,B07
+T5-003,T5 Powers and roots,MATH-414,A number multiplied by itself three times gives 27. What is the number?,D,81,False,,approved,B07
+T5-004,T5 Powers and roots,MATH-734,What is ∛216?,A,72,False,MATH-414,approved,B07
+T5-004,T5 Powers and roots,MATH-734,What is ∛216?,B,108,False,MATH-734,approved,B07
+T5-004,T5 Powers and roots,MATH-734,What is ∛216?,C,36,False,,approved,B07
+T5-004,T5 Powers and roots,MATH-734,What is ∛216?,D,6,True,,approved,B07
+T5-005,T5 Powers and roots,MATH-1072,A function machine has two steps. Input: 6. Step 1: square the number. Step 2: subtract the square root of 9. What is the output?,A,5,False,MATH-952,approved,B07
+T5-005,T5 Powers and roots,MATH-1072,A function machine has two steps. Input: 6. Step 1: square the number. Step 2: subtract the square root of 9. What is the output?,B,9,False,MATH-1072,approved,B07
+T5-005,T5 Powers and roots,MATH-1072,A function machine has two steps. Input: 6. Step 1: square the number. Step 2: subtract the square root of 9. What is the output?,C,33,True,,approved,B07
+T5-005,T5 Powers and roots,MATH-1072,A function machine has two steps. Input: 6. Step 1: square the number. Step 2: subtract the square root of 9. What is the output?,D,31.5,False,MATH-414|MATH-734,approved,B07
+T5-006,T5 Powers and roots,MATH-952,I think of the number 2. I raise it to the power of 4. Then I multiply my answer by the square root of 16. What number do I get?,A,64,True,,approved,B07
+T5-006,T5 Powers and roots,MATH-952,I think of the number 2. I raise it to the power of 4. Then I multiply my answer by the square root of 16. What number do I get?,B,24,False,MATH-952,approved,B07
+T5-006,T5 Powers and roots,MATH-952,I think of the number 2. I raise it to the power of 4. Then I multiply my answer by the square root of 16. What number do I get?,C,32,False,MATH-1072,approved,B07
+T5-006,T5 Powers and roots,MATH-952,I think of the number 2. I raise it to the power of 4. Then I multiply my answer by the square root of 16. What number do I get?,D,128,False,MATH-414|MATH-734,approved,B07
+T5-007,T5 Powers and roots,MATH-1072,Sam thinks of the number 2⁵. Hira's number is √16 less than Sam's number. What is Hira's number?,A,3,False,MATH-952,approved,B07
+T5-007,T5 Powers and roots,MATH-1072,Sam thinks of the number 2⁵. Hira's number is √16 less than Sam's number. What is Hira's number?,B,28,True,,approved,B07
+T5-007,T5 Powers and roots,MATH-1072,Sam thinks of the number 2⁵. Hira's number is √16 less than Sam's number. What is Hira's number?,C,6,False,MATH-1072,approved,B07
+T5-007,T5 Powers and roots,MATH-1072,Sam thinks of the number 2⁵. Hira's number is √16 less than Sam's number. What is Hira's number?,D,24,False,MATH-414|MATH-734,approved,B07
+T5-008,T5 Powers and roots,MATH-952,A fraction has 2⁶ on the top and √16 on the bottom. What is the value of the fraction?,A,2,False,MATH-952,approved,B07
+T5-008,T5 Powers and roots,MATH-952,A fraction has 2⁶ on the top and √16 on the bottom. What is the value of the fraction?,B,3,False,MATH-1072,approved,B07
+T5-008,T5 Powers and roots,MATH-952,A fraction has 2⁶ on the top and √16 on the bottom. What is the value of the fraction?,C,8,False,MATH-414|MATH-734,approved,B07
+T5-008,T5 Powers and roots,MATH-952,A fraction has 2⁶ on the top and √16 on the bottom. What is the value of the fraction?,D,16,True,,approved,B07
+T5-009,T5 Powers and roots,MATH-414,Zara thinks of the number 2⁴. Ali's number is √64 more than Zara's number. What is Ali's number?,A,24,True,,approved,B07
+T5-009,T5 Powers and roots,MATH-414,Zara thinks of the number 2⁴. Ali's number is √64 more than Zara's number. What is Ali's number?,B,14,False,MATH-952,approved,B07
+T5-009,T5 Powers and roots,MATH-414,Zara thinks of the number 2⁴. Ali's number is √64 more than Zara's number. What is Ali's number?,C,16,False,MATH-1072,approved,B07
+T5-009,T5 Powers and roots,MATH-414,Zara thinks of the number 2⁴. Ali's number is √64 more than Zara's number. What is Ali's number?,D,48,False,MATH-414|MATH-734,approved,B07
+T5-010,T5 Powers and roots,MATH-734,Ali thinks of the number 3⁴. Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,A,9,False,MATH-1072,approved,B07
+T5-010,T5 Powers and roots,MATH-734,Ali thinks of the number 3⁴. Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,B,72,False,MATH-414,approved,B07
+T5-010,T5 Powers and roots,MATH-734,Ali thinks of the number 3⁴. Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,C,78,True,,approved,B07
+T5-010,T5 Powers and roots,MATH-734,Ali thinks of the number 3⁴. Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,D,67.5,False,MATH-734,approved,B07
+T5-011,T5 cross-concept (operation version),MATH-1514,A function machine has two steps. Input: 6. Step 1: square the number. Step 2: subtract the square root of 9. What is the output?,A,39,False,MATH-1514|MATH-1773,approved,B08
+T5-011,T5 cross-concept (operation version),MATH-1514,A function machine has two steps. Input: 6. Step 1: square the number. Step 2: subtract the square root of 9. What is the output?,B,12,False,,approved,B08
+T5-011,T5 cross-concept (operation version),MATH-1514,A function machine has two steps. Input: 6. Step 1: square the number. Step 2: subtract the square root of 9. What is the output?,C,33,True,,approved,B08
+T5-011,T5 cross-concept (operation version),MATH-1514,A function machine has two steps. Input: 6. Step 1: square the number. Step 2: subtract the square root of 9. What is the output?,D,108,False,,approved,B08
+T5-012,T5 cross-concept (operation version),MATH-1416,I think of the number 2. I raise it to the power of 4. Then I multiply my answer by the square root of 16. What number do I get?,A,64,True,,approved,B08
+T5-012,T5 cross-concept (operation version),MATH-1416,I think of the number 2. I raise it to the power of 4. Then I multiply my answer by the square root of 16. What number do I get?,B,20,False,MATH-1416,approved,B08
+T5-012,T5 cross-concept (operation version),MATH-1416,I think of the number 2. I raise it to the power of 4. Then I multiply my answer by the square root of 16. What number do I get?,C,12,False,,approved,B08
+T5-012,T5 cross-concept (operation version),MATH-1416,I think of the number 2. I raise it to the power of 4. Then I multiply my answer by the square root of 16. What number do I get?,D,4,False,,approved,B08
+T5-013,T5 cross-concept (operation version),MATH-228,Sam thinks of the number 2⁵. Hira's number is √16 less than Sam's number. What is Hira's number?,A,8,False,MATH-228,approved,B08
+T5-013,T5 cross-concept (operation version),MATH-228,Sam thinks of the number 2⁵. Hira's number is √16 less than Sam's number. What is Hira's number?,B,36,False,MATH-1514|MATH-1773,approved,B08
+T5-013,T5 cross-concept (operation version),MATH-228,Sam thinks of the number 2⁵. Hira's number is √16 less than Sam's number. What is Hira's number?,C,128,False,,approved,B08
+T5-013,T5 cross-concept (operation version),MATH-228,Sam thinks of the number 2⁵. Hira's number is √16 less than Sam's number. What is Hira's number?,D,28,True,,approved,B08
+T5-014,T5 cross-concept (operation version),MATH-2093,A fraction has 2⁶ on the top and √16 on the bottom. What is the value of the fraction?,A,60,False,MATH-2093,approved,B08
+T5-014,T5 cross-concept (operation version),MATH-2093,A fraction has 2⁶ on the top and √16 on the bottom. What is the value of the fraction?,B,16,True,,approved,B08
+T5-014,T5 cross-concept (operation version),MATH-2093,A fraction has 2⁶ on the top and √16 on the bottom. What is the value of the fraction?,C,0.0625,False,,approved,B08
+T5-014,T5 cross-concept (operation version),MATH-2093,A fraction has 2⁶ on the top and √16 on the bottom. What is the value of the fraction?,D,68,False,,approved,B08
+T5-015,T5 cross-concept (operation version),MATH-126,Zara thinks of the number 2⁴. Ali's number is √64 more than Zara's number. What is Ali's number?,A,128,False,MATH-126,approved,B08
+T5-015,T5 cross-concept (operation version),MATH-126,Zara thinks of the number 2⁴. Ali's number is √64 more than Zara's number. What is Ali's number?,B,8,False,,approved,B08
+T5-015,T5 cross-concept (operation version),MATH-126,Zara thinks of the number 2⁴. Ali's number is √64 more than Zara's number. What is Ali's number?,C,24,True,,approved,B08
+T5-015,T5 cross-concept (operation version),MATH-126,Zara thinks of the number 2⁴. Ali's number is √64 more than Zara's number. What is Ali's number?,D,2,False,,approved,B08
+T5-016,T5 cross-concept (operation version),MATH-228,Ali thinks of the number 3⁴. Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,A,78,True,,approved,B08
+T5-016,T5 cross-concept (operation version),MATH-228,Ali thinks of the number 3⁴. Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,B,27,False,MATH-228,approved,B08
+T5-016,T5 cross-concept (operation version),MATH-228,Ali thinks of the number 3⁴. Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,C,84,False,MATH-1514|MATH-1773,approved,B08
+T5-016,T5 cross-concept (operation version),MATH-228,Ali thinks of the number 3⁴. Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,D,243,False,,approved,B08
+T6-010,T6 Time and unit conversion (seconds and hours),MATH-767,"Fill the gap: 7,200 seconds = ___ hours.",A,1.2 hours,False,MATH-161,approved,B10
+T6-010,T6 Time and unit conversion (seconds and hours),MATH-767,"Fill the gap: 7,200 seconds = ___ hours.",B,2 hours,True,,approved,B10
+T6-010,T6 Time and unit conversion (seconds and hours),MATH-767,"Fill the gap: 7,200 seconds = ___ hours.",C,12 hours,False,MATH-767,approved,B10
+T6-010,T6 Time and unit conversion (seconds and hours),MATH-767,"Fill the gap: 7,200 seconds = ___ hours.",D,"25,920,000 hours",False,MATH-1651|MATH-1074,approved,B10
+T6-011,T6 Time and unit conversion (seconds and hours),MATH-161,How many seconds are there in 2 hours?,A,"12,000 seconds",False,MATH-161,approved,B10
+T6-011,T6 Time and unit conversion (seconds and hours),MATH-161,How many seconds are there in 2 hours?,B,"1,200 seconds",False,MATH-767,approved,B10
+T6-011,T6 Time and unit conversion (seconds and hours),MATH-161,How many seconds are there in 2 hours?,C,120 seconds,False,,approved,B10
+T6-011,T6 Time and unit conversion (seconds and hours),MATH-161,How many seconds are there in 2 hours?,D,"7,200 seconds",True,,approved,B10
+T6-012,T6 Time and unit conversion (seconds and hours),MATH-161,"A marathon runner finishes in 10,800 seconds. How many hours is that?",A,3 hours,True,,approved,B10
+T6-012,T6 Time and unit conversion (seconds and hours),MATH-161,"A marathon runner finishes in 10,800 seconds. How many hours is that?",B,1.8 hours,False,MATH-161,approved,B10
+T6-012,T6 Time and unit conversion (seconds and hours),MATH-161,"A marathon runner finishes in 10,800 seconds. How many hours is that?",C,18 hours,False,MATH-767,approved,B10
+T6-012,T6 Time and unit conversion (seconds and hours),MATH-161,"A marathon runner finishes in 10,800 seconds. How many hours is that?",D,"38,880,000 hours",False,MATH-1651|MATH-1074,approved,B10
+T6-013,T6 Time and unit conversion (seconds and hours),MATH-1651,Which statement is correct?,A,"18,000 seconds = 3 hours",False,MATH-161,approved,B10
+T6-013,T6 Time and unit conversion (seconds and hours),MATH-1651,Which statement is correct?,B,"18,000 seconds = 30 hours",False,MATH-767,approved,B10
+T6-013,T6 Time and unit conversion (seconds and hours),MATH-1651,Which statement is correct?,C,"18,000 seconds = 5 hours",True,,approved,B10
+T6-013,T6 Time and unit conversion (seconds and hours),MATH-1651,Which statement is correct?,D,"18,000 seconds = 64,800,000 hours",False,MATH-1651|MATH-1074,approved,B10
+T6-014,T6 Time and unit conversion (seconds and hours),MATH-767,Fill the gap: 1.5 hours = ___ seconds.,A,"9,000 seconds",False,MATH-161,approved,B10
+T6-014,T6 Time and unit conversion (seconds and hours),MATH-767,Fill the gap: 1.5 hours = ___ seconds.,B,900 seconds,False,MATH-767,approved,B10
+T6-014,T6 Time and unit conversion (seconds and hours),MATH-767,Fill the gap: 1.5 hours = ___ seconds.,C,90 seconds,False,,approved,B10
+T6-014,T6 Time and unit conversion (seconds and hours),MATH-767,Fill the gap: 1.5 hours = ___ seconds.,D,"5,400 seconds",True,,approved,B10
+T6-015,T6 Time and unit conversion (seconds and hours),MATH-1074,"Which of these is the same as 14,400 seconds?",A,2.4 hours,False,MATH-161,approved,B10
+T6-015,T6 Time and unit conversion (seconds and hours),MATH-1074,"Which of these is the same as 14,400 seconds?",B,4 hours,True,,approved,B10
+T6-015,T6 Time and unit conversion (seconds and hours),MATH-1074,"Which of these is the same as 14,400 seconds?",C,24 hours,False,MATH-767,approved,B10
+T6-015,T6 Time and unit conversion (seconds and hours),MATH-1074,"Which of these is the same as 14,400 seconds?",D,"51,840,000 hours",False,MATH-1651|MATH-1074,approved,B10
+T6-016,T6 Time and unit conversion (seconds and hours),MATH-161,A film lasts 3 hours. How long is that in seconds?,A,"18,000 seconds",False,MATH-161,approved,B10
+T6-016,T6 Time and unit conversion (seconds and hours),MATH-161,A film lasts 3 hours. How long is that in seconds?,B,"1,800 seconds",False,MATH-767,approved,B10
+T6-016,T6 Time and unit conversion (seconds and hours),MATH-161,A film lasts 3 hours. How long is that in seconds?,C,"10,800 seconds",True,,approved,B10
+T6-016,T6 Time and unit conversion (seconds and hours),MATH-161,A film lasts 3 hours. How long is that in seconds?,D,180 seconds,False,,approved,B10
+T6-017,T6 Time and unit conversion (seconds and hours),MATH-1651,"Sana says 3,600 seconds is 1 hour. Bilal says 6 hours. Ali says 0.6 hours. Hira says 12,960,000 hours. Who is correct?",A,Sana,True,,approved,B10
+T6-017,T6 Time and unit conversion (seconds and hours),MATH-1651,"Sana says 3,600 seconds is 1 hour. Bilal says 6 hours. Ali says 0.6 hours. Hira says 12,960,000 hours. Who is correct?",B,Ali,False,MATH-161,approved,B10
+T6-017,T6 Time and unit conversion (seconds and hours),MATH-1651,"Sana says 3,600 seconds is 1 hour. Bilal says 6 hours. Ali says 0.6 hours. Hira says 12,960,000 hours. Who is correct?",C,Bilal,False,MATH-767,approved,B10
+T6-017,T6 Time and unit conversion (seconds and hours),MATH-1651,"Sana says 3,600 seconds is 1 hour. Bilal says 6 hours. Ali says 0.6 hours. Hira says 12,960,000 hours. Who is correct?",D,Hira,False,MATH-1651|MATH-1074,approved,B10
+T6-018,T6 Time and unit conversion (seconds and hours),MATH-767,Which of these is the same as 1 hour and 30 seconds?,A,"6,030 seconds",False,MATH-161,approved,B10
+T6-018,T6 Time and unit conversion (seconds and hours),MATH-767,Which of these is the same as 1 hour and 30 seconds?,B,"3,630 seconds",True,,approved,B10
+T6-018,T6 Time and unit conversion (seconds and hours),MATH-767,Which of these is the same as 1 hour and 30 seconds?,C,630 seconds,False,MATH-767,approved,B10
+T6-018,T6 Time and unit conversion (seconds and hours),MATH-767,Which of these is the same as 1 hour and 30 seconds?,D,90 seconds,False,,approved,B10
+T7-001,"T7 Negatives, inverse operations, fraction bar",MATH-1639,What is −2 + −3 + −4?,A,9,False,MATH-1639,approved,B11
+T7-001,"T7 Negatives, inverse operations, fraction bar",MATH-1639,What is −2 + −3 + −4?,B,1,False,MATH-1639,approved,B11
+T7-001,"T7 Negatives, inverse operations, fraction bar",MATH-1639,What is −2 + −3 + −4?,C,−9,True,,approved,B11
+T7-001,"T7 Negatives, inverse operations, fraction bar",MATH-1639,What is −2 + −3 + −4?,D,−5,False,,approved,B11
+T7-002,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 1 / 4 as a decimal.,A,0.25,True,,approved,B11
+T7-002,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 1 / 4 as a decimal.,B,3,False,MATH-2093,approved,B11
+T7-002,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 1 / 4 as a decimal.,C,4,False,MATH-2359,approved,B11
+T7-002,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 1 / 4 as a decimal.,D,0.1,False,MATH-1715,approved,B11
+T7-003,"T7 Negatives, inverse operations, fraction bar",MATH-2271,I add 9 to a number and get 15. What is my number?,A,24,False,MATH-2271|MATH-1514|MATH-1773,approved,B11
+T7-003,"T7 Negatives, inverse operations, fraction bar",MATH-2271,I add 9 to a number and get 15. What is my number?,B,15,False,,approved,B11
+T7-003,"T7 Negatives, inverse operations, fraction bar",MATH-2271,I add 9 to a number and get 15. What is my number?,C,9,False,,approved,B11
+T7-003,"T7 Negatives, inverse operations, fraction bar",MATH-2271,I add 9 to a number and get 15. What is my number?,D,6,True,,approved,B11
+T7-004,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Which decimal is equal to 2 / 5?,A,3,False,MATH-2093,approved,B11
+T7-004,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Which decimal is equal to 2 / 5?,B,0.4,True,,approved,B11
+T7-004,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Which decimal is equal to 2 / 5?,C,2.5,False,MATH-2359,approved,B11
+T7-004,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Which decimal is equal to 2 / 5?,D,0.2,False,MATH-1715,approved,B11
+T7-005,"T7 Negatives, inverse operations, fraction bar",MATH-2271,Zara multiplies a number by 5 and gets 40. What was her number?,A,200,False,MATH-2271,approved,B11
+T7-005,"T7 Negatives, inverse operations, fraction bar",MATH-2271,Zara multiplies a number by 5 and gets 40. What was her number?,B,0.125,False,MATH-2359,approved,B11
+T7-005,"T7 Negatives, inverse operations, fraction bar",MATH-2271,Zara multiplies a number by 5 and gets 40. What was her number?,C,8,True,,approved,B11
+T7-005,"T7 Negatives, inverse operations, fraction bar",MATH-2271,Zara multiplies a number by 5 and gets 40. What was her number?,D,45,False,,approved,B11
+T7-006,"T7 Negatives, inverse operations, fraction bar",MATH-1639,"What is the total of −2, −8 and −3?",A,−13,True,,approved,B11
+T7-006,"T7 Negatives, inverse operations, fraction bar",MATH-1639,"What is the total of −2, −8 and −3?",B,13,False,MATH-1639,approved,B11
+T7-006,"T7 Negatives, inverse operations, fraction bar",MATH-1639,"What is the total of −2, −8 and −3?",C,7,False,MATH-1639,approved,B11
+T7-006,"T7 Negatives, inverse operations, fraction bar",MATH-1639,"What is the total of −2, −8 and −3?",D,−10,False,,approved,B11
+T7-007,"T7 Negatives, inverse operations, fraction bar",MATH-2093,What number is the fraction 40 / 8 equal to?,A,32,False,MATH-2093,approved,B11
+T7-007,"T7 Negatives, inverse operations, fraction bar",MATH-2093,What number is the fraction 40 / 8 equal to?,B,5,True,,approved,B11
+T7-007,"T7 Negatives, inverse operations, fraction bar",MATH-2093,What number is the fraction 40 / 8 equal to?,C,0.2,False,MATH-2359,approved,B11
+T7-007,"T7 Negatives, inverse operations, fraction bar",MATH-2093,What number is the fraction 40 / 8 equal to?,D,48,False,,approved,B11
+T7-008,"T7 Negatives, inverse operations, fraction bar",MATH-2271,I subtract 6 from a number and get 9. What is my number?,A,3,False,MATH-2271,approved,B11
+T7-008,"T7 Negatives, inverse operations, fraction bar",MATH-2271,I subtract 6 from a number and get 9. What is my number?,B,6,False,,approved,B11
+T7-008,"T7 Negatives, inverse operations, fraction bar",MATH-2271,I subtract 6 from a number and get 9. What is my number?,C,9,False,,approved,B11
+T7-008,"T7 Negatives, inverse operations, fraction bar",MATH-2271,I subtract 6 from a number and get 9. What is my number?,D,15,True,,approved,B11
+T7-009,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 1 over 8 as a decimal.,A,0.125,True,,approved,B11
+T7-009,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 1 over 8 as a decimal.,B,7,False,MATH-2093,approved,B11
+T7-009,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 1 over 8 as a decimal.,C,8,False,MATH-2359,approved,B11
+T7-009,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 1 over 8 as a decimal.,D,0.1,False,MATH-1715,approved,B11
+T7-010,"T7 Negatives, inverse operations, fraction bar",MATH-1639,"In three hours the temperature changes by −5°C, −2°C and −4°C. What is the total change in temperature?",A,11,False,MATH-1639,approved,B12
+T7-010,"T7 Negatives, inverse operations, fraction bar",MATH-1639,"In three hours the temperature changes by −5°C, −2°C and −4°C. What is the total change in temperature?",B,−11,True,,approved,B12
+T7-010,"T7 Negatives, inverse operations, fraction bar",MATH-1639,"In three hours the temperature changes by −5°C, −2°C and −4°C. What is the total change in temperature?",C,3,False,MATH-1639,approved,B12
+T7-010,"T7 Negatives, inverse operations, fraction bar",MATH-1639,"In three hours the temperature changes by −5°C, −2°C and −4°C. What is the total change in temperature?",D,−7,False,,approved,B12
+T7-011,"T7 Negatives, inverse operations, fraction bar",MATH-1639,Work out −5 + −1 + −2.,A,8,False,MATH-1639,approved,B12
+T7-011,"T7 Negatives, inverse operations, fraction bar",MATH-1639,Work out −5 + −1 + −2.,B,4,False,MATH-1639,approved,B12
+T7-011,"T7 Negatives, inverse operations, fraction bar",MATH-1639,Work out −5 + −1 + −2.,C,−6,False,,approved,B12
+T7-011,"T7 Negatives, inverse operations, fraction bar",MATH-1639,Work out −5 + −1 + −2.,D,−8,True,,approved,B12
+T7-012,"T7 Negatives, inverse operations, fraction bar",MATH-1639,"A submarine moves −4 m, then −6 m, then −2 m. What is the total movement?",A,−12,True,,approved,B12
+T7-012,"T7 Negatives, inverse operations, fraction bar",MATH-1639,"A submarine moves −4 m, then −6 m, then −2 m. What is the total movement?",B,12,False,MATH-1639,approved,B12
+T7-012,"T7 Negatives, inverse operations, fraction bar",MATH-1639,"A submarine moves −4 m, then −6 m, then −2 m. What is the total movement?",C,8,False,MATH-1639,approved,B12
+T7-012,"T7 Negatives, inverse operations, fraction bar",MATH-1639,"A submarine moves −4 m, then −6 m, then −2 m. What is the total movement?",D,−10,False,,approved,B12
+T7-013,"T7 Negatives, inverse operations, fraction bar",MATH-2271,Hira shares her sweets equally among 6 friends and each friend gets 3 sweets. How many sweets did she have?,A,0.5,False,MATH-2271,approved,B12
+T7-013,"T7 Negatives, inverse operations, fraction bar",MATH-2271,Hira shares her sweets equally among 6 friends and each friend gets 3 sweets. How many sweets did she have?,B,9,False,,approved,B12
+T7-013,"T7 Negatives, inverse operations, fraction bar",MATH-2271,Hira shares her sweets equally among 6 friends and each friend gets 3 sweets. How many sweets did she have?,C,18,True,,approved,B12
+T7-013,"T7 Negatives, inverse operations, fraction bar",MATH-2271,Hira shares her sweets equally among 6 friends and each friend gets 3 sweets. How many sweets did she have?,D,2,False,,approved,B12
+T7-014,"T7 Negatives, inverse operations, fraction bar",MATH-2271,Find the missing number: □ ÷ 4 = 5,A,1.25,False,MATH-2271,approved,B12
+T7-014,"T7 Negatives, inverse operations, fraction bar",MATH-2271,Find the missing number: □ ÷ 4 = 5,B,9,False,,approved,B12
+T7-014,"T7 Negatives, inverse operations, fraction bar",MATH-2271,Find the missing number: □ ÷ 4 = 5,C,0.8,False,,approved,B12
+T7-014,"T7 Negatives, inverse operations, fraction bar",MATH-2271,Find the missing number: □ ÷ 4 = 5,D,20,True,,approved,B12
+T7-015,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Which number is the same as the fraction 16 over 4?,A,12,False,MATH-2093,approved,B12
+T7-015,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Which number is the same as the fraction 16 over 4?,B,4,True,,approved,B12
+T7-015,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Which number is the same as the fraction 16 over 4?,C,0.25,False,MATH-2359,approved,B12
+T7-015,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Which number is the same as the fraction 16 over 4?,D,20,False,,approved,B12
+T7-016,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 1 over 2 as a decimal.,A,1,False,MATH-2093,approved,B12
+T7-016,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 1 over 2 as a decimal.,B,2,False,MATH-2359,approved,B12
+T7-016,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 1 over 2 as a decimal.,C,0.5,True,,approved,B12
+T7-016,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 1 over 2 as a decimal.,D,0.1,False,MATH-1715,approved,B12
+T3-001,T3 Percentage of an amount,MATH-2206,What is 10% of 80?,A,90,False,MATH-2206,approved,B13
+T3-001,T3 Percentage of an amount,MATH-2206,What is 10% of 80?,B,10,False,MATH-2138,approved,B13
+T3-001,T3 Percentage of an amount,MATH-2206,What is 10% of 80?,C,8,True,,approved,B13
+T3-001,T3 Percentage of an amount,MATH-2206,What is 10% of 80?,D,0.125,False,MATH-2359,approved,B13
+T3-002,T3 Percentage of an amount,MATH-2138,A phone shop gives a 20% discount on a charger that costs Rs 500. How much is the discount?,A,Rs 100,True,,approved,B13
+T3-002,T3 Percentage of an amount,MATH-2138,A phone shop gives a 20% discount on a charger that costs Rs 500. How much is the discount?,B,Rs 520,False,MATH-2206,approved,B13
+T3-002,T3 Percentage of an amount,MATH-2138,A phone shop gives a 20% discount on a charger that costs Rs 500. How much is the discount?,C,Rs 20,False,MATH-2138,approved,B13
+T3-002,T3 Percentage of an amount,MATH-2138,A phone shop gives a 20% discount on a charger that costs Rs 500. How much is the discount?,D,Rs 25,False,,approved,B13
+T3-003,T3 Percentage of an amount,MATH-2359,Which calculation gives 25% of 200?,A,4 ÷ 200,False,MATH-2359,approved,B13
+T3-003,T3 Percentage of an amount,MATH-2359,Which calculation gives 25% of 200?,B,200 + 25,False,MATH-2206,approved,B13
+T3-003,T3 Percentage of an amount,MATH-2359,Which calculation gives 25% of 200?,C,200 × 4,False,MATH-1651|MATH-1074,approved,B13
+T3-003,T3 Percentage of an amount,MATH-2359,Which calculation gives 25% of 200?,D,200 ÷ 4,True,,approved,B13
+T3-004,T3 Percentage of an amount,MATH-2138,A class has 60 students. 50% of them are girls. How many girls are in the class?,A,110,False,MATH-2206,approved,B13
+T3-004,T3 Percentage of an amount,MATH-2138,A class has 60 students. 50% of them are girls. How many girls are in the class?,B,30,True,,approved,B13
+T3-004,T3 Percentage of an amount,MATH-2138,A class has 60 students. 50% of them are girls. How many girls are in the class?,C,50,False,MATH-2138,approved,B13
+T3-004,T3 Percentage of an amount,MATH-2138,A class has 60 students. 50% of them are girls. How many girls are in the class?,D,1.2,False,,approved,B13
+T3-005,T3 Percentage of an amount,MATH-2206,What is 20% of 250?,A,270,False,MATH-2206,approved,B13
+T3-005,T3 Percentage of an amount,MATH-2206,What is 20% of 250?,B,20,False,MATH-2138,approved,B13
+T3-005,T3 Percentage of an amount,MATH-2206,What is 20% of 250?,C,"1,250",False,MATH-1651|MATH-1074,approved,B13
+T3-005,T3 Percentage of an amount,MATH-2206,What is 20% of 250?,D,50,True,,approved,B13
+T3-006,T3 Percentage of an amount,MATH-1651,Which calculation gives 20% of 150?,A,5 ÷ 150,False,MATH-2359,approved,B13
+T3-006,T3 Percentage of an amount,MATH-1651,Which calculation gives 20% of 150?,B,150 ÷ 5,True,,approved,B13
+T3-006,T3 Percentage of an amount,MATH-1651,Which calculation gives 20% of 150?,C,150 + 20,False,MATH-2206,approved,B13
+T3-006,T3 Percentage of an amount,MATH-1651,Which calculation gives 20% of 150?,D,150 × 5,False,MATH-1651|MATH-1074,approved,B13
+T3-007,T3 Percentage of an amount,MATH-2206,A shop has 200 phones. 5% of them are faulty. How many phones are faulty?,A,10,True,,approved,B13
+T3-007,T3 Percentage of an amount,MATH-2206,A shop has 200 phones. 5% of them are faulty. How many phones are faulty?,B,205,False,MATH-2206,approved,B13
+T3-007,T3 Percentage of an amount,MATH-2206,A shop has 200 phones. 5% of them are faulty. How many phones are faulty?,C,5,False,MATH-2138,approved,B13
+T3-007,T3 Percentage of an amount,MATH-2206,A shop has 200 phones. 5% of them are faulty. How many phones are faulty?,D,40,False,,approved,B13
+T3-008,T3 Percentage of an amount,MATH-2359,Hira wants to find 10% of 400. Which calculation should she do?,A,10 ÷ 400,False,MATH-2359,approved,B13
+T3-008,T3 Percentage of an amount,MATH-2359,Hira wants to find 10% of 400. Which calculation should she do?,B,400 + 10,False,MATH-2206,approved,B13
+T3-008,T3 Percentage of an amount,MATH-2359,Hira wants to find 10% of 400. Which calculation should she do?,C,400 ÷ 10,True,,approved,B13
+T3-008,T3 Percentage of an amount,MATH-2359,Hira wants to find 10% of 400. Which calculation should she do?,D,400 × 10,False,MATH-1651|MATH-1074,approved,B13
+T3-009,T3 Percentage of an amount,MATH-2138,What is 50% of 200?,A,250,False,MATH-2206,approved,B13
+T3-009,T3 Percentage of an amount,MATH-2138,What is 50% of 200?,B,50,False,MATH-2138,approved,B13
+T3-009,T3 Percentage of an amount,MATH-2138,What is 50% of 200?,C,0.01,False,MATH-2359,approved,B13
+T3-009,T3 Percentage of an amount,MATH-2138,What is 50% of 200?,D,100,True,,approved,B13
+T3-010,T3 Percentage of an amount,MATH-1074,What is 25% of 80?,A,25,False,MATH-2138,approved,B13
+T3-010,T3 Percentage of an amount,MATH-1074,What is 25% of 80?,B,20,True,,approved,B13
+T3-010,T3 Percentage of an amount,MATH-1074,What is 25% of 80?,C,0.05,False,MATH-2359,approved,B13
+T3-010,T3 Percentage of an amount,MATH-1074,What is 25% of 80?,D,320,False,MATH-1651|MATH-1074,approved,B13
+T6-011B,T6 x multiplication/division (operation version),MATH-1416,How many seconds are there in 2 hours?,A,122 seconds,False,MATH-1416,approved,B14
+T6-011B,T6 x multiplication/division (operation version),MATH-1416,How many seconds are there in 2 hours?,B,"7,200 seconds",True,,approved,B14
+T6-011B,T6 x multiplication/division (operation version),MATH-1416,How many seconds are there in 2 hours?,C,180 seconds,False,MATH-1416,approved,B14
+T6-011B,T6 x multiplication/division (operation version),MATH-1416,How many seconds are there in 2 hours?,D,"3,720 seconds",False,MATH-1416,approved,B14
+T6-010B,T6 x multiplication/division (operation version),MATH-2359,"Fill the gap: 7,200 seconds = ___ hours.",A,0.5 hours,False,MATH-2359,approved,B14
+T6-010B,T6 x multiplication/division (operation version),MATH-2359,"Fill the gap: 7,200 seconds = ___ hours.",B,72 hours,False,,approved,B14
+T6-010B,T6 x multiplication/division (operation version),MATH-2359,"Fill the gap: 7,200 seconds = ___ hours.",C,"3,600 hours",False,,approved,B14
+T6-010B,T6 x multiplication/division (operation version),MATH-2359,"Fill the gap: 7,200 seconds = ___ hours.",D,2 hours,True,,approved,B14
+T6-014B,T6 x multiplication/division (operation version),MATH-1416,Fill the gap: 1.5 hours = ___ seconds.,A,"5,400 seconds",True,,approved,B14
+T6-014B,T6 x multiplication/division (operation version),MATH-1416,Fill the gap: 1.5 hours = ___ seconds.,B,121.5 seconds,False,MATH-1416,approved,B14
+T6-014B,T6 x multiplication/division (operation version),MATH-1416,Fill the gap: 1.5 hours = ___ seconds.,C,150 seconds,False,MATH-1416,approved,B14
+T6-014B,T6 x multiplication/division (operation version),MATH-1416,Fill the gap: 1.5 hours = ___ seconds.,D,"3,690 seconds",False,MATH-1416,approved,B14
+T6-016B,T6 x multiplication/division (operation version),MATH-1416,A film lasts 3 hours. How long is that in seconds?,A,123 seconds,False,MATH-1416,approved,B14
+T6-016B,T6 x multiplication/division (operation version),MATH-1416,A film lasts 3 hours. How long is that in seconds?,B,240 seconds,False,MATH-1416,approved,B14
+T6-016B,T6 x multiplication/division (operation version),MATH-1416,A film lasts 3 hours. How long is that in seconds?,C,"10,800 seconds",True,,approved,B14
+T6-016B,T6 x multiplication/division (operation version),MATH-1416,A film lasts 3 hours. How long is that in seconds?,D,"3,780 seconds",False,MATH-1416,approved,B14
+T6-015B,T6 x multiplication/division (operation version),MATH-2359,"Which of these is the same as 14,400 seconds?",A,0.25 hours,False,MATH-2359,approved,B14
+T6-015B,T6 x multiplication/division (operation version),MATH-2359,"Which of these is the same as 14,400 seconds?",B,144 hours,False,,approved,B14
+T6-015B,T6 x multiplication/division (operation version),MATH-2359,"Which of these is the same as 14,400 seconds?",C,"10,800 hours",False,,approved,B14
+T6-015B,T6 x multiplication/division (operation version),MATH-2359,"Which of these is the same as 14,400 seconds?",D,4 hours,True,,approved,B14
+T6-019A,T6 x percentage / more / less than (time version),MATH-161,"What is 10% of 2 hours, in minutes?",A,20 minutes,False,MATH-161,approved,B15
+T6-019A,T6 x percentage / more / less than (time version),MATH-161,"What is 10% of 2 hours, in minutes?",B,12 minutes,True,,approved,B15
+T6-019A,T6 x percentage / more / less than (time version),MATH-161,"What is 10% of 2 hours, in minutes?",C,2 minutes,False,MATH-767,approved,B15
+T6-019A,T6 x percentage / more / less than (time version),MATH-161,"What is 10% of 2 hours, in minutes?",D,0.2 minutes,False,,approved,B15
+T6-020A,T6 x percentage / more / less than (time version),MATH-767,Sara studies for 2 hours. Hina studies 15 minutes less than Sara. How many minutes does Hina study?,A,185 minutes,False,MATH-161,approved,B15
+T6-020A,T6 x percentage / more / less than (time version),MATH-767,Sara studies for 2 hours. Hina studies 15 minutes less than Sara. How many minutes does Hina study?,B,5 minutes,False,MATH-767,approved,B15
+T6-020A,T6 x percentage / more / less than (time version),MATH-767,Sara studies for 2 hours. Hina studies 15 minutes less than Sara. How many minutes does Hina study?,C,120 minutes,False,,approved,B15
+T6-020A,T6 x percentage / more / less than (time version),MATH-767,Sara studies for 2 hours. Hina studies 15 minutes less than Sara. How many minutes does Hina study?,D,105 minutes,True,,approved,B15
+T6-021A,T6 x percentage / more / less than (time version),MATH-161,Zara cycled for 3 hours. Ali cycled 40 minutes more than Zara. How many minutes did Ali cycle?,A,220 minutes,True,,approved,B15
+T6-021A,T6 x percentage / more / less than (time version),MATH-161,Zara cycled for 3 hours. Ali cycled 40 minutes more than Zara. How many minutes did Ali cycle?,B,340 minutes,False,MATH-161,approved,B15
+T6-021A,T6 x percentage / more / less than (time version),MATH-161,Zara cycled for 3 hours. Ali cycled 40 minutes more than Zara. How many minutes did Ali cycle?,C,70 minutes,False,MATH-767,approved,B15
+T6-021A,T6 x percentage / more / less than (time version),MATH-161,Zara cycled for 3 hours. Ali cycled 40 minutes more than Zara. How many minutes did Ali cycle?,D,180 minutes,False,,approved,B15
+T6-019B,T6 x percentage / more / less than (operation version),MATH-2206,"What is 10% of 2 hours, in minutes?",A,130 minutes,False,MATH-2206,approved,B16
+T6-019B,T6 x percentage / more / less than (operation version),MATH-2206,"What is 10% of 2 hours, in minutes?",B,10 minutes,False,MATH-2138,approved,B16
+T6-019B,T6 x percentage / more / less than (operation version),MATH-2206,"What is 10% of 2 hours, in minutes?",C,12 minutes,True,,approved,B16
+T6-019B,T6 x percentage / more / less than (operation version),MATH-2206,"What is 10% of 2 hours, in minutes?",D,"1,200 minutes",False,MATH-1651|MATH-1074,approved,B16
+T6-020B,T6 x percentage / more / less than (operation version),MATH-228,Sara studies for 2 hours. Hina studies 15 minutes less than Sara. How many minutes does Hina study?,A,105 minutes,True,,approved,B16
+T6-020B,T6 x percentage / more / less than (operation version),MATH-228,Sara studies for 2 hours. Hina studies 15 minutes less than Sara. How many minutes does Hina study?,B,8 minutes,False,MATH-228,approved,B16
+T6-020B,T6 x percentage / more / less than (operation version),MATH-228,Sara studies for 2 hours. Hina studies 15 minutes less than Sara. How many minutes does Hina study?,C,135 minutes,False,MATH-1514|MATH-1773,approved,B16
+T6-020B,T6 x percentage / more / less than (operation version),MATH-228,Sara studies for 2 hours. Hina studies 15 minutes less than Sara. How many minutes does Hina study?,D,120 minutes,False,,approved,B16
+T6-021B,T6 x percentage / more / less than (operation version),MATH-126,Zara cycled for 3 hours. Ali cycled 40 minutes more than Zara. How many minutes did Ali cycle?,A,"7,200 minutes",False,MATH-126,approved,B16
+T6-021B,T6 x percentage / more / less than (operation version),MATH-126,Zara cycled for 3 hours. Ali cycled 40 minutes more than Zara. How many minutes did Ali cycle?,B,140 minutes,False,,approved,B16
+T6-021B,T6 x percentage / more / less than (operation version),MATH-126,Zara cycled for 3 hours. Ali cycled 40 minutes more than Zara. How many minutes did Ali cycle?,C,180 minutes,False,,approved,B16
+T6-021B,T6 x percentage / more / less than (operation version),MATH-126,Zara cycled for 3 hours. Ali cycled 40 minutes more than Zara. How many minutes did Ali cycle?,D,220 minutes,True,,approved,B16

@@ -1,0 +1,7 @@
+Link-soundness audit - B03, B04, B05 (T2 conversion; all in the bank). Independent auditor; not the owner's approval.
+Result: 0 FORCED. STRETCH links:
+- MATH-1715 on ALL 14 fraction->percentage items (B03 T2-005..010, B04 T2-015..020, B05 T2-023..025): '0.a then x100' is read through a second step the misconception never mentions (1715 is a fraction-to-DECIMAL error); the wrong decimal cannot be shown to be the cause. No direct evidence for 1715 exists in the bank.
+- MATH-658 'doubles the numerator' on fractions with denominators 4, 5, 20, 25 (doubling is only correct for /50): overgeneralised.
+- MATH-2039 'add a % sign' applied to bare fractions (3/4 -> 3%): that is 'numerator + %', not 'add % to a number'. 'x out of y' word items (T2-005, 008, 015, 018, 020, 023, 024) rated SOUND (weak).
+Sound: all decimal items, including 61 (4.5%, 6%, ...) and the 0.45% option shared by 1965 and 2039 (a genuine nested collision: 2039 is the general rule, 1965 its decimal-only case; only fraction items can separate them).
+Auditor suggestions: add 1-2 'Write 3/4 as a decimal' items (1715 option 0.3) for direct evidence; mark the chain, the 658 and the bare-fraction 2039 options [STRETCH LINK]; prefer denominators 20/25 for 658; decimal items all share one layout (weak variety).

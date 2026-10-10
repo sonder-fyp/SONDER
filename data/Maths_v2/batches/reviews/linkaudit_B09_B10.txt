@@ -1,0 +1,7 @@
+Link-soundness audit - B09 (draft), B10 (in the bank) (T6 time). Independent auditor; not the owner's approval.
+Result: 21 of 49 linked options STRETCH, 0 FORCED; only the 161 and 767 links are in question; every x60 / x3600 link (1651/1074) and every 767 minutes-to-hours option is sound.
+- B09, 161 minutes -> hours (minutes/100: T6-001 A 2.4 h, 003 B 1.8 h, 005 A 1.2 h, 006 A 3 h, 008 B 4.8 h): STRETCH - rival cause: decimal-time confusion ('1.2' read as 1 h 20) or a decimal-point shift.
+- B10, seconds -> hours (161: seconds/6,000 on T6-010 A, 012 B, 013 A, 015 A, 017 B; 767: seconds/600 on 010 C, 012 C, 013 B, 015 C, 017 C): STRETCH - a two-step chain; many students just recall 3,600 s/hour.
+- B10, hours -> seconds (161: 100-minute hour then x60 on T6-011 A, 014 A, 016 A, 018 A; 767 on 011 B, 014 B, 016 B, 018 C): STRETCH, the least weak of B10.
+Key point: 6,000 and 600 seconds per hour fit 'there are 100 or 10 seconds in a minute' equally well. That belief is not in the catalogue; a student who holds it gets diagnosed 161/767, and the remediation differs (minutes per hour vs seconds per minute). B10 has no item that separates the two.
+Other: the x3600 options (25,920,000 hours etc.) are never plausible and give the engine no evidence. B09 adds no new coverage. (Note: the auditor saw the B10 dump titled 'draft'; B10 IS in the bank, approved 2026-10-06.)

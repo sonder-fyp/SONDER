@@ -1,0 +1,6 @@
+B13 (T3, 10 items) - reviewer agent report, round 2 (simulated owner review; not the owner's approval)
+VERDICT: APPROVE WITH CHANGES. Arithmetic clean; still a single idea (divide by 10) in thin disguise.
+Fixed since round 1: divide-wrong-way option placement - yes; nonsense values - yes (0.125/0.04 in bare items remain odd but exact); variety - partly (3 forms, but the 5 word problems are interchangeable); too many 50%/25% - yes in letter, but 9 of 10 items are now 10%.
+Issues: reading of MATH-1651/1074 accepted conditionally (for 20% x5 is rarer than x20); MATH-1651 ('larger unit') fits poorly, item 006 targeted at it is a stretch; x10 distractors in word problems are implausible (Rs 20,000 discount on Rs 2000) so common sense rules them out; 006/009 near-clones, guessable, correct answer at D in both; the option '10' is a tell in 8 of 10 items.
+RATINGS (nat|clar|distr|var): 001 4/5/4/3, 002 4/5/3/3, 003 3/4/3/4, 004 5/5/3/2, 005 4/5/4/3, 006 3/4/3/1, 007 5/5/3/2, 008 5/5/3/2, 009 4/5/3/1, 010 5/5/3/2
+TOP FIXES: (1) vary percentage and form (20% of 30, 25% of 120, 5% of 500, one reverse item); (2) in word problems replace the x10 distractor with one under the total, keep it in bare and 'which calculation' items; (3) rebalance expressions in 003/006/009 so they do not pair up; move the correct answer off D.

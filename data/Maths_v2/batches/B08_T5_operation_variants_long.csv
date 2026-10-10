@@ -1,0 +1,25 @@
+﻿item_id,topic,target,stem,option_id,option_text,is_correct,misconceptions,status
+T5-011,T5 cross-concept (operation version),MATH-1514,A function machine has two steps. Input: 6. Step 1: square the number. Step 2: subtract the square root of 9. What is the output?,A,39,False,MATH-1514|MATH-1773,draft
+T5-011,T5 cross-concept (operation version),MATH-1514,A function machine has two steps. Input: 6. Step 1: square the number. Step 2: subtract the square root of 9. What is the output?,B,12,False,,draft
+T5-011,T5 cross-concept (operation version),MATH-1514,A function machine has two steps. Input: 6. Step 1: square the number. Step 2: subtract the square root of 9. What is the output?,C,33,True,,draft
+T5-011,T5 cross-concept (operation version),MATH-1514,A function machine has two steps. Input: 6. Step 1: square the number. Step 2: subtract the square root of 9. What is the output?,D,108,False,,draft
+T5-012,T5 cross-concept (operation version),MATH-1416,I think of the number 2. I raise it to the power of 4. Then I multiply my answer by the square root of 16. What number do I get?,A,64,True,,draft
+T5-012,T5 cross-concept (operation version),MATH-1416,I think of the number 2. I raise it to the power of 4. Then I multiply my answer by the square root of 16. What number do I get?,B,20,False,MATH-1416,draft
+T5-012,T5 cross-concept (operation version),MATH-1416,I think of the number 2. I raise it to the power of 4. Then I multiply my answer by the square root of 16. What number do I get?,C,12,False,,draft
+T5-012,T5 cross-concept (operation version),MATH-1416,I think of the number 2. I raise it to the power of 4. Then I multiply my answer by the square root of 16. What number do I get?,D,4,False,,draft
+T5-013,T5 cross-concept (operation version),MATH-228,Sam thinks of the number 2⁵. Hira's number is √16 less than Sam's number. What is Hira's number?,A,8,False,MATH-228,draft
+T5-013,T5 cross-concept (operation version),MATH-228,Sam thinks of the number 2⁵. Hira's number is √16 less than Sam's number. What is Hira's number?,B,36,False,MATH-1514|MATH-1773,draft
+T5-013,T5 cross-concept (operation version),MATH-228,Sam thinks of the number 2⁵. Hira's number is √16 less than Sam's number. What is Hira's number?,C,128,False,,draft
+T5-013,T5 cross-concept (operation version),MATH-228,Sam thinks of the number 2⁵. Hira's number is √16 less than Sam's number. What is Hira's number?,D,28,True,,draft
+T5-014,T5 cross-concept (operation version),MATH-2093,A fraction has 2⁶ on the top and √16 on the bottom. What is the value of the fraction?,A,60,False,MATH-2093,draft
+T5-014,T5 cross-concept (operation version),MATH-2093,A fraction has 2⁶ on the top and √16 on the bottom. What is the value of the fraction?,B,16,True,,draft
+T5-014,T5 cross-concept (operation version),MATH-2093,A fraction has 2⁶ on the top and √16 on the bottom. What is the value of the fraction?,C,0.0625,False,,draft
+T5-014,T5 cross-concept (operation version),MATH-2093,A fraction has 2⁶ on the top and √16 on the bottom. What is the value of the fraction?,D,68,False,,draft
+T5-015,T5 cross-concept (operation version),MATH-126,Zara thinks of the number 2⁴. Ali's number is √64 more than Zara's number. What is Ali's number?,A,128,False,MATH-126,draft
+T5-015,T5 cross-concept (operation version),MATH-126,Zara thinks of the number 2⁴. Ali's number is √64 more than Zara's number. What is Ali's number?,B,8,False,,draft
+T5-015,T5 cross-concept (operation version),MATH-126,Zara thinks of the number 2⁴. Ali's number is √64 more than Zara's number. What is Ali's number?,C,24,True,,draft
+T5-015,T5 cross-concept (operation version),MATH-126,Zara thinks of the number 2⁴. Ali's number is √64 more than Zara's number. What is Ali's number?,D,2,False,,draft
+T5-016,T5 cross-concept (operation version),MATH-228,Ali thinks of the number 3⁴. Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,A,78,True,,draft
+T5-016,T5 cross-concept (operation version),MATH-228,Ali thinks of the number 3⁴. Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,B,27,False,MATH-228,draft
+T5-016,T5 cross-concept (operation version),MATH-228,Ali thinks of the number 3⁴. Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,C,84,False,MATH-1514|MATH-1773,draft
+T5-016,T5 cross-concept (operation version),MATH-228,Ali thinks of the number 3⁴. Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,D,243,False,,draft

@@ -1,0 +1,4 @@
+B14 (T6 x mult/div, operation versions, 5 items) - reviewer agent report, round 1 (simulated owner review; not the owner's approval)
+VERDICT: APPROVE WITH CHANGES. All options recompute. The three 1416 items are clean; the 'add at first/second/both steps' device is fair (least natural: add at first step).
+Problem: T6-010B '120 hours' and T6-015B '240 hours' are seconds/60 (a time-conversion slip), which muddies the A/B split. FIX APPLIED: replaced with 72 and 144 hours (seconds / 100, a place-value slip; the reviewer suggested /360, /100 judged more natural). Unlinked stays 4 (cap).
+RATINGS (nat|clar|distr|var): 011B 5/5/4/3, 014B 4/5/4/3, 016B 5/5/4/3, 010B 5/5/3/3 (before fix), 015B 5/5/3/3 (before fix). Low variety within items is by design (all 1416).

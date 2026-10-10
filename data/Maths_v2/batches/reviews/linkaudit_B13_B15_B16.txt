@@ -1,0 +1,6 @@
+Link-soundness audit - B13 (T3), B15, B16 (T6 crossings); all in the bank. Independent auditor; not the owner's approval.
+FORCED (4) - all MATH-2359 in non-10% items: the correct route is amount / (100/p), so 'percentage / amount' is not the reversal of anything correct (only 10%, where 80/10 is correct, makes 10/80 a true reversal): B13 T3-003 A '25 / 200' (correct is 200 / 4); T3-006 A '20 / 150' (correct 150 / 5); T3-009 C 0.25; T3-010 C 0.3125.
+STRETCH (3): B13 T3-001 D 0.125 (true reversal but weak); T3-005 C 1,250 and T3-010 D 320 (the 'multiplies by the divisor factor' reading needs the student to know 20% = /5 and then multiply anyway; calculation-style items T3-003 C / T3-006 D are sound).
+B15/B16: every linked option sound; the two sets separate cleanly (no B16 wrong option can come from a time-conversion error; tested). Small blur: T6-019A option 20 can also be 2 x 10 on unconverted hours.
+Other: T6-021B has two of three wrong options unlinked (thin but allowed); 1,200 and 7,200 minutes are implausible story values but honest outputs of the rule; 'multiplies when converting to a larger unit' (1651) does not fit a percentage question at all (catalogue wording issue).
+Auditor fixes: T3-003 A -> '4 / 200'; T3-006 A -> '5 / 150'; T3-009 C -> 0.01; T3-010 C -> 0.05; or keep 2359 only in the 10% items. Flag T3-005 C and T3-010 D [STRETCH LINK].

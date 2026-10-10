@@ -1,0 +1,29 @@
+﻿item_id,topic,target,stem,option_id,option_text,is_correct,misconceptions,status
+T7-010,"T7 Negatives, inverse operations, fraction bar",MATH-1639,"In three hours the temperature changes by −5°C, −2°C and −4°C. What is the total change in temperature?",A,11,False,MATH-1639,draft
+T7-010,"T7 Negatives, inverse operations, fraction bar",MATH-1639,"In three hours the temperature changes by −5°C, −2°C and −4°C. What is the total change in temperature?",B,−11,True,,draft
+T7-010,"T7 Negatives, inverse operations, fraction bar",MATH-1639,"In three hours the temperature changes by −5°C, −2°C and −4°C. What is the total change in temperature?",C,3,False,MATH-1639,draft
+T7-010,"T7 Negatives, inverse operations, fraction bar",MATH-1639,"In three hours the temperature changes by −5°C, −2°C and −4°C. What is the total change in temperature?",D,−7,False,,draft
+T7-011,"T7 Negatives, inverse operations, fraction bar",MATH-1639,Work out −5 + −1 + −2.,A,8,False,MATH-1639,draft
+T7-011,"T7 Negatives, inverse operations, fraction bar",MATH-1639,Work out −5 + −1 + −2.,B,4,False,MATH-1639,draft
+T7-011,"T7 Negatives, inverse operations, fraction bar",MATH-1639,Work out −5 + −1 + −2.,C,−6,False,,draft
+T7-011,"T7 Negatives, inverse operations, fraction bar",MATH-1639,Work out −5 + −1 + −2.,D,−8,True,,draft
+T7-012,"T7 Negatives, inverse operations, fraction bar",MATH-1639,"A submarine moves −4 m, then −6 m, then −2 m. What is the total movement?",A,−12,True,,draft
+T7-012,"T7 Negatives, inverse operations, fraction bar",MATH-1639,"A submarine moves −4 m, then −6 m, then −2 m. What is the total movement?",B,12,False,MATH-1639,draft
+T7-012,"T7 Negatives, inverse operations, fraction bar",MATH-1639,"A submarine moves −4 m, then −6 m, then −2 m. What is the total movement?",C,8,False,MATH-1639,draft
+T7-012,"T7 Negatives, inverse operations, fraction bar",MATH-1639,"A submarine moves −4 m, then −6 m, then −2 m. What is the total movement?",D,−10,False,,draft
+T7-013,"T7 Negatives, inverse operations, fraction bar",MATH-2271,Hira shares her sweets equally among 6 friends and each friend gets 3 sweets. How many sweets did she have?,A,0.5,False,MATH-2271,draft
+T7-013,"T7 Negatives, inverse operations, fraction bar",MATH-2271,Hira shares her sweets equally among 6 friends and each friend gets 3 sweets. How many sweets did she have?,B,9,False,,draft
+T7-013,"T7 Negatives, inverse operations, fraction bar",MATH-2271,Hira shares her sweets equally among 6 friends and each friend gets 3 sweets. How many sweets did she have?,C,18,True,,draft
+T7-013,"T7 Negatives, inverse operations, fraction bar",MATH-2271,Hira shares her sweets equally among 6 friends and each friend gets 3 sweets. How many sweets did she have?,D,2,False,,draft
+T7-014,"T7 Negatives, inverse operations, fraction bar",MATH-2271,Find the missing number: □ ÷ 4 = 5,A,1.25,False,MATH-2271,draft
+T7-014,"T7 Negatives, inverse operations, fraction bar",MATH-2271,Find the missing number: □ ÷ 4 = 5,B,9,False,,draft
+T7-014,"T7 Negatives, inverse operations, fraction bar",MATH-2271,Find the missing number: □ ÷ 4 = 5,C,0.8,False,,draft
+T7-014,"T7 Negatives, inverse operations, fraction bar",MATH-2271,Find the missing number: □ ÷ 4 = 5,D,20,True,,draft
+T7-015,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Which number is the same as the fraction 16 over 4?,A,12,False,MATH-2093,draft
+T7-015,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Which number is the same as the fraction 16 over 4?,B,4,True,,draft
+T7-015,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Which number is the same as the fraction 16 over 4?,C,0.25,False,MATH-2359,draft
+T7-015,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Which number is the same as the fraction 16 over 4?,D,20,False,,draft
+T7-016,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 1 over 2 as a decimal.,A,1,False,MATH-2093,draft
+T7-016,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 1 over 2 as a decimal.,B,2,False,MATH-2359,draft
+T7-016,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 1 over 2 as a decimal.,C,0.5,True,,draft
+T7-016,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 1 over 2 as a decimal.,D,0.1,False,MATH-1715,draft

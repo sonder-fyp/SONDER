@@ -1,0 +1,41 @@
+﻿item_id,topic,target,stem,option_id,option_text,is_correct,misconceptions,status
+T3-001,T3 Percentage of an amount,MATH-2206,What is 10% of 80?,A,90,False,MATH-2206,draft
+T3-001,T3 Percentage of an amount,MATH-2206,What is 10% of 80?,B,10,False,MATH-2138,draft
+T3-001,T3 Percentage of an amount,MATH-2206,What is 10% of 80?,C,8,True,,draft
+T3-001,T3 Percentage of an amount,MATH-2206,What is 10% of 80?,D,0.125,False,MATH-2359,draft
+T3-002,T3 Percentage of an amount,MATH-2138,A phone shop gives a 20% discount on a charger that costs Rs 500. How much is the discount?,A,Rs 100,True,,draft
+T3-002,T3 Percentage of an amount,MATH-2138,A phone shop gives a 20% discount on a charger that costs Rs 500. How much is the discount?,B,Rs 520,False,MATH-2206,draft
+T3-002,T3 Percentage of an amount,MATH-2138,A phone shop gives a 20% discount on a charger that costs Rs 500. How much is the discount?,C,Rs 20,False,MATH-2138,draft
+T3-002,T3 Percentage of an amount,MATH-2138,A phone shop gives a 20% discount on a charger that costs Rs 500. How much is the discount?,D,Rs 25,False,,draft
+T3-003,T3 Percentage of an amount,MATH-2359,Which calculation gives 25% of 200?,A,4 ÷ 200,False,MATH-2359,draft
+T3-003,T3 Percentage of an amount,MATH-2359,Which calculation gives 25% of 200?,B,200 + 25,False,MATH-2206,draft
+T3-003,T3 Percentage of an amount,MATH-2359,Which calculation gives 25% of 200?,C,200 × 4,False,MATH-1651|MATH-1074,draft
+T3-003,T3 Percentage of an amount,MATH-2359,Which calculation gives 25% of 200?,D,200 ÷ 4,True,,draft
+T3-004,T3 Percentage of an amount,MATH-2138,A class has 60 students. 50% of them are girls. How many girls are in the class?,A,110,False,MATH-2206,draft
+T3-004,T3 Percentage of an amount,MATH-2138,A class has 60 students. 50% of them are girls. How many girls are in the class?,B,30,True,,draft
+T3-004,T3 Percentage of an amount,MATH-2138,A class has 60 students. 50% of them are girls. How many girls are in the class?,C,50,False,MATH-2138,draft
+T3-004,T3 Percentage of an amount,MATH-2138,A class has 60 students. 50% of them are girls. How many girls are in the class?,D,1.2,False,,draft
+T3-005,T3 Percentage of an amount,MATH-2206,What is 20% of 250?,A,270,False,MATH-2206,draft
+T3-005,T3 Percentage of an amount,MATH-2206,What is 20% of 250?,B,20,False,MATH-2138,draft
+T3-005,T3 Percentage of an amount,MATH-2206,What is 20% of 250?,C,"1,250",False,MATH-1651|MATH-1074,draft
+T3-005,T3 Percentage of an amount,MATH-2206,What is 20% of 250?,D,50,True,,draft
+T3-006,T3 Percentage of an amount,MATH-1651,Which calculation gives 20% of 150?,A,5 ÷ 150,False,MATH-2359,draft
+T3-006,T3 Percentage of an amount,MATH-1651,Which calculation gives 20% of 150?,B,150 ÷ 5,True,,draft
+T3-006,T3 Percentage of an amount,MATH-1651,Which calculation gives 20% of 150?,C,150 + 20,False,MATH-2206,draft
+T3-006,T3 Percentage of an amount,MATH-1651,Which calculation gives 20% of 150?,D,150 × 5,False,MATH-1651|MATH-1074,draft
+T3-007,T3 Percentage of an amount,MATH-2206,A shop has 200 phones. 5% of them are faulty. How many phones are faulty?,A,10,True,,draft
+T3-007,T3 Percentage of an amount,MATH-2206,A shop has 200 phones. 5% of them are faulty. How many phones are faulty?,B,205,False,MATH-2206,draft
+T3-007,T3 Percentage of an amount,MATH-2206,A shop has 200 phones. 5% of them are faulty. How many phones are faulty?,C,5,False,MATH-2138,draft
+T3-007,T3 Percentage of an amount,MATH-2206,A shop has 200 phones. 5% of them are faulty. How many phones are faulty?,D,40,False,,draft
+T3-008,T3 Percentage of an amount,MATH-2359,Hira wants to find 10% of 400. Which calculation should she do?,A,10 ÷ 400,False,MATH-2359,draft
+T3-008,T3 Percentage of an amount,MATH-2359,Hira wants to find 10% of 400. Which calculation should she do?,B,400 + 10,False,MATH-2206,draft
+T3-008,T3 Percentage of an amount,MATH-2359,Hira wants to find 10% of 400. Which calculation should she do?,C,400 ÷ 10,True,,draft
+T3-008,T3 Percentage of an amount,MATH-2359,Hira wants to find 10% of 400. Which calculation should she do?,D,400 × 10,False,MATH-1651|MATH-1074,draft
+T3-009,T3 Percentage of an amount,MATH-2138,What is 50% of 200?,A,250,False,MATH-2206,draft
+T3-009,T3 Percentage of an amount,MATH-2138,What is 50% of 200?,B,50,False,MATH-2138,draft
+T3-009,T3 Percentage of an amount,MATH-2138,What is 50% of 200?,C,0.01,False,MATH-2359,draft
+T3-009,T3 Percentage of an amount,MATH-2138,What is 50% of 200?,D,100,True,,draft
+T3-010,T3 Percentage of an amount,MATH-1074,What is 25% of 80?,A,25,False,MATH-2138,draft
+T3-010,T3 Percentage of an amount,MATH-1074,What is 25% of 80?,B,20,True,,draft
+T3-010,T3 Percentage of an amount,MATH-1074,What is 25% of 80?,C,0.05,False,MATH-2359,draft
+T3-010,T3 Percentage of an amount,MATH-1074,What is 25% of 80?,D,320,False,MATH-1651|MATH-1074,draft
