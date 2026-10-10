@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import re
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -79,11 +80,16 @@ def validate_dataset(root: Path) -> list[Finding]:
     bank_path = root / "bank" / "items.csv"
     topics = _read_csv(root / "topics.csv", TOPIC_COLUMNS, findings)
     bank = _read_csv(bank_path, BANK_COLUMNS, findings)
+    if not topics and not any(finding.code in {"MISSING_FILE", "CSV_HEADER", "CSV_READ"} and "topics.csv" in finding.location for finding in findings):
+        findings.append(Finding("error", "EMPTY_TOPICS", "topics.csv", "No misconception rows."))
+    if not bank and not any(finding.code in {"MISSING_FILE", "CSV_HEADER", "CSV_READ"} and "items.csv" in finding.location for finding in findings):
+        findings.append(Finding("error", "EMPTY_BANK", "bank/items.csv", "No approved item rows."))
     if not topics or not bank:
         return findings
 
     known_ids: set[str] = set()
     topic_names: set[str] = set()
+    ids_by_topic_code: dict[str, set[str]] = {}
     for row in topics:
         misconception_id = row["MisconceptionId"].strip()
         topic = row["topic"].strip()
@@ -93,6 +99,9 @@ def validate_dataset(root: Path) -> list[Finding]:
             findings.append(Finding("error", "DUPLICATE_MISCONCEPTION", "topics.csv", misconception_id))
         known_ids.add(misconception_id)
         topic_names.add(topic)
+        match = re.match(r"^(T\d+)\b", topic)
+        if match:
+            ids_by_topic_code.setdefault(match.group(1), set()).add(misconception_id)
 
     items: dict[str, list[dict[str, str]]] = {}
     bank_keys: set[tuple[str, str]] = set()
@@ -121,6 +130,7 @@ def validate_dataset(root: Path) -> list[Finding]:
             findings.append(Finding("error", "CORRECT_OPTION_LINKED", location, "Correct option has misconception links."))
         bank_batches.add(row["batch"].strip())
 
+    linked_by_label: dict[str, set[str]] = {}
     for item_id, rows in sorted(items.items()):
         location = f"bank/items.csv:{item_id}"
         if len(rows) != 4:
@@ -135,7 +145,7 @@ def validate_dataset(root: Path) -> list[Finding]:
                 findings.append(Finding("error", "INCONSISTENT_ITEM_FIELD", location, field))
         linked_option_counts: dict[str, int] = {}
         for row in rows:
-            for misconception_id in set(filter(None, row["misconceptions"].split("|"))):
+            for misconception_id in {part.strip() for part in row["misconceptions"].split("|") if part.strip()}:
                 linked_option_counts[misconception_id] = linked_option_counts.get(misconception_id, 0) + 1
         for misconception_id, count in sorted(linked_option_counts.items()):
             if count > 2:
@@ -143,6 +153,25 @@ def validate_dataset(root: Path) -> list[Finding]:
                     "contract", "DRAFT_PACK_V11", location,
                     f"{misconception_id} links {count} options; engine draft V11 allows at most 2.",
                 ))
+        label = rows[0]["topic"]
+        linked_by_label.setdefault(label, set()).update(linked_option_counts)
+        match = re.match(r"^(T\d+)\b", label)
+        if match and match.group(1) in ids_by_topic_code:
+            foreign = (set(linked_option_counts) | {rows[0]["target"]}) - ids_by_topic_code[match.group(1)]
+            if foreign:
+                findings.append(Finding(
+                    "contract", "DRAFT_PACK_V5", location,
+                    f"IDs outside {match.group(1)} in topics.csv: {', '.join(sorted(foreign))}. "
+                    "An explicit pack/topic grouping is needed before V5 can be checked.",
+                ))
+
+    for label, linked_ids in sorted(linked_by_label.items()):
+        if len(linked_ids) > 6:
+            findings.append(Finding(
+                "contract", "DRAFT_PACK_V7", "bank/items.csv",
+                f"'{label}' links {len(linked_ids)} misconceptions; draft K_MAX is 6 "
+                "if this label becomes one pack.",
+            ))
 
     for label in sorted({row["topic"] for row in bank} - topic_names):
         findings.append(Finding(

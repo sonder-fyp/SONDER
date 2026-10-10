@@ -15,9 +15,12 @@ draft** engine pack rule V11 can accept every bank item.
 - **ERROR** means a CSV is malformed, the approved bank is internally inconsistent,
   a link/target ID is undeclared, or approved content differs from its authored
   batch. The command exits with status 1.
-- **CONTRACT** means an approved item conflicts with a rule in
-  `docs/ENGINE_SPEC_DRAFT.md`. The draft is awaiting team agreement; these findings
-  make `--strict-contract` exit with status 1.
+- **CONTRACT** means an approved item conflicts with, or needs an explicit pack
+  decision under, a rule in `docs/ENGINE_SPEC_DRAFT.md`: V5 topic membership,
+  V7's six-hypothesis limit, or V11's two-linked-options limit. The draft is
+  awaiting team agreement; these findings make `--strict-contract` exit with
+  status 1. V5 uses the `T1`–`T7` prefix in `topics.csv` as the current topic
+  grouping. A future versioned pack may group cross-topic items differently.
 - **WARNING** means the importer needs an explicit topic-label mapping. This is
   not automatically a faulty question.
 

@@ -56,6 +56,14 @@ class MathDatasetValidationTests(unittest.TestCase):
     def test_valid_bank_and_matching_authored_batch(self) -> None:
         self.assertEqual([], self.findings())
 
+    def test_empty_bank_is_not_reported_as_valid(self) -> None:
+        self.bank.clear()
+        self.assertIn("EMPTY_BANK", self.codes())
+
+    def test_empty_topic_catalogue_is_not_reported_as_valid(self) -> None:
+        self.topics.clear()
+        self.assertIn("EMPTY_TOPICS", self.codes())
+
     def test_correct_answer_cannot_be_linked_to_misconception(self) -> None:
         self.bank[1]["misconceptions"] = "MATH-2"
         self.assertIn("CORRECT_OPTION_LINKED", self.codes())
@@ -106,6 +114,27 @@ class MathDatasetValidationTests(unittest.TestCase):
         for row in self.batch:
             row["topic"] = "T1 Alternate label"
         self.assertIn("TOPIC_LABEL_NEEDS_MAPPING", self.codes())
+
+    def test_cross_topic_link_needs_pack_decision_under_draft_v5(self) -> None:
+        self.topics.append({
+            "topic": "T2 Another", "MisconceptionId": "MATH-3",
+            "MisconceptionName": "Third",
+        })
+        self.bank[0]["misconceptions"] = "MATH-3"
+        self.batch[0]["misconceptions"] = "MATH-3"
+        findings = self.findings()
+        self.assertIn("DRAFT_PACK_V5", {finding.code for finding in findings})
+        self.assertFalse(any(finding.kind == "error" for finding in findings))
+
+    def test_label_with_too_many_linked_hypotheses_needs_pack_split(self) -> None:
+        for number in range(3, 8):
+            self.topics.append({
+                "topic": "T1 Example", "MisconceptionId": f"MATH-{number}",
+                "MisconceptionName": f"Misconception {number}",
+            })
+        self.bank[0]["misconceptions"] = "MATH-1|MATH-3|MATH-4|MATH-5|MATH-6|MATH-7"
+        self.batch[0]["misconceptions"] = self.bank[0]["misconceptions"]
+        self.assertIn("DRAFT_PACK_V7", self.codes())
 
 
 if __name__ == "__main__":
