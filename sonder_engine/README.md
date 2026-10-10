@@ -8,6 +8,8 @@ This package is the deterministic calculation layer described in `docs/ENGINE_SP
 - `Item` contains exactly four ordered option IDs, the correct option's zero-based index, and a tuple of linked misconception IDs per option. Correct options cannot have links; one misconception may link to at most two wrong options on the same item. The content adapter retains stem, option text, provenance, and pack version outside this numerical object.
 - `Params` carries assumed `slip`, `guess`, `prior_none`, and `prior_unmodelled`. Defaults (`0.10`, `0.30`, `0.25`, `0.05`) are design assumptions, **not** measured student behavior. A versioned config and content binding will be Ahmed's service responsibility.
 
+All four rates must be at least `1e-12`. Smaller positive float64 values can make an off-option likelihood round to zero; this precision guard preserves the model's stated strictly positive rows. The default rates are unchanged.
+
 `prior(hyps, params)` returns a new NumPy `float64` vector: the last two entries get the reserved masses and all misconception entries share the remainder equally. For four misconceptions the default is `(0.175, 0.175, 0.175, 0.175, 0.25, 0.05)`. The package is importable with `python -m pip install -e .`; tests run with `python -m unittest discover -s tests -p 'test_bayes.py' -v`.
 
 Next calculation pieces will add `likelihood_matrix(item, hyps, params)` and `update_posterior(p, L, observed)` using these exact objects and orders. Their tests use synthetic items until the team accepts an exact live Maths pack.

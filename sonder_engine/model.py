@@ -12,13 +12,18 @@ from math import isfinite
 NONE = "NONE"
 UNMODELLED = "UNMODELLED"
 MAX_MISCONCEPTIONS = 6
+# Keeps off-option likelihoods and eight-step posterior traces representable
+# in float64. Values below this are not meaningful uncalibrated assumptions.
+MIN_PARAMETER_RATE = 1e-12
 
 
 def _rate(name: str, value: float, *, ceiling: float = 1.0) -> None:
     if isinstance(value, bool) or not isinstance(value, (int, float)):
         raise ValueError(f"{name} must be a finite number")
-    if not isfinite(value) or not 0.0 < value < ceiling:
-        raise ValueError(f"{name} must be finite and strictly between 0 and {ceiling}")
+    if not isfinite(value) or not MIN_PARAMETER_RATE <= value < ceiling:
+        raise ValueError(
+            f"{name} must be finite and in [{MIN_PARAMETER_RATE}, {ceiling})"
+        )
 
 
 @dataclass(frozen=True)

@@ -29,6 +29,9 @@ class ContractAndPriorTests(unittest.TestCase):
     def test_invalid_assumptions_are_rejected(self):
         for kwargs in ({"slip": 0.0}, {"guess": 0.5}, {"prior_none": float("nan")},
                        {"prior_unmodelled": float("inf")},
+                       {"slip": np.nextafter(0.0, 1.0)},
+                       {"guess": np.nextafter(0.0, 1.0)},
+                       {"prior_unmodelled": np.nextafter(0.0, 1.0)},
                        {"prior_none": 0.80, "prior_unmodelled": 0.25}):
             with self.subTest(kwargs=kwargs), self.assertRaises(ValueError):
                 Params(**kwargs)
