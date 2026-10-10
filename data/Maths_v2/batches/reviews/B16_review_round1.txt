@@ -1,0 +1,4 @@
+B16 (T6 x percentage/more/less, operation versions, 3 items) - reviewer agent report, round 1 (simulated owner review; not the owner's approval)
+VERDICT: APPROVE WITH CHANGES. All options recompute; no wrong option can come from a time-conversion error. Unlinked 3 (cap 4; 021B uses its allowance of 2).
+Fixes: 019B note for the multiply option could read as a time-conversion slip (APPLIED: now says operation slip, 120 x 10). 021B option C (180) could be replaced by a linked distractor if one exists (none found; kept). 020B no change.
+RATINGS (nat|clar|distr|var): 019B 4/5/4/3, 020B 5/5/4/4, 021B 5/5/3/4.

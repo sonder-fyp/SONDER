@@ -1,0 +1,41 @@
+﻿item_id,topic,target,stem,option_id,option_text,is_correct,misconceptions,status
+T5-001,T5 Powers and roots,MATH-952,What is the value of 5³?,A,8,False,MATH-952,draft
+T5-001,T5 Powers and roots,MATH-952,What is the value of 5³?,B,125,True,,draft
+T5-001,T5 Powers and roots,MATH-952,What is the value of 5³?,C,15,False,MATH-1072,draft
+T5-001,T5 Powers and roots,MATH-952,What is the value of 5³?,D,243,False,,draft
+T5-002,T5 Powers and roots,MATH-1072,Which of these is the same as 3⁴?,A,3 + 4,False,MATH-952,draft
+T5-002,T5 Powers and roots,MATH-1072,Which of these is the same as 3⁴?,B,3 × 4,False,MATH-1072,draft
+T5-002,T5 Powers and roots,MATH-1072,Which of these is the same as 3⁴?,C,3 × 3 × 3 × 3,True,,draft
+T5-002,T5 Powers and roots,MATH-1072,Which of these is the same as 3⁴?,D,4 × 4 × 4,False,,draft
+T5-003,T5 Powers and roots,MATH-414,A number multiplied by itself three times gives 27. What is the number?,A,3,True,,draft
+T5-003,T5 Powers and roots,MATH-414,A number multiplied by itself three times gives 27. What is the number?,B,9,False,MATH-414,draft
+T5-003,T5 Powers and roots,MATH-414,A number multiplied by itself three times gives 27. What is the number?,C,13.5,False,MATH-734,draft
+T5-003,T5 Powers and roots,MATH-414,A number multiplied by itself three times gives 27. What is the number?,D,81,False,,draft
+T5-004,T5 Powers and roots,MATH-734,What is ∛216?,A,72,False,MATH-414,draft
+T5-004,T5 Powers and roots,MATH-734,What is ∛216?,B,108,False,MATH-734,draft
+T5-004,T5 Powers and roots,MATH-734,What is ∛216?,C,36,False,,draft
+T5-004,T5 Powers and roots,MATH-734,What is ∛216?,D,6,True,,draft
+T5-005,T5 Powers and roots,MATH-1072,A function machine has two steps. Input: 6. Step 1: square the number. Step 2: subtract the square root of 9. What is the output?,A,5,False,MATH-952,draft
+T5-005,T5 Powers and roots,MATH-1072,A function machine has two steps. Input: 6. Step 1: square the number. Step 2: subtract the square root of 9. What is the output?,B,9,False,MATH-1072,draft
+T5-005,T5 Powers and roots,MATH-1072,A function machine has two steps. Input: 6. Step 1: square the number. Step 2: subtract the square root of 9. What is the output?,C,33,True,,draft
+T5-005,T5 Powers and roots,MATH-1072,A function machine has two steps. Input: 6. Step 1: square the number. Step 2: subtract the square root of 9. What is the output?,D,31.5,False,MATH-414|MATH-734,draft
+T5-006,T5 Powers and roots,MATH-952,I think of the number 2. I raise it to the power of 4. Then I multiply my answer by the square root of 16. What number do I get?,A,64,True,,draft
+T5-006,T5 Powers and roots,MATH-952,I think of the number 2. I raise it to the power of 4. Then I multiply my answer by the square root of 16. What number do I get?,B,24,False,MATH-952,draft
+T5-006,T5 Powers and roots,MATH-952,I think of the number 2. I raise it to the power of 4. Then I multiply my answer by the square root of 16. What number do I get?,C,32,False,MATH-1072,draft
+T5-006,T5 Powers and roots,MATH-952,I think of the number 2. I raise it to the power of 4. Then I multiply my answer by the square root of 16. What number do I get?,D,128,False,MATH-414|MATH-734,draft
+T5-007,T5 Powers and roots,MATH-1072,Sam thinks of the number 2⁵. Hira's number is √16 less than Sam's number. What is Hira's number?,A,3,False,MATH-952,draft
+T5-007,T5 Powers and roots,MATH-1072,Sam thinks of the number 2⁵. Hira's number is √16 less than Sam's number. What is Hira's number?,B,28,True,,draft
+T5-007,T5 Powers and roots,MATH-1072,Sam thinks of the number 2⁵. Hira's number is √16 less than Sam's number. What is Hira's number?,C,6,False,MATH-1072,draft
+T5-007,T5 Powers and roots,MATH-1072,Sam thinks of the number 2⁵. Hira's number is √16 less than Sam's number. What is Hira's number?,D,24,False,MATH-414|MATH-734,draft
+T5-008,T5 Powers and roots,MATH-952,A fraction has 2⁶ on the top and √16 on the bottom. What is the value of the fraction?,A,2,False,MATH-952,draft
+T5-008,T5 Powers and roots,MATH-952,A fraction has 2⁶ on the top and √16 on the bottom. What is the value of the fraction?,B,3,False,MATH-1072,draft
+T5-008,T5 Powers and roots,MATH-952,A fraction has 2⁶ on the top and √16 on the bottom. What is the value of the fraction?,C,8,False,MATH-414|MATH-734,draft
+T5-008,T5 Powers and roots,MATH-952,A fraction has 2⁶ on the top and √16 on the bottom. What is the value of the fraction?,D,16,True,,draft
+T5-009,T5 Powers and roots,MATH-414,Zara thinks of the number 2⁴. Ali's number is √64 more than Zara's number. What is Ali's number?,A,24,True,,draft
+T5-009,T5 Powers and roots,MATH-414,Zara thinks of the number 2⁴. Ali's number is √64 more than Zara's number. What is Ali's number?,B,14,False,MATH-952,draft
+T5-009,T5 Powers and roots,MATH-414,Zara thinks of the number 2⁴. Ali's number is √64 more than Zara's number. What is Ali's number?,C,16,False,MATH-1072,draft
+T5-009,T5 Powers and roots,MATH-414,Zara thinks of the number 2⁴. Ali's number is √64 more than Zara's number. What is Ali's number?,D,48,False,MATH-414|MATH-734,draft
+T5-010,T5 Powers and roots,MATH-734,Ali thinks of the number 3⁴. Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,A,9,False,MATH-1072,draft
+T5-010,T5 Powers and roots,MATH-734,Ali thinks of the number 3⁴. Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,B,72,False,MATH-414,draft
+T5-010,T5 Powers and roots,MATH-734,Ali thinks of the number 3⁴. Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,C,78,True,,draft
+T5-010,T5 Powers and roots,MATH-734,Ali thinks of the number 3⁴. Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,D,67.5,False,MATH-734,draft

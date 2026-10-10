@@ -1,0 +1,21 @@
+﻿item_id,topic,target,stem,option_id,option_text,is_correct,misconceptions,status
+T6-011B,T6 x multiplication/division (operation version),MATH-1416,How many seconds are there in 2 hours?,A,122 seconds,False,MATH-1416,draft
+T6-011B,T6 x multiplication/division (operation version),MATH-1416,How many seconds are there in 2 hours?,B,"7,200 seconds",True,,draft
+T6-011B,T6 x multiplication/division (operation version),MATH-1416,How many seconds are there in 2 hours?,C,180 seconds,False,MATH-1416,draft
+T6-011B,T6 x multiplication/division (operation version),MATH-1416,How many seconds are there in 2 hours?,D,"3,720 seconds",False,MATH-1416,draft
+T6-010B,T6 x multiplication/division (operation version),MATH-2359,"Fill the gap: 7,200 seconds = ___ hours.",A,0.5 hours,False,MATH-2359,draft
+T6-010B,T6 x multiplication/division (operation version),MATH-2359,"Fill the gap: 7,200 seconds = ___ hours.",B,72 hours,False,,draft
+T6-010B,T6 x multiplication/division (operation version),MATH-2359,"Fill the gap: 7,200 seconds = ___ hours.",C,"3,600 hours",False,,draft
+T6-010B,T6 x multiplication/division (operation version),MATH-2359,"Fill the gap: 7,200 seconds = ___ hours.",D,2 hours,True,,draft
+T6-014B,T6 x multiplication/division (operation version),MATH-1416,Fill the gap: 1.5 hours = ___ seconds.,A,"5,400 seconds",True,,draft
+T6-014B,T6 x multiplication/division (operation version),MATH-1416,Fill the gap: 1.5 hours = ___ seconds.,B,121.5 seconds,False,MATH-1416,draft
+T6-014B,T6 x multiplication/division (operation version),MATH-1416,Fill the gap: 1.5 hours = ___ seconds.,C,150 seconds,False,MATH-1416,draft
+T6-014B,T6 x multiplication/division (operation version),MATH-1416,Fill the gap: 1.5 hours = ___ seconds.,D,"3,690 seconds",False,MATH-1416,draft
+T6-016B,T6 x multiplication/division (operation version),MATH-1416,A film lasts 3 hours. How long is that in seconds?,A,123 seconds,False,MATH-1416,draft
+T6-016B,T6 x multiplication/division (operation version),MATH-1416,A film lasts 3 hours. How long is that in seconds?,B,240 seconds,False,MATH-1416,draft
+T6-016B,T6 x multiplication/division (operation version),MATH-1416,A film lasts 3 hours. How long is that in seconds?,C,"10,800 seconds",True,,draft
+T6-016B,T6 x multiplication/division (operation version),MATH-1416,A film lasts 3 hours. How long is that in seconds?,D,"3,780 seconds",False,MATH-1416,draft
+T6-015B,T6 x multiplication/division (operation version),MATH-2359,"Which of these is the same as 14,400 seconds?",A,0.25 hours,False,MATH-2359,draft
+T6-015B,T6 x multiplication/division (operation version),MATH-2359,"Which of these is the same as 14,400 seconds?",B,144 hours,False,,draft
+T6-015B,T6 x multiplication/division (operation version),MATH-2359,"Which of these is the same as 14,400 seconds?",C,"10,800 hours",False,,draft
+T6-015B,T6 x multiplication/division (operation version),MATH-2359,"Which of these is the same as 14,400 seconds?",D,4 hours,True,,draft

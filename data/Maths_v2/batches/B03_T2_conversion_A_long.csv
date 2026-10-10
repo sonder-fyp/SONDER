@@ -1,0 +1,41 @@
+﻿item_id,topic,target,stem,option_id,option_text,is_correct,misconceptions,status
+T2-001,"T2 Fractions, decimals and percentage conversion",MATH-61,A phone battery is 0.45 charged. What percentage of the battery is charged?,A,4.5%,False,MATH-61,draft
+T2-001,"T2 Fractions, decimals and percentage conversion",MATH-61,A phone battery is 0.45 charged. What percentage of the battery is charged?,B,45%,True,,draft
+T2-001,"T2 Fractions, decimals and percentage conversion",MATH-61,A phone battery is 0.45 charged. What percentage of the battery is charged?,C,0.45%,False,MATH-1965|MATH-2039,draft
+T2-001,"T2 Fractions, decimals and percentage conversion",MATH-61,A phone battery is 0.45 charged. What percentage of the battery is charged?,D,54%,False,,draft
+T2-002,"T2 Fractions, decimals and percentage conversion",MATH-61,Hira answered 0.6 of the questions correctly. Write 0.6 as a percentage.,A,60%,True,,draft
+T2-002,"T2 Fractions, decimals and percentage conversion",MATH-61,Hira answered 0.6 of the questions correctly. Write 0.6 as a percentage.,B,6%,False,MATH-61,draft
+T2-002,"T2 Fractions, decimals and percentage conversion",MATH-61,Hira answered 0.6 of the questions correctly. Write 0.6 as a percentage.,C,0.6%,False,MATH-1965|MATH-2039,draft
+T2-002,"T2 Fractions, decimals and percentage conversion",MATH-61,Hira answered 0.6 of the questions correctly. Write 0.6 as a percentage.,D,600%,False,,draft
+T2-003,"T2 Fractions, decimals and percentage conversion",MATH-1965,A cricketer hit 0.85 of his shots to the boundary. What is 0.85 as a percentage?,A,8.5%,False,MATH-61,draft
+T2-003,"T2 Fractions, decimals and percentage conversion",MATH-1965,A cricketer hit 0.85 of his shots to the boundary. What is 0.85 as a percentage?,B,0.85%,False,MATH-1965|MATH-2039,draft
+T2-003,"T2 Fractions, decimals and percentage conversion",MATH-1965,A cricketer hit 0.85 of his shots to the boundary. What is 0.85 as a percentage?,C,85%,True,,draft
+T2-003,"T2 Fractions, decimals and percentage conversion",MATH-1965,A cricketer hit 0.85 of his shots to the boundary. What is 0.85 as a percentage?,D,58%,False,,draft
+T2-004,"T2 Fractions, decimals and percentage conversion",MATH-1965,Write 0.05 as a percentage.,A,0.5%,False,MATH-61,draft
+T2-004,"T2 Fractions, decimals and percentage conversion",MATH-1965,Write 0.05 as a percentage.,B,5%,True,,draft
+T2-004,"T2 Fractions, decimals and percentage conversion",MATH-1965,Write 0.05 as a percentage.,C,0.05%,False,MATH-1965|MATH-2039,draft
+T2-004,"T2 Fractions, decimals and percentage conversion",MATH-1965,Write 0.05 as a percentage.,D,50%,False,,draft
+T2-005,"T2 Fractions, decimals and percentage conversion",MATH-2039,Zainab scored 6 out of 20 in a test. What is her score as a percentage?,A,30%,True,,draft
+T2-005,"T2 Fractions, decimals and percentage conversion",MATH-2039,Zainab scored 6 out of 20 in a test. What is her score as a percentage?,B,12%,False,MATH-658,draft
+T2-005,"T2 Fractions, decimals and percentage conversion",MATH-2039,Zainab scored 6 out of 20 in a test. What is her score as a percentage?,C,6%,False,MATH-2039,draft
+T2-005,"T2 Fractions, decimals and percentage conversion",MATH-2039,Zainab scored 6 out of 20 in a test. What is her score as a percentage?,D,60%,False,MATH-1715,draft
+T2-006,"T2 Fractions, decimals and percentage conversion",MATH-2039,Write 3/4 as a percentage.,A,6%,False,MATH-658,draft
+T2-006,"T2 Fractions, decimals and percentage conversion",MATH-2039,Write 3/4 as a percentage.,B,3%,False,MATH-2039,draft
+T2-006,"T2 Fractions, decimals and percentage conversion",MATH-2039,Write 3/4 as a percentage.,C,30%,False,MATH-1715,draft
+T2-006,"T2 Fractions, decimals and percentage conversion",MATH-2039,Write 3/4 as a percentage.,D,75%,True,,draft
+T2-007,"T2 Fractions, decimals and percentage conversion",MATH-658,Write 7/20 as a percentage.,A,14%,False,MATH-658,draft
+T2-007,"T2 Fractions, decimals and percentage conversion",MATH-658,Write 7/20 as a percentage.,B,7%,False,MATH-2039,draft
+T2-007,"T2 Fractions, decimals and percentage conversion",MATH-658,Write 7/20 as a percentage.,C,35%,True,,draft
+T2-007,"T2 Fractions, decimals and percentage conversion",MATH-658,Write 7/20 as a percentage.,D,70%,False,MATH-1715,draft
+T2-008,"T2 Fractions, decimals and percentage conversion",MATH-658,"In a class of 25 students, 9 walk to school. What percentage of the class walks to school?",A,18%,False,MATH-658,draft
+T2-008,"T2 Fractions, decimals and percentage conversion",MATH-658,"In a class of 25 students, 9 walk to school. What percentage of the class walks to school?",B,36%,True,,draft
+T2-008,"T2 Fractions, decimals and percentage conversion",MATH-658,"In a class of 25 students, 9 walk to school. What percentage of the class walks to school?",C,9%,False,MATH-2039,draft
+T2-008,"T2 Fractions, decimals and percentage conversion",MATH-658,"In a class of 25 students, 9 walk to school. What percentage of the class walks to school?",D,90%,False,MATH-1715,draft
+T2-009,"T2 Fractions, decimals and percentage conversion",MATH-1715,Write 2/5 as a percentage.,A,4%,False,MATH-658,draft
+T2-009,"T2 Fractions, decimals and percentage conversion",MATH-1715,Write 2/5 as a percentage.,B,2%,False,MATH-2039,draft
+T2-009,"T2 Fractions, decimals and percentage conversion",MATH-1715,Write 2/5 as a percentage.,C,20%,False,MATH-1715,draft
+T2-009,"T2 Fractions, decimals and percentage conversion",MATH-1715,Write 2/5 as a percentage.,D,40%,True,,draft
+T2-010,"T2 Fractions, decimals and percentage conversion",MATH-1715,Four fifths of a field is planted with wheat. What percentage of the field is planted?,A,80%,True,,draft
+T2-010,"T2 Fractions, decimals and percentage conversion",MATH-1715,Four fifths of a field is planted with wheat. What percentage of the field is planted?,B,8%,False,MATH-658,draft
+T2-010,"T2 Fractions, decimals and percentage conversion",MATH-1715,Four fifths of a field is planted with wheat. What percentage of the field is planted?,C,4%,False,MATH-2039,draft
+T2-010,"T2 Fractions, decimals and percentage conversion",MATH-1715,Four fifths of a field is planted with wheat. What percentage of the field is planted?,D,40%,False,MATH-1715,draft

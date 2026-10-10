@@ -1,0 +1,5 @@
+B09 (T6, 10 items) - reviewer agent report, round 1 (simulated owner review; not the owner's approval)
+VERDICT: REJECT. Arithmetic/mappings fine; fails variety: 5 of 10 items are the same 'minutes to hours, decimal answer' template.
+Issues: T6-006 option 78 untraceable; T6-007 two unlinked powers-of-ten guesses; unlinked count at cap with weak options; T6-004/010 mix 'h min' with '8,100 hours' (form gives away the answer) and option A is a decimal-time vs 100-minute ambiguity; T6-005/009 need non-integer division; 'Complete the table' with no table; MATH-161 label says hours-to-minutes but is applied in both directions (accepted; rename 'treats an hour as 100 minutes').
+RATINGS (nat|clar|distr|var): 001 4/5/4/1, 002 5/5/4/1, 003 5/5/4/4, 004 4/4/3/4, 005 5/4/4/1, 006 4/4/2/4, 007 5/5/2/5, 008 2/3/4/1, 009 5/4/4/1, 010 4/4/3/4
+TOP FIXES: (1) replace duplicate-template items with other forms (which-is-the-same, who-is-right, which-statement, one-hour probe); (2) derivable noise only, <=3 unlinked; (3) make all options in a question the same form; drop 'Complete the table'.

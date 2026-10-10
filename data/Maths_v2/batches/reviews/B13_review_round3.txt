@@ -1,0 +1,5 @@
+B13 (T3, 10 items) - reviewer agent report, round 3 (simulated owner review; not the owner's approval)
+VERDICT: APPROVE WITH CHANGES. All 10 answers and options recompute correctly. One realism flaw and some form repetition.
+Still wrong: T3-004 D=120 is absurd (60 students cannot give 120 girls). No arithmetic errors; unlinked 2 (under cap); no outside-skill leakage.
+RATINGS (nat|clar|distr|var): 001 4/5/5/3, 002 5/5/4/4, 003 3/4/4/2, 004 4/5/2/4, 005 4/5/4/2, 006 3/4/4/2, 007 5/5/5/4, 008 4/5/4/3, 009 4/5/4/3, 010 4/5/4/3
+Achievable fixes (reviewer): (1) T3-004 D -> 1.2 [APPLIED]; (2) 003/006/008 share one template - vary one; (3) 10% used three times - change T3-005 [APPLIED: now 20% of 250]; (4) turn bare T3-010 into a word problem [NOT applied: its 0.3125 option would be absurd in context]; (5) 0.3125 awkward [NOT applied].

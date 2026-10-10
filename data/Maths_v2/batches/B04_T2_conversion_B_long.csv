@@ -1,0 +1,41 @@
+﻿item_id,topic,target,stem,option_id,option_text,is_correct,misconceptions,status
+T2-011,"T2 Fractions, decimals and percentage conversion",MATH-61,A reservoir is 0.72 full. What percentage of the reservoir is full?,A,7.2%,False,MATH-61,draft
+T2-011,"T2 Fractions, decimals and percentage conversion",MATH-61,A reservoir is 0.72 full. What percentage of the reservoir is full?,B,0.72%,False,MATH-1965|MATH-2039,draft
+T2-011,"T2 Fractions, decimals and percentage conversion",MATH-61,A reservoir is 0.72 full. What percentage of the reservoir is full?,C,72%,True,,draft
+T2-011,"T2 Fractions, decimals and percentage conversion",MATH-61,A reservoir is 0.72 full. What percentage of the reservoir is full?,D,27%,False,,draft
+T2-012,"T2 Fractions, decimals and percentage conversion",MATH-61,Write 0.3 as a percentage.,A,30%,True,,draft
+T2-012,"T2 Fractions, decimals and percentage conversion",MATH-61,Write 0.3 as a percentage.,B,3%,False,MATH-61,draft
+T2-012,"T2 Fractions, decimals and percentage conversion",MATH-61,Write 0.3 as a percentage.,C,0.3%,False,MATH-1965|MATH-2039,draft
+T2-012,"T2 Fractions, decimals and percentage conversion",MATH-61,Write 0.3 as a percentage.,D,300%,False,,draft
+T2-013,"T2 Fractions, decimals and percentage conversion",MATH-1965,A shop gives a discount of 0.15 of the price. What is 0.15 as a percentage?,A,1.5%,False,MATH-61,draft
+T2-013,"T2 Fractions, decimals and percentage conversion",MATH-1965,A shop gives a discount of 0.15 of the price. What is 0.15 as a percentage?,B,15%,True,,draft
+T2-013,"T2 Fractions, decimals and percentage conversion",MATH-1965,A shop gives a discount of 0.15 of the price. What is 0.15 as a percentage?,C,0.15%,False,MATH-1965|MATH-2039,draft
+T2-013,"T2 Fractions, decimals and percentage conversion",MATH-1965,A shop gives a discount of 0.15 of the price. What is 0.15 as a percentage?,D,51%,False,,draft
+T2-014,"T2 Fractions, decimals and percentage conversion",MATH-1965,Bilal ate 0.9 of a pizza. Write 0.9 as a percentage.,A,9%,False,MATH-61,draft
+T2-014,"T2 Fractions, decimals and percentage conversion",MATH-1965,Bilal ate 0.9 of a pizza. Write 0.9 as a percentage.,B,0.9%,False,MATH-1965|MATH-2039,draft
+T2-014,"T2 Fractions, decimals and percentage conversion",MATH-1965,Bilal ate 0.9 of a pizza. Write 0.9 as a percentage.,C,90%,True,,draft
+T2-014,"T2 Fractions, decimals and percentage conversion",MATH-1965,Bilal ate 0.9 of a pizza. Write 0.9 as a percentage.,D,19%,False,,draft
+T2-015,"T2 Fractions, decimals and percentage conversion",MATH-2039,"In a quiz, Sana got 6 out of 25 correct. What is this as a percentage?",A,12%,False,MATH-658,draft
+T2-015,"T2 Fractions, decimals and percentage conversion",MATH-2039,"In a quiz, Sana got 6 out of 25 correct. What is this as a percentage?",B,24%,True,,draft
+T2-015,"T2 Fractions, decimals and percentage conversion",MATH-2039,"In a quiz, Sana got 6 out of 25 correct. What is this as a percentage?",C,6%,False,MATH-2039,draft
+T2-015,"T2 Fractions, decimals and percentage conversion",MATH-2039,"In a quiz, Sana got 6 out of 25 correct. What is this as a percentage?",D,60%,False,MATH-1715,draft
+T2-016,"T2 Fractions, decimals and percentage conversion",MATH-2039,Write 3/5 as a percentage.,A,6%,False,MATH-658,draft
+T2-016,"T2 Fractions, decimals and percentage conversion",MATH-2039,Write 3/5 as a percentage.,B,3%,False,MATH-2039,draft
+T2-016,"T2 Fractions, decimals and percentage conversion",MATH-2039,Write 3/5 as a percentage.,C,30%,False,MATH-1715,draft
+T2-016,"T2 Fractions, decimals and percentage conversion",MATH-2039,Write 3/5 as a percentage.,D,60%,True,,draft
+T2-017,"T2 Fractions, decimals and percentage conversion",MATH-658,Write 9/20 as a percentage.,A,45%,True,,draft
+T2-017,"T2 Fractions, decimals and percentage conversion",MATH-658,Write 9/20 as a percentage.,B,18%,False,MATH-658,draft
+T2-017,"T2 Fractions, decimals and percentage conversion",MATH-658,Write 9/20 as a percentage.,C,9%,False,MATH-2039,draft
+T2-017,"T2 Fractions, decimals and percentage conversion",MATH-658,Write 9/20 as a percentage.,D,90%,False,MATH-1715,draft
+T2-018,"T2 Fractions, decimals and percentage conversion",MATH-658,A tailor used 8 metres out of a 25 metre roll of cloth. What percentage of the roll was used?,A,16%,False,MATH-658,draft
+T2-018,"T2 Fractions, decimals and percentage conversion",MATH-658,A tailor used 8 metres out of a 25 metre roll of cloth. What percentage of the roll was used?,B,8%,False,MATH-2039,draft
+T2-018,"T2 Fractions, decimals and percentage conversion",MATH-658,A tailor used 8 metres out of a 25 metre roll of cloth. What percentage of the roll was used?,C,32%,True,,draft
+T2-018,"T2 Fractions, decimals and percentage conversion",MATH-658,A tailor used 8 metres out of a 25 metre roll of cloth. What percentage of the roll was used?,D,80%,False,MATH-1715,draft
+T2-019,"T2 Fractions, decimals and percentage conversion",MATH-1715,Write 1/4 as a percentage.,A,2%,False,MATH-658,draft
+T2-019,"T2 Fractions, decimals and percentage conversion",MATH-1715,Write 1/4 as a percentage.,B,25%,True,,draft
+T2-019,"T2 Fractions, decimals and percentage conversion",MATH-1715,Write 1/4 as a percentage.,C,1%,False,MATH-2039,draft
+T2-019,"T2 Fractions, decimals and percentage conversion",MATH-1715,Write 1/4 as a percentage.,D,10%,False,MATH-1715,draft
+T2-020,"T2 Fractions, decimals and percentage conversion",MATH-1715,"In a class of 20 students, 3 are left-handed. What percentage of the class is left-handed?",A,6%,False,MATH-658,draft
+T2-020,"T2 Fractions, decimals and percentage conversion",MATH-1715,"In a class of 20 students, 3 are left-handed. What percentage of the class is left-handed?",B,3%,False,MATH-2039,draft
+T2-020,"T2 Fractions, decimals and percentage conversion",MATH-1715,"In a class of 20 students, 3 are left-handed. What percentage of the class is left-handed?",C,30%,False,MATH-1715,draft
+T2-020,"T2 Fractions, decimals and percentage conversion",MATH-1715,"In a class of 20 students, 3 are left-handed. What percentage of the class is left-handed?",D,15%,True,,draft

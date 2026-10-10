@@ -1,0 +1,22 @@
+B12 (T7, 5 items) - reviewer agent report, round 1 (simulated owner review; not the owner's approval)
+
+VERDICT: REJECT. Arithmetic is sound, but the batch is three forms repeated with new numbers (T7-011/012 and T7-014/015 are near-clones).
+
+ERRORS FOUND: no arithmetic errors. Mapping notes:
+- T7-013 D=7 (5+2) is linked to MATH-1416 ('adds instead of multiplies') - a stretch; arguably a MATH-2271 variant.
+- T7-014/015: slash notation ('16/4', '8/2') is ambiguous for Grade 8; may be read as plain division, hiding the misconception.
+- T7-011/012: three-term sums add a skill outside the target (combining a positive intermediate with the last negative).
+- T7-014 and T7-015 share the answer 4 and the 0.25 distractor.
+- T7-011/012 have no collisions; every wrong option is MATH-1639.
+
+RATINGS (naturalness | clarity | distractors | variety):
+T7-011 | 4 | 4 | 3 | 2
+T7-012 | 4 | 4 | 3 | 1
+T7-013 | 5 | 5 | 4 | 5
+T7-014 | 3 | 3 | 4 | 3
+T7-015 | 3 | 3 | 4 | 1
+
+TOP FIXES:
+1. Replace T7-015 with a different form (e.g. 'Which calculation is the same as the fraction 16 over 4?', or a sharing word problem, or 'Fill in the box: 12/? = 3').
+2. Rework T7-012 so it is not a clone of 011 (number-line/temperature context; prefer two-term sums; add a collision with another misconception).
+3. Fix notation (stacked fraction or 'over'), relink or annotate T7-013 D, and change numbers so 014/015 do not share answer 4 and the 0.25 distractor.

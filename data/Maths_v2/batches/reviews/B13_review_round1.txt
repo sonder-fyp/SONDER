@@ -1,0 +1,4 @@
+B13 (T3, 10 items) - reviewer agent report, round 1 (simulated owner review; not the owner's approval)
+VERDICT: REJECT as drafted. Arithmetic fine; 'multiplies' options did not match stated mapping in 7 items (reviewer reads it as amount x percentage; the draft used amount x 100/percentage, which only coincides at 10%); notes were template text with wrong numbers; non-sensical values (Rs 0.0625, 0.02 children, 1.25 students); only 2 forms; too many 50%/25% items.
+RATINGS (nat|clar|distr|variety): 001 4/5/4/2, 002 4/5/2/2, 003 4/4/2/3, 004 4/4/2/2, 005 5/5/4/1, 006 4/5/2/3, 007 4/5/4/3, 008 5/5/2/1, 009 4/5/2/3, 010 4/4/2/3
+TOP FIXES: (1) make the multiply option and its note agree, with item-specific numbers; (2) vary forms (e.g. 'which calculation gives 10% of 80'); avoid 50%/25% in more than 2 items; (3) remove non-integer outputs from context items (use the divide-wrong-way option only in bare/selection items).

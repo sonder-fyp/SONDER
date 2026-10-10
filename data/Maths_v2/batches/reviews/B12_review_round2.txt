@@ -1,0 +1,6 @@
+B12 (T7, 5 items) - reviewer agent report, round 2 (simulated owner review; not the owner's approval)
+VERDICT: REJECT as drafted (close to APPROVE WITH CHANGES for T7-013 only). Clone problems fixed in numbers but not in form.
+Fixed since round 1: 011/012 clones - no (same 'add three negatives' structure); 014/015 - partly (answers and 0.25 no longer shared, but same A/B distractor pattern); slash fractions - partly ('over' still hides the bar, unnatural); partial-application 1639 options - no.
+Errors: none arithmetic. 011 C(-3)/D(5) and 012 B(8)/C(4) are partial-pair readings needing mixed-sign subtraction; 013 C(6)/D(9) are echoes of the question's numbers; 014 D(0.3) a stretch for MATH-1715 ('as a decimal' awkward for answer 5); 015 C(20) = 16+4, unrelated skill (unlinked, derivable). Unlinked 3 (cap 4). MATH-2359 never a target.
+RATINGS (nat|clar|distr|var): 011 4/4/2/2, 012 4/4/2/1, 013 4/5/3/4, 014 2/3/3/2, 015 3/3/3/2
+TOP FIXES: (1) replace 012 with a different form; drop 'first two/last two' options; (2) stacked fractions, change 015 form, target 2359 directly in one item; (3) 013 distractors derivable (54, -15, 3) or flagged as noise.

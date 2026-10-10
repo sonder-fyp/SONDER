@@ -1,0 +1,5 @@
+B11 (T7, 10 items) - reviewer agent report, round 1 (simulated owner review; not the owner's approval)
+VERDICT: APPROVE WITH CHANGES. Arithmetic/mappings sound; fails variety: three families each repeated almost identically.
+Issues: 1416 option D in the three divide-inverse items is a stretch (nobody multiplies in a divide item); B vs C (r/d vs d/r) in those items is an arbitrary 2271/2359 split (a collision, intended, needs follow-up); two-step 'first two make a positive' options for 1639 are partial-application readings (rule 5); T7-010 'equal to a whole number' is padding and gives away B; slash notation 12/3 hides the fraction bar; unlinked at cap (4).
+RATINGS (nat|clar|distr|var): 001 5/5/4/2, 002 4/5/3/2, 003 4/3/4/3, 004 5/5/4/3, 005 5/5/3/2, 006 5/4/4/3, 007 4/5/3/2, 008 5/5/4/2, 009 5/5/4/4, 010 3/4/3/2
+TOP FIXES: (1) no three divide-inverse items: use add/subtract inverse forms ('x + 7 = 12', 'I add 9 to a number'); (2) cut 1639 family, change forms; (3) fix 1416 link, stacked fractions, remove the 'whole number' clause, make 003/006/010 differ in form.
