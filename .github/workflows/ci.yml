@@ -79,3 +79,6 @@ jobs:
 
       - name: Test pure engine calculations
         run: python -m unittest discover -s tests -p 'test_bayes*.py' -v
+
+      - name: Test question selection
+        run: python -m unittest discover -s tests -p 'test_selection.py' -v
