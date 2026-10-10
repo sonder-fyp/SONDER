@@ -1,0 +1,2178 @@
+// Sonder: paste this entire file into the DBML editor at https://dbdiagram.io/
+// Derived from docs/db/01_core.sql through 05_vectors.sql. The SQL is authoritative.
+// Diagram only: do not use exported DBML SQL to replace the deployment scripts.
+// Syntax reference: https://dbml.dbdiagram.io/docs/
+// Table groups: https://dbml.dbdiagram.io/syntax/enrichment-visualization/#tablegroup
+// Coverage: 103 tables, 619 columns, 103 primary keys, 122 unique keys, 194 foreign keys, 140 checks, 36 secondary indexes.
+// Group names carry tiers T1-T5; all tables live in the SAME sonder schema/database.
+// One-to-one refs put the parent first and the unique foreign-key column second.
+// Nullable columns retain optional FK participation; no synthetic many-to-many shortcuts.
+// PostgreSQL-specific index predicates/order/HNSW and NULLS NOT DISTINCT appear in notes.
+// Triggers, functions, privileges, transaction rules and application authorization remain in SQL/plan.
+// approved_parent_summary is a derived VIEW, not a base table or an additional FK relationship.
+// Embedding dimensions are undecided: vector columns are labelled vector with a dimension note.
+// Source SHA-256 (for detecting later SQL changes):
+// 01_core.sql: 9a7347ed04a79bd8fc05e109cdb8219272e62f3217e1918de09080f6163b3218
+// 02_learning.sql: ab4f59d281994101cc9cf6fe4cf5fca0f4aaac1d000b1b0fa6b2898da3cb6743
+// 03_messaging.sql: 1f95c972a42cad40d6e8e06ee0843fdff6130979473a9fa5635763683e7fb824
+// 04_ai_trust.sql: eedea0848b41634578730e7b0d4bb30df12299e8cee38a8b404a43a0172de15f
+// 05_vectors.sql: 57111fc8fbd2b21decdc6e80a0a16113559775a9ab1e0116a96884bb641ea860
+
+Project Sonder {
+  database_type: 'PostgreSQL'
+  Note: 'Complete physical-table diagram for PostgreSQL 16 and pgvector. T1 core, T2 learning, T3 messaging, T4 AI/trust/evaluation, T5 vectors. SQL files remain authoritative for triggers, frozen/append-only content, state transitions, exact option counts, authorization, NULLS NOT DISTINCT and physical index details. The approved_parent_summary view is described on parent_summary. EMBEDDING_DIMENSION and the embedding model remain undecided.'
+}
+
+Table sonder.app_user [headercolor: #3B82F6] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  email text [not null, unique]
+  role text [not null]
+  display_name text [not null]
+  locale text [not null, default: `'en'`]
+  time_zone text [not null, default: `'Asia/Karachi'`]
+  status text [not null, default: `'active'`]
+  created_at timestamptz [not null, default: `now()`]
+
+  checks {
+    `email = lower(btrim(email))`
+    `role IN ('student', 'teacher', 'parent', 'admin')`
+    `status IN ('active', 'deactivated', 'withdrawn')`
+  }
+
+  Note: 'Tier 1; source: 01_core.sql. Role-bearing account and locale/time zone; active/deactivated/withdrawn identity, never a student class-name cache.'
+}
+
+Table sonder.password_credential [headercolor: #3B82F6] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  user_id uuid [not null, unique]
+  password_hash text [not null]
+  changed_at timestamptz [not null, default: `now()`]
+
+  Note: 'Tier 1; source: 01_core.sql. One locally managed password hash per account, independently revocable from product evidence.'
+}
+
+Table sonder.auth_session [headercolor: #3B82F6] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  user_id uuid [not null]
+  token_hash text [not null, unique]
+  created_at timestamptz [not null, default: `now()`]
+  expires_at timestamptz [not null]
+  revoked_at timestamptz [null]
+
+  indexes {
+    (user_id, expires_at) [name: 'auth_session_user_idx', type: btree, note: 'Authoritative SQL: CREATE INDEX IF NOT EXISTS auth_session_user_idx ON auth_session (user_id, expires_at)']
+  }
+
+  checks {
+    `expires_at > created_at`
+    `revoked_at IS NULL OR revoked_at >= created_at`
+  }
+
+  Note: 'Tier 1; source: 01_core.sql. Expiring hashed bearer-session token with optional irrevocable revocation time.'
+}
+
+Table sonder.auth_token [headercolor: #3B82F6] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  user_id uuid [not null]
+  kind text [not null]
+  token_hash text [not null, unique]
+  created_at timestamptz [not null, default: `now()`]
+  expires_at timestamptz [not null]
+  consumed_at timestamptz [null]
+
+  indexes {
+    (user_id, expires_at) [name: 'auth_token_user_idx', type: btree, note: 'Authoritative SQL: CREATE INDEX IF NOT EXISTS auth_token_user_idx ON auth_token (user_id, expires_at)']
+  }
+
+  checks {
+    `kind IN ('reset_password', 'verify_email')`
+    `expires_at > created_at`
+    `consumed_at IS NULL OR consumed_at >= created_at`
+  }
+
+  Note: 'Tier 1; source: 01_core.sql. Single-use, expiring password-reset/email-verification token; kind separates token purpose.'
+}
+
+Table sonder.guardian_link [headercolor: #3B82F6] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  parent_id uuid [not null]
+  student_id uuid [not null]
+  status text [not null, default: `'active'`]
+  linked_at timestamptz [not null, default: `now()`]
+
+  indexes {
+    (parent_id, student_id) [unique]
+    student_id [name: 'guardian_student_idx', type: btree, note: 'Authoritative SQL: CREATE INDEX IF NOT EXISTS guardian_student_idx ON guardian_link (student_id) WHERE status = \'active\'']
+  }
+
+  checks {
+    `status IN ('active', 'revoked')`
+    `parent_id <> student_id`
+  }
+
+  Note: 'Tier 1; source: 01_core.sql. A particular parent-child authorization relationship; multiple parents and children are independent links.'
+}
+
+Table sonder.classroom [headercolor: #3B82F6] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  name text [not null]
+  note text [not null, default: `''`]
+  join_code text [not null, unique]
+  grade_level smallint [not null, default: `8`]
+  time_zone text [not null, default: `'Asia/Karachi'`]
+  status text [not null, default: `'active'`]
+  created_at timestamptz [not null, default: `now()`]
+
+  checks {
+    `join_code = upper(btrim(join_code)) AND length(join_code) >= 8`
+    `grade_level BETWEEN 1 AND 12`
+    `status IN ('active', 'archived')`
+  }
+
+  Note: 'Tier 1; source: 01_core.sql. Class metadata, globally unique normalized join code, grade and archival lifecycle.'
+}
+
+Table sonder.class_teacher [headercolor: #3B82F6] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  class_id uuid [not null]
+  teacher_id uuid [not null]
+  status text [not null, default: `'active'`]
+  assigned_at timestamptz [not null, default: `now()`]
+
+  indexes {
+    (class_id, teacher_id) [unique]
+    (teacher_id, class_id) [name: 'teacher_classes_idx', type: btree, note: 'Authoritative SQL: CREATE INDEX IF NOT EXISTS teacher_classes_idx ON class_teacher (teacher_id, class_id) WHERE status = \'active\'']
+  }
+
+  checks {
+    `status IN ('active', 'departed')`
+  }
+
+  Note: 'Tier 1; source: 01_core.sql. Teacher assignment to a class; co-teaching and departure preserve historical attribution.'
+}
+
+Table sonder.enrolment [headercolor: #3B82F6] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  class_id uuid [not null]
+  student_id uuid [not null]
+  status text [not null, default: `'active'`]
+  joined_at timestamptz [not null, default: `now()`]
+
+  indexes {
+    (class_id, student_id) [unique]
+    (student_id, class_id) [name: 'student_classes_idx', type: btree, note: 'Authoritative SQL: CREATE INDEX IF NOT EXISTS student_classes_idx ON enrolment (student_id, class_id)']
+  }
+
+  checks {
+    `status IN ('active', 'left')`
+  }
+
+  Note: 'Tier 1; source: 01_core.sql. One student-class relationship; first joined time and current membership lifecycle depend on the pair.'
+}
+
+Table sonder.student_home_class [headercolor: #3B82F6] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  enrolment_id uuid [not null, unique]
+
+  Note: 'Tier 1; source: 01_core.sql. Optional default enrolment; joined student uniqueness is serialized by membership_guard.'
+}
+
+Table sonder.subject [headercolor: #06B6D4] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  code text [not null, unique]
+  name text [not null, unique]
+
+  Note: 'Tier 1; source: 01_core.sql. Subject identity; shared by all content and class focus relations, without subject-specific engine tables.'
+}
+
+Table sonder.class_subject [headercolor: #3B82F6] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  class_id uuid [not null]
+  subject_id uuid [not null]
+
+  indexes {
+    (class_id, subject_id) [unique]
+  }
+
+  Note: 'Tier 1; source: 01_core.sql. Subjects a class offers; no singular teacher/subject focus copied onto the class row.'
+}
+
+Table sonder.content_version [headercolor: #06B6D4] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  subject_id uuid [not null]
+  version_code text [not null]
+  note text [not null, default: `''`]
+  created_at timestamptz [not null, default: `now()`]
+  status text [not null, default: `'draft'`]
+
+  indexes {
+    (subject_id, version_code) [unique]
+  }
+
+  checks {
+    `status IN ('draft', 'frozen')`
+  }
+
+  Note: 'Tier 1; source: 01_core.sql. Per-subject pack identifier and frozen lifecycle; freeze instant comes from audit_event.'
+}
+
+Table sonder.topic [headercolor: #06B6D4] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  subject_id uuid [not null]
+  external_id text [not null]
+
+  indexes {
+    (subject_id, external_id) [unique]
+  }
+
+  Note: 'Tier 1; source: 01_core.sql. Immutable subject-scoped external topic identity, not a mutable curriculum label.'
+}
+
+Table sonder.topic_revision [headercolor: #06B6D4] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  topic_id uuid [not null]
+  content_version_id uuid [not null]
+  name text [not null]
+  blurb text [not null, default: `''`]
+  grade8_in_scope boolean [not null, default: `TRUE`]
+
+  indexes {
+    (content_version_id, topic_id) [unique]
+  }
+
+  Note: 'Tier 1; source: 01_core.sql. Version-specific topic wording, blurb and Grade-8 scope for historical interpretation.'
+}
+
+Table sonder.misconception [headercolor: #06B6D4] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  subject_id uuid [not null]
+  code text [not null]
+  external_id text [not null]
+
+  indexes {
+    (subject_id, code) [unique]
+    (subject_id, external_id) [unique]
+  }
+
+  Note: 'Tier 1; source: 01_core.sql. Immutable subject-scoped local code and external identifier; M1 can occur in each subject.'
+}
+
+Table sonder.misconception_revision [headercolor: #06B6D4] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  misconception_id uuid [not null]
+  content_version_id uuid [not null]
+  name text [not null]
+  description text [not null]
+  cognitive_origin text [not null, default: `''`]
+  status text [not null, default: `'pending'`]
+  engine_tier smallint [not null]
+
+  indexes {
+    (content_version_id, misconception_id) [unique]
+    (content_version_id, status) [name: 'misconception_catalogue_idx', type: btree, note: 'Authoritative SQL: CREATE INDEX IF NOT EXISTS misconception_catalogue_idx ON misconception_revision (content_version_id, status)']
+  }
+
+  checks {
+    `status IN ('pending', 'validated', 'catalogued_only', 'retired')`
+    `engine_tier IN (1, 2)`
+    `engine_tier <> 1 OR status = 'validated'`
+  }
+
+  Note: 'Tier 1; source: 01_core.sql. Frozen-pack description, cognitive origin, review state and engine/catalogue tier.'
+}
+
+Table sonder.topic_misconception [headercolor: #06B6D4] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  topic_revision_id uuid [not null]
+  misconception_revision_id uuid [not null]
+  target_minimum integer [not null, default: `3`]
+  old_topic_label text [null]
+  review_note text [not null, default: `''`]
+  disposition text [not null, default: `'keep'`]
+
+  indexes {
+    (topic_revision_id, misconception_revision_id) [unique]
+  }
+
+  checks {
+    `target_minimum > 0`
+    `disposition IN ('keep', 'move', 'remove')`
+  }
+
+  Note: 'Tier 1; source: 01_core.sql. Version-specific curriculum association, coverage minimum, old label and keep/move/remove review note.'
+}
+
+Table sonder.source_reference [headercolor: #06B6D4] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  citation_key text [not null, unique]
+  citation text [not null]
+  url text [null]
+  licence text [not null]
+  scope_note text [not null, default: `''`]
+
+  Note: 'Tier 1; source: 01_core.sql. Immutable cited source/licence scope, reused without repeating bibliographic facts.'
+}
+
+Table sonder.misconception_source [headercolor: #06B6D4] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  misconception_revision_id uuid [not null]
+  source_id uuid [not null]
+  locator text [not null, default: `''`]
+
+  indexes {
+    (misconception_revision_id, source_id, locator) [unique]
+  }
+
+  Note: 'Tier 1; source: 01_core.sql. Source locator supporting one misconception revision; independent from topic membership.'
+}
+
+Table sonder.item [headercolor: #06B6D4] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  topic_revision_id uuid [not null]
+  target_misconception_revision_id uuid [not null]
+  external_id text [not null]
+  stem text [not null]
+  batch text [null]
+  difficulty_est numeric [null]
+  origin text [not null]
+  review_status text [not null, default: `'draft'`]
+
+  indexes {
+    (topic_revision_id, external_id) [unique]
+    (topic_revision_id, review_status) [name: 'item_topic_idx', type: btree, note: 'Authoritative SQL: CREATE INDEX IF NOT EXISTS item_topic_idx ON item (topic_revision_id, review_status)']
+    (target_misconception_revision_id, review_status) [name: 'item_target_idx', type: btree, note: 'Authoritative SQL: CREATE INDEX IF NOT EXISTS item_target_idx ON item (target_misconception_revision_id, review_status)']
+  }
+
+  checks {
+    `difficulty_est BETWEEN 0 AND 1`
+    `origin IN ('authored', 'generated')`
+    `review_status IN ('draft', 'in_review', 'approved', 'rejected')`
+  }
+
+  Note: 'Tier 1; source: 01_core.sql. One version-specific structured question stem, topic and target misconception, external ID, batch/difficulty and human review state.'
+}
+
+Table sonder.item_option [headercolor: #06B6D4] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  item_id uuid [not null]
+  label text [not null]
+  external_id text [null]
+  option_text text [not null]
+  is_correct boolean [not null]
+
+  indexes {
+    (item_id, label) [unique]
+    (item_id, external_id) [unique]
+  }
+
+  checks {
+    `label IN ('A', 'B', 'C', 'D')`
+  }
+
+  Note: 'Tier 1; source: 01_core.sql. One of four labeled answer options; unique label per item, correct flag and optional external option ID.'
+}
+
+Table sonder.option_misconception [headercolor: #06B6D4] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  option_id uuid [not null]
+  misconception_revision_id uuid [not null]
+  rationale text [not null]
+
+  indexes {
+    (option_id, misconception_revision_id) [unique]
+    (misconception_revision_id, option_id) [name: 'option_mapping_reverse_idx', type: btree, note: 'Authoritative SQL: CREATE INDEX IF NOT EXISTS option_mapping_reverse_idx ON option_misconception (misconception_revision_id, option_id)']
+  }
+
+  Note: 'Tier 1; source: 01_core.sql. Wrong-option attribution with pair-specific rationale; zero-to-two links, none for correct option.'
+}
+
+Table sonder.item_numeric_parameter [headercolor: #06B6D4] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  item_id uuid [not null]
+  name text [not null]
+  value numeric [not null]
+  unit text [null]
+
+  indexes {
+    (item_id, name) [unique]
+  }
+
+  Note: 'Tier 1; source: 01_core.sql. Named scalar numeric parameter/unit for a question, avoiding queried numeric JSON.'
+}
+
+Table sonder.item_source [headercolor: #06B6D4] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  item_id uuid [not null]
+  source_id uuid [not null]
+  locator text [not null, default: `''`]
+
+  indexes {
+    (item_id, source_id, locator) [unique]
+  }
+
+  Note: 'Tier 1; source: 01_core.sql. Source citation locator for an item; licensing relation is independent of its misconception mappings.'
+}
+
+Table sonder.item_approval [headercolor: #06B6D4] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  item_id uuid [not null, unique]
+  reviewer_id uuid [not null]
+  approved_at timestamptz [not null, default: `now()`]
+  note text [not null]
+
+  checks {
+    `length(btrim(note)) > 0`
+  }
+
+  Note: 'Tier 1; source: 01_core.sql. A separate authenticated human approval event for an authored or final publication item; the generated source\'s two votes remain generation_review rows.'
+}
+
+Table sonder.hypothesis [headercolor: #06B6D4] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  content_version_id uuid [not null]
+  kind text [not null]
+  misconception_revision_id uuid [null]
+
+  indexes {
+    (content_version_id, kind, misconception_revision_id) [unique, note: 'PostgreSQL UNIQUE NULLS NOT DISTINCT: NULL values compare equal for this uniqueness constraint. DBML unique alone does not encode that behavior.']
+  }
+
+  checks {
+    `kind IN ('misconception', 'none', 'unmodelled')`
+    `(kind = 'misconception') = (misconception_revision_id IS NOT NULL)`
+  }
+
+  Note: 'Tier 1; source: 01_core.sql. Pack-specific misconception/NONE/UNMODELLED identity; special states are not catalogue misconceptions.'
+}
+
+Table sonder.item_prediction [headercolor: #06B6D4] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  hypothesis_id uuid [not null]
+  option_id uuid [not null]
+  rationale text [not null]
+
+  indexes {
+    (option_id, hypothesis_id) [unique]
+  }
+
+  Note: 'Tier 1; source: 01_core.sql. Hypothesis-predicted option, including correct-by-coincidence predictions; item is derived from option.'
+}
+
+Table sonder.engine_release [headercolor: #8B5CF6] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  release_code text [not null, unique]
+  code_hash text [not null]
+  confidence_threshold numeric [not null]
+  minimum_answers integer [not null]
+  tie_epsilon numeric [not null]
+  eig_floor numeric [not null]
+  unmodelled_threshold numeric [not null]
+  selection_policy text [not null]
+  created_at timestamptz [not null, default: `now()`]
+
+  checks {
+    `confidence_threshold > 0 AND confidence_threshold <= 1`
+    `minimum_answers > 0`
+    `tie_epsilon BETWEEN 0 AND 1`
+    `eig_floor >= 0`
+    `unmodelled_threshold BETWEEN 0 AND 1`
+  }
+
+  Note: 'Tier 1; source: 01_core.sql. Immutable deterministic implementation/hash, thresholds, answer minimum and selection policy.'
+}
+
+Table sonder.response_model [headercolor: #8B5CF6] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  content_version_id uuid [not null]
+  model_code text [not null]
+  source text [not null]
+  calibration_note text [not null]
+  created_at timestamptz [not null, default: `now()`]
+  status text [not null, default: `'draft'`]
+
+  indexes {
+    (content_version_id, model_code) [unique]
+  }
+
+  checks {
+    `source IN ('prior', 'calibrated')`
+    `status IN ('draft', 'frozen')`
+  }
+
+  Note: 'Tier 1; source: 01_core.sql. Versioned categorical response-likelihood model for one content pack; freeze independent of content freeze.'
+}
+
+Table sonder.response_parameter [headercolor: #8B5CF6] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  response_model_id uuid [not null]
+  hypothesis_id uuid [not null]
+  slip numeric [not null]
+  guess numeric [not null]
+
+  indexes {
+    (response_model_id, hypothesis_id) [unique]
+  }
+
+  checks {
+    `slip BETWEEN 0 AND 1`
+    `guess BETWEEN 0 AND 1`
+  }
+
+  Note: 'Tier 1; source: 01_core.sql. Hypothesis-specific slip/guess inputs to a particular calibrated/prior model; no mutable global default dependency.'
+}
+
+Table sonder.response_probability [headercolor: #8B5CF6] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  response_model_id uuid [not null]
+  hypothesis_id uuid [not null]
+  option_id uuid [not null]
+  probability numeric [not null]
+
+  indexes {
+    (response_model_id, hypothesis_id, option_id) [unique]
+  }
+
+  checks {
+    `probability BETWEEN 0 AND 1`
+  }
+
+  Note: 'Tier 1; source: 01_core.sql. Joint model-hypothesis-option categorical probability; option gives item, full distributions checked at freeze.'
+}
+
+Table sonder.diagnostic_session [headercolor: #8B5CF6] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  enrolment_id uuid [not null]
+  response_model_id uuid [not null]
+  engine_release_id uuid [not null]
+  topic_revision_id uuid [null]
+  question_budget integer [not null]
+  request_key text [not null]
+  started_at timestamptz [not null, default: `now()`]
+  ended_at timestamptz [null]
+  status text [not null, default: `'in_progress'`]
+
+  indexes {
+    (enrolment_id, request_key) [unique]
+    (enrolment_id, started_at) [name: 'session_roster_idx', type: btree, note: 'Authoritative SQL: CREATE INDEX IF NOT EXISTS session_roster_idx ON diagnostic_session (enrolment_id, started_at DESC)']
+    (status, started_at) [name: 'session_queue_idx', type: btree, note: 'Authoritative SQL: CREATE INDEX IF NOT EXISTS session_queue_idx ON diagnostic_session (status, started_at) WHERE status <> \'in_progress\'']
+  }
+
+  checks {
+    `question_budget > 0`
+    `status IN ('in_progress', 'diagnosed', 'none_detected', 'escalated_no_separator', 'escalated_exhausted', 'escalated_unmodelled', 'abandoned')`
+    `(status = 'in_progress') = (ended_at IS NULL)`
+    `ended_at IS NULL OR ended_at >= started_at`
+  }
+
+  Note: 'Tier 1; source: 01_core.sql. Run under one enrolment, frozen response model and engine release, optional topic, budget and terminal status.'
+}
+
+Table sonder.session_hypothesis [headercolor: #8B5CF6] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  session_id uuid [not null]
+  hypothesis_id uuid [not null]
+  prior_probability numeric [not null]
+
+  indexes {
+    (session_id, hypothesis_id) [unique]
+  }
+
+  checks {
+    `prior_probability BETWEEN 0 AND 1`
+  }
+
+  Note: 'Tier 1; source: 01_core.sql. Run-specific prior support and prior probability; candidate support is fixed before any presentation.'
+}
+
+Table sonder.session_question [headercolor: #8B5CF6] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  session_id uuid [not null]
+  step_index integer [not null]
+  item_id uuid [not null]
+  presented_at timestamptz [not null, default: `now()`]
+  selection_reason text [not null]
+  entropy_before numeric [not null]
+  expected_ig numeric [not null]
+
+  indexes {
+    (session_id, step_index) [unique]
+    (session_id, item_id) [unique]
+  }
+
+  checks {
+    `step_index >= 0`
+    `entropy_before >= 0`
+    `expected_ig >= 0`
+  }
+
+  Note: 'Tier 1; source: 01_core.sql. Immutable selected/presented item with index, EIG, prior entropy and reason; pending-question recovery.'
+}
+
+Table sonder.session_step [headercolor: #8B5CF6] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  session_id uuid [not null]
+  step_index integer [not null]
+  session_question_id uuid [not null, unique]
+  answer_option_id uuid [not null]
+  answered_at timestamptz [not null, default: `now()`]
+  request_key text [not null]
+  calculation_ms numeric [not null]
+
+  indexes {
+    (session_id, step_index) [unique]
+    (session_id, request_key) [unique]
+  }
+
+  checks {
+    `step_index >= 0`
+    `calculation_ms >= 0`
+  }
+
+  Note: 'Tier 1; source: 01_core.sql. Immutable answer event with timing/request key; copied presentation scope is checked and both determinants are candidate keys.'
+}
+
+Table sonder.step_posterior [headercolor: #8B5CF6] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  step_id uuid [not null]
+  session_hypothesis_id uuid [not null]
+  probability numeric [not null]
+
+  indexes {
+    (step_id, session_hypothesis_id) [unique]
+  }
+
+  checks {
+    `probability BETWEEN 0 AND 1`
+  }
+
+  Note: 'Tier 1; source: 01_core.sql. One calculated posterior value per answered step and run hypothesis; complete distribution audit.'
+}
+
+Table sonder.diagnosis [headercolor: #8B5CF6] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  session_id uuid [not null, unique]
+  created_at timestamptz [not null, default: `now()`]
+
+  Note: 'Tier 1; source: 01_core.sql. Original engine diagnosis event per session, not a mutable teacher conclusion.'
+}
+
+Table sonder.diagnosis_candidate [headercolor: #8B5CF6] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  diagnosis_id uuid [not null]
+  session_hypothesis_id uuid [not null]
+  rank smallint [not null]
+
+  indexes {
+    (diagnosis_id, rank) [unique]
+    (diagnosis_id, session_hypothesis_id) [unique]
+  }
+
+  checks {
+    `rank IN (1, 2)`
+  }
+
+  Note: 'Tier 1; source: 01_core.sql. One/two ranked engine candidates; confidence is joined from the final posterior, not duplicated.'
+}
+
+Table sonder.escalation [headercolor: #8B5CF6] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  session_id uuid [not null, unique]
+  reason text [not null]
+  created_at timestamptz [not null, default: `now()`]
+
+  Note: 'Tier 1; source: 01_core.sql. Original engine refusal/reason event; open/resolved is derived from current review.'
+}
+
+Table sonder.escalation_candidate [headercolor: #8B5CF6] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  escalation_id uuid [not null]
+  session_hypothesis_id uuid [not null]
+  rank smallint [not null]
+
+  indexes {
+    (escalation_id, rank) [unique]
+    (escalation_id, session_hypothesis_id) [unique]
+  }
+
+  checks {
+    `rank IN (1, 2)`
+  }
+
+  Note: 'Tier 1; source: 01_core.sql. Zero/two ranked tied candidates linked to actual run hypothesis identities, not JSON labels.'
+}
+
+Table sonder.teacher_review [headercolor: #8B5CF6] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  session_id uuid [not null]
+  revision integer [not null]
+  teacher_id uuid [not null]
+  decision text [not null]
+  conclusion text [null]
+  misconception_revision_id uuid [null]
+  note text [not null]
+  request_key text [not null]
+  decided_at timestamptz [not null, default: `now()`]
+
+  indexes {
+    (session_id, revision) [unique]
+    (session_id, request_key) [unique]
+  }
+
+  checks {
+    `revision > 0`
+    `decision IN ('approved', 'corrected', 'rejected', 'resolved')`
+    `conclusion IN ('misconception', 'none_detected')`
+    `length(btrim(note)) > 0`
+    `(decision = 'rejected' AND conclusion IS NULL AND misconception_revision_id IS NULL) OR (decision <> 'rejected' AND conclusion IS NOT NULL AND (conclusion = 'misconception') = (misconception_revision_id IS NOT NULL))`
+  }
+
+  Note: 'Tier 1; source: 01_core.sql. Immutable ordered teacher decision, accepted conclusion and reason; corrections are new revisions.'
+}
+
+Table sonder.audit_event [headercolor: #3B82F6] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  actor_id uuid [null]
+  event_type text [not null]
+  relation_name text [not null]
+  row_id uuid [not null]
+  request_key text [null]
+  occurred_at timestamptz [not null, default: `now()`]
+  detail jsonb [not null, default: `CAST('{}' AS jsonb)`]
+
+  indexes {
+    (occurred_at, event_type) [name: 'audit_time_idx', type: btree, note: 'Authoritative SQL: CREATE INDEX IF NOT EXISTS audit_time_idx ON audit_event (occurred_at, event_type)']
+  }
+
+  Note: 'Tier 1; source: 01_core.sql. Append-only event attribution and opaque optional redacted explanation, with explicit scalar event/time/row reference.'
+}
+
+Table sonder.privacy_request [headercolor: #3B82F6] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  user_id uuid [not null]
+  kind text [not null]
+  status text [not null, default: `'requested'`]
+  requested_at timestamptz [not null, default: `now()`]
+  completed_at timestamptz [null]
+  note text [not null, default: `''`]
+
+  indexes {
+    (status, requested_at) [name: 'privacy_work_idx', type: btree, note: 'Authoritative SQL: CREATE INDEX IF NOT EXISTS privacy_work_idx ON privacy_request (status, requested_at)']
+  }
+
+  checks {
+    `kind IN ('export', 'withdraw_delete')`
+    `status IN ('requested', 'processing', 'completed', 'failed')`
+  }
+
+  Note: 'Tier 1; source: 01_core.sql. Tracked export/withdraw-delete request and operational progress; requests are not themselves purge authorization.'
+}
+
+Table sonder.study_note [headercolor: #10B981] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  misconception_revision_id uuid [not null]
+  revision integer [not null]
+  what_was_going_on text [not null]
+  how_to_think text [not null]
+  example_prompt text [not null]
+  wrong_move text [not null]
+  right_move text [not null]
+  example_answer text [not null]
+  origin text [not null]
+
+  indexes {
+    (misconception_revision_id, revision) [unique]
+  }
+
+  checks {
+    `revision > 0`
+    `origin IN ('authored', 'generated')`
+  }
+
+  Note: 'Tier 2; source: 02_learning.sql. Immutable concept explanation and one structured worked example at a numbered misconception revision.'
+}
+
+Table sonder.study_note_approval [headercolor: #10B981] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  study_note_id uuid [not null, unique]
+  teacher_id uuid [not null]
+  approved_at timestamptz [not null, default: `now()`]
+  note text [not null]
+
+  Note: 'Tier 2; source: 02_learning.sql. Authenticated teacher approval of exactly one immutable note revision.'
+}
+
+Table sonder.intervention [headercolor: #10B981] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  misconception_revision_id uuid [not null]
+  revision integer [not null]
+  script text [not null]
+  worked_example text [not null]
+
+  indexes {
+    (misconception_revision_id, revision) [unique]
+  }
+
+  checks {
+    `revision > 0`
+  }
+
+  Note: 'Tier 2; source: 02_learning.sql. Immutable corrective script/worked example for a particular misconception revision, independently numbered.'
+}
+
+Table sonder.intervention_approval [headercolor: #10B981] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  intervention_id uuid [not null, unique]
+  teacher_id uuid [not null]
+  approved_at timestamptz [not null, default: `now()`]
+  note text [not null]
+
+  Note: 'Tier 2; source: 02_learning.sql. Authenticated teacher acceptance of an intervention revision.'
+}
+
+Table sonder.resource [headercolor: #10B981] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  url text [not null, unique]
+  title text [not null]
+  kind text [not null]
+  source text [not null]
+
+  checks {
+    `url ~ '^https?://'`
+    `kind IN ('video', 'article', 'interactive')`
+  }
+
+  Note: 'Tier 2; source: 02_learning.sql. URL identity and basic resource description/type/source; relevance belongs to the recommendation, not URL.'
+}
+
+Table sonder.resource_recommendation [headercolor: #10B981] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  resource_id uuid [not null]
+  misconception_revision_id uuid [not null]
+  revision integer [not null]
+  rationale text [not null]
+  relevance numeric [not null]
+  origin text [not null]
+
+  indexes {
+    (resource_id, misconception_revision_id, revision) [unique]
+    (misconception_revision_id, relevance) [name: 'resources_concept_idx', type: btree, note: 'Authoritative SQL: CREATE INDEX IF NOT EXISTS resources_concept_idx ON resource_recommendation (misconception_revision_id, relevance DESC)']
+  }
+
+  checks {
+    `revision > 0`
+    `relevance BETWEEN 0 AND 1`
+    `origin IN ('curated', 'found')`
+  }
+
+  Note: 'Tier 2; source: 02_learning.sql. Revision-specific recommendation rationale/relevance and curated/found origin for a concept.'
+}
+
+Table sonder.resource_approval [headercolor: #10B981] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  recommendation_id uuid [not null, unique]
+  teacher_id uuid [not null]
+  approved_at timestamptz [not null, default: `now()`]
+  note text [not null]
+
+  Note: 'Tier 2; source: 02_learning.sql. Teacher vetting of a particular contextual recommendation.'
+}
+
+Table sonder.concept_doc [headercolor: #10B981] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  topic_revision_id uuid [not null]
+  document_key text [not null]
+  revision integer [not null]
+  title text [not null]
+  body text [not null]
+  doc_type text [not null]
+
+  indexes {
+    (topic_revision_id, document_key, revision) [unique]
+  }
+
+  checks {
+    `revision > 0`
+    `doc_type IN ('explanation', 'worked_example', 'analogy', 'common_error')`
+  }
+
+  Note: 'Tier 2; source: 02_learning.sql. Immutable first-party document under a topic revision; explanation/example/analogy/error subtype.'
+}
+
+Table sonder.concept_doc_misconception [headercolor: #10B981] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  concept_doc_id uuid [not null]
+  misconception_revision_id uuid [not null]
+
+  indexes {
+    (concept_doc_id, misconception_revision_id) [unique]
+    (misconception_revision_id, concept_doc_id) [name: 'docs_concept_idx', type: btree, note: 'Authoritative SQL: CREATE INDEX IF NOT EXISTS docs_concept_idx ON concept_doc_misconception (misconception_revision_id, concept_doc_id)']
+  }
+
+  Note: 'Tier 2; source: 02_learning.sql. Approved document\'s concept scope; multiple applicable concepts are independent associations.'
+}
+
+Table sonder.concept_doc_chunk [headercolor: #10B981] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  concept_doc_id uuid [not null]
+  chunk_index integer [not null]
+  chunk_text text [not null]
+
+  indexes {
+    (concept_doc_id, chunk_index) [unique]
+  }
+
+  checks {
+    `chunk_index >= 0`
+  }
+
+  Note: 'Tier 2; source: 02_learning.sql. Immutable ordered source text chunks, with vector storage deferred to tier 5.'
+}
+
+Table sonder.concept_doc_approval [headercolor: #10B981] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  concept_doc_id uuid [not null, unique]
+  teacher_id uuid [not null]
+  approved_at timestamptz [not null, default: `now()`]
+  note text [not null]
+
+  Note: 'Tier 2; source: 02_learning.sql. Teacher approval of document, chunks and scope as a bounded Tutor corpus.'
+}
+
+Table sonder.remediation_delivery [headercolor: #22C55E] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  review_id uuid [not null, unique]
+  intervention_id uuid [not null]
+  study_note_id uuid [null]
+  status text [not null, default: `'delivered'`]
+  delivered_at timestamptz [not null, default: `now()`]
+  read_at timestamptz [null]
+  completed_at timestamptz [null]
+
+  indexes {
+    delivered_at [name: 'delivery_history_idx', type: btree, note: 'Authoritative SQL: CREATE INDEX IF NOT EXISTS delivery_history_idx ON remediation_delivery (delivered_at DESC)']
+  }
+
+  checks {
+    `status IN ('delivered', 'read', 'completed', 'superseded')`
+    `read_at IS NULL OR read_at >= delivered_at`
+    `completed_at IS NULL OR (read_at IS NOT NULL AND completed_at >= read_at)`
+    `status NOT IN ('read', 'completed') OR read_at IS NOT NULL`
+    `status <> 'completed' OR completed_at IS NOT NULL`
+  }
+
+  Note: 'Tier 2; source: 02_learning.sql. One review-specific intervention/note delivery and actual read/completion/supersession lifecycle.'
+}
+
+Table sonder.remediation_resource [headercolor: #22C55E] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  delivery_id uuid [not null]
+  recommendation_id uuid [not null]
+
+  indexes {
+    (delivery_id, recommendation_id) [unique]
+  }
+
+  Note: 'Tier 2; source: 02_learning.sql. Exactly the approved recommendation revisions selected for one delivery, preserving delivered resource history.'
+}
+
+Table sonder.verification_check [headercolor: #22C55E] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  delivery_id uuid [not null]
+  kind text [not null]
+  scheduled_for timestamptz [not null]
+
+  indexes {
+    (delivery_id, kind) [unique]
+    scheduled_for [name: 'verification_due_idx', type: btree, note: 'Authoritative SQL: CREATE INDEX IF NOT EXISTS verification_due_idx ON verification_check (scheduled_for)']
+  }
+
+  checks {
+    `kind IN ('immediate', 'delayed')`
+  }
+
+  Note: 'Tier 2; source: 02_learning.sql. Immutable immediate/delayed appointment scheduled from completion; derived lifecycle is not copied here.'
+}
+
+Table sonder.verification_presentation [headercolor: #22C55E] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  check_id uuid [not null, unique]
+  item_id uuid [not null]
+  presented_at timestamptz [not null, default: `now()`]
+
+  Note: 'Tier 2; source: 02_learning.sql. One fresh-question presentation for an appointment, with item/time fixed.'
+}
+
+Table sonder.verification_result [headercolor: #22C55E] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  presentation_id uuid [not null, unique]
+  answer_option_id uuid [not null]
+  taken_at timestamptz [not null, default: `now()`]
+  result text [not null]
+
+  checks {
+    `result IN ('resolved', 'persistent', 'uncertain')`
+  }
+
+  Note: 'Tier 2; source: 02_learning.sql. One answer/result observation per presentation; engine computes resolved/persistent/uncertain outside SQL.'
+}
+
+Table sonder.verification_cancellation [headercolor: #22C55E] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  check_id uuid [not null, unique]
+  cancelled_at timestamptz [not null, default: `now()`]
+  reason text [not null]
+
+  Note: 'Tier 2; source: 02_learning.sql. Explicit cancellation event for an unfinished appointment, retaining reason/time.'
+}
+
+Table sonder.parent_summary [headercolor: #22C55E] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  review_id uuid [not null]
+  revision integer [not null]
+  what_we_found text [not null]
+  what_to_work_on text [not null]
+  hows_it_going text [not null]
+  origin text [not null]
+  similarity_score numeric [null]
+  similarity_floor numeric [null]
+  created_at timestamptz [not null, default: `now()`]
+
+  indexes {
+    (review_id, revision) [unique]
+  }
+
+  checks {
+    `revision > 0`
+    `origin IN ('structured', 'generated')`
+    `similarity_score BETWEEN -1 AND 1`
+    `similarity_floor BETWEEN -1 AND 1`
+    `origin <> 'generated' OR (similarity_score IS NOT NULL AND similarity_floor IS NOT NULL AND similarity_score >= similarity_floor)`
+  }
+
+  Note: 'Tier 2; source: 02_learning.sql. Immutable plain-language wording revision of one accepted review; similarity-tested generated or structured fallback. The derived approved_parent_summary view joins approvals to the latest accepted teacher review; it has no separate stored rows or declared foreign keys. Guardian authorization is applied by the service.'
+}
+
+Table sonder.parent_summary_approval [headercolor: #22C55E] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  summary_id uuid [not null, unique]
+  teacher_id uuid [not null]
+  approved_at timestamptz [not null, default: `now()`]
+  note text [not null]
+
+  Note: 'Tier 2; source: 02_learning.sql. Separate teacher wording approval; approved diagnosis alone does not approve an LLM rewrite.'
+}
+
+Table sonder.announcement [headercolor: #F59E0B] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  class_id uuid [not null]
+  author_id uuid [not null]
+  title text [not null]
+  body text [not null]
+  request_key text [not null]
+  created_at timestamptz [not null, default: `now()`]
+
+  indexes {
+    (class_id, author_id, request_key) [unique]
+    (class_id, created_at, id) [name: 'announcement_stream_idx', type: btree, note: 'Authoritative SQL: CREATE INDEX IF NOT EXISTS announcement_stream_idx ON announcement (class_id, created_at DESC, id)']
+  }
+
+  Note: 'Tier 3; source: 03_messaging.sql. Immutable teacher-to-class broadcast, without student reply field or class-name FK.'
+}
+
+Table sonder.dm_thread [headercolor: #F59E0B] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  enrolment_id uuid [not null]
+  teacher_id uuid [not null]
+  guardian_link_id uuid [null]
+  created_at timestamptz [not null, default: `now()`]
+
+  indexes {
+    (enrolment_id, teacher_id, guardian_link_id) [unique, note: 'PostgreSQL UNIQUE NULLS NOT DISTINCT: NULL values compare equal for this uniqueness constraint. DBML unique alone does not encode that behavior.']
+    (teacher_id, created_at) [name: 'dm_inbox_idx', type: btree, note: 'Authoritative SQL: CREATE INDEX IF NOT EXISTS dm_inbox_idx ON dm_thread (teacher_id, created_at DESC)']
+    guardian_link_id [name: 'dm_guardian_idx', type: btree, note: 'Authoritative SQL: CREATE INDEX IF NOT EXISTS dm_guardian_idx ON dm_thread (guardian_link_id) WHERE guardian_link_id IS NOT NULL']
+  }
+
+  Note: 'Tier 3; source: 03_messaging.sql. Private 1:1 teacher/enrolment context; optional guardian link identifies a distinct parent counterpart.'
+}
+
+Table sonder.dm_message [headercolor: #F59E0B] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  thread_id uuid [not null]
+  sender_id uuid [not null]
+  body text [not null]
+  sent_at timestamptz [not null, default: `now()`]
+  request_key text [not null]
+
+  indexes {
+    (thread_id, sender_id, request_key) [unique]
+    (thread_id, sent_at, id) [name: 'dm_transcript_idx', type: btree, note: 'Authoritative SQL: CREATE INDEX IF NOT EXISTS dm_transcript_idx ON dm_message (thread_id, sent_at, id)']
+  }
+
+  checks {
+    `length(btrim(body)) > 0`
+  }
+
+  Note: 'Tier 3; source: 03_messaging.sql. Immutable actual-user human message, ordered by instant/UUID and idempotent request key.'
+}
+
+Table sonder.dm_read_cursor [headercolor: #F59E0B] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  thread_id uuid [not null]
+  reader_id uuid [not null]
+  last_read_message_id uuid [not null]
+  read_at timestamptz [not null, default: `now()`]
+
+  indexes {
+    (thread_id, reader_id) [unique]
+  }
+
+  Note: 'Tier 3; source: 03_messaging.sql. Per-reader last read message; sender/read status is not a single shared timestamp on the message.'
+}
+
+Table sonder.ai_model [headercolor: #EC4899] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  name text [not null]
+  revision text [not null]
+  kind text [not null]
+  runtime text [not null]
+
+  indexes {
+    (name, revision, kind) [unique]
+  }
+
+  checks {
+    `kind IN ('generation', 'scorer', 'embedding', 'reranker')`
+  }
+
+  Note: 'Tier 4; source: 04_ai_trust.sql. Exact model name/revision/kind/runtime; an updated model is a new immutable row.'
+}
+
+Table sonder.llm_call_log [headercolor: #EC4899] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  model_id uuid [not null]
+  feature text [not null]
+  user_id uuid [null]
+  session_id uuid [null]
+  prompt_hash text [not null]
+  prompt_template_revision text [not null]
+  prompt_tokens integer [not null]
+  completion_tokens integer [not null]
+  latency_ms numeric [not null]
+  outcome text [not null]
+  request_key text [not null, unique]
+  created_at timestamptz [not null, default: `now()`]
+  payload jsonb [not null, default: `CAST('{}' AS jsonb)`]
+
+  indexes {
+    (feature, created_at) [name: 'call_feature_time_idx', type: btree, note: 'Authoritative SQL: CREATE INDEX IF NOT EXISTS call_feature_time_idx ON llm_call_log (feature, created_at DESC)']
+  }
+
+  checks {
+    `feature IN ('parent_rewrite', 'tutor', 'consultant', 'drafter', 'distractor', 'mapping', 'judge', 'study_note', 'resource_rationale')`
+    `prompt_tokens >= 0`
+    `completion_tokens >= 0`
+    `latency_ms >= 0`
+    `outcome IN ('ok', 'fallback', 'blocked')`
+  }
+
+  Note: 'Tier 4; source: 04_ai_trust.sql. One redacted bounded model call/result transcript with template/hash, token/latency and fixed call outcome.'
+}
+
+Table sonder.cohort_observation [headercolor: #EC4899] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  class_id uuid [not null]
+  subject_id uuid [not null]
+  definition text [not null]
+  window_start timestamptz [not null]
+  window_end timestamptz [not null]
+  sample_size integer [not null]
+  value numeric [not null]
+  unit text [not null]
+  query_revision text [not null]
+  observed_at timestamptz [not null, default: `now()`]
+
+  checks {
+    `sample_size > 0`
+    `window_end > window_start`
+  }
+
+  Note: 'Tier 4; source: 04_ai_trust.sql. Immutable defined/windowed/query-versioned historical aggregate; no peer identities or mutable median cache.'
+}
+
+Table sonder.evidence_reference [headercolor: #EC4899] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  step_id uuid [null]
+  verification_id uuid [null]
+  review_id uuid [null]
+  cohort_observation_id uuid [null]
+  item_id uuid [null]
+  chunk_id uuid [null]
+  source_id uuid [null]
+  external_url text [null]
+
+  indexes {
+    (step_id, verification_id, review_id, cohort_observation_id, item_id, chunk_id, source_id, external_url) [unique, note: 'PostgreSQL UNIQUE NULLS NOT DISTINCT: NULL values compare equal for this uniqueness constraint. DBML unique alone does not encode that behavior.']
+  }
+
+  checks {
+    `external_url ~ '^https?://'`
+    `num_nonnulls(step_id, verification_id, review_id, cohort_observation_id, item_id, chunk_id, source_id, external_url) = 1`
+  }
+
+  Note: 'Tier 4; source: 04_ai_trust.sql. Exclusive typed reference to a real evidence/source row or external URL, replacing unconstrained row-ref JSON.'
+}
+
+Table sonder.llm_grounding [headercolor: #EC4899] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  call_id uuid [not null]
+  evidence_id uuid [not null]
+  position integer [not null]
+
+  indexes {
+    (call_id, evidence_id) [unique]
+    (call_id, position) [unique]
+  }
+
+  checks {
+    `position > 0`
+  }
+
+  Note: 'Tier 4; source: 04_ai_trust.sql. Ordered independent evidence sources actually supplied to one call.'
+}
+
+Table sonder.assistant_thread [headercolor: #EC4899] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  owner_id uuid [not null]
+  kind text [not null]
+  misconception_revision_id uuid [null]
+  enrolment_id uuid [null]
+  class_id uuid [null]
+  escalation_id uuid [null]
+  created_at timestamptz [not null, default: `now()`]
+
+  indexes {
+    (owner_id, created_at) [name: 'assistant_owner_idx', type: btree, note: 'Authoritative SQL: CREATE INDEX IF NOT EXISTS assistant_owner_idx ON assistant_thread (owner_id, created_at DESC)']
+  }
+
+  checks {
+    `kind IN ('tutor', 'consultant')`
+    `(kind = 'tutor' AND misconception_revision_id IS NOT NULL AND num_nonnulls(enrolment_id, class_id, escalation_id) = 0) OR (kind = 'consultant' AND misconception_revision_id IS NULL AND num_nonnulls(enrolment_id, class_id, escalation_id) = 1)`
+  }
+
+  Note: 'Tier 4; source: 04_ai_trust.sql. Owner\'s bounded Tutor concept or Consultant enrolment/class/escalation context; separate from human DMs.'
+}
+
+Table sonder.assistant_message [headercolor: #EC4899] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  thread_id uuid [not null]
+  sequence integer [not null]
+  speaker text [not null]
+  body text [not null]
+  preset_key text [null]
+  call_id uuid [null, unique]
+  outcome text [not null]
+  created_at timestamptz [not null, default: `now()`]
+
+  indexes {
+    (thread_id, sequence) [unique]
+  }
+
+  checks {
+    `sequence >= 0`
+    `speaker IN ('user', 'assistant')`
+    `outcome IN ('user_input', 'answered', 'abstained', 'fallback')`
+    `(speaker = 'user' AND outcome = 'user_input' AND call_id IS NULL) OR (speaker = 'assistant' AND outcome <> 'user_input')`
+  }
+
+  Note: 'Tier 4; source: 04_ai_trust.sql. Immutable ordered user/assistant turn, preset, logged call and fixed answered/abstained/fallback outcome.'
+}
+
+Table sonder.assistant_message_evidence [headercolor: #EC4899] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  message_id uuid [not null]
+  evidence_id uuid [not null]
+  position integer [not null]
+  display_text text [not null]
+
+  indexes {
+    (message_id, position) [unique]
+    (message_id, evidence_id) [unique]
+  }
+
+  checks {
+    `position > 0`
+  }
+
+  Note: 'Tier 4; source: 04_ai_trust.sql. Ordered displayed evidence/citations for a turn, concept-checked for Tutor replies.'
+}
+
+Table sonder.consultant_suggestion [headercolor: #EC4899] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  call_id uuid [not null]
+  enrolment_id uuid [null]
+  escalation_id uuid [null]
+  message_id uuid [null, unique]
+  claim text [not null]
+  confidence numeric [null]
+  created_at timestamptz [not null, default: `now()`]
+
+  indexes {
+    (escalation_id, created_at) [name: 'suggestion_escalation_idx', type: btree, note: 'Authoritative SQL: CREATE INDEX IF NOT EXISTS suggestion_escalation_idx ON consultant_suggestion (escalation_id, created_at DESC)']
+    (enrolment_id, created_at) [name: 'suggestion_pace_idx', type: btree, note: 'Authoritative SQL: CREATE INDEX IF NOT EXISTS suggestion_pace_idx ON consultant_suggestion (enrolment_id, created_at DESC)']
+  }
+
+  checks {
+    `confidence BETWEEN 0 AND 1`
+    `num_nonnulls(enrolment_id, escalation_id) = 1`
+  }
+
+  Note: 'Tier 4; source: 04_ai_trust.sql. Non-authoritative individual claim/confidence from a call about an enrolment or escalation.'
+}
+
+Table sonder.suggestion_evidence [headercolor: #EC4899] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  suggestion_id uuid [not null]
+  evidence_id uuid [not null]
+  position integer [not null]
+  display_text text [not null]
+
+  indexes {
+    (suggestion_id, position) [unique]
+    (suggestion_id, evidence_id) [unique]
+  }
+
+  checks {
+    `position > 0`
+  }
+
+  Note: 'Tier 4; source: 04_ai_trust.sql. Ordered relational evidence list supporting one Consultant claim; at least one required at commit.'
+}
+
+Table sonder.suggestion_review [headercolor: #EC4899] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  suggestion_id uuid [not null]
+  revision integer [not null]
+  teacher_id uuid [not null]
+  verdict text [not null]
+  note text [not null]
+  reviewed_at timestamptz [not null, default: `now()`]
+
+  indexes {
+    (suggestion_id, revision) [unique]
+  }
+
+  checks {
+    `revision > 0`
+    `verdict IN ('approved', 'rejected')`
+  }
+
+  Note: 'Tier 4; source: 04_ai_trust.sql. Ordered teacher approval/rejection of a pace/escalation suggestion; student release uses latest approved event.'
+}
+
+Table sonder.coverage_gap [headercolor: #F97316] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  topic_revision_id uuid [not null]
+  kind text [not null]
+  target_minimum integer [not null]
+  note text [not null]
+  detected_from_session_id uuid [null]
+  detected_at timestamptz [not null, default: `now()`]
+  bank_count_at_detection integer [not null]
+  status text [not null, default: `'open'`]
+  scan_key text [not null, unique]
+
+  indexes {
+    (status, detected_at) [name: 'gap_queue_idx', type: btree, note: 'Authoritative SQL: CREATE INDEX IF NOT EXISTS gap_queue_idx ON coverage_gap (status, detected_at)']
+  }
+
+  checks {
+    `kind IN ('separator', 'thin_coverage')`
+    `target_minimum > 0`
+    `bank_count_at_detection >= 0`
+    `status IN ('open', 'generating', 'in_review', 'closed')`
+  }
+
+  Note: 'Tier 4; source: 04_ai_trust.sql. Version/topic-scoped observed separator/thin-coverage gap, note/minimum/bank snapshot and queue lifecycle.'
+}
+
+Table sonder.gap_misconception [headercolor: #F97316] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  gap_id uuid [not null]
+  misconception_revision_id uuid [not null]
+
+  indexes {
+    (gap_id, misconception_revision_id) [unique]
+  }
+
+  Note: 'Tier 4; source: 04_ai_trust.sql. Exactly one thin-coverage or two separator misconception revisions; count deferred to transaction end.'
+}
+
+Table sonder.generation_run [headercolor: #F97316] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  gap_id uuid [not null]
+  drafter_model_id uuid [not null]
+  scorer_model_id uuid [not null]
+  pass_mark numeric [not null]
+  target_min integer [not null]
+  target_max integer [not null]
+  max_rounds integer [not null]
+  request_key text [not null, unique]
+  started_at timestamptz [not null, default: `now()`]
+  status text [not null, default: `'queued'`]
+
+  indexes {
+    (gap_id, started_at) [name: 'generation_gap_idx', type: btree, note: 'Authoritative SQL: CREATE INDEX IF NOT EXISTS generation_gap_idx ON generation_run (gap_id, started_at DESC)']
+  }
+
+  checks {
+    `pass_mark BETWEEN 0 AND 1`
+    `target_min > 0`
+    `max_rounds > 0`
+    `status IN ('queued', 'running', 'paused', 'ready', 'exhausted', 'failed', 'published')`
+    `target_max >= target_min`
+  }
+
+  Note: 'Tier 4; source: 04_ai_trust.sql. Gap-specific bounded drafter/scorer execution with fixed models, target interval, pass mark and round budget.'
+}
+
+Table sonder.generation_round [headercolor: #F97316] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  run_id uuid [not null]
+  round_index integer [not null]
+  created_at timestamptz [not null, default: `now()`]
+
+  indexes {
+    (run_id, round_index) [unique]
+  }
+
+  checks {
+    `round_index > 0`
+  }
+
+  Note: 'Tier 4; source: 04_ai_trust.sql. Ordered immutable iteration of one run; candidate counts derive from structured candidates/call logs.'
+}
+
+Table sonder.generated_item [headercolor: #F97316] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  round_id uuid [not null]
+  candidate_index integer [not null]
+  item_id uuid [not null, unique]
+  drafter_call_id uuid [not null]
+  distractor_source text [not null]
+  mapping_source text [not null, default: `'ai'`]
+  status text [not null, default: `'drafted'`]
+  rejection_reason text [null]
+  published_item_id uuid [null, unique]
+
+  indexes {
+    (round_id, candidate_index) [unique]
+    (status, round_id) [name: 'candidate_queue_idx', type: btree, note: 'Authoritative SQL: CREATE INDEX IF NOT EXISTS candidate_queue_idx ON generated_item (status, round_id)']
+  }
+
+  checks {
+    `candidate_index > 0`
+    `distractor_source IN ('computed', 'ai')`
+    `mapping_source IN ('ai', 'engine_verified')`
+    `status IN ('drafted', 'kept', 'rejected', 'approved', 'published')`
+    `status <> 'rejected' OR rejection_reason IS NOT NULL`
+    `(status = 'published') = (published_item_id IS NOT NULL)`
+  }
+
+  Note: 'Tier 4; source: 04_ai_trust.sql. Pipeline candidate pointing to normalized draft item, verification origin, lifecycle and publication lineage.'
+}
+
+Table sonder.quality_rubric [headercolor: #F97316] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  rubric_code text [not null, unique]
+  definition text [not null]
+
+  Note: 'Tier 4; source: 04_ai_trust.sql. Immutable identified quality definition; model replacement does not silently replace rubric meaning.'
+}
+
+Table sonder.rubric_dimension [headercolor: #F97316] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  rubric_id uuid [not null]
+  code text [not null]
+  definition text [not null]
+
+  indexes {
+    (rubric_id, code) [unique]
+  }
+
+  Note: 'Tier 4; source: 04_ai_trust.sql. Named scalar dimension definition under one rubric.'
+}
+
+Table sonder.quality_assessment [headercolor: #F97316] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  generated_item_id uuid [not null]
+  rubric_id uuid [not null]
+  scorer_model_id uuid [not null]
+  judge_call_id uuid [null, unique]
+  overall numeric [not null]
+  reason text [not null]
+  created_at timestamptz [not null, default: `now()`]
+
+  indexes {
+    (generated_item_id, rubric_id, scorer_model_id) [unique]
+  }
+
+  checks {
+    `overall BETWEEN 0 AND 1`
+  }
+
+  Note: 'Tier 4; source: 04_ai_trust.sql. Immutable model/rubric result for a candidate; overall is a distinct model output, not a copied dimension sum.'
+}
+
+Table sonder.quality_dimension_score [headercolor: #F97316] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  assessment_id uuid [not null]
+  dimension_id uuid [not null]
+  score numeric [not null]
+
+  indexes {
+    (assessment_id, dimension_id) [unique]
+  }
+
+  checks {
+    `score BETWEEN 0 AND 1`
+  }
+
+  Note: 'Tier 4; source: 04_ai_trust.sql. Dimension-specific assessment value, constrained to the assessment\'s rubric.'
+}
+
+Table sonder.content_review_assignment [headercolor: #F97316] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  generated_item_id uuid [not null]
+  reviewer_id uuid [not null]
+  assigned_at timestamptz [not null, default: `now()`]
+
+  indexes {
+    (generated_item_id, reviewer_id) [unique]
+    (reviewer_id, assigned_at) [name: 'reviewer_queue_idx', type: btree, note: 'Authoritative SQL: CREATE INDEX IF NOT EXISTS reviewer_queue_idx ON content_review_assignment (reviewer_id, assigned_at)']
+  }
+
+  Note: 'Tier 4; source: 04_ai_trust.sql. One named reviewer assigned to one immutable candidate; independently assigned reviewers have distinct accounts.'
+}
+
+Table sonder.generation_review [headercolor: #F97316] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  assignment_id uuid [not null, unique]
+  verdict text [not null]
+  note text [not null]
+  decided_at timestamptz [not null, default: `now()`]
+
+  checks {
+    `verdict IN ('approve', 'approve_with_edit', 'reject')`
+  }
+
+  Note: 'Tier 4; source: 04_ai_trust.sql. One authenticated verdict/reason event per assignment; editing requires a new draft/publication copy.'
+}
+
+Table sonder.review_dispute [headercolor: #F97316] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  generated_item_id uuid [not null]
+  option_id uuid [null]
+  issue_key text [not null]
+  issue text [not null]
+
+  indexes {
+    (generated_item_id, issue_key) [unique]
+  }
+
+  Note: 'Tier 4; source: 04_ai_trust.sql. Named unresolved issue on candidate or particular option, retaining exactly what reviewers disagreed about.'
+}
+
+Table sonder.reviewer_mapping_proposal [headercolor: #F97316] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  review_id uuid [not null]
+  option_id uuid [not null]
+  misconception_revision_id uuid [null]
+  rationale text [not null]
+
+  indexes {
+    (review_id, option_id, misconception_revision_id) [unique, note: 'PostgreSQL UNIQUE NULLS NOT DISTINCT: NULL values compare equal for this uniqueness constraint. DBML unique alone does not encode that behavior.']
+  }
+
+  Note: 'Tier 4; source: 04_ai_trust.sql. Reviewer-specific option mapping proposal, including explicit unmapped proposal; not an edit of live mapping.'
+}
+
+Table sonder.review_adjudication [headercolor: #F97316] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  dispute_id uuid [not null, unique]
+  adjudicator_id uuid [not null]
+  resolution text [not null]
+  decided_at timestamptz [not null, default: `now()`]
+
+  Note: 'Tier 4; source: 04_ai_trust.sql. Authorized final explanation for one dispute, separate from original reviewer votes.'
+}
+
+Table sonder.provenance_entry [headercolor: #D946EF] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  item_id uuid [null, unique]
+  distractor_item_id uuid [null, unique]
+  note_id uuid [null, unique]
+  recommendation_id uuid [null, unique]
+  suggestion_id uuid [null, unique]
+  run_id uuid [null, unique]
+  summary_id uuid [null, unique]
+  doc_id uuid [null, unique]
+  message_id uuid [null, unique]
+  purpose text [not null]
+  note text [not null, default: `''`]
+  created_at timestamptz [not null, default: `now()`]
+
+  indexes {
+    created_at [name: 'provenance_time_idx', type: btree, note: 'Authoritative SQL: CREATE INDEX IF NOT EXISTS provenance_time_idx ON provenance_entry (created_at DESC)']
+  }
+
+  checks {
+    `num_nonnulls(item_id, distractor_item_id, note_id, recommendation_id, suggestion_id, run_id, summary_id, doc_id, message_id) = 1`
+  }
+
+  Note: 'Tier 4; source: 04_ai_trust.sql. Exactly one typed per-revision artefact provenance record; purpose/note without polymorphic FK or copied state.'
+}
+
+Table sonder.provenance_call [headercolor: #D946EF] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  provenance_id uuid [not null]
+  call_id uuid [not null]
+
+  indexes {
+    (provenance_id, call_id) [unique]
+  }
+
+  Note: 'Tier 4; source: 04_ai_trust.sql. Multiple model calls contributing to an artefact, without duplicating model/template columns.'
+}
+
+Table sonder.provenance_grounding [headercolor: #D946EF] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  provenance_id uuid [not null]
+  evidence_id uuid [not null]
+
+  indexes {
+    (provenance_id, evidence_id) [unique]
+  }
+
+  Note: 'Tier 4; source: 04_ai_trust.sql. Independent source/evidence references for artefact provenance.'
+}
+
+Table sonder.provenance_validation [headercolor: #D946EF] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  provenance_id uuid [not null]
+  validator_id uuid [not null]
+  decision text [not null]
+  note text [not null]
+  validated_at timestamptz [not null, default: `now()`]
+
+  checks {
+    `decision IN ('approved', 'rejected', 'surfaced')`
+  }
+
+  Note: 'Tier 4; source: 04_ai_trust.sql. Distinct validation/surfacing audit event; reviewer identity is a FK, not a name list.'
+}
+
+Table sonder.evaluation_study [headercolor: #EAB308] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  study_code text [not null, unique]
+  definition text [not null]
+  dataset_reference text [not null]
+  dataset_hash text [not null]
+  window_start timestamptz [not null]
+  window_end timestamptz [not null]
+  caveat text [not null]
+  engine_release_id uuid [null]
+  content_version_id uuid [null]
+  created_at timestamptz [not null, default: `now()`]
+
+  indexes {
+    created_at [name: 'evaluation_recent_idx', type: btree, note: 'Authoritative SQL: CREATE INDEX IF NOT EXISTS evaluation_recent_idx ON evaluation_study (created_at DESC)']
+  }
+
+  checks {
+    `window_end > window_start`
+  }
+
+  Note: 'Tier 4; source: 04_ai_trust.sql. Offline study/dataset hash/protocol window/caveat and pinned engine/content references.'
+}
+
+Table sonder.evaluation_arm [headercolor: #EAB308] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  study_id uuid [not null]
+  code text [not null]
+  definition text [not null]
+
+  indexes {
+    (study_id, code) [unique]
+  }
+
+  Note: 'Tier 4; source: 04_ai_trust.sql. Named method/baseline definition within a study; multiple baselines are rows.'
+}
+
+Table sonder.metric_definition [headercolor: #EAB308] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  code text [not null]
+  revision integer [not null]
+  label text [not null]
+  definition text [not null]
+  denominator_definition text [not null]
+  unit text [not null]
+  good_when text [not null]
+
+  indexes {
+    (code, revision) [unique]
+  }
+
+  checks {
+    `revision > 0`
+    `good_when IN ('up', 'down', 'neutral')`
+  }
+
+  Note: 'Tier 4; source: 04_ai_trust.sql. Immutable mathematically defined metric revision with unit, denominator and desired direction.'
+}
+
+Table sonder.evaluation_result [headercolor: #EAB308] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  arm_id uuid [not null]
+  metric_id uuid [not null]
+  subject_id uuid [null]
+  stratum text [not null, default: `'all'`]
+  value numeric [not null]
+  sample_size integer [not null]
+  numerator numeric [null]
+  denominator numeric [null]
+  lower_bound numeric [null]
+  upper_bound numeric [null]
+  caveat text [not null]
+
+  indexes {
+    (arm_id, metric_id, subject_id, stratum) [unique, note: 'PostgreSQL UNIQUE NULLS NOT DISTINCT: NULL values compare equal for this uniqueness constraint. DBML unique alone does not encode that behavior.']
+  }
+
+  checks {
+    `sample_size > 0`
+    `denominator > 0`
+    `lower_bound IS NULL OR upper_bound IS NULL OR lower_bound <= upper_bound`
+  }
+
+  Note: 'Tier 4; source: 04_ai_trust.sql. Aggregate arm/metric/subject/stratum measurement, sample count, optional numerator/denominator/interval and caveat.'
+}
+
+Table sonder.evaluation_comparison [headercolor: #EAB308] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  result_id uuid [not null]
+  baseline_result_id uuid [not null]
+  comparison_note text [not null]
+
+  indexes {
+    (result_id, baseline_result_id) [unique]
+  }
+
+  checks {
+    `result_id <> baseline_result_id`
+  }
+
+  Note: 'Tier 4; source: 04_ai_trust.sql. Comparison to another comparable result, not copied baseline label/value/delta.'
+}
+
+Table sonder.job_run [headercolor: #EAB308] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  kind text [not null]
+  request_key text [not null, unique]
+  status text [not null, default: `'queued'`]
+  started_at timestamptz [null]
+  ended_at timestamptz [null]
+  heartbeat_at timestamptz [null]
+  error_text text [null]
+
+  indexes {
+    (status, heartbeat_at) [name: 'job_health_idx', type: btree, note: 'Authoritative SQL: CREATE INDEX IF NOT EXISTS job_health_idx ON job_run (status, heartbeat_at)']
+  }
+
+  checks {
+    `kind IN ('calibration', 'gap_scan', 'generation', 'evaluation', 'indexing')`
+    `status IN ('queued', 'running', 'succeeded', 'failed', 'cancelled')`
+    `ended_at IS NULL OR (started_at IS NOT NULL AND ended_at >= started_at)`
+  }
+
+  Note: 'Tier 4; source: 04_ai_trust.sql. Idempotent batch job lifecycle, heartbeat/time/error for calibration, gap scanning, generation, evaluation or indexing.'
+}
+
+Table sonder.item_embedding [headercolor: #64748B] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  item_id uuid [not null]
+  model_id uuid [not null]
+  text_hash text [not null]
+  indexed_at timestamptz [not null, default: `now()`]
+  embedding vector [not null, note: 'Actual SQL type: vector(EMBEDDING_DIMENSION). The model and dimension are not yet chosen; all vector columns share the dimension selected for tier 5.']
+
+  indexes {
+    (item_id, model_id) [unique]
+    (model_id, item_id) [name: 'item_embedding_model_idx', type: btree, note: 'Authoritative SQL: CREATE INDEX IF NOT EXISTS item_embedding_model_idx ON item_embedding (model_id, item_id)']
+    embedding [name: 'item_embedding_hnsw', note: 'Authoritative SQL: CREATE INDEX IF NOT EXISTS item_embedding_hnsw ON item_embedding USING hnsw (embedding vector_cosine_ops)']
+  }
+
+  checks {
+    `text_hash ~ '^[0-9a-f]{64}$'`
+    `vector_norm(embedding) > 0`
+  }
+
+  Note: 'Tier 5; source: 05_vectors.sql. Immutable approved frozen item text vector keyed by source and exact model, with SHA-256 text hash. Late tier: requires pgvector and the selected EMBEDDING_DIMENSION; diagram inclusion does not imply deployment.'
+}
+
+Table sonder.concept_chunk_embedding [headercolor: #64748B] {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  chunk_id uuid [not null]
+  model_id uuid [not null]
+  text_hash text [not null]
+  indexed_at timestamptz [not null, default: `now()`]
+  embedding vector [not null, note: 'Actual SQL type: vector(EMBEDDING_DIMENSION). The model and dimension are not yet chosen; all vector columns share the dimension selected for tier 5.']
+
+  indexes {
+    (chunk_id, model_id) [unique]
+    (model_id, chunk_id) [name: 'chunk_embedding_model_idx', type: btree, note: 'Authoritative SQL: CREATE INDEX IF NOT EXISTS chunk_embedding_model_idx ON concept_chunk_embedding (model_id, chunk_id)']
+    embedding [name: 'chunk_embedding_hnsw', note: 'Authoritative SQL: CREATE INDEX IF NOT EXISTS chunk_embedding_hnsw ON concept_chunk_embedding USING hnsw (embedding vector_cosine_ops)']
+  }
+
+  checks {
+    `text_hash ~ '^[0-9a-f]{64}$'`
+    `vector_norm(embedding) > 0`
+  }
+
+  Note: 'Tier 5; source: 05_vectors.sql. Immutable approved Tutor chunk vector keyed by source and exact model, with SHA-256 text hash. Late tier: requires pgvector and the selected EMBEDDING_DIMENSION; diagram inclusion does not imply deployment.'
+}
+
+// Every declared SQL foreign key, preserving deletion and update actions.
+// Junction tables above preserve the physical many-to-many relationships.
+
+Ref: sonder.app_user.id - sonder.password_credential.user_id [delete: cascade, update: no action]
+Ref: sonder.auth_session.user_id > sonder.app_user.id [delete: cascade, update: no action]
+Ref: sonder.auth_token.user_id > sonder.app_user.id [delete: cascade, update: no action]
+Ref: sonder.guardian_link.parent_id > sonder.app_user.id [delete: restrict, update: no action]
+Ref: sonder.guardian_link.student_id > sonder.app_user.id [delete: restrict, update: no action]
+Ref: sonder.class_teacher.class_id > sonder.classroom.id [delete: restrict, update: no action]
+Ref: sonder.class_teacher.teacher_id > sonder.app_user.id [delete: restrict, update: no action]
+Ref: sonder.enrolment.class_id > sonder.classroom.id [delete: restrict, update: no action]
+Ref: sonder.enrolment.student_id > sonder.app_user.id [delete: restrict, update: no action]
+Ref: sonder.enrolment.id - sonder.student_home_class.enrolment_id [delete: restrict, update: no action]
+Ref: sonder.class_subject.class_id > sonder.classroom.id [delete: restrict, update: no action]
+Ref: sonder.class_subject.subject_id > sonder.subject.id [delete: restrict, update: no action]
+Ref: sonder.content_version.subject_id > sonder.subject.id [delete: restrict, update: no action]
+Ref: sonder.topic.subject_id > sonder.subject.id [delete: restrict, update: no action]
+Ref: sonder.topic_revision.topic_id > sonder.topic.id [delete: restrict, update: no action]
+Ref: sonder.topic_revision.content_version_id > sonder.content_version.id [delete: restrict, update: no action]
+Ref: sonder.misconception.subject_id > sonder.subject.id [delete: restrict, update: no action]
+Ref: sonder.misconception_revision.misconception_id > sonder.misconception.id [delete: restrict, update: no action]
+Ref: sonder.misconception_revision.content_version_id > sonder.content_version.id [delete: restrict, update: no action]
+Ref: sonder.topic_misconception.topic_revision_id > sonder.topic_revision.id [delete: restrict, update: no action]
+Ref: sonder.topic_misconception.misconception_revision_id > sonder.misconception_revision.id [delete: restrict, update: no action]
+Ref: sonder.misconception_source.misconception_revision_id > sonder.misconception_revision.id [delete: restrict, update: no action]
+Ref: sonder.misconception_source.source_id > sonder.source_reference.id [delete: restrict, update: no action]
+Ref: sonder.item.topic_revision_id > sonder.topic_revision.id [delete: restrict, update: no action]
+Ref: sonder.item.target_misconception_revision_id > sonder.misconception_revision.id [delete: restrict, update: no action]
+Ref: sonder.item_option.item_id > sonder.item.id [delete: cascade, update: no action]
+Ref: sonder.option_misconception.option_id > sonder.item_option.id [delete: cascade, update: no action]
+Ref: sonder.option_misconception.misconception_revision_id > sonder.misconception_revision.id [delete: restrict, update: no action]
+Ref: sonder.item_numeric_parameter.item_id > sonder.item.id [delete: cascade, update: no action]
+Ref: sonder.item_source.item_id > sonder.item.id [delete: cascade, update: no action]
+Ref: sonder.item_source.source_id > sonder.source_reference.id [delete: restrict, update: no action]
+Ref: sonder.item.id - sonder.item_approval.item_id [delete: restrict, update: no action]
+Ref: sonder.item_approval.reviewer_id > sonder.app_user.id [delete: restrict, update: no action]
+Ref: sonder.hypothesis.content_version_id > sonder.content_version.id [delete: restrict, update: no action]
+Ref: sonder.hypothesis.misconception_revision_id > sonder.misconception_revision.id [delete: restrict, update: no action]
+Ref: sonder.item_prediction.hypothesis_id > sonder.hypothesis.id [delete: restrict, update: no action]
+Ref: sonder.item_prediction.option_id > sonder.item_option.id [delete: restrict, update: no action]
+Ref: sonder.response_model.content_version_id > sonder.content_version.id [delete: restrict, update: no action]
+Ref: sonder.response_parameter.response_model_id > sonder.response_model.id [delete: restrict, update: no action]
+Ref: sonder.response_parameter.hypothesis_id > sonder.hypothesis.id [delete: restrict, update: no action]
+Ref: sonder.response_probability.response_model_id > sonder.response_model.id [delete: restrict, update: no action]
+Ref: sonder.response_probability.hypothesis_id > sonder.hypothesis.id [delete: restrict, update: no action]
+Ref: sonder.response_probability.option_id > sonder.item_option.id [delete: restrict, update: no action]
+Ref: sonder.diagnostic_session.enrolment_id > sonder.enrolment.id [delete: restrict, update: no action]
+Ref: sonder.diagnostic_session.response_model_id > sonder.response_model.id [delete: restrict, update: no action]
+Ref: sonder.diagnostic_session.engine_release_id > sonder.engine_release.id [delete: restrict, update: no action]
+Ref: sonder.diagnostic_session.topic_revision_id > sonder.topic_revision.id [delete: restrict, update: no action]
+Ref: sonder.session_hypothesis.session_id > sonder.diagnostic_session.id [delete: restrict, update: no action]
+Ref: sonder.session_hypothesis.hypothesis_id > sonder.hypothesis.id [delete: restrict, update: no action]
+Ref: sonder.session_question.session_id > sonder.diagnostic_session.id [delete: restrict, update: no action]
+Ref: sonder.session_question.item_id > sonder.item.id [delete: restrict, update: no action]
+Ref: sonder.session_step.session_id > sonder.diagnostic_session.id [delete: restrict, update: no action]
+Ref: sonder.session_question.id - sonder.session_step.session_question_id [delete: restrict, update: no action]
+Ref: sonder.session_step.answer_option_id > sonder.item_option.id [delete: restrict, update: no action]
+Ref: sonder.step_posterior.step_id > sonder.session_step.id [delete: restrict, update: no action]
+Ref: sonder.step_posterior.session_hypothesis_id > sonder.session_hypothesis.id [delete: restrict, update: no action]
+Ref: sonder.diagnostic_session.id - sonder.diagnosis.session_id [delete: restrict, update: no action]
+Ref: sonder.diagnosis_candidate.diagnosis_id > sonder.diagnosis.id [delete: restrict, update: no action]
+Ref: sonder.diagnosis_candidate.session_hypothesis_id > sonder.session_hypothesis.id [delete: restrict, update: no action]
+Ref: sonder.diagnostic_session.id - sonder.escalation.session_id [delete: restrict, update: no action]
+Ref: sonder.escalation_candidate.escalation_id > sonder.escalation.id [delete: restrict, update: no action]
+Ref: sonder.escalation_candidate.session_hypothesis_id > sonder.session_hypothesis.id [delete: restrict, update: no action]
+Ref: sonder.teacher_review.session_id > sonder.diagnostic_session.id [delete: restrict, update: no action]
+Ref: sonder.teacher_review.teacher_id > sonder.app_user.id [delete: restrict, update: no action]
+Ref: sonder.teacher_review.misconception_revision_id > sonder.misconception_revision.id [delete: restrict, update: no action]
+Ref: sonder.audit_event.actor_id > sonder.app_user.id [delete: restrict, update: no action]
+Ref: sonder.privacy_request.user_id > sonder.app_user.id [delete: restrict, update: no action]
+Ref: sonder.study_note.misconception_revision_id > sonder.misconception_revision.id [delete: restrict, update: no action]
+Ref: sonder.study_note.id - sonder.study_note_approval.study_note_id [delete: restrict, update: no action]
+Ref: sonder.study_note_approval.teacher_id > sonder.app_user.id [delete: restrict, update: no action]
+Ref: sonder.intervention.misconception_revision_id > sonder.misconception_revision.id [delete: restrict, update: no action]
+Ref: sonder.intervention.id - sonder.intervention_approval.intervention_id [delete: restrict, update: no action]
+Ref: sonder.intervention_approval.teacher_id > sonder.app_user.id [delete: restrict, update: no action]
+Ref: sonder.resource_recommendation.resource_id > sonder.resource.id [delete: restrict, update: no action]
+Ref: sonder.resource_recommendation.misconception_revision_id > sonder.misconception_revision.id [delete: restrict, update: no action]
+Ref: sonder.resource_recommendation.id - sonder.resource_approval.recommendation_id [delete: restrict, update: no action]
+Ref: sonder.resource_approval.teacher_id > sonder.app_user.id [delete: restrict, update: no action]
+Ref: sonder.concept_doc.topic_revision_id > sonder.topic_revision.id [delete: restrict, update: no action]
+Ref: sonder.concept_doc_misconception.concept_doc_id > sonder.concept_doc.id [delete: restrict, update: no action]
+Ref: sonder.concept_doc_misconception.misconception_revision_id > sonder.misconception_revision.id [delete: restrict, update: no action]
+Ref: sonder.concept_doc_chunk.concept_doc_id > sonder.concept_doc.id [delete: restrict, update: no action]
+Ref: sonder.concept_doc.id - sonder.concept_doc_approval.concept_doc_id [delete: restrict, update: no action]
+Ref: sonder.concept_doc_approval.teacher_id > sonder.app_user.id [delete: restrict, update: no action]
+Ref: sonder.teacher_review.id - sonder.remediation_delivery.review_id [delete: restrict, update: no action]
+Ref: sonder.remediation_delivery.intervention_id > sonder.intervention.id [delete: restrict, update: no action]
+Ref: sonder.remediation_delivery.study_note_id > sonder.study_note.id [delete: restrict, update: no action]
+Ref: sonder.remediation_resource.delivery_id > sonder.remediation_delivery.id [delete: restrict, update: no action]
+Ref: sonder.remediation_resource.recommendation_id > sonder.resource_recommendation.id [delete: restrict, update: no action]
+Ref: sonder.verification_check.delivery_id > sonder.remediation_delivery.id [delete: restrict, update: no action]
+Ref: sonder.verification_check.id - sonder.verification_presentation.check_id [delete: restrict, update: no action]
+Ref: sonder.verification_presentation.item_id > sonder.item.id [delete: restrict, update: no action]
+Ref: sonder.verification_presentation.id - sonder.verification_result.presentation_id [delete: restrict, update: no action]
+Ref: sonder.verification_result.answer_option_id > sonder.item_option.id [delete: restrict, update: no action]
+Ref: sonder.verification_check.id - sonder.verification_cancellation.check_id [delete: restrict, update: no action]
+Ref: sonder.parent_summary.review_id > sonder.teacher_review.id [delete: restrict, update: no action]
+Ref: sonder.parent_summary.id - sonder.parent_summary_approval.summary_id [delete: restrict, update: no action]
+Ref: sonder.parent_summary_approval.teacher_id > sonder.app_user.id [delete: restrict, update: no action]
+Ref: sonder.announcement.class_id > sonder.classroom.id [delete: restrict, update: no action]
+Ref: sonder.announcement.author_id > sonder.app_user.id [delete: restrict, update: no action]
+Ref: sonder.dm_thread.enrolment_id > sonder.enrolment.id [delete: restrict, update: no action]
+Ref: sonder.dm_thread.teacher_id > sonder.app_user.id [delete: restrict, update: no action]
+Ref: sonder.dm_thread.guardian_link_id > sonder.guardian_link.id [delete: restrict, update: no action]
+Ref: sonder.dm_message.thread_id > sonder.dm_thread.id [delete: restrict, update: no action]
+Ref: sonder.dm_message.sender_id > sonder.app_user.id [delete: restrict, update: no action]
+Ref: sonder.dm_read_cursor.thread_id > sonder.dm_thread.id [delete: restrict, update: no action]
+Ref: sonder.dm_read_cursor.reader_id > sonder.app_user.id [delete: restrict, update: no action]
+Ref: sonder.dm_read_cursor.last_read_message_id > sonder.dm_message.id [delete: restrict, update: no action]
+Ref: sonder.llm_call_log.model_id > sonder.ai_model.id [delete: restrict, update: no action]
+Ref: sonder.llm_call_log.user_id > sonder.app_user.id [delete: restrict, update: no action]
+Ref: sonder.llm_call_log.session_id > sonder.diagnostic_session.id [delete: restrict, update: no action]
+Ref: sonder.cohort_observation.class_id > sonder.classroom.id [delete: restrict, update: no action]
+Ref: sonder.cohort_observation.subject_id > sonder.subject.id [delete: restrict, update: no action]
+Ref: sonder.evidence_reference.step_id > sonder.session_step.id [delete: restrict, update: no action]
+Ref: sonder.evidence_reference.verification_id > sonder.verification_result.id [delete: restrict, update: no action]
+Ref: sonder.evidence_reference.review_id > sonder.teacher_review.id [delete: restrict, update: no action]
+Ref: sonder.evidence_reference.cohort_observation_id > sonder.cohort_observation.id [delete: restrict, update: no action]
+Ref: sonder.evidence_reference.item_id > sonder.item.id [delete: restrict, update: no action]
+Ref: sonder.evidence_reference.chunk_id > sonder.concept_doc_chunk.id [delete: restrict, update: no action]
+Ref: sonder.evidence_reference.source_id > sonder.source_reference.id [delete: restrict, update: no action]
+Ref: sonder.llm_grounding.call_id > sonder.llm_call_log.id [delete: restrict, update: no action]
+Ref: sonder.llm_grounding.evidence_id > sonder.evidence_reference.id [delete: restrict, update: no action]
+Ref: sonder.assistant_thread.owner_id > sonder.app_user.id [delete: restrict, update: no action]
+Ref: sonder.assistant_thread.misconception_revision_id > sonder.misconception_revision.id [delete: restrict, update: no action]
+Ref: sonder.assistant_thread.enrolment_id > sonder.enrolment.id [delete: restrict, update: no action]
+Ref: sonder.assistant_thread.class_id > sonder.classroom.id [delete: restrict, update: no action]
+Ref: sonder.assistant_thread.escalation_id > sonder.escalation.id [delete: restrict, update: no action]
+Ref: sonder.assistant_message.thread_id > sonder.assistant_thread.id [delete: restrict, update: no action]
+Ref: sonder.llm_call_log.id - sonder.assistant_message.call_id [delete: restrict, update: no action]
+Ref: sonder.assistant_message_evidence.message_id > sonder.assistant_message.id [delete: restrict, update: no action]
+Ref: sonder.assistant_message_evidence.evidence_id > sonder.evidence_reference.id [delete: restrict, update: no action]
+Ref: sonder.consultant_suggestion.call_id > sonder.llm_call_log.id [delete: restrict, update: no action]
+Ref: sonder.consultant_suggestion.enrolment_id > sonder.enrolment.id [delete: restrict, update: no action]
+Ref: sonder.consultant_suggestion.escalation_id > sonder.escalation.id [delete: restrict, update: no action]
+Ref: sonder.assistant_message.id - sonder.consultant_suggestion.message_id [delete: restrict, update: no action]
+Ref: sonder.suggestion_evidence.suggestion_id > sonder.consultant_suggestion.id [delete: restrict, update: no action]
+Ref: sonder.suggestion_evidence.evidence_id > sonder.evidence_reference.id [delete: restrict, update: no action]
+Ref: sonder.suggestion_review.suggestion_id > sonder.consultant_suggestion.id [delete: restrict, update: no action]
+Ref: sonder.suggestion_review.teacher_id > sonder.app_user.id [delete: restrict, update: no action]
+Ref: sonder.coverage_gap.topic_revision_id > sonder.topic_revision.id [delete: restrict, update: no action]
+Ref: sonder.coverage_gap.detected_from_session_id > sonder.diagnostic_session.id [delete: restrict, update: no action]
+Ref: sonder.gap_misconception.gap_id > sonder.coverage_gap.id [delete: restrict, update: no action]
+Ref: sonder.gap_misconception.misconception_revision_id > sonder.misconception_revision.id [delete: restrict, update: no action]
+Ref: sonder.generation_run.gap_id > sonder.coverage_gap.id [delete: restrict, update: no action]
+Ref: sonder.generation_run.drafter_model_id > sonder.ai_model.id [delete: restrict, update: no action]
+Ref: sonder.generation_run.scorer_model_id > sonder.ai_model.id [delete: restrict, update: no action]
+Ref: sonder.generation_round.run_id > sonder.generation_run.id [delete: restrict, update: no action]
+Ref: sonder.generated_item.round_id > sonder.generation_round.id [delete: restrict, update: no action]
+Ref: sonder.item.id - sonder.generated_item.item_id [delete: restrict, update: no action]
+Ref: sonder.generated_item.drafter_call_id > sonder.llm_call_log.id [delete: restrict, update: no action]
+Ref: sonder.item.id - sonder.generated_item.published_item_id [delete: restrict, update: no action]
+Ref: sonder.rubric_dimension.rubric_id > sonder.quality_rubric.id [delete: restrict, update: no action]
+Ref: sonder.quality_assessment.generated_item_id > sonder.generated_item.id [delete: restrict, update: no action]
+Ref: sonder.quality_assessment.rubric_id > sonder.quality_rubric.id [delete: restrict, update: no action]
+Ref: sonder.quality_assessment.scorer_model_id > sonder.ai_model.id [delete: restrict, update: no action]
+Ref: sonder.llm_call_log.id - sonder.quality_assessment.judge_call_id [delete: restrict, update: no action]
+Ref: sonder.quality_dimension_score.assessment_id > sonder.quality_assessment.id [delete: restrict, update: no action]
+Ref: sonder.quality_dimension_score.dimension_id > sonder.rubric_dimension.id [delete: restrict, update: no action]
+Ref: sonder.content_review_assignment.generated_item_id > sonder.generated_item.id [delete: restrict, update: no action]
+Ref: sonder.content_review_assignment.reviewer_id > sonder.app_user.id [delete: restrict, update: no action]
+Ref: sonder.content_review_assignment.id - sonder.generation_review.assignment_id [delete: restrict, update: no action]
+Ref: sonder.review_dispute.generated_item_id > sonder.generated_item.id [delete: restrict, update: no action]
+Ref: sonder.review_dispute.option_id > sonder.item_option.id [delete: restrict, update: no action]
+Ref: sonder.reviewer_mapping_proposal.review_id > sonder.generation_review.id [delete: restrict, update: no action]
+Ref: sonder.reviewer_mapping_proposal.option_id > sonder.item_option.id [delete: restrict, update: no action]
+Ref: sonder.reviewer_mapping_proposal.misconception_revision_id > sonder.misconception_revision.id [delete: restrict, update: no action]
+Ref: sonder.review_dispute.id - sonder.review_adjudication.dispute_id [delete: restrict, update: no action]
+Ref: sonder.review_adjudication.adjudicator_id > sonder.app_user.id [delete: restrict, update: no action]
+Ref: sonder.item.id - sonder.provenance_entry.item_id [delete: restrict, update: no action]
+Ref: sonder.item.id - sonder.provenance_entry.distractor_item_id [delete: restrict, update: no action]
+Ref: sonder.study_note.id - sonder.provenance_entry.note_id [delete: restrict, update: no action]
+Ref: sonder.resource_recommendation.id - sonder.provenance_entry.recommendation_id [delete: restrict, update: no action]
+Ref: sonder.consultant_suggestion.id - sonder.provenance_entry.suggestion_id [delete: restrict, update: no action]
+Ref: sonder.generation_run.id - sonder.provenance_entry.run_id [delete: restrict, update: no action]
+Ref: sonder.parent_summary.id - sonder.provenance_entry.summary_id [delete: restrict, update: no action]
+Ref: sonder.concept_doc.id - sonder.provenance_entry.doc_id [delete: restrict, update: no action]
+Ref: sonder.assistant_message.id - sonder.provenance_entry.message_id [delete: restrict, update: no action]
+Ref: sonder.provenance_call.provenance_id > sonder.provenance_entry.id [delete: restrict, update: no action]
+Ref: sonder.provenance_call.call_id > sonder.llm_call_log.id [delete: restrict, update: no action]
+Ref: sonder.provenance_grounding.provenance_id > sonder.provenance_entry.id [delete: restrict, update: no action]
+Ref: sonder.provenance_grounding.evidence_id > sonder.evidence_reference.id [delete: restrict, update: no action]
+Ref: sonder.provenance_validation.provenance_id > sonder.provenance_entry.id [delete: restrict, update: no action]
+Ref: sonder.provenance_validation.validator_id > sonder.app_user.id [delete: restrict, update: no action]
+Ref: sonder.evaluation_study.engine_release_id > sonder.engine_release.id [delete: restrict, update: no action]
+Ref: sonder.evaluation_study.content_version_id > sonder.content_version.id [delete: restrict, update: no action]
+Ref: sonder.evaluation_arm.study_id > sonder.evaluation_study.id [delete: restrict, update: no action]
+Ref: sonder.evaluation_result.arm_id > sonder.evaluation_arm.id [delete: restrict, update: no action]
+Ref: sonder.evaluation_result.metric_id > sonder.metric_definition.id [delete: restrict, update: no action]
+Ref: sonder.evaluation_result.subject_id > sonder.subject.id [delete: restrict, update: no action]
+Ref: sonder.evaluation_comparison.result_id > sonder.evaluation_result.id [delete: restrict, update: no action]
+Ref: sonder.evaluation_comparison.baseline_result_id > sonder.evaluation_result.id [delete: restrict, update: no action]
+Ref: sonder.item_embedding.item_id > sonder.item.id [delete: restrict, update: no action]
+Ref: sonder.item_embedding.model_id > sonder.ai_model.id [delete: restrict, update: no action]
+Ref: sonder.concept_chunk_embedding.chunk_id > sonder.concept_doc_chunk.id [delete: restrict, update: no action]
+Ref: sonder.concept_chunk_embedding.model_id > sonder.ai_model.id [delete: restrict, update: no action]
+
+// Visual groups only; these do not create extra PostgreSQL schemas.
+
+TableGroup T1_identity_and_classes [color: #3B82F6] {
+  sonder.app_user
+  sonder.password_credential
+  sonder.auth_session
+  sonder.auth_token
+  sonder.guardian_link
+  sonder.classroom
+  sonder.class_teacher
+  sonder.enrolment
+  sonder.student_home_class
+  sonder.class_subject
+  sonder.audit_event
+  sonder.privacy_request
+}
+
+TableGroup T1_content [color: #06B6D4] {
+  sonder.subject
+  sonder.content_version
+  sonder.topic
+  sonder.topic_revision
+  sonder.misconception
+  sonder.misconception_revision
+  sonder.topic_misconception
+  sonder.source_reference
+  sonder.misconception_source
+  sonder.item
+  sonder.item_option
+  sonder.option_misconception
+  sonder.item_numeric_parameter
+  sonder.item_source
+  sonder.item_approval
+  sonder.hypothesis
+  sonder.item_prediction
+}
+
+TableGroup T1_diagnostics_and_review [color: #8B5CF6] {
+  sonder.engine_release
+  sonder.response_model
+  sonder.response_parameter
+  sonder.response_probability
+  sonder.diagnostic_session
+  sonder.session_hypothesis
+  sonder.session_question
+  sonder.session_step
+  sonder.step_posterior
+  sonder.diagnosis
+  sonder.diagnosis_candidate
+  sonder.escalation
+  sonder.escalation_candidate
+  sonder.teacher_review
+}
+
+TableGroup T2_learning_materials [color: #10B981] {
+  sonder.study_note
+  sonder.study_note_approval
+  sonder.intervention
+  sonder.intervention_approval
+  sonder.resource
+  sonder.resource_recommendation
+  sonder.resource_approval
+  sonder.concept_doc
+  sonder.concept_doc_misconception
+  sonder.concept_doc_chunk
+  sonder.concept_doc_approval
+}
+
+TableGroup T2_remediation_and_parent_summaries [color: #22C55E] {
+  sonder.remediation_delivery
+  sonder.remediation_resource
+  sonder.verification_check
+  sonder.verification_presentation
+  sonder.verification_result
+  sonder.verification_cancellation
+  sonder.parent_summary
+  sonder.parent_summary_approval
+}
+
+TableGroup T3_messaging [color: #F59E0B] {
+  sonder.announcement
+  sonder.dm_thread
+  sonder.dm_message
+  sonder.dm_read_cursor
+}
+
+TableGroup T4_AI_assistants [color: #EC4899] {
+  sonder.ai_model
+  sonder.llm_call_log
+  sonder.cohort_observation
+  sonder.evidence_reference
+  sonder.llm_grounding
+  sonder.assistant_thread
+  sonder.assistant_message
+  sonder.assistant_message_evidence
+  sonder.consultant_suggestion
+  sonder.suggestion_evidence
+  sonder.suggestion_review
+}
+
+TableGroup T4_generation_and_content_review [color: #F97316] {
+  sonder.coverage_gap
+  sonder.gap_misconception
+  sonder.generation_run
+  sonder.generation_round
+  sonder.generated_item
+  sonder.quality_rubric
+  sonder.rubric_dimension
+  sonder.quality_assessment
+  sonder.quality_dimension_score
+  sonder.content_review_assignment
+  sonder.generation_review
+  sonder.review_dispute
+  sonder.reviewer_mapping_proposal
+  sonder.review_adjudication
+}
+
+TableGroup T4_provenance [color: #D946EF] {
+  sonder.provenance_entry
+  sonder.provenance_call
+  sonder.provenance_grounding
+  sonder.provenance_validation
+}
+
+TableGroup T4_evaluation_and_jobs [color: #EAB308] {
+  sonder.evaluation_study
+  sonder.evaluation_arm
+  sonder.metric_definition
+  sonder.evaluation_result
+  sonder.evaluation_comparison
+  sonder.job_run
+}
+
+TableGroup T5_vectors [color: #64748B] {
+  sonder.item_embedding
+  sonder.concept_chunk_embedding
+}
