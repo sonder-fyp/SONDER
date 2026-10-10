@@ -7,6 +7,7 @@ binding are separate work; passing here does not approve content links.
 import csv
 import unittest
 from collections import defaultdict
+from fractions import Fraction
 from pathlib import Path
 
 import numpy as np
@@ -60,6 +61,45 @@ class CurrentMathCandidateTests(unittest.TestCase):
                     self.assertTrue(np.all(np.isfinite(after)))
                     self.assertTrue(np.all(after >= 0))
                     self.assertAlmostEqual(float(after.sum()), 1.0, places=12)
+
+    def test_all_t1_answers_match_an_exact_fraction_reference(self):
+        # This independent audit uses exact rational arithmetic instead of
+        # the production float64 likelihood/posterior functions for expected
+        # values. It checks values, not just normalization.
+        hyps, items = current_t1_candidate()
+        self.assertEqual(len(hyps), 6)
+        exact_prior = [Fraction(7, 40)] * 4 + [Fraction(1, 4), Fraction(1, 20)]
+        for item_id, item in items.items():
+            L = likelihood_matrix(item, hyps, Params())
+            starting = prior(hyps, Params())
+            for answer in range(4):
+                exact_likelihood = []
+                for h in hyps:
+                    if h == "UNMODELLED":
+                        chance = Fraction(1, 4)
+                    else:
+                        predicted = (
+                            [j for j, links in enumerate(item.links) if h in links]
+                            if h != "NONE" else []
+                        )
+                        rate = Fraction(3, 10) if predicted else Fraction(1, 10)
+                        if not predicted:
+                            predicted = [item.correct_index]
+                        chance = ((1 - rate) / len(predicted) if answer in predicted
+                                  else rate / (4 - len(predicted)))
+                    exact_likelihood.append(chance)
+                joint = [a * b for a, b in zip(exact_prior, exact_likelihood)]
+                denominator = sum(joint)
+                expected = [float(weight / denominator) for weight in joint]
+                with self.subTest(item=item_id, answer=item.option_ids[answer]):
+                    np.testing.assert_allclose(
+                        L[:, answer], [float(chance) for chance in exact_likelihood],
+                        rtol=0, atol=3e-16,
+                    )
+                    np.testing.assert_allclose(
+                        update_posterior(starting, L, answer), expected,
+                        rtol=0, atol=3e-16,
+                    )
 
     def test_current_t1_005_matches_independent_fraction_calculation(self):
         hyps, items = current_t1_candidate()

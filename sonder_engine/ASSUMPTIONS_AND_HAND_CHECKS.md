@@ -1,6 +1,6 @@
 # Bayes calculation evidence and assumptions
 
-This note documents Ashher's calculation slice. All examples are **synthetic**. They are not student results, calibration, or acceptance of the current Maths bank. The equations follow `docs/ENGINE_SPEC_DRAFT.md` sections 5.0–5.1; this executable package and its tests are the reproducible evidence for these functions.
+This note documents Ashher's calculation slice. The hand-design and sensitivity examples are **synthetic**; a later section checks the current Maths CSV as candidate content. None of these are student results, calibration, or acceptance of the current Maths bank. The equations follow `docs/ENGINE_SPEC_DRAFT.md` sections 5.0–5.1; this executable package and its tests are the reproducible evidence for these functions.
 
 ## Prior and hypothesis order
 
@@ -46,7 +46,7 @@ These are one-answer changes only. They do **not** establish robustness of an ev
 
 ## Read-only current Maths bank exercise
 
-`tests/test_bayes_math_candidate.py` reads the current `Maths_v2` CSVs into `Item` objects **only in the test**. It checks that all 20 T1 rounding items produce positive, normalized six-by-four likelihood matrices and that every one of their 80 possible one-answer posteriors is finite and normalized. The production package itself still reads no CSV.
+`tests/test_bayes_math_candidate.py` reads the current `Maths_v2` CSVs into `Item` objects **only in the test**. At this review the Git blob IDs are `95ba1cd1ba34f73d6ccb83b1841aeb8928ea6a8d` for `bank/items.csv` and `ae0528f26c9be57d6a62e704a4b76aa7aea9c245` for `topics.csv`. It checks that all 20 T1 rounding items produce positive, normalized six-by-four likelihood matrices and that every one of their 80 possible one-answer posteriors is finite and normalized. An additional exact-`Fraction` reference independently calculates **all 480 likelihood entries and all 80 posteriors**; the largest observed absolute float64 difference in the exploratory posterior comparison was `1.11e-16`. The production package itself still reads no CSV.
 
 For T1-005, the current stem asks for 48,630 rounded to the nearest 1,000. Option B is 48,600 and links to `MATH-1248`; D is the correct 49,000. Starting from the six-entry default prior, observing **B** gives posterior `(147, 21, 7, 21, 10, 15) / 221`, or about `(0.665158, 0.095023, 0.031674, 0.095023, 0.045249, 0.067873)`. Observing **D** instead gives `(0.039106, 0.039106, 0.351955, 0.039106, 0.502793, 0.027933)`. The large remaining mass on `MATH-1988` after D occurs because that misconception is not triggered on this item and therefore predicts the correct answer like `NONE`.
 
@@ -55,3 +55,7 @@ These results prove that the calculation functions can consume this **candidate*
 A second read-only test manually applies T1-005 answer B followed by T1-007 answer D to the same posterior. Both options link to `MATH-1248`; the resulting six masses are `(6174, 126, 14, 126, 20, 225) / 6685`, with `MATH-1248 ≈ 0.923560`. This demonstrates repeated Bayesian updates, while leaving item choice and diagnosis to their actual owners.
 
 A read-only construction attempt over the whole current 117-item bank accepted 114 items under the draft `Item` rule and rejected **T6-011B, T6-014B, and T6-016B**: each links one misconception to three answers, contrary to draft V11. This is an intentional fail-fast boundary, not evidence that the whole bank is ready for a session. The separate Math validation review also records unresolved topic membership/grouping constraints for pack loading.
+
+## Numeric edge audit
+
+The first parameter validator allowed tiny positive float64 rates such as `5e-324`. Dividing such a `slip` or `guess` among three off-prediction options rounded the result to zero, violating the engine's strictly-positive likelihood contract. The validator now requires each rate and reserved prior mass to be at least `1e-12`. This keeps the default values and every example above unchanged. A regression test checks rejection below the floor and positive rows at the floor. A deterministic exploratory run of 200 parameter settings with eight T1 answers per setting produced only finite, normalized posteriors; this is a numerical stress check, not evidence about real students or model calibration.
