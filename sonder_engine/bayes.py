@@ -58,3 +58,40 @@ def likelihood_matrix(
     result[-2, item.correct_index] = 1.0 - params.slip
     result[-1, :] = 1.0 / n
     return result
+
+
+def update_posterior(
+    p: NDArray[np.float64], L: NDArray[np.float64], observed: int
+) -> NDArray[np.float64]:
+    """Apply one Bayes update for the zero-based observed option.
+
+    Inputs must already be normalized float64 distributions. Zero entries are
+    allowed in externally supplied vectors/matrices so impossible evidence is
+    detected explicitly; likelihood_matrix itself always produces positive
+    entries. The function never rounds or mutates its inputs.
+    """
+
+    if not isinstance(p, np.ndarray) or p.dtype != np.float64 or p.ndim != 1:
+        raise ValueError("p must be a one-dimensional float64 array")
+    if not isinstance(L, np.ndarray) or L.dtype != np.float64 or L.ndim != 2:
+        raise ValueError("L must be a two-dimensional float64 array")
+    if p.size == 0 or L.shape[0] != p.size or L.shape[1] == 0:
+        raise ValueError("posterior input shapes do not match")
+    if isinstance(observed, (bool, np.bool_)) or not isinstance(observed, (int, np.integer)):
+        raise ValueError("invalid_option")
+    if not 0 <= observed < L.shape[1]:
+        raise ValueError("invalid_option")
+    if not np.all(np.isfinite(p)) or np.any(p < 0):
+        raise ValueError("p must contain finite nonnegative probabilities")
+    if not np.all(np.isfinite(L)) or np.any(L < 0):
+        raise ValueError("L must contain finite nonnegative probabilities")
+    if not np.isclose(np.sum(p), 1.0, rtol=0, atol=1e-12):
+        raise ValueError("p must sum to one")
+    if not np.all(np.isclose(np.sum(L, axis=1), 1.0, rtol=0, atol=1e-12)):
+        raise ValueError("each L row must sum to one")
+
+    joint = p * L[:, observed]
+    evidence = float(np.sum(joint, dtype=np.float64))
+    if not np.isfinite(evidence) or evidence < 1e-300:
+        raise FloatingPointError("zero_evidence")
+    return joint / evidence

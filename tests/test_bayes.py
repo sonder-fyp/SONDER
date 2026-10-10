@@ -4,7 +4,7 @@ import unittest
 
 import numpy as np
 
-from sonder_engine import Item, Params, likelihood_matrix, prior, validate_hypotheses
+from sonder_engine import Item, Params, likelihood_matrix, prior, update_posterior, validate_hypotheses
 
 
 class ContractAndPriorTests(unittest.TestCase):
@@ -78,6 +78,67 @@ class LikelihoodTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             Item("Q4", ("A", "B", "C", "D"), 0,
                  ((), ("M1",), ("M1",), ("M1",)))
+
+
+class PosteriorTests(unittest.TestCase):
+    def test_independent_hand_calculation_and_no_mutation(self):
+        # Synthetic item: answer D yields the explicit joint terms below.
+        p = np.array([0.175, 0.175, 0.175, 0.175, 0.25, 0.05], dtype=np.float64)
+        L = np.array([
+            [0.7, 0.1, 0.1, 0.1],
+            [0.7, 0.1, 0.1, 0.1],
+            [1 / 30, 1 / 30, 1 / 30, 0.9],
+            [0.7, 0.1, 0.1, 0.1],
+            [1 / 30, 1 / 30, 1 / 30, 0.9],
+            [0.25, 0.25, 0.25, 0.25],
+        ], dtype=np.float64)
+        p_before, L_before = p.copy(), L.copy()
+        # By hand: joint=(.0175,.0175,.1575,.0175,.225,.0125), z=.4475.
+        expected = np.array([0.0175, 0.0175, 0.1575, 0.0175, 0.225, 0.0125]) / 0.4475
+        actual = update_posterior(p, L, 3)
+        np.testing.assert_allclose(actual, expected, rtol=0, atol=1e-15)
+        self.assertAlmostEqual(float(actual.sum()), 1.0, places=15)
+        np.testing.assert_array_equal(p, p_before)
+        np.testing.assert_array_equal(L, L_before)
+        np.testing.assert_array_equal(update_posterior(p, L, 3), actual)
+
+    def test_unlinked_answer_increases_unmodelled_mass(self):
+        item = Item("Q", ("A", "B", "C", "D"), 0,
+                    ((), ("M1",), ("M2",), ()))
+        hyps = ("M1", "M2", "NONE", "UNMODELLED")
+        p = prior(hyps, Params())
+        after = update_posterior(p, likelihood_matrix(item, hyps, Params()), 3)
+        self.assertGreater(float(after[-1]), float(p[-1]))
+        self.assertAlmostEqual(float(after.sum()), 1.0, places=15)
+
+    def test_invalid_option_and_shapes_fail_clearly(self):
+        p = np.array([0.5, 0.5], dtype=np.float64)
+        L = np.array([[0.5, 0.5], [0.5, 0.5]], dtype=np.float64)
+        for bad in (-1, 2, True, 0.5):
+            with self.subTest(bad=bad), self.assertRaisesRegex(ValueError, "invalid_option"):
+                update_posterior(p, L, bad)
+        with self.assertRaises(ValueError):
+            update_posterior(p, L[:1], 0)
+        with self.assertRaises(ValueError):
+            update_posterior(p.astype(np.float32), L, 0)
+
+    def test_invalid_probability_inputs_fail_clearly(self):
+        p = np.array([0.5, 0.5], dtype=np.float64)
+        L = np.array([[0.5, 0.5], [0.5, 0.5]], dtype=np.float64)
+        for bad_p in ([0.7, 0.7], [float("nan"), 0.5], [-0.5, 1.5]):
+            with self.subTest(p=bad_p), self.assertRaises(ValueError):
+                update_posterior(np.array(bad_p, dtype=np.float64), L, 0)
+        for bad_L in ([[0.4, 0.4], [0.5, 0.5]],
+                      [[float("inf"), 0.5], [0.5, 0.5]],
+                      [[-0.5, 1.5], [0.5, 0.5]]):
+            with self.subTest(L=bad_L), self.assertRaises(ValueError):
+                update_posterior(p, np.array(bad_L, dtype=np.float64), 0)
+
+    def test_zero_evidence_is_hard_error(self):
+        p = np.array([0.5, 0.5], dtype=np.float64)
+        L = np.array([[0.0, 1.0], [0.0, 1.0]], dtype=np.float64)
+        with self.assertRaisesRegex(FloatingPointError, "zero_evidence"):
+            update_posterior(p, L, 0)
 
 
 if __name__ == "__main__":
