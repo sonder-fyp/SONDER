@@ -69,16 +69,23 @@ def likelihood_matrix(
 
     n = len(item.option_ids)
     result = np.empty((len(hyps), n), dtype=np.float64)
+    none_row = np.full(n, params.slip / (n - 1), dtype=np.float64)
+    none_row[item.correct_index] = 1.0 - params.slip
+    assert item.link_grades is not None  # Item fills missing grades with S.
     for row, misconception in enumerate(hyps[:-2]):
         predicted = [j for j, links in enumerate(item.links) if misconception in links]
-        off_rate = params.guess if predicted else params.slip
         if not predicted:
-            predicted = [item.correct_index]
+            result[row, :] = none_row
+            continue
+        off_rate = params.guess
+        grades = [item.link_grades[j][item.links[j].index(misconception)] for j in predicted]
+        weight = min(params.w_sound if grade == "S" else params.w_stretch for grade in grades)
         result[row, :] = off_rate / (n - len(predicted))
         result[row, predicted] = (1.0 - off_rate) / len(predicted)
+        if weight != 1.0:
+            result[row, :] = weight * result[row, :] + (1.0 - weight) * none_row
 
-    result[-2, :] = params.slip / (n - 1)
-    result[-2, item.correct_index] = 1.0 - params.slip
+    result[-2, :] = none_row
     result[-1, :] = 1.0 / n
     return result
 

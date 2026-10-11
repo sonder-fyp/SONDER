@@ -42,6 +42,8 @@ class Params:
     eig_floor: float = 0.01
     default_budget: int = 8
     k_max: int = MAX_MISCONCEPTIONS
+    w_sound: float = 1.0
+    w_stretch: float = 0.5
 
     def __post_init__(self) -> None:
         _rate("slip", self.slip, ceiling=0.5)
@@ -71,6 +73,14 @@ class Params:
             if (isinstance(value, bool) or not isinstance(value, (int, float))
                     or not isfinite(value) or not 0 <= value < ceiling):
                 raise ValueError(f"{name} must be finite and in [0, {ceiling})")
+        for name in ("w_sound", "w_stretch"):
+            value = getattr(self, name)
+            if (isinstance(value, bool) or not isinstance(value, (int, float))
+                    or not isfinite(value) or not 0 <= value <= 1.0
+                    or (name == "w_sound" and value == 0)):
+                raise ValueError(f"{name} must be finite and in [0, 1], with w_sound > 0")
+        if self.w_stretch > self.w_sound:
+            raise ValueError("w_stretch cannot exceed w_sound")
 
 
 @dataclass(frozen=True)
@@ -81,6 +91,10 @@ class Item:
     option_ids: tuple[str, str, str, str]
     correct_index: int
     links: tuple[tuple[str, ...], tuple[str, ...], tuple[str, ...], tuple[str, ...]]
+    # One S/T grade per linked ID in links, in the same order. Missing grades
+    # mean S. Parameters turn grades into weights at calculation time, so a
+    # parameter change does not require rebuilding the content item.
+    link_grades: tuple[tuple[str, ...], tuple[str, ...], tuple[str, ...], tuple[str, ...]] | None = None
 
     def __post_init__(self) -> None:
         if not isinstance(self.item_id, str) or not self.item_id.strip():
@@ -113,6 +127,17 @@ class Item:
             raise ValueError("correct option cannot link to a misconception")
         if any(count > 3 for count in counts.values()):
             raise ValueError("a misconception cannot link to more than three options")
+        if self.link_grades is None:
+            object.__setattr__(self, "link_grades", tuple(
+                tuple("S" for _ in option_links) for option_links in self.links
+            ))
+        if not isinstance(self.link_grades, tuple) or len(self.link_grades) != 4:
+            raise ValueError("link_grades must match the four options")
+        for option_links, option_grades in zip(self.links, self.link_grades):
+            if not isinstance(option_grades, tuple) or len(option_grades) != len(option_links):
+                raise ValueError("link_grades must match each option's linked IDs")
+            if any(grade not in ("S", "T") for grade in option_grades):
+                raise ValueError("link_grades may contain only S or T")
 
 
 def validate_hypotheses(

@@ -48,7 +48,9 @@ class ContractAndPriorTests(unittest.TestCase):
                        {"min_support": 0}, {"min_support": True},
                        {"min_support": 4, "min_support_none": 3},
                        {"delta_sep": 0.5}, {"eig_floor": -0.01},
-                       {"default_budget": 0}, {"k_max": 9}):
+                       {"default_budget": 0}, {"k_max": 9},
+                       {"w_sound": 0}, {"w_stretch": -0.1},
+                       {"w_stretch": 1.1}, {"w_sound": 0.4, "w_stretch": 0.5}):
             with self.subTest(kwargs=kwargs), self.assertRaises(ValueError):
                 Params(**kwargs)
 
@@ -72,6 +74,12 @@ class ContractAndPriorTests(unittest.TestCase):
         three_link = Item("Q1", ("A", "B", "C", "D"), 0,
                           ((), ("M1",), ("M1",), ("M1",)))
         self.assertEqual(sum("M1" in links for links in three_link.links), 3)
+        self.assertEqual(three_link.link_grades, ((), ("S",), ("S",), ("S",)))
+        for grades in (((), ("T",), (), ()),
+                       ((), ("X",), ("S",), ("S",))):
+            with self.subTest(grades=grades), self.assertRaisesRegex(ValueError, "link_grades"):
+                Item("Q1", ("A", "B", "C", "D"), 0,
+                     ((), ("M1",), ("M1",), ("M1",)), grades)
 
 
 class LikelihoodTests(unittest.TestCase):
@@ -121,6 +129,48 @@ class LikelihoodTests(unittest.TestCase):
                     check_p1((item,), hyps, Params(guess=boundary))
         with self.assertRaisesRegex(ValueError, "three.*M1.*< 0.25"):
             likelihood_matrix(three, hyps, Params())
+
+    def test_link_grade_mixes_with_none_row_and_one_is_backward_compatible(self):
+        hyps = ("M1", "NONE", "UNMODELLED")
+        sound = Item("sound", ("A", "B", "C", "D"), 0,
+                     ((), ("M1",), (), ()))
+        explicit_sound = Item("explicit", ("A", "B", "C", "D"), 0,
+                              ((), ("M1",), (), ()), ((), ("S",), (), ()))
+        stretch = Item("stretch", ("A", "B", "C", "D"), 0,
+                       ((), ("M1",), (), ()), ((), ("T",), (), ()))
+        params = Params()
+        base = likelihood_matrix(sound, hyps, params)
+        np.testing.assert_array_equal(likelihood_matrix(explicit_sound, hyps, params), base)
+        mixed = likelihood_matrix(stretch, hyps, params)
+        np.testing.assert_allclose(mixed[0], 0.5 * base[0] + 0.5 * base[1], atol=1e-15)
+        np.testing.assert_array_equal(mixed[1:], base[1:])
+        np.testing.assert_allclose(mixed.sum(axis=1), 1.0, atol=1e-15)
+
+        two = Item("two", ("A", "B", "C", "D"), 0,
+                   ((), ("M1",), ("M1",), ()), ((), ("S",), ("T",), ()))
+        two_sound = Item("two-sound", ("A", "B", "C", "D"), 0,
+                         ((), ("M1",), ("M1",), ()))
+        full = likelihood_matrix(two_sound, hyps, params)
+        weighted = likelihood_matrix(two, hyps, params)
+        np.testing.assert_allclose(weighted[0], 0.5 * full[0] + 0.5 * full[1], atol=1e-15)
+        # One stretch link lowers the entire row by the spec's minimum-weight rule.
+        np.testing.assert_allclose(weighted.sum(axis=1), 1.0, atol=1e-15)
+
+    def test_param_weights_change_grades_without_rebuilding_an_item(self):
+        item = Item("Q", ("A", "B", "C", "D"), 0,
+                    ((), ("M1",), (), ()), ((), ("T",), (), ()))
+        hyps = ("M1", "NONE", "UNMODELLED")
+        base = likelihood_matrix(item, hyps, Params(w_stretch=1.0))
+        no_evidence = likelihood_matrix(item, hyps, Params(w_stretch=0.0))
+        np.testing.assert_allclose(no_evidence[0], base[1], atol=1e-15)
+        self.assertTrue(np.all(no_evidence > 0))
+
+    def test_shared_option_uses_each_hypothesis_own_grade(self):
+        item = Item("shared", ("A", "B", "C", "D"), 0,
+                    ((), ("M1", "M2"), (), ()), ((), ("S", "T"), (), ()))
+        L = likelihood_matrix(item, ("M1", "M2", "NONE", "UNMODELLED"), Params())
+        np.testing.assert_allclose(L[0], [0.1, 0.7, 0.1, 0.1], atol=1e-15)
+        np.testing.assert_allclose(L[1], 0.5 * L[0] + 0.5 * L[2], atol=1e-15)
 
 
 class PosteriorTests(unittest.TestCase):
