@@ -5,8 +5,8 @@ Both expect the schema script to have been applied to an empty database first.
 
 | File | What it does | Expected result |
 |---|---|---|
-| `behaviour_test.sql` | Builds a small synthetic pack and three runs, and tries 63 invalid writes. | 63 `NOTICE: ok …` lines (each a write the schema rejected, with the reason), 7 `NOTICE: PASS …` lines, and no `FAIL` or `ERROR`. |
-| `import_probe.py` | Prints SQL that loads the real `data/Maths_v2` bank item by item inside one transaction, reports what loaded and what was rejected (with the reason), tries to freeze the pack, then rolls everything back. | 103/103 eligible items load; 11/14 operation-version twins load; T6-011B, T6-014B and T6-016B are rejected by rule V11; the pack freezes. Nothing is kept. |
+| `behaviour_test.sql` | Builds a small synthetic pack with two diagnostic units and three runs, and tries 75 invalid writes. | 75 `NOTICE: ok …` lines (each a write the schema rejected, with the reason), 9 `NOTICE: PASS …` lines, and no `FAIL` or `ERROR`. |
+| `import_probe.py` | Prints SQL that loads the real `data/Maths_v2` bank item by item inside one transaction, declares the seven spec v2 units, freezes the pack, tries response models at guess 0.30 and 0.24, then rolls everything back. | All 117 items load; units U1–U7 have k = 4, 5, 5, 6, 4, 6, 7 and 20, 25, 10, 16, 10, 17, 16 items; T6-019B/020B/021B are in no unit; the pack freezes; guess 0.30 is refused by P1 and guess 0.24 freezes. Nothing is kept. |
 
 ```sh
 # Throwaway database (example: Docker)
