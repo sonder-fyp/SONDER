@@ -19,7 +19,7 @@ import numpy as np
 
 from sonder_engine import Item, Params, likelihood_matrix, prior, update_posterior
 from sonder_engine import selection
-from sonder_engine.selection import entropy_bits, expected_information_gain, select_next
+from sonder_engine.selection import eligible_items, entropy_bits, expected_information_gain, select_next
 
 HYPS = ("M1", "M2", "NONE", "UNMODELLED")
 DATA = Path(__file__).resolve().parents[1] / "data" / "Maths_v2"
@@ -70,7 +70,7 @@ def topic_misconceptions():
 
 
 def real_units():
-    """The spec's units U1-U5 (those the current model accepts), as (hypotheses, items)."""
+    """The spec's U1–U5 reference units, as (hypotheses, items)."""
     t = topic_misconceptions()
     spec = {
         "U1": ({"T1 Rounding"}, t["T1 Rounding"]),
@@ -155,6 +155,33 @@ def student_answer(item, believed):
 
 
 # --------------------------------------------------------------------------- tests
+class EligibilityTests(unittest.TestCase):
+    def test_asked_item_and_its_twin_are_removed_in_pack_order(self):
+        first = Item("T6-011", ("A", "B", "C", "D"), 0,
+                     ((), ("M1",), (), ()), twin_group="T6-011")
+        second = Item("middle", ("A", "B", "C", "D"), 0,
+                      ((), (), (), ()))
+        twin = Item("T6-011B", ("A", "B", "C", "D"), 0,
+                    ((), ("M1",), (), ()), twin_group="T6-011")
+        last = Item("last", ("A", "B", "C", "D"), 0,
+                    ((), (), (), ()))
+        pack = (first, second, twin, last)
+        self.assertEqual(eligible_items(pack, ()), pack)
+        self.assertEqual(eligible_items(pack, ("T6-011",)), (second, last))
+        self.assertEqual(eligible_items(pack, ("T6-011B",)), (second, last))
+        self.assertEqual(eligible_items(pack, ("T6-011", "middle")), (last,))
+
+    def test_unknown_history_cannot_silently_let_a_twin_through(self):
+        pack = (make_item("one", [(), ("M1",), (), ()]),)
+        with self.assertRaisesRegex(ValueError, "not in the unit pack"):
+            eligible_items(pack, ("missing",))
+        with self.assertRaisesRegex(ValueError, "unique"):
+            eligible_items(pack + pack, ())
+        with self.assertRaisesRegex(ValueError, "twin_group"):
+            Item("bad", ("A", "B", "C", "D"), 0,
+                 ((), ("M1",), (), ()), twin_group=" ")
+
+
 class EntropyTests(unittest.TestCase):
     def test_uniform_over_four_is_two_bits(self):
         self.assertAlmostEqual(entropy_bits(np.full(4, 0.25)), 2.0, places=15)
@@ -323,6 +350,14 @@ class SelectionReasonTests(unittest.TestCase):
         self.assertIn("separate M1 (p=0.350) from NONE (p=0.250)", above.reason)
         neither = select_next(self.p, [SEPARATING], HYPS, Params(), delta=0.9)
         self.assertTrue(neither.reason.startswith("Chosen as the most informative remaining item."))
+
+    def test_reason_uses_the_pinned_parameter_delta_by_default(self):
+        small = select_next(self.p, [SEPARATING], HYPS,
+                            Params(w_sound=0.2, w_stretch=0.1, delta_sep=0.05))
+        large = select_next(self.p, [SEPARATING], HYPS,
+                            Params(w_sound=0.2, w_stretch=0.1, delta_sep=0.20))
+        self.assertIn("separate M1", small.reason)
+        self.assertTrue(large.reason.startswith("Chosen as the most informative remaining item."))
 
     def test_a_pair_exactly_at_delta_does_not_qualify_but_just_above_does(self):
         L = likelihood_matrix(SEPARATING, HYPS, Params())

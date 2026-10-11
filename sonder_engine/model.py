@@ -95,6 +95,7 @@ class Item:
     # mean S. Parameters turn grades into weights at calculation time, so a
     # parameter change does not require rebuilding the content item.
     link_grades: tuple[tuple[str, ...], tuple[str, ...], tuple[str, ...], tuple[str, ...]] | None = None
+    twin_group: str | None = None
 
     def __post_init__(self) -> None:
         if not isinstance(self.item_id, str) or not self.item_id.strip():
@@ -138,6 +139,10 @@ class Item:
                 raise ValueError("link_grades must match each option's linked IDs")
             if any(grade not in ("S", "T") for grade in option_grades):
                 raise ValueError("link_grades may contain only S or T")
+        if self.twin_group is not None and (
+            not isinstance(self.twin_group, str) or not self.twin_group.strip()
+        ):
+            raise ValueError("twin_group must be a nonempty string or None")
 
 
 def validate_hypotheses(
