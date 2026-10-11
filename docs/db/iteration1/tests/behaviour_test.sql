@@ -240,9 +240,9 @@ SELECT pg_temp.expect_fail('N22 unfreeze the pack',
 SELECT pg_temp.expect_fail('N46 engine params with theta + theta_unmodelled <= 1 (P3)',
  $q$INSERT INTO sonder.engine_params (params_version,params_sha256,slip,guess,prior_none,prior_unmodelled,theta,theta_unmodelled,min_support,min_support_none,delta_sep,eig_floor,default_budget,k_max,w_sound,w_stretch)
     VALUES ('bad',repeat('d',64),0.1,0.3,0.25,0.05,0.6,0.3,3,3,0.05,0.01,8,8,1.0,0.5)$q$);
-SELECT pg_temp.expect_fail('N47 engine params with guess >= 0.5 (P1)',
+ SELECT pg_temp.expect_fail('N47 engine params with guess >= 1 (P1)',
  $q$INSERT INTO sonder.engine_params (params_version,params_sha256,slip,guess,prior_none,prior_unmodelled,theta,theta_unmodelled,min_support,min_support_none,delta_sep,eig_floor,default_budget,k_max,w_sound,w_stretch)
-    VALUES ('bad2',repeat('e',64),0.1,0.5,0.25,0.05,0.8,0.5,3,3,0.05,0.01,8,8,1.0,0.5)$q$);
+     VALUES ('bad2',repeat('e',64),0.1,1.0,0.25,0.05,0.8,0.5,3,3,0.05,0.01,8,8,1.0,0.5)$q$);
 SELECT pg_temp.expect_fail('N48 engine params with min_support_none < min_support (P4)',
  $q$INSERT INTO sonder.engine_params (params_version,params_sha256,slip,guess,prior_none,prior_unmodelled,theta,theta_unmodelled,min_support,min_support_none,delta_sep,eig_floor,default_budget,k_max,w_sound,w_stretch)
     VALUES ('bad3',repeat('f',64),0.1,0.3,0.25,0.05,0.8,0.5,3,2,0.05,0.01,8,8,1.0,0.5)$q$);

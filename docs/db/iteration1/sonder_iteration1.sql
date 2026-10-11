@@ -258,7 +258,8 @@ CREATE TABLE IF NOT EXISTS engine_params (
  params_version text NOT NULL UNIQUE CHECK (length(btrim(params_version)) > 0),
  params_sha256 text NOT NULL UNIQUE CHECK (params_sha256 ~ '^[0-9a-f]{64}$'),
  slip numeric NOT NULL CHECK (slip > 0 AND slip < 0.5),
- guess numeric NOT NULL CHECK (guess > 0 AND guess < 0.5),
+ -- The item-dependent P1 ceiling is checked when the response model freezes.
+ guess numeric NOT NULL CHECK (guess > 0 AND guess < 1),
  prior_none numeric NOT NULL CHECK (prior_none > 0),
  prior_unmodelled numeric NOT NULL CHECK (prior_unmodelled > 0),
  theta numeric NOT NULL CHECK (theta > 0.5 AND theta < 1),
@@ -268,7 +269,7 @@ CREATE TABLE IF NOT EXISTS engine_params (
  delta_sep numeric NOT NULL CHECK (delta_sep >= 0 AND delta_sep < 0.5),
  eig_floor numeric NOT NULL CHECK (eig_floor >= 0),
  default_budget integer NOT NULL CHECK (default_budget >= 1),
- k_max integer NOT NULL CHECK (k_max >= 1),
+ k_max integer NOT NULL CHECK (k_max >= 1 AND k_max <= 8),
  w_sound numeric NOT NULL CHECK (w_sound > 0 AND w_sound <= 1),
  w_stretch numeric NOT NULL CHECK (w_stretch >= 0),
  created_at timestamptz NOT NULL DEFAULT now(),
