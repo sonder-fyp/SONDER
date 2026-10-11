@@ -1,6 +1,6 @@
 # SONDER pure engine contract (Ashher's calculation slice)
 
-This package implements the pure calculation and question-selection parts of `docs/ENGINE_SPEC_DRAFT.md` v2. It does not load or freeze a pack, serve HTTP, persist sessions, or decide when to stop. Ahmed's run loop must connect the pieces. The specification is still a team-review draft, and the current Maths bank has 117 items.
+This package implements the pure calculation and question-selection parts of `docs/ENGINE_SPEC_DRAFT.md` v2. These modules do not load or freeze a pack, serve HTTP, persist sessions, or decide when to stop; Ahmed's modules (below) load packs and apply the stopping rules, and his run loop will connect the pieces. The specification is still a team-review draft, and the current Maths bank has 117 items.
 
 ## Inputs
 
@@ -43,4 +43,10 @@ Seven deliberate code mutations (wrong log base, no rounding, reversed tie rule,
 
 Run with `python -m unittest discover -s tests -p 'test_selection.py' -v`.
 
-**Known limits.** The three B14 T6 items load structurally, but `check_p1` rejects them at the default `guess=0.30`. Spec decision D-2 was taken on 11 October 2026: the pack loader will skip these three items for U6 at load time, with a warning, and keep `guess=0.30`; the dataset itself is not changed. Until that loader exists, `check_p1` still rejects them. The Maths CSV still lacks reviewed link grades, so its links all use weight 1. There is not yet a production pack loader, session run loop or stopping implementation in this package.
+**Known limits.** The three B14 T6 items load structurally, but `check_p1` rejects them at the default `guess=0.30`. Spec decision D-2 (11 October 2026): the pack loader skips these three items for U6 at load time, with a warning, and keeps `guess=0.30`; the dataset itself is not changed. The Maths CSV still lacks reviewed link grades, so its links all use weight 1. The session run loop is not built yet.
+
+## Pack loader and stopping rules (Ahmed's slice)
+
+- `sonder_engine/pack.py` builds diagnostic units U1–U7 from rows already read (no file I/O), applies hard rules V1–V11 and reports W1–W6 and every configured exclusion on each load. `sonder_pack/maths_v2.py` is the only code that reads files; `python -m sonder_pack.maths_v2` prints the units, source hashes and warnings. The unit table, including the D-2 skips, the MATH-1416 drop for U6 and the D-4 unplaced label, is `sonder_pack/maths_v2_units.json`.
+- `sonder_engine/stopping.py` applies rules R1–R5 (spec 3.5) in order and returns a `StopDecision` with one of six outcomes. Every threshold comes from `Params`.
+- Known limitations are listed in `sonder_engine/KNOWN_FAULTS.md`, each with the warning or test that backs it.
