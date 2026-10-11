@@ -43,4 +43,4 @@ Seven deliberate code mutations (wrong log base, no rounding, reversed tie rule,
 
 Run with `python -m unittest discover -s tests -p 'test_selection.py' -v`.
 
-**Known limits.** The three B14 T6 items load structurally, but `check_p1` rejects them at the default `guess=0.30`. The team must resolve spec decision D-2 before such items can enter a live response model. The Maths CSV still lacks reviewed link grades, so its links all use weight 1. There is not yet a production pack loader, session run loop or stopping implementation in this package.
+**Known limits.** The three B14 T6 items load structurally, but `check_p1` rejects them at the default `guess=0.30`. Spec decision D-2 was taken on 11 October 2026: the pack loader will skip these three items for U6 at load time, with a warning, and keep `guess=0.30`; the dataset itself is not changed. Until that loader exists, `check_p1` still rejects them. The Maths CSV still lacks reviewed link grades, so its links all use weight 1. There is not yet a production pack loader, session run loop or stopping implementation in this package.
