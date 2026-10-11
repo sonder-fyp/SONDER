@@ -31,3 +31,6 @@ setup.sql
 HarrisDOcs
 sonder_iteration1_tables.pdf
 sonder_iteration1.sql
+
+# Word lock files.
+~$*
