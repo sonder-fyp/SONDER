@@ -82,3 +82,6 @@ jobs:
 
       - name: Test question selection
         run: python -m unittest discover -s tests -p 'test_selection.py' -v
+
+      - name: Test pack loader, stopping and run loop
+        run: python -m unittest discover -s tests -p 'test_engine_*.py' -v
