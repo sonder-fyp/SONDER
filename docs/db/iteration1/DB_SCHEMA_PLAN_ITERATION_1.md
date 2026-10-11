@@ -17,7 +17,7 @@ The full-product design's SQL, DBML and table PDF are in [../end-to-end_schema_p
 
 ## 1. Summary
 
-Iteration 1 needs a database for one flow: **a reviewed, versioned Math content pack feeds a real Bayesian diagnostic run that a student starts from a class, and the teacher sees the evidence and the outcome on a dashboard.** The schema has **41 tables, 244 columns, 66 foreign keys, 11 secondary indexes, 110 triggers and 1 view** in seven domains:
+Iteration 1 needs a database for one flow: **a reviewed, versioned Math content pack feeds a real Bayesian diagnostic run that a student starts from a class, and the teacher sees the evidence and the outcome on a dashboard.** The schema has **41 tables, 245 columns, 66 foreign keys, 11 secondary indexes, 110 triggers and 1 view** in seven domains:
 
 | Domain | Tables | Why Iteration 1 needs it |
 |---|---|---|
@@ -100,7 +100,7 @@ app_user ─┬─ password_credential, auth_session
                 │                          │     ├─ item_option ── option_misconception (Q-matrix: 0–3 links per wrong option; link_grade S/T)
                 │                          │     └─ item_review (append-only decisions)
                 │                          ├─ hypothesis (each validated misconception + NONE + UNMODELLED)
-                │                          ├─ diagnostic_unit ── unit_hypothesis (ordered, k ≤ k_max), unit_item (items; V5')
+                │                          ├─ diagnostic_unit ── unit_hypothesis (ordered, k ≤ k_max), unit_item (items in pack order; V5')
                 │                          └─ response_model ── response_parameter, response_probability (per option)
                 │                                └─ engine_params (versioned, hashed parameter file)
                 └─ diagnostic_session (enrolment, diagnostic_unit, frozen response_model, engine_release)
@@ -134,7 +134,7 @@ All of these were exercised on PostgreSQL 16 and 17 (§10). "Deferred" means che
   - the NONE and UNMODELLED hypotheses
   - every approved target and every hypothesis validated and engine-ready (`engine_tier = 1`)
   - every cross-topic misconception to have a home topic in the pack
-  - at least one **diagnostic unit**; every unit with misconception hypotheses in slots 0…k−1 and at least one item, every unit item approved
+  - at least one **diagnostic unit**; every unit with misconception hypotheses in slots 0…k−1 and items in positions 0…n−1, every unit item approved
   - **rule V5'**: every misconception linked on a unit's item is one of that unit's hypotheses
 
   Frozen packs are immutable, cannot be unfrozen or deleted, and lock every row beneath them.
@@ -144,7 +144,7 @@ All of these were exercised on PostgreSQL 16 and 17 (§10). "Deferred" means che
 - A run needs a frozen response model, an active student enrolment in an active class, a class that teaches the pack's subject, and **one diagnostic unit** of that pack.
 - Priors are written before the first question. They must cover every chosen hypothesis, include NONE and UNMODELLED, and sum to 1 (deferred). The run's hypotheses are **exactly its unit's list in the unit's order** (slots 0…k−1), then NONE = k and UNMODELLED = k+1. The NONE and UNMODELLED priors must equal the pinned `engine_params` values.
 - Questions are presented in order (`step_index` = answers so far), within `question_budget`, one at a time, never repeating an item, never showing the twin (same `twin_group`) of an item already shown, and only approved items of the run's unit.
-- Every presentation stores its **candidate ranking** (`question_candidate`): ranks 1…n, non-increasing EIG, rank 1 being the presented item with its `expected_ig`. A candidate must be eligible (approved, in scope, not already shown, not a twin of one shown). Checked at commit.
+- Every presentation stores its **candidate ranking** (`question_candidate`): ranks 1…n, non-increasing EIG, rank 1 being the presented item with its `expected_ig`. A candidate must be eligible (approved, in scope, not already shown, not a twin of one shown). Candidates with exactly equal EIG must be in **pack order** (`unit_item.position`), which is how Harris's `select_next` breaks ties. Checked at commit.
 - An answer must be an option of the presented item and carries a non-blank `answer_note`. Unique `(session_id, request_key)` makes a retried answer harmless (idempotent). Each answer needs a complete posterior over the run's hypotheses that sums to 1 (deferred).
 - Questions, answers, priors, posteriors, diagnoses, escalations and their candidates are **append-only**.
 - A `diagnosed` run needs a diagnosis with a rank-1 misconception. An `escalated_*` run needs an `escalation` row with a **leader** from the same run. Its candidates, when present, are ranked 1…n and include the leader; an `escalated_no_separator` refusal needs a tied set of at least two. The ceiling p(leader)/p(tied set) is derived from the last posterior, never stored. A finished run has no unanswered question, and finished runs are immutable.
@@ -207,7 +207,7 @@ Transitive dependencies were removed rather than copied:
 **Revision 3 tables:**
 - **`diagnostic_unit`:** candidate keys (id), (content_version_id, unit_code). BCNF.
 - **`unit_hypothesis`:** candidate keys (id), (unit_id, hypothesis_id), (unit_id, slot); each determines the rest. BCNF. The unit's *k* is a count, not a stored column.
-- **`unit_item`:** candidate keys (id), (unit_id, item_id); a key-only association, so 4NF and 5NF trivially. Unit hypotheses and unit items are independent multi-valued facts about a unit, so they are kept in **separate** relations (4NF), never one cross-product.
+- **`unit_item`:** candidate keys (id), (unit_id, item_id), (unit_id, position); each determines the other column. BCNF. The position is a fact about the pair (an item's place in that unit's pack order), so it cannot live on `item`, since one item may be in several units. Unit hypotheses and unit items are independent multi-valued facts about a unit, so they are kept in **separate** relations (4NF), never one cross-product.
 - A run now reaches its scope through `diagnostic_session.unit_id`; the topic is no longer copied onto the session.
 
 **Deliberate, controlled redundancy** (each one is guarded by a trigger):
@@ -275,6 +275,7 @@ PostgreSQL does not authenticate end users here. The application server (BFF/Fas
 | 36 | A run uses a hypothesis outside its unit, or omits one of the unit's hypotheses | `session_guard`, `trace_complete` | Rejected (N71, N72). |
 | 37 | A parameter file with `k_max = 2` is used for a pack whose largest unit has 3 hypotheses | `response_guard` | The response model refuses to freeze (N69). |
 | 38 | A stretch link is recorded | `option_misconception.link_grade = 'T'` | Stored (P48); any other grade is rejected (N41). The engine weights it by `engine_params.w_stretch`. |
+| 39 | Two candidate items tie on EIG and the engine picks the earlier one in pack order (Harris's `select_next`) | `unit_item.position`, `trace_complete` | Accepted in pack order (P49); ranked against it is rejected (N75). Duplicate positions and gaps are rejected (N73, N74). Replay recomputes the same choice. |
 
 ## 8. Running it in Neon
 
@@ -285,7 +286,7 @@ The script creates the `sonder` schema inside an existing database. It does not 
    - Confirm in the Console or with `SELECT version();` that the branch runs PostgreSQL 16 or 17 (the script refuses older servers).
    - Keep the connection string out of Git, as CONTRIBUTING.md requires.
 2. **Apply.** Either:
-   - **Neon Console → SQL Editor:** pick the working branch and database, paste the whole of `sonder_iteration1.sql`, and run it. The final output is one row: `tables 41 | indexes 104`. The 104 includes primary-key and unique-constraint indexes.
+   - **Neon Console → SQL Editor:** pick the working branch and database, paste the whole of `sonder_iteration1.sql`, and run it. The final output is one row: `tables 41 | indexes 105`. The 105 includes primary-key and unique-constraint indexes.
    - **psql:** `psql "<working-branch connection string>" -X -v ON_ERROR_STOP=1 -f docs/db/iteration1/sonder_iteration1.sql`
 3. **If anything fails,** the script's single transaction rolls back and the branch is unchanged. The built-in verification block also fails the run if the counts are wrong:
    - 41 tables
@@ -329,7 +330,7 @@ Revision 3 was checked again from scratch. All of this ran locally in throwaway 
 - **Apply:** the script ran on an empty database on **PostgreSQL 16 and 17**, twice each (the rerun is safe). Its built-in verification passed: 41 tables, 11 named indexes, the view, 66 foreign keys, 110 triggers.
 - **Version gate:** on **PostgreSQL 15** it stopped at the version check and left no schema behind.
 - **Same result on both versions:** the catalogues extracted from 16 and 17 (tables, columns, constraints, indexes, triggers) are identical.
-- **Behaviour test** ([tests/behaviour_test.sql](tests/behaviour_test.sql)), synthetic data, on both versions: **72 invalid writes rejected**, each by the intended rule (every message was read, not just counted), and **8 positive checks passed**, with no unexpected errors. The rejected cases are N01–N72 (§7 maps them to scenarios); the positive checks are P41–P48.
+- **Behaviour test** ([tests/behaviour_test.sql](tests/behaviour_test.sql)), synthetic data, on both versions: **75 invalid writes rejected**, each by the intended rule (every message was read, not just counted), and **9 positive checks passed**, with no unexpected errors. The rejected cases are N01–N75 (§7 maps them to scenarios); the positive checks are P41–P49.
 - **Import probe** ([tests/import_probe.py](tests/import_probe.py)) against the real `data/Maths_v2` bank, in a rolled-back transaction, on both versions:
   - **All 117 items load** (468 options, 336 misconception links, 28 twin-group items, 13 cross-topic memberships), including T7-003 and the three B14 items.
   - **The seven spec v2 units** build with exactly the spec's sizes:
@@ -340,7 +341,7 @@ Revision 3 was checked again from scratch. All of this ran locally in throwaway 
     | Items | 20 | 25 | 10 | 16 | 10 | 17 | 16 |
 
     Only T6-019B, T6-020B and T6-021B are in no unit (spec decision D-4).
-  - Every unit passes **V5'**, and the pack **freezes** with the SHA-256 of `items.csv`.
+  - Units list their items in `items.csv` order (positions 0…n−1). Every unit passes **V5'**, and the pack **freezes** with the SHA-256 of `items.csv`.
   - A response model built with the spec v2 §3.1 likelihood and the spec's default **guess 0.30 is refused by P1** (the three B14 items in U6 need guess < 0.25). The same model at **guess 0.24 freezes**, which also confirms the materialised likelihood rows sum to 1 for every item and hypothesis.
   - Nothing remained after the rollback. The probe uses placeholder accounts, so it shows the data *fits*, not that the review attribution is resolved.
 - **Generated files:** the DBML, PDF and Appendix A were regenerated from the PostgreSQL 16 catalogue with [tools/generate.py](tools/generate.py), and the DBML was parsed with `@dbml/core` 10.3.1 (installed outside the repo).
@@ -389,11 +390,12 @@ Spec v2 ([../../ENGINE_SPEC_DRAFT.md](../../ENGINE_SPEC_DRAFT.md), Harris, PR #1
 | 4 | **K_MAX in the parameter file.** `engine_params.k_max`; a response model refuses to freeze if any unit has more hypotheses. | §3.6 lists K_MAX = 8 as a parameter; §4 V7. | Column, `response_guard` |
 | 5 | **Link grades and weights.** `option_misconception.link_grade` (`S`/`T`, default `S`); `engine_params.w_sound`, `w_stretch` with `w_stretch ≤ w_sound`. | §3.3 and task T-1. | 1 + 2 columns, CHECKs |
 | 6 | **Twin group naming.** `item.stem_family` renamed `twin_group`. | §2.2 and the pack format's `twin_group`. | Column rename, guards |
-| 7 | **Decisions re-keyed.** The plan now cites spec v2's D-1…D-6 and T-1…T-3. The revision 2 defaults D-A…D-E came from a local amendment plan that spec v2 supersedes. | Single source of truth for engine decisions. | Plan only |
+| 7 | **Pack order stored.** `unit_item.position` (0…n−1, unique per unit, contiguous at freeze); equal-EIG candidates must be ranked in position order. | Harris's `sonder_engine/selection.py` (PR #20) passes eligible items "in pack order" and breaks exact EIG ties by the earliest, so replay needs the order. Sorting by item ID in SQL is not safe (collation, "T6-010" vs "T6-010B"). | Column, unique key, `freeze_guard`, `trace_complete` |
+| 8 | **Decisions re-keyed.** The plan now cites spec v2's D-1…D-6 and T-1…T-3. The revision 2 defaults D-A…D-E came from a local amendment plan that spec v2 supersedes. | Single source of truth for engine decisions. | Plan only |
 
-**Counts revision 2 → revision 3:** tables 38 → 41; columns 229 → 244; foreign keys 61 → 66; secondary indexes 11 → 11; triggers 102 → 110; views 1 → 1.
+**Counts revision 2 → revision 3:** tables 38 → 41; columns 229 → 245; foreign keys 61 → 66; secondary indexes 11 → 11; triggers 102 → 110; views 1 → 1.
 
-**Still to change outside this folder:** Ashher's `sonder_engine/model.py` caps hypotheses at 6 and rejects a misconception on three options; spec v2 says K_MAX = 8 and V11 ≤ 3 with P1. Harris's ERD images in `docs/design/` show revision 1.
+**Still to change outside this folder:** Ashher's `sonder_engine/model.py` caps hypotheses at 6 and rejects a misconception on three options; spec v2 says K_MAX = 8 and V11 ≤ 3 with P1. Harris's ERD images in `docs/design/` show revision 1. Harris's selection code (PR #20) matches the schema: `Selection.ranking` is `question_candidate`, and `entropy_before`, `eig` and `reason` are `session_question` columns.
 
 ### Revision 2: fitted to the final Maths_v2 bank
 
@@ -665,11 +667,12 @@ A unit's misconception hypotheses in slot order 0..k-1 (NONE and UNMODELLED foll
 
 #### `unit_item`
 
-Which items a unit may ask; an item may belong to several units, and all its links must be unit hypotheses.
+Which items a unit may ask, in pack order (position 0..n-1, used to break exact EIG ties); an item may belong to several units, and all its links must be unit hypotheses.
 
-- **Columns:** `id uuid`, `unit_id uuid`, `item_id uuid`.
-- **Candidate keys:** (id); (unit_id, item_id). Each determines every other column of the row.
+- **Columns:** `id uuid`, `unit_id uuid`, `item_id uuid`, `position integer`.
+- **Candidate keys:** (id); (unit_id, item_id); (unit_id, position). Each determines every other column of the row.
 - **Foreign keys:** `item_id` → `item.id` ON DELETE RESTRICT; `unit_id` → `diagnostic_unit.id` ON DELETE RESTRICT.
+- **Checks:** `("position" >= 0)`.
 - **Triggers:** a_content_guard (content_guard), b_fixed_keys (fixed_keys), c_scope (content_scope).
 
 ### Engine model (frozen inputs)

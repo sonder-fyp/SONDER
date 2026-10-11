@@ -2,8 +2,8 @@
 // Generated from the PostgreSQL catalogue after running sonder_iteration1.sql; the SQL is authoritative.
 // Triggers (freeze, review, four-option, append-only and trace checks) are not expressible in DBML; see the plan.
 // The derived view sonder.step_support (support counts per step) is not drawn; see the plan.
-// Coverage: 41 tables, 244 columns, 66 foreign keys, 11 secondary indexes.
-// sonder_iteration1.sql SHA-256: 30a7f0cc7c01b6dcf979b7697d8a801efd46c8d6f1f630e818cdd441bcbf943d
+// Coverage: 41 tables, 245 columns, 66 foreign keys, 11 secondary indexes.
+// sonder_iteration1.sql SHA-256: 3a5fdf47f63dca53f9a82b1cb3713505819679f2c4b1d4d13275b137d78040c4
 
 Project Sonder_Iteration_1 {
   database_type: 'PostgreSQL'
@@ -426,12 +426,18 @@ Table sonder.unit_item [headercolor: #0EA5E9] {
   id uuid [pk, not null, default: `gen_random_uuid()`]
   unit_id uuid [not null]
   item_id uuid [not null]
+  position integer [not null]
 
   indexes {
     (unit_id, item_id) [unique, name: 'unit_item_unit_id_item_id_key']
+    (unit_id, position) [unique, name: 'unit_item_unit_id_position_key']
   }
 
-  Note: 'Diagnostic units. Which items a unit may ask; an item may belong to several units, and all its links must be unit hypotheses.'
+  checks {
+    `("position" >= 0)`
+  }
+
+  Note: 'Diagnostic units. Which items a unit may ask, in pack order (position 0..n-1, used to break exact EIG ties); an item may belong to several units, and all its links must be unit hypotheses.'
 }
 
 Table sonder.hypothesis [headercolor: #F59E0B] {

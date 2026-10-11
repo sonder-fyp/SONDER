@@ -240,7 +240,10 @@ CREATE TABLE IF NOT EXISTS unit_item (
  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
  unit_id uuid NOT NULL REFERENCES diagnostic_unit ON DELETE RESTRICT,
  item_id uuid NOT NULL REFERENCES item ON DELETE RESTRICT,
- UNIQUE (unit_id, item_id)
+ position integer NOT NULL CHECK (position >= 0),
+ UNIQUE (unit_id, item_id), UNIQUE (unit_id, position)
+ -- Pack order inside the unit (0..n-1). The engine passes eligible items in this order and breaks
+ -- exact EIG ties in favour of the lower position (selection.py), so replay needs it.
 );
 -- The engine code build. Numeric parameters live in engine_params, not here.
 CREATE TABLE IF NOT EXISTS engine_release (
@@ -588,8 +591,9 @@ BEGIN
   IF EXISTS (SELECT 1 FROM diagnostic_unit u WHERE u.content_version_id = NEW.id AND (
        NOT EXISTS (SELECT 1 FROM unit_hypothesis WHERE unit_id = u.id)
        OR (SELECT min(slot) <> 0 OR max(slot) <> count(*) - 1 FROM unit_hypothesis WHERE unit_id = u.id)
-       OR NOT EXISTS (SELECT 1 FROM unit_item WHERE unit_id = u.id)))
-  THEN RAISE EXCEPTION 'Cannot freeze: every unit needs hypotheses in slots 0..k-1 and at least one item'; END IF;
+       OR NOT EXISTS (SELECT 1 FROM unit_item WHERE unit_id = u.id)
+       OR (SELECT min(position) <> 0 OR max(position) <> count(*) - 1 FROM unit_item WHERE unit_id = u.id)))
+  THEN RAISE EXCEPTION 'Cannot freeze: every unit needs hypotheses in slots 0..k-1 and items in positions 0..n-1'; END IF;
   IF EXISTS (SELECT 1 FROM unit_item ui JOIN diagnostic_unit u ON u.id = ui.unit_id JOIN item i ON i.id = ui.item_id
              WHERE u.content_version_id = NEW.id AND i.review_status <> 'approved')
   THEN RAISE EXCEPTION 'Cannot freeze: a unit contains an item that is not approved'; END IF;
@@ -765,6 +769,12 @@ BEGIN
    IF EXISTS (SELECT 1 FROM question_candidate a JOIN question_candidate b ON b.session_question_id = a.session_question_id AND b.rank = a.rank + 1
               WHERE a.session_question_id = qk.id AND b.eig > a.eig + 0.000000001)
    THEN RAISE EXCEPTION 'Candidate ranking must be in non-increasing EIG order'; END IF;
+   -- Exact EIG ties go to the earliest item in pack order (the unit's item positions).
+   IF EXISTS (SELECT 1 FROM question_candidate a JOIN question_candidate b ON b.session_question_id = a.session_question_id AND b.rank = a.rank + 1
+              JOIN unit_item ua ON ua.unit_id = st.unit_id AND ua.item_id = a.item_id
+              JOIN unit_item ub ON ub.unit_id = st.unit_id AND ub.item_id = b.item_id
+              WHERE a.session_question_id = qk.id AND a.eig = b.eig AND ua.position > ub.position)
+   THEN RAISE EXCEPTION 'Candidates with equal EIG must be ranked in pack order (unit_item.position)'; END IF;
   END LOOP;
   FOR stepkey IN SELECT id FROM session_step WHERE session_id = sid LOOP
    SELECT count(*), sum(probability) INTO n, p FROM step_posterior WHERE step_id = stepkey;

@@ -53,7 +53,7 @@ PURPOSE = {
  "option_misconception": "Q-matrix: a wrong option's link to up to three misconceptions, with rationale and link grade (S sound, T stretch).",
  "diagnostic_unit": "The session scope (spec v2): a named unit of a pack with its own hypothesis list and item list.",
  "unit_hypothesis": "A unit's misconception hypotheses in slot order 0..k-1 (NONE and UNMODELLED follow implicitly).",
- "unit_item": "Which items a unit may ask; an item may belong to several units, and all its links must be unit hypotheses.",
+ "unit_item": "Which items a unit may ask, in pack order (position 0..n-1, used to break exact EIG ties); an item may belong to several units, and all its links must be unit hypotheses.",
  "item_source": "Sources behind an item (required at freeze for curated items).",
  "item_review": "A recorded review decision (approved or rejected) by someone other than the author.",
  "hypothesis": "The engine's candidate states in a pack: each misconception plus NONE and UNMODELLED.",

@@ -123,8 +123,11 @@ for code, name, labels, companions in UNITS:
         w(f"INSERT INTO unit_hypothesis (unit_id,hypothesis_id,slot) SELECT u.id, h.id, {slot} FROM diagnostic_unit u, hypothesis h "
           f"JOIN misconception_revision mr ON mr.id = h.misconception_revision_id JOIN misconception m ON m.id = mr.misconception_id "
           f"WHERE u.unit_code = {lit(code)} AND m.external_id = {lit(mid)};")
-    w(f"INSERT INTO unit_item (unit_id,item_id) SELECT u.id, i.id FROM diagnostic_unit u, item i "
-      f"WHERE u.unit_code = {lit(code)} AND i.external_id IN ({','.join(lit(x) for x, o in items.items() if o[0]['topic'] in labels)});")
+    # Pack order = the order of items.csv (positions 0..n-1); the engine breaks exact EIG ties by it.
+    members = [x for x, o in items.items() if o[0]["topic"] in labels]
+    values = ",".join(f"({lit(x)},{pos})" for pos, x in enumerate(members))
+    w(f"INSERT INTO unit_item (unit_id,item_id,position) SELECT u.id, i.id, v.pos FROM diagnostic_unit u "
+      f"JOIN (VALUES {values}) v(ext, pos) ON true JOIN item i ON i.external_id = v.ext WHERE u.unit_code = {lit(code)};")
 w(f"""DO $f$ BEGIN
  UPDATE content_version SET pack_sha256 = {lit(pack_sha)}, status = 'frozen' WHERE id = '00000000-0000-0000-0000-00000000bb02';
  RAISE NOTICE 'FREEZE: pack froze successfully (items.csv sha256 {pack_sha[:12]}...)';

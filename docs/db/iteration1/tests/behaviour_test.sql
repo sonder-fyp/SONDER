@@ -119,9 +119,9 @@ INSERT INTO diagnostic_unit (id,content_version_id,unit_code,name) VALUES
 INSERT INTO unit_hypothesis (unit_id,hypothesis_id,slot) VALUES
  ('00000000-0000-0000-0000-0000000000d1','00000000-0000-0000-0000-000000000091',0),('00000000-0000-0000-0000-0000000000d1','00000000-0000-0000-0000-000000000092',1),('00000000-0000-0000-0000-0000000000d1','00000000-0000-0000-0000-000000000098',2),
  ('00000000-0000-0000-0000-0000000000d2','00000000-0000-0000-0000-000000000091',0),('00000000-0000-0000-0000-0000000000d2','00000000-0000-0000-0000-000000000092',1);
-INSERT INTO unit_item (unit_id,item_id) VALUES
- ('00000000-0000-0000-0000-0000000000d1','00000000-0000-0000-0000-000000000071'),('00000000-0000-0000-0000-0000000000d1','00000000-0000-0000-0000-000000000072'),('00000000-0000-0000-0000-0000000000d1','00000000-0000-0000-0000-000000000073'),('00000000-0000-0000-0000-0000000000d1','00000000-0000-0000-0000-000000000074'),
- ('00000000-0000-0000-0000-0000000000d2','00000000-0000-0000-0000-000000000071'),('00000000-0000-0000-0000-0000000000d2','00000000-0000-0000-0000-000000000072');
+INSERT INTO unit_item (unit_id,item_id,position) VALUES
+ ('00000000-0000-0000-0000-0000000000d1','00000000-0000-0000-0000-000000000071',0),('00000000-0000-0000-0000-0000000000d1','00000000-0000-0000-0000-000000000072',1),('00000000-0000-0000-0000-0000000000d1','00000000-0000-0000-0000-000000000073',2),('00000000-0000-0000-0000-0000000000d1','00000000-0000-0000-0000-000000000074',3),
+ ('00000000-0000-0000-0000-0000000000d2','00000000-0000-0000-0000-000000000071',0),('00000000-0000-0000-0000-0000000000d2','00000000-0000-0000-0000-000000000072',1);
 COMMIT;
 SELECT pg_temp.check('P41 three-link option and cross-topic target item committed',
   (SELECT count(*) FROM option_misconception WHERE option_id = '00000000-0000-0000-0000-000000000f41') = 3
@@ -205,14 +205,23 @@ SELECT pg_temp.expect_fail('N65 V5'': freeze with a unit item whose link is outs
  $q$DO $d$ BEGIN
    INSERT INTO sonder.diagnostic_unit (id,content_version_id,unit_code,name) VALUES ('00000000-0000-0000-0000-0000000000d9','00000000-0000-0000-0000-000000000031','UBAD','Missing M3');
    INSERT INTO sonder.unit_hypothesis (unit_id,hypothesis_id,slot) VALUES ('00000000-0000-0000-0000-0000000000d9','00000000-0000-0000-0000-000000000091',0),('00000000-0000-0000-0000-0000000000d9','00000000-0000-0000-0000-000000000092',1);
-   INSERT INTO sonder.unit_item (unit_id,item_id) VALUES ('00000000-0000-0000-0000-0000000000d9','00000000-0000-0000-0000-000000000074');
+   INSERT INTO sonder.unit_item (unit_id,item_id,position) VALUES ('00000000-0000-0000-0000-0000000000d9','00000000-0000-0000-0000-000000000074',0);
+   UPDATE sonder.content_version SET pack_sha256 = repeat('ab',32), status = 'frozen' WHERE id = '00000000-0000-0000-0000-000000000031';
+ END $d$$q$);
+SELECT pg_temp.expect_fail('N73 two items of one unit at the same position',
+ $q$INSERT INTO sonder.unit_item (unit_id,item_id,position) VALUES ('00000000-0000-0000-0000-0000000000d2','00000000-0000-0000-0000-000000000074',1)$q$);
+SELECT pg_temp.expect_fail('N74 unit item positions with a gap',
+ $q$DO $d$ BEGIN
+   INSERT INTO sonder.diagnostic_unit (id,content_version_id,unit_code,name) VALUES ('00000000-0000-0000-0000-0000000000d7','00000000-0000-0000-0000-000000000031','UPOS','Position gap');
+   INSERT INTO sonder.unit_hypothesis (unit_id,hypothesis_id,slot) VALUES ('00000000-0000-0000-0000-0000000000d7','00000000-0000-0000-0000-000000000091',0),('00000000-0000-0000-0000-0000000000d7','00000000-0000-0000-0000-000000000092',1);
+   INSERT INTO sonder.unit_item (unit_id,item_id,position) VALUES ('00000000-0000-0000-0000-0000000000d7','00000000-0000-0000-0000-000000000072',0),('00000000-0000-0000-0000-0000000000d7','00000000-0000-0000-0000-000000000071',2);
    UPDATE sonder.content_version SET pack_sha256 = repeat('ab',32), status = 'frozen' WHERE id = '00000000-0000-0000-0000-000000000031';
  END $d$$q$);
 SELECT pg_temp.expect_fail('N66 unit slots with a gap',
  $q$DO $d$ BEGIN
    INSERT INTO sonder.diagnostic_unit (id,content_version_id,unit_code,name) VALUES ('00000000-0000-0000-0000-0000000000d8','00000000-0000-0000-0000-000000000031','UGAP','Gap');
    INSERT INTO sonder.unit_hypothesis (unit_id,hypothesis_id,slot) VALUES ('00000000-0000-0000-0000-0000000000d8','00000000-0000-0000-0000-000000000091',0),('00000000-0000-0000-0000-0000000000d8','00000000-0000-0000-0000-000000000092',2);
-   INSERT INTO sonder.unit_item (unit_id,item_id) VALUES ('00000000-0000-0000-0000-0000000000d8','00000000-0000-0000-0000-000000000072');
+   INSERT INTO sonder.unit_item (unit_id,item_id,position) VALUES ('00000000-0000-0000-0000-0000000000d8','00000000-0000-0000-0000-000000000072',0);
    UPDATE sonder.content_version SET pack_sha256 = repeat('ab',32), status = 'frozen' WHERE id = '00000000-0000-0000-0000-000000000031';
  END $d$$q$);
 SELECT pg_temp.expect_fail('N19 freeze without a pack hash',
@@ -225,7 +234,7 @@ SELECT pg_temp.expect_fail('N20 rename a topic in the frozen pack',
 SELECT pg_temp.expect_fail('N21 add an item to the frozen pack',
  $q$INSERT INTO sonder.item (topic_revision_id,target_misconception_revision_id,external_id,stem,origin,author_id) VALUES ('00000000-0000-0000-0000-000000000042','00000000-0000-0000-0000-000000000054','MATH-Q9','x','authored','00000000-0000-0000-0000-0000000000a1')$q$);
 SELECT pg_temp.expect_fail('N67 add an item to a unit of the frozen pack',
- $q$INSERT INTO sonder.unit_item (unit_id,item_id) VALUES ('00000000-0000-0000-0000-0000000000d2','00000000-0000-0000-0000-000000000074')$q$);
+ $q$INSERT INTO sonder.unit_item (unit_id,item_id,position) VALUES ('00000000-0000-0000-0000-0000000000d2','00000000-0000-0000-0000-000000000074',2)$q$);
 SELECT pg_temp.expect_fail('N22 unfreeze the pack',
  $q$UPDATE sonder.content_version SET status = 'draft' WHERE id = '00000000-0000-0000-0000-000000000031'$q$);
 SELECT pg_temp.expect_fail('N46 engine params with theta + theta_unmodelled <= 1 (P3)',
@@ -437,6 +446,28 @@ SELECT pg_temp.expect_fail('N59 rank-1 candidate is not the presented item',
     (sid,'00000000-0000-0000-0000-000000000091',0,0.35),(sid,'00000000-0000-0000-0000-000000000092',1,0.35),(sid,'00000000-0000-0000-0000-000000000093',2,0.25),(sid,'00000000-0000-0000-0000-000000000094',3,0.05);
    INSERT INTO sonder.session_question (id,session_id,step_index,item_id,selection_reason,entropy_before,expected_ig) VALUES (q,sid,0,'00000000-0000-0000-0000-000000000071','x',2,0.5);
    INSERT INTO sonder.question_candidate (session_question_id,item_id,rank,eig) VALUES (q,'00000000-0000-0000-0000-000000000072',1,0.5),(q,'00000000-0000-0000-0000-000000000071',2,0.4);
+ END $d$$q$);
+
+-- ================================================================ pack-order tie-break (Harris's select_next)
+-- Two candidates with exactly equal EIG must be ranked by unit_item.position (item 71 is at 0, item 72 at 1).
+BEGIN;
+INSERT INTO diagnostic_session (id,enrolment_id,response_model_id,engine_release_id,unit_id,question_budget,request_key) VALUES ('00000000-0000-0000-0004-000000000001','00000000-0000-0000-0000-0000000000e1','00000000-0000-0000-0000-000000000095','00000000-0000-0000-0000-000000000096','00000000-0000-0000-0000-0000000000d2',3,'tie-ok');
+INSERT INTO session_hypothesis (session_id,hypothesis_id,slot,prior_probability) VALUES
+ ('00000000-0000-0000-0004-000000000001','00000000-0000-0000-0000-000000000091',0,0.35),('00000000-0000-0000-0004-000000000001','00000000-0000-0000-0000-000000000092',1,0.35),
+ ('00000000-0000-0000-0004-000000000001','00000000-0000-0000-0000-000000000093',2,0.25),('00000000-0000-0000-0004-000000000001','00000000-0000-0000-0000-000000000094',3,0.05);
+INSERT INTO session_question (id,session_id,step_index,item_id,selection_reason,entropy_before,expected_ig) VALUES ('00000000-0000-0000-0004-000000000011','00000000-0000-0000-0004-000000000001',0,'00000000-0000-0000-0000-000000000071','tie broken by item order',2,0.5);
+INSERT INTO question_candidate (session_question_id,item_id,rank,eig) VALUES
+ ('00000000-0000-0000-0004-000000000011','00000000-0000-0000-0000-000000000071',1,0.5),('00000000-0000-0000-0004-000000000011','00000000-0000-0000-0000-000000000072',2,0.5);
+COMMIT;
+SELECT pg_temp.check('P49 equal-EIG candidates in pack order are accepted',
+  (SELECT count(*) FROM question_candidate WHERE session_question_id = '00000000-0000-0000-0004-000000000011') = 2);
+SELECT pg_temp.expect_fail('N75 equal-EIG candidates ranked against pack order',
+ $q$DO $d$ DECLARE sid uuid := gen_random_uuid(); q uuid := gen_random_uuid(); BEGIN
+   INSERT INTO sonder.diagnostic_session (id,enrolment_id,response_model_id,engine_release_id,unit_id,question_budget,request_key) VALUES (sid,'00000000-0000-0000-0000-0000000000e1','00000000-0000-0000-0000-000000000095','00000000-0000-0000-0000-000000000096','00000000-0000-0000-0000-0000000000d2',3,'tie-bad');
+   INSERT INTO sonder.session_hypothesis (session_id,hypothesis_id,slot,prior_probability) VALUES
+    (sid,'00000000-0000-0000-0000-000000000091',0,0.35),(sid,'00000000-0000-0000-0000-000000000092',1,0.35),(sid,'00000000-0000-0000-0000-000000000093',2,0.25),(sid,'00000000-0000-0000-0000-000000000094',3,0.05);
+   INSERT INTO sonder.session_question (id,session_id,step_index,item_id,selection_reason,entropy_before,expected_ig) VALUES (q,sid,0,'00000000-0000-0000-0000-000000000072','tie',2,0.5);
+   INSERT INTO sonder.question_candidate (session_question_id,item_id,rank,eig) VALUES (q,'00000000-0000-0000-0000-000000000072',1,0.5),(q,'00000000-0000-0000-0000-000000000071',2,0.5);
  END $d$$q$);
 
 -- ================================================================ P7 refusals: three-way tie stored; bad tie sets rejected
