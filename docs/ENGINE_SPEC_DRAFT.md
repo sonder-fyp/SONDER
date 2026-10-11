@@ -3,7 +3,7 @@
 **Scope:** the deterministic diagnostic core: posterior, question selection, stopping/refusal, run loop, trace, engine API. No LLM, retrieval, verification loop, calibration job or generation.
 **Status:** draft for team review. It replaces the earlier draft. That draft was written against an older snapshot of the bank (80 items) and is superseded wherever the two disagree.
 **Data this spec was measured on:** `Maths_v2/bank/items.csv`, 117 items, 468 rows, all `status=approved` (batches B01–B08, B10–B16).
-**Reference code:** `engine_reference/spec_v2_reference.py` (engine), `spec_v2_report.py` (every measurement below), `spec_v2_tuning.py` (threshold trade-off). Raw outputs are saved next to them as `spec_v2_report_output.txt` and `spec_v2_tuning_output.txt`.
+**Reference code:** `engine_reference/spec_v2_reference.py` (engine), `spec_v2_report.py` (every measurement below), `spec_v2_tuning.py` (threshold trade-off). Raw outputs are saved next to them as `spec_v2_report_output.txt` and `spec_v2_tuning_output.txt`. **These scripts and outputs are not in this repository (checked 11 October 2026), so the measurements below cannot be re-run from the repository as it stands.**
 **Owners (carried over from the draft):** **[Ashher]** priors, likelihoods, posterior update · **[Harris]** EIG selection, Q-matrix content · **[Ahmed]** run loop, stopping/refusal, trace, API, pack loader.
 **Honesty rule:** the dataset is synthetic and no real-student response exists. Every probability and threshold is an **assumed** parameter. Simulated students test the machinery, not the truth about real students. Where I say "measured", it means measured on synthetic students.
 
@@ -52,7 +52,7 @@ Two bugs found while building the reference (fixed, so you do not repeat them): 
 | **Placed** | | **114** | | **62** |
 | Unplaced | T6 × percentage / more / less than (operation version): T6-019B, T6-020B, T6-021B | 3 | 8 | 3 |
 
-The 3 unplaced items are the B-versions of the B15 time items. Their links span 8 misconceptions (126, 228, 1514, 1773, 1074, 1651, 2138, 2206) from three topics, so no unit with k ≤ 8 and enough items contains them. They stay in the bank as twin partners (which blocks T6-019A/020A/021A from being asked alongside them) but are not used in Mid-1 sessions. **Open decision D-4.**
+The 3 unplaced items are the B-versions of the B15 time items. Their links span 8 misconceptions (126, 228, 1514, 1773, 1074, 1651, 2138, 2206) from three topics, so no unit with k ≤ 8 and enough items contains them. They stay in the bank but are not used in Mid-1 sessions. Because they belong to no unit, no session contains them, so they do not block their A-twins T6-019A/020A/021A (which are ordinary U6 items). **Open decision D-4.**
 
 Topic labels in `items.csv` differ from `topics.csv` (for example "T4 Choosing the operation" vs "…(worded problems)"), so the pack builder must map labels to unit IDs explicitly, never by string join.
 
@@ -64,7 +64,7 @@ Topic labels in `items.csv` differ from `topics.csv` (for example "T4 Choosing t
 - **Weak:** MATH-414 / MATH-734 are separable by only **3 of 10** items in U5 (they share the same option on 5 items).
 - **MATH-1965 is a subset of MATH-2039.** All 10 options linked to 1965 are also linked to 2039. They separate on 15 of 25 items, but only through *correct* answers on the 15 items where 2039 is linked and 1965 is not. Consequence in §6.3: noisy 2039 students are mislabelled 1965.
 - **MATH-1379 / MATH-1988** are fully separable (20 of 20), though they are never linked to the same option, because an untriggered misconception predicts the correct answer (§3.1).
-- Near-weak pairs: 2093 vs NONE (1 separating item in U4), 2359 vs NONE (2 in U6), 1416 vs NONE (3 in U6), 1514 vs NONE and 1773 vs NONE (1 each in U7).
+- Near-weak pairs: 2093 vs NONE (1 separating item in U4), 2359 vs NONE (2 in U6), 1416 vs NONE (3 in U6), 1514 vs NONE and 1773 vs NONE (1 each in U7). Counted by the W2 rule below (4 or fewer separating items, twin groups collapsed, a group separating if either member does), U7 also has 2271 vs 1514 (4), 2271 vs 1773 (4) and 1715 vs NONE (4); recomputed against the current bank on 11 October 2026.
 
 ### 1.5 Trigger items per misconception (twins collapsed; items where the misconception has at least one linked option)
 This is the number of questions that can give evidence for the misconception. A session uses 2–5 of them, so a low number limits both diagnosis and the later verification loop.
@@ -202,9 +202,9 @@ R4 has no "close to each other" test. If no remaining item separates the hypothe
 
 Authoring source is `items.csv` (one row per option; `misconceptions` split on `|`; proposed `link_grade` split the same way).
 
-**Rules (hard, refuse to load):** V1 exactly 4 options · V2 exactly one correct · V3 unique `option_id` and `text` within an item · V4 the correct option has no links · **V5' every linked ID is in the unit's hypothesis list** · V6 unique item IDs, unique hypothesis IDs per unit · V7 `1 ≤ k ≤ 8` · V8 no duplicate ID within one option's links · V9 each unit has at least `budget` approved item groups (twins collapsed), otherwise warn · V10 supported `pack_format` · **V11 a misconception may link at most 3 options of one item, and the predicted-set size must satisfy P1.**
+**Rules (hard, refuse to load):** V1 exactly 4 options · V2 exactly one correct · V3 unique `option_id` and `text` within an item · V4 the correct option has no links · **V5' every linked ID is in the unit's hypothesis list** · V6 unique item IDs, unique hypothesis IDs per unit · V7 `1 ≤ k ≤ 8` · V8 no duplicate ID within one option's links · V9 each unit has at least `budget` approved item groups (twins collapsed), otherwise refuse to load · V10 supported `pack_format` · **V11 a misconception may link at most 3 options of one item, and the predicted-set size must satisfy P1.**
 
-**Warnings (reported by `/engine/health`, never fatal):** W1 structurally inseparable pairs over the unit's items (currently 1074/1651 in U3 and U6, 1514/1773 in U4 and U7) · W2 weakly separable pairs (≤ 4 separating items; currently 414/734, 1514 and 1773 vs NONE in U7, 2093 vs NONE in U4, 2359 and 1416 vs NONE in U6) · **W3 a hypothesis with fewer than 3 trigger groups** (currently 2093 in U4, 2359 in U6, 1514/1773 in U7) · W4 items with two or more unlinked wrong options · W5 a misconception linked to 3 options of one item (currently 3 items) · W6 missing `link_grade`.
+**Warnings (reported by `/engine/health`, never fatal):** W1 structurally inseparable pairs over the unit's items (currently 1074/1651 in U3 and U6, 1514/1773 in U4 and U7) · W2 weakly separable pairs (≤ 4 separating items; currently 414/734 in U5, 2093 vs NONE in U4, 2359 and 1416 vs NONE in U6, and in U7 1514 vs NONE, 1773 vs NONE, 2271 vs 1514, 2271 vs 1773 and 1715 vs NONE) · **W3 a hypothesis with fewer than 3 trigger groups** (currently 2093 in U4, 2359 in U6, 1514/1773 in U7) · W4 items with two or more unlinked wrong options · W5 a misconception linked to 3 options of one item (currently 3 items) · W6 missing `link_grade`.
 
 ---
 
@@ -237,6 +237,8 @@ U4 hypotheses (126, 228, 1416, 1514, 1773, 2093, NONE, UNM). The student always 
 ## 6. Measured behaviour (synthetic students, default parameters)
 
 ### 6.1 Deterministic students (always apply the misconception when triggered, never slip)
+
+*Note (11 October 2026): the U6 figures in this section and in §6.2 were measured with T6-011B, T6-014B and T6-016B in the unit at `guess = 0.30`, a setting §3.6's P1 refuses for those items. Under decision D-2 they are skipped for U6, so the U6 results will change (the MATH-1416 student in particular has no trigger item). The U6 rows are to be recomputed by tests in the repository; until then treat them as measured on a different unit definition. The other six units are unaffected.*
 Across the 7 units there are 44 students (every unit hypothesis plus NONE).
 
 | Result | Count | Which |
@@ -303,10 +305,10 @@ Raising `min_support` to 3 halves random-clicker diagnoses and costs about 2.7 p
 | # | Item | Recommendation |
 |---|---|---|
 | D-1 | Merge the inseparable catalogue pairs 1514/1773 and 1074/1651; redefine or merge 1965/2039; add separating items for 414/734 | **Merge** 1514/1773 and 1074/1651 now. For 1965/2039, redefine 1965 so it has at least one option that 2039 does not also take, or merge. Do this in the catalogue, not the engine. Needs the owner's approval; I have not changed the catalogue or `items.csv`. |
-| D-2 | The 3 items with 3 options linked to MATH-1416 (T6-011B/014B/016B) | Either rework each so one of the three options is unlinked or linked to a different sound misconception, or keep them and cap `guess` below 0.25 for them. The reworked sheets would be shown to you before anything enters the bank. |
-| D-3 | `min_support` 2 or 3 | 3, from §6.4. It is a departure from the "≥ 2 answers" rule in the project docs, so it is the team's call. |
-| D-4 | The 3 unplaced items (T6-019B/020B/021B) | Leave unplaced for Mid-1, or define a k = 8 unit with other items that fit. They currently block their A-twins only. |
-| D-5 | Companions with fewer than 3 trigger items (2093 in U4, 2359 in U6, 1514/1773 in U7) | Drop them from those units, or write more items that trigger them. They cannot be diagnosed there. |
+| D-2 | The 3 items with 3 options linked to MATH-1416 (T6-011B/014B/016B) | Either rework each so one of the three options is unlinked or linked to a different sound misconception, or keep them and cap `guess` below 0.25 for them. The reworked sheets would be shown to you before anything enters the bank. **Decided 11 October 2026 (Ahmed): skip these three items for U6 at load time, with a warning every time; keep `guess` at 0.30; do not change `items.csv`.** Recorded as a known fault. Side effect, checked against the bank: these three are the only U6 items with an option linked to MATH-1416, so after the skip MATH-1416 has no trigger item in U6 and cannot be diagnosed there (U6 then has 14 items in 12 twin groups, still at least `budget`). Whether to also drop MATH-1416 from U6's hypothesis list is proposed in the engine plan and not yet decided. |
+| D-3 | `min_support` 2 or 3 | 3, from §6.4. It is a departure from the "≥ 2 answers" rule in the project docs, so it is the team's call. **Decided 11 October 2026 (Ahmed): keep 2**, read only from the parameter set so a change to 3 is one line. |
+| D-4 | The 3 unplaced items (T6-019B/020B/021B) | Leave unplaced for Mid-1, or define a k = 8 unit with other items that fit. They block nothing, because no unit contains them. **Decided 11 October 2026 (Ahmed): leave unplaced** and document as a known fault. |
+| D-5 | Companions with fewer than 3 trigger items (2093 in U4, 2359 in U6, 1514/1773 in U7) | Drop them from those units, or write more items that trigger them. They cannot be diagnosed there. **Decided 11 October 2026 (Ahmed): keep them**; the loader reports W3 for each and sessions about them end `escalated_exhausted`, recorded as a known fault. |
 | D-6 | `θ` range | Fix `θ` at 0.80 and treat 0.64–0.96 as untested (§6.2). |
 | T-1 | Add the `link_grade` column | Needs a pass over the roughly 90 stretch options listed in `Maths_v2/batches/reviews/LINK_AUDIT_SUMMARY.md` and the `linkaudit_*.txt` files. These are agent ratings, not the owner's, so the owner should confirm them. Until then the engine runs with all links at weight 1. |
 | T-2 | More trigger items for misconceptions under 5 (§1.5) | Build B17 (T6-013B, T6-018B, possibly 012B), then a short batch for the 1-and-2-item misconceptions. Drafts first, nothing in the bank without approval. |
@@ -323,6 +325,8 @@ Endpoints: `POST /engine/sessions`, `POST /engine/sessions/{id}/answers`, `GET /
 ---
 
 ## 9. Reference code and how to reproduce
+
+*As of 11 October 2026 the scripts below are not in this repository, so these commands cannot be run from a checkout. The numbers in §§1, 5 and 6 were measured by them and are cited, not reproducible here, until the scripts or equivalent tests are committed.*
 
 ```
 cd engine_reference
