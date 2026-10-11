@@ -1,6 +1,6 @@
 # Bayes calculation evidence and assumptions
 
-This note documents Ashher's calculation slice. The hand-design and sensitivity examples are **synthetic**; a later section checks the current Maths CSV as candidate content. None of these are student results, calibration, or acceptance of the current Maths bank. The equations follow `docs/ENGINE_SPEC_DRAFT.md` sections 5.0–5.1; this executable package and its tests are the reproducible evidence for these functions.
+This note documents Ashher's calculation slice. The hand-design and sensitivity examples are **synthetic**; a later section checks the current Maths CSV as candidate content. None of these are student results, calibration, or acceptance of the current Maths bank. The equations follow `docs/ENGINE_SPEC_DRAFT.md` v2 sections 3.1–3.3; this package and its tests are reproducible evidence for these functions.
 
 ## Prior and hypothesis order
 
@@ -18,7 +18,9 @@ Take a four-option item with correct option A. Option B links to `M1` and `M2`; 
 | NONE | 0.90 | 1/30 | 1/30 | 1/30 | Correct answer predicted. |
 | UNMODELLED | 0.25 | 0.25 | 0.25 | 0.25 | Uniform over options. |
 
-Every row sums to one. Three options linked to a single misconception are rejected under draft pack rule V11: with `guess=0.30`, each predicted answer would get `0.70/3 ≈ 0.233`, while the remaining unpredicted answer would get `0.30`. Three approved T6 items currently need a content/model decision before live use; this function does not silently repair them.
+Every row sums to one. V11 now allows a misconception to link to three wrong options, but P1 checks whether the chosen `guess` supports that set size. At `guess=0.30`, each of three predicted answers would get `0.70/3 ≈ 0.233`, while the unpredicted correct answer would get `0.30`. Therefore `check_p1` and `likelihood_matrix` refuse the three affected T6 items with the default parameters. For a three-option set, `guess` must be **strictly below 0.25**. Choosing a different guess or changing the links is the team's D-2 decision; the code does not make it silently.
+
+An optional link grade is `S` (sound) or `T` (stretch). Missing grades are `S`, so every current Maths item retains the original row. With the assumed default `w_stretch=0.5`, a stretch-linked misconception uses `0.5 × linked row + 0.5 × NONE row`. If it has several linked options on the item, the lowest of their weights applies to the whole row. This is a proposed evidence-strength rule, not a calibrated student response frequency. The CSV does not yet record human-approved grades.
 
 ## Independent posterior calculation
 
@@ -50,11 +52,11 @@ These are one-answer changes only. They do **not** establish robustness of an ev
 
 For T1-005, the current stem asks for 48,630 rounded to the nearest 1,000. Option B is 48,600 and links to `MATH-1248`; D is the correct 49,000. Starting from the six-entry default prior, observing **B** gives posterior `(147, 21, 7, 21, 10, 15) / 221`, or about `(0.665158, 0.095023, 0.031674, 0.095023, 0.045249, 0.067873)`. Observing **D** instead gives `(0.039106, 0.039106, 0.351955, 0.039106, 0.502793, 0.027933)`. The large remaining mass on `MATH-1988` after D occurs because that misconception is not triggered on this item and therefore predicts the correct answer like `NONE`.
 
-These results prove that the calculation functions can consume this **candidate** content and produce reproducible numbers. They do not show automatic question choice, a stopping decision, a diagnosis, a real-student accuracy result, or UI/service integration. They also do not settle the T1 link-quality issues recorded in `validation/T1_ROUNDING_ITEM_REVIEW.md` on the separate data-review branch.
+These results prove that the calculation functions can consume this **candidate** content and produce reproducible numbers. They do not show automatic question choice, a stopping decision, a diagnosis, a real-student accuracy result, or UI/service integration. They also do not settle the T1 link-quality issues recorded in `validation/T1_ROUNDING_ITEM_REVIEW.md`.
 
 A second read-only test manually applies T1-005 answer B followed by T1-007 answer D to the same posterior. Both options link to `MATH-1248`; the resulting six masses are `(6174, 126, 14, 126, 20, 225) / 6685`, with `MATH-1248 ≈ 0.923560`. This demonstrates repeated Bayesian updates, while leaving item choice and diagnosis to their actual owners.
 
-The automated read-only per-item calculation audit over the whole current 117-item bank accepted 114 items under the draft `Item` rule. For all **456** one-answer paths on those items it compared the engine's likelihoods and posteriors with exact `Fraction` arithmetic. The largest observed absolute differences were `1.39e-17` for likelihoods and `1.11e-16` for posteriors. It rejected **T6-011B, T6-014B, and T6-016B**: each links one misconception to three answers, contrary to draft V11. This audit used each item's own linked-ID set as its hypotheses, **not** an approved topic pack, so its posterior values are not live-session results. The separate Math validation review also records unresolved topic membership/grouping constraints for pack loading.
+The automated read-only per-item calculation audit now loads **all 117 items** and compares all **468** one-answer paths with exact `Fraction` arithmetic. The three B14 items—**T6-011B, T6-014B and T6-016B**—correctly fail P1 at the default `guess=0.30`. To check their arithmetic without choosing a live model, that test separately uses `guess=0.24`; the other 114 use the default. The audit uses each item's own linked-ID set as its hypotheses, **not** an approved unit pack, so these posteriors are not live-session results. The content and pack decisions remain separate.
 
 ## Numeric edge audit
 
