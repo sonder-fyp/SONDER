@@ -55,7 +55,7 @@ flowchart TD
 
 | Step | Tables written | What the database checks |
 |---|---|---|
-| Register parameters | `engine_params` | Immutable once written. Checks P1 to P6 (for example `0 < guess < 0.5`, `theta + theta_unmodelled > 1`, `min_support_none >= min_support`). |
+| Register parameters | `engine_params` | Immutable once written. Column checks for the parameter rules (for example `0 < slip < 0.5`, `0 < guess < 1`, `theta + theta_unmodelled > 1`, `min_support_none >= min_support`). The tighter, item-dependent P1 ceiling on `guess` is checked when the response model freezes (below). |
 | Build the response model | `response_model`, `response_parameter`, `response_probability` | Every row belongs to the pack. The probabilities come from the spec's likelihood (section 3.1), computed by a script. For Maths_v2 that is 117 items x 30 hypotheses x 4 options = **14,040 rows**. |
 | Freeze the response model | `response_model` (status frozen) | The content version must already be frozen. Every approved item x hypothesis needs exactly four probabilities summing to 1. No unit may have more hypotheses than `k_max`. **P1:** for the largest predicted-set size *s* on any unit item, `guess < (4 - s) / 4`. |
 | Register the engine | `engine_release` | Pinned by every run, so a run can be reproduced. |
