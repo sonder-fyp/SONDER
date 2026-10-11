@@ -8,6 +8,7 @@ import { Label, AccentBar } from "@/components/type";
 import { Button } from "@/components/ui/button";
 import { Mark } from "@/components/shared";
 import { SUBJECTS, type Subject } from "@/fixtures/subjects";
+import { MathsTopicPicker } from "./MathsTopicPicker";
 
 export default function StartDiagnostic() {
   const [subject, setSubject] = useState<Subject | null>(null);
@@ -43,7 +44,7 @@ export default function StartDiagnostic() {
                   <span className="flex-1 text-3xl font-semibold tracking-tight">
                     {s.name}
                   </span>
-                  <span className="label nums text-faint">{s.topics.length} topics</span>
+                  {s.key !== "mathematics" ? <span className="label nums text-faint">{s.topics.length} topics</span> : null}
                   <ArrowRight
                     className="size-4 shrink-0 translate-x-0 text-muted-foreground transition-transform duration-150 ease-[var(--ease)] group-hover:translate-x-1 group-hover:text-accent"
                     strokeWidth={1.5}
@@ -66,7 +67,7 @@ export default function StartDiagnostic() {
             {subject.name}
           </h1>
           <AccentBar className="mt-8" />
-          <div className="mt-12 border-t border-border">
+          {subject.key === "mathematics" ? <MathsTopicPicker /> : <div className="mt-12 border-t border-border">
             <Link
               href={`/student/session/${subject.generalScenario}/general`}
               className="group flex min-h-24 w-full flex-col justify-center border-b border-border py-6 text-left transition-colors duration-150 hover:bg-muted"
@@ -105,7 +106,7 @@ export default function StartDiagnostic() {
                 </Link>
               );
             })}
-          </div>
+          </div>}
         </>
       )}
     </FocusFrame>

@@ -9,5 +9,9 @@ description = "Pure deterministic calculations for SONDER diagnostic sessions"
 requires-python = ">=3.11"
 dependencies = ["numpy>=2.0,<3"]
 
+[project.optional-dependencies]
+api = ["fastapi==0.120.0", "uvicorn==0.38.0"]
+api-test = ["httpx==0.28.1"]
+
 [tool.setuptools.packages.find]
 include = ["sonder_engine*"]
