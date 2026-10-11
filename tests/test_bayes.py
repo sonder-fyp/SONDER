@@ -4,7 +4,10 @@ import unittest
 
 import numpy as np
 
-from sonder_engine import Item, Params, likelihood_matrix, prior, update_posterior, validate_hypotheses
+from sonder_engine import (
+    Item, Params, check_p1, likelihood_matrix, prior, update_posterior,
+    validate_hypotheses,
+)
 
 
 class ContractAndPriorTests(unittest.TestCase):
@@ -22,17 +25,30 @@ class ContractAndPriorTests(unittest.TestCase):
 
     def test_hypothesis_order_and_range_are_checked(self):
         for bad in [("NONE", "M1", "UNMODELLED"), ("M1", "NONE", "NONE"),
-                    ("NONE", "UNMODELLED"), tuple(f"M{x}" for x in range(7)) + ("NONE", "UNMODELLED")]:
+                    ("NONE", "UNMODELLED"), tuple(f"M{x}" for x in range(9)) + ("NONE", "UNMODELLED")]:
             with self.subTest(bad=bad), self.assertRaises(ValueError):
                 validate_hypotheses(bad)
 
+    def test_seven_and_eight_misconception_units_have_valid_priors(self):
+        for k in (7, 8):
+            with self.subTest(k=k):
+                hyps = tuple(f"M{x}" for x in range(k)) + ("NONE", "UNMODELLED")
+                np.testing.assert_allclose(prior(hyps, Params()), [0.70 / k] * k + [0.25, 0.05])
+        with self.assertRaisesRegex(ValueError, "one to 6"):
+            prior(tuple(f"M{x}" for x in range(7)) + ("NONE", "UNMODELLED"), Params(k_max=6))
+
     def test_invalid_assumptions_are_rejected(self):
-        for kwargs in ({"slip": 0.0}, {"guess": 0.5}, {"prior_none": float("nan")},
+        for kwargs in ({"slip": 0.0}, {"guess": 1.0}, {"prior_none": float("nan")},
                        {"prior_unmodelled": float("inf")},
                        {"slip": np.nextafter(0.0, 1.0)},
                        {"guess": np.nextafter(0.0, 1.0)},
                        {"prior_unmodelled": np.nextafter(0.0, 1.0)},
-                       {"prior_none": 0.80, "prior_unmodelled": 0.25}):
+                       {"prior_none": 0.80, "prior_unmodelled": 0.25},
+                       {"theta": 0.5}, {"theta": 0.6, "theta_unmodelled": 0.4},
+                       {"min_support": 0}, {"min_support": True},
+                       {"min_support": 4, "min_support_none": 3},
+                       {"delta_sep": 0.5}, {"eig_floor": -0.01},
+                       {"default_budget": 0}, {"k_max": 9}):
             with self.subTest(kwargs=kwargs), self.assertRaises(ValueError):
                 Params(**kwargs)
 
@@ -53,8 +69,9 @@ class ContractAndPriorTests(unittest.TestCase):
         self.assertEqual(good.links[1], ("M1",))
         with self.assertRaises(ValueError):
             Item("Q1", ("A", "B", "C", "D"), 0, (("M1",), (), (), ()))
-        with self.assertRaises(ValueError):
-            Item("Q1", ("A", "B", "C", "D"), 0, ((), ("M1",), ("M1",), ("M1",)))
+        three_link = Item("Q1", ("A", "B", "C", "D"), 0,
+                          ((), ("M1",), ("M1",), ("M1",)))
+        self.assertEqual(sum("M1" in links for links in three_link.links), 3)
 
 
 class LikelihoodTests(unittest.TestCase):
@@ -87,12 +104,23 @@ class LikelihoodTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "undeclared"):
             likelihood_matrix(item, ("M1", "NONE", "UNMODELLED"), Params())
 
-    def test_three_predicted_options_are_rejected_by_item_contract(self):
-        # With guess=.30, three predicted answers would each get .70/3,
-        # less than the unpredicted answer's .30. Draft V11 excludes this.
-        with self.assertRaises(ValueError):
-            Item("Q4", ("A", "B", "C", "D"), 0,
-                 ((), ("M1",), ("M1",), ("M1",)))
+    def test_p1_checks_each_predicted_set_size_at_the_strict_boundary(self):
+        hyps = ("M1", "NONE", "UNMODELLED")
+        one = Item("one", ("A", "B", "C", "D"), 0, ((), ("M1",), (), ()))
+        two = Item("two", ("A", "B", "C", "D"), 0, ((), ("M1",), ("M1",), ()))
+        three = Item("three", ("A", "B", "C", "D"), 0,
+                     ((), ("M1",), ("M1",), ("M1",)))
+        for item, accepted, boundary in ((one, 0.74, 0.75),
+                                         (two, 0.49, 0.50),
+                                         (three, 0.24, 0.25)):
+            with self.subTest(item=item.item_id):
+                check_p1((item,), hyps, Params(guess=accepted))
+                L = likelihood_matrix(item, hyps, Params(guess=accepted))
+                self.assertGreater(L[0, 1], L[0, 0])
+                with self.assertRaisesRegex(ValueError, f"{item.item_id}.*M1"):
+                    check_p1((item,), hyps, Params(guess=boundary))
+        with self.assertRaisesRegex(ValueError, "three.*M1.*< 0.25"):
+            likelihood_matrix(three, hyps, Params())
 
 
 class PosteriorTests(unittest.TestCase):

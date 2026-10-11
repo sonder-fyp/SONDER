@@ -12,7 +12,7 @@ from pathlib import Path
 
 import numpy as np
 
-from sonder_engine import Item, Params, likelihood_matrix, prior, update_posterior
+from sonder_engine import Item, Params, check_p1, likelihood_matrix, prior, update_posterior
 
 
 DATA = Path(__file__).resolve().parents[1] / "data" / "Maths_v2"
@@ -96,15 +96,16 @@ class CurrentMathCandidateTests(unittest.TestCase):
         np.testing.assert_allclose(p, [6174 / 6685, 126 / 6685, 14 / 6685,
                                        126 / 6685, 20 / 6685, 225 / 6685], atol=1e-15)
 
-    def test_every_current_bank_item_allowed_by_v11_matches_exact_arithmetic(self):
-        # This is a per-item calculation audit, not an approved topic-pack
-        # simulation. Cross-topic membership and pack size remain unresolved.
+    def test_every_current_bank_item_matches_exact_arithmetic_under_a_valid_rate(self):
+        # This is a per-item calculation audit, not an approved unit-pack
+        # simulation. The three 3-link items use .24 only for this arithmetic
+        # check; it is not a team decision to use .24 in live sessions.
         rows = defaultdict(list)
         with (DATA / "bank" / "items.csv").open(newline="", encoding="utf-8-sig") as source:
             for row in csv.DictReader(source):
                 rows[row["item_id"]].append(row)
-        self.assertGreaterEqual(len(rows), 114)
-        rejected = set()
+        self.assertEqual(len(rows), 117)
+        needs_d2 = set()
         checked_paths = 0
         for item_id, option_rows in rows.items():
             option_rows.sort(key=lambda row: row["option_id"])
@@ -112,18 +113,20 @@ class CurrentMathCandidateTests(unittest.TestCase):
                           for row in option_rows)
             correct = [i for i, row in enumerate(option_rows) if row["is_correct"] == "True"]
             self.assertEqual(len(correct), 1, item_id)
-            try:
-                item = Item(item_id, tuple(row["option_id"] for row in option_rows),
-                            correct[0], links)
-            except ValueError as exc:
-                self.assertIn("more than two options", str(exc), item_id)
-                rejected.add(item_id)
-                continue
+            item = Item(item_id, tuple(row["option_id"] for row in option_rows),
+                        correct[0], links)
             ids = tuple(sorted({m for option in links for m in option}))
             hyps = ids + ("NONE", "UNMODELLED")
             self.assertGreaterEqual(len(ids), 1, item_id)
-            p = prior(hyps, Params())
-            L = likelihood_matrix(item, hyps, Params())
+            three_link = any(sum(m in option for option in links) == 3 for m in ids)
+            params = Params(guess=0.24) if three_link else Params()
+            if three_link:
+                needs_d2.add(item_id)
+                with self.assertRaisesRegex(ValueError, f"P1: {item_id}"):
+                    check_p1((item,), hyps, Params())
+            check_p1((item,), hyps, params)
+            p = prior(hyps, params)
+            L = likelihood_matrix(item, hyps, params)
             exact_prior = [Fraction(7, 10 * len(ids))] * len(ids)
             exact_prior += [Fraction(1, 4), Fraction(1, 20)]
             for answer in range(4):
@@ -134,7 +137,7 @@ class CurrentMathCandidateTests(unittest.TestCase):
                     else:
                         predicted = ([j for j, option in enumerate(links) if h in option]
                                      if h != "NONE" else [])
-                        rate = Fraction(3, 10) if predicted else Fraction(1, 10)
+                        rate = Fraction(str(params.guess)) if predicted else Fraction(1, 10)
                         if not predicted:
                             predicted = [item.correct_index]
                         chance = ((1 - rate) / len(predicted) if answer in predicted
@@ -151,8 +154,8 @@ class CurrentMathCandidateTests(unittest.TestCase):
                         [float(x / evidence) for x in joint], rtol=0, atol=3e-16,
                     )
                 checked_paths += 1
-        self.assertTrue(rejected <= {"T6-011B", "T6-014B", "T6-016B"})
-        self.assertGreaterEqual(checked_paths, 456)
+        self.assertEqual(needs_d2, {"T6-011B", "T6-014B", "T6-016B"})
+        self.assertEqual(checked_paths, 468)
 
 
 if __name__ == "__main__":
