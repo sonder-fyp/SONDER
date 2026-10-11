@@ -45,7 +45,7 @@ export const NAV: Record<Role, NavGroup[]> = {
           dockLabel: "New",
           href: "/student/start",
           icon: Compass,
-          match: ["/student/session", "/student/verify"],
+          match: ["/student/session", "/student/verify", "/student/diagnostic"],
         },
         {
           label: "Learn",
@@ -165,6 +165,7 @@ export const SEGMENT_LABELS: Record<string, string> = {
   admin: "Admin",
   start: "New diagnostic",
   session: "Session",
+  diagnostic: "Diagnostic",
   review: "Review",
   remediation: "Study note",
   learn: "Learn",
