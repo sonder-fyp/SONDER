@@ -63,9 +63,9 @@ Each entry has these fields: what is wrong, what it affects, what the user sees,
 - **What is wrong:** some pairs are separated by very few item groups: MATH-414/734 by 3 in U5; 2093/NONE by 1 in U4; 2359/NONE by 2 in U6; 1514/NONE and 1773/NONE by 1 each in U7; and 2271/1514, 2271/1773 and 1715/NONE by 4 each in U7.
 - **Affects:** those units. A student who answers noisily can use up the few separating items.
 - **What the user sees:** more refusals and exhausted sessions for students holding these misconceptions.
-- **Evidence:** spec §1.4, §4 W2. The threshold follows the spec's rule (4 or fewer); the spec's example list stops at 3 and so omits the last three U7 pairs.
+- **Evidence:** spec §1.4, §4 W2 (4 or fewer separating items). The spec's list also names 1416 vs NONE in U6; that pair no longer exists because MATH-1416 is not a U6 hypothesis (KF-02).
 - **Fix and owner:** write separating items (spec D-1, T-2), Harris.
-- **Decision:** threshold of 4 or fewer, decided by Ahmed.
+- **Decision:** none.
 - **Backed by:** W2 warning (eight). `tests/test_engine_pack.py`: W2 list.
 
 ## KF-09. No link grades, so every link counts as sound (T-1)

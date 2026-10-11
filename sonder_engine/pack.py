@@ -18,8 +18,7 @@ from .model import NONE, UNMODELLED, Item, Params, validate_hypotheses
 from .stopping import total_variation
 
 PACK_FORMAT = 2
-# W2: a pair is weakly separable when at most this many item groups separate it
-# (spec v2 section 4 rule text; its example list was written against 3).
+# W2: a pair is weakly separable when at most this many item groups separate it (spec v2 section 4).
 WEAK_SEPARATION_MAX = 4
 # W3: a hypothesis with fewer trigger groups than this cannot gather enough evidence.
 MIN_TRIGGER_GROUPS = 3
