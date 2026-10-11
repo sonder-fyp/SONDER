@@ -26,17 +26,17 @@ Each entry has these fields: what is wrong, what it affects, what the user sees,
 - **Evidence:** the data (trigger counts); the inseparability is shown by the test below.
 - **Fix and owner:** as KF-01 (Harris), then delete the `drop_hypotheses` entry.
 - **Decision:** D-2 side effect, accepted by Ahmed.
-- **Backed by:** `DROPPED_HYPOTHESIS` warning. `tests/test_engine_pack.py`: keeping 1416 produces W1 for MATH-1416/NONE and W3 for MATH-1416.
+- **Backed by:** `DROPPED_HYPOTHESIS` warning. `tests/test_engine_pack.py`: keeping 1416 produces W1 for MATH-1416/NONE and W3 for MATH-1416. `tests/test_engine_stopping.py`: the recomputed U6 deterministic students (six instead of the spec's seven; every remaining outcome unchanged).
 
 ## KF-04. Companions that cannot be diagnosed in their unit (D-5)
 
 - **What is wrong:** four companion hypotheses have fewer than 3 trigger groups: MATH-2093 in U4 (1), MATH-2359 in U6 (2), MATH-1514 and MATH-1773 in U7 (1 each).
 - **Affects:** those units. MATH-2093 and MATH-2359 can be diagnosed in their home unit, U7. MATH-1514 and MATH-1773 cannot be diagnosed in their home unit U4 either, because of KF-06.
-- **What the user sees:** sessions with students holding these misconceptions in these units cannot end in a diagnosis of them (spec §6.1: `escalated_exhausted` for 2093 in U4 and 2359 in U6).
+- **What the user sees:** sessions with students holding these misconceptions in these units cannot end in a diagnosis of them: a deterministic 2093 student in U4 and 2359 student in U6 end `escalated_exhausted`; 1514 and 1773 students in U7 end `escalated_no_separator` with NONE in the tied set.
 - **Evidence:** spec §1.5, §2.1, §6.1.
 - **Fix and owner:** write more trigger items (spec T-2, Harris), or drop the companion together with the items that link it (a unit-table change).
 - **Decision:** D-5 (keep them).
-- **Backed by:** W3 warning (four). `tests/test_engine_pack.py`: trigger-group counts, and the check that dropping a companion without its items is refused under V5'.
+- **Backed by:** W3 warning (four). `tests/test_engine_pack.py`: trigger-group counts, and the check that dropping a companion without its items is refused under V5'. `tests/test_engine_stopping.py`: deterministic-student outcomes.
 
 ## KF-05. Three items belong to no unit (D-4)
 
@@ -52,11 +52,11 @@ Each entry has these fields: what is wrong, what it affects, what the user sees,
 
 - **What is wrong:** in each pair, both misconceptions predict the same answers on every item of the units that contain them.
 - **Affects:** 1074/1651 in U3 and U6; 1514/1773 in U4 and U7.
-- **What the user sees:** students holding either one end as "cannot separate" (`escalated_no_separator`) naming both (spec §5 D2, §6.1).
+- **What the user sees:** students holding either one end as "cannot separate" (`escalated_no_separator`) naming both: 8 of the 43 deterministic students (spec §5 D2, §6.1).
 - **Evidence:** spec §1.4, §5 D2, §6.1.
 - **Fix and owner:** merge each pair in the catalogue (spec D-1), Harris, with team approval.
 - **Decision:** D-1.
-- **Backed by:** W1 warning (four). `tests/test_engine_pack.py`: W1 list, and zero separating items for 1514/1773 in U4.
+- **Backed by:** W1 warning (four). `tests/test_engine_pack.py`: W1 list, and zero separating items for 1514/1773 in U4. `tests/test_engine_stopping.py`: worked example D2 and the deterministic-student outcomes.
 
 ## KF-08. Weakly separable pairs (W2)
 
@@ -78,6 +78,16 @@ Each entry has these fields: what is wrong, what it affects, what the user sees,
 - **Decision:** T-1.
 - **Backed by:** W6 warning. `tests/test_engine_pack.py`: every loaded grade is `S`; a `link_grade` column is read when present.
 
+## KF-11. Values of θ other than 0.80 are untested (D-6)
+
+- **What is wrong:** the outcomes depend on the confidence threshold θ. With every float parameter varied by ×0.8 and ×1.2 (16 variants), only θ changes any deterministic student's outcome: at θ = 0.96, the NONE students in U4, U6 and U7, the 2093 student in U4 and the 2359 student in U6 end `escalated_no_separator`. The spec's sixth change (1416 in U6 at θ = 0.64) no longer exists, because MATH-1416 is not a U6 hypothesis (KF-02).
+- **Affects:** any change of θ, in every unit.
+- **What the user sees:** nothing at θ = 0.80; different outcomes if θ is changed.
+- **Evidence:** spec §6.2; recomputed on the current units.
+- **Fix and owner:** keep θ at 0.80 and treat 0.64–0.96 as untested (spec D-6), team.
+- **Decision:** D-6 (recommended by the spec, not yet decided).
+- **Backed by:** `tests/test_engine_stopping.py`: `test_sensitivity_of_deterministic_outcomes_spec_6_2`.
+
 ## KF-13. Wrong options with no link push toward UNMODELLED (W4)
 
 - **What is wrong:** 10 unit items have two or more wrong options that link no misconception.
@@ -95,10 +105,11 @@ Each entry has these fields: what is wrong, what it affects, what the user sees,
 | Entry | Loader warning | Test |
 |---|---|---|
 | KF-01 | `SKIPPED_ITEM` ×3 | `test_engine_pack.py`: `RealBankUnitTests`, `DecisionReversalTests` |
-| KF-02 | `DROPPED_HYPOTHESIS` | `test_engine_pack.py`: `test_keeping_1416_with_the_skip_makes_it_inseparable_from_none` |
-| KF-04 | W3 ×4 | `test_engine_pack.py`: `test_trigger_groups_per_misconception`, `test_dropping_a_companion_without_its_items_is_refused_by_v5` |
+| KF-02 | `DROPPED_HYPOTHESIS` | `test_engine_pack.py`: `test_keeping_1416_with_the_skip_makes_it_inseparable_from_none`; `test_engine_stopping.py`: `test_deterministic_students_spec_6_1` |
+| KF-04 | W3 ×4 | `test_engine_pack.py`: `test_trigger_groups_per_misconception`, `test_dropping_a_companion_without_its_items_is_refused_by_v5`; `test_engine_stopping.py`: `test_deterministic_students_spec_6_1` |
 | KF-05 | `UNPLACED_ITEM` ×3 | `test_engine_pack.py`: `test_mapping_an_unplaced_label_needs_only_the_table` |
-| KF-06 | W1 ×4 | `test_engine_pack.py`: `test_warning_lists`, `test_separating_items_count_matches_spec_examples` |
+| KF-06 | W1 ×4 | `test_engine_pack.py`: `test_warning_lists`, `test_separating_items_count_matches_spec_examples`; `test_engine_stopping.py`: `test_d2_1514_refused_naming_both`, `test_deterministic_students_spec_6_1` |
 | KF-08 | W2 ×8 | `test_engine_pack.py`: `test_warning_lists` |
 | KF-09 | W6 | `test_engine_pack.py`: `test_every_link_is_sound_without_a_grade_column`, `test_link_grade_column_is_read_when_present` |
+| KF-11 | — | `test_engine_stopping.py`: `test_sensitivity_of_deterministic_outcomes_spec_6_2` |
 | KF-13 | W4 ×10 | `test_engine_pack.py`: `test_warning_lists` |
