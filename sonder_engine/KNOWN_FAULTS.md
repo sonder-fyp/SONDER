@@ -98,6 +98,16 @@ Each entry has these fields: what is wrong, what it affects, what the user sees,
 - **Decision:** none.
 - **Backed by:** W4 warning (ten). `tests/test_engine_pack.py`: W4 list.
 
+## KF-14. Selection reasons quote option letters, not text
+
+- **What is wrong:** the engine's `Item` holds option IDs but not option text, so the selection reason from `select_next` says "B" rather than "B (48,600)".
+- **Affects:** the teacher-facing trace, in every unit.
+- **What the user sees:** a selection reason needs the item open beside it to be read. The answer note does quote the text (for example "Chose B (8,300), linked to MATH-1379."), because the pack keeps option texts.
+- **Evidence:** `sonder_engine/README.md`, "Known presentation limit".
+- **Fix and owner:** pass option text to the reason, an adapter change agreed between Harris (selection) and Ashher (`Item`).
+- **Decision:** none.
+- **Backed by:** `tests/test_engine_session.py`: `test_answer_notes_quote_the_option_text`.
+
 ---
 
 ## What backs each entry
@@ -113,3 +123,4 @@ Each entry has these fields: what is wrong, what it affects, what the user sees,
 | KF-09 | W6 | `test_engine_pack.py`: `test_every_link_is_sound_without_a_grade_column`, `test_link_grade_column_is_read_when_present` |
 | KF-11 | — | `test_engine_stopping.py`: `test_sensitivity_of_deterministic_outcomes_spec_6_2` |
 | KF-13 | W4 ×10 | `test_engine_pack.py`: `test_warning_lists` |
+| KF-14 | — | `test_engine_session.py`: `test_answer_notes_quote_the_option_text` |
