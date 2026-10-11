@@ -12,7 +12,10 @@ from pathlib import Path
 
 import numpy as np
 
-from sonder_engine import Item, Params, check_p1, likelihood_matrix, prior, update_posterior
+from sonder_engine import (
+    Item, Params, check_p1, eligible_items, likelihood_matrix, prior, select_next,
+    update_posterior,
+)
 
 
 DATA = Path(__file__).resolve().parents[1] / "data" / "Maths_v2"
@@ -45,6 +48,75 @@ def current_t1_candidate():
 
 
 class CurrentMathCandidateTests(unittest.TestCase):
+    def test_u6_three_link_items_and_real_twins_are_guarded(self):
+        labels = {
+            "T6 Time and unit conversion (seconds and hours)",
+            "T6 x multiplication/division (operation version)",
+            "T6 x percentage / more / less than (time version)",
+        }
+        rows = defaultdict(list)
+        with (DATA / "bank" / "items.csv").open(newline="", encoding="utf-8-sig") as source:
+            for row in csv.DictReader(source):
+                if row["topic"] in labels and row["status"] == "approved":
+                    rows[row["item_id"]].append(row)
+        self.assertEqual(len(rows), 17)
+        stems = defaultdict(list)
+        for item_id, options in rows.items():
+            stems[options[0]["stem"]].append(item_id)
+        group = {item_id: min(ids) for ids in stems.values() if len(ids) > 1 for item_id in ids}
+        self.assertEqual(len(group), 10)  # Five A/B twin pairs in this unit.
+        ids = tuple(sorted({m for options in rows.values() for row in options
+                            for m in row["misconceptions"].split("|") if m}))
+        hyps = ids + ("NONE", "UNMODELLED")
+        self.assertEqual(len(ids), 6)
+        items = []
+        for item_id, option_rows in rows.items():
+            option_rows.sort(key=lambda row: row["option_id"])
+            items.append(Item(
+                item_id, tuple(row["option_id"] for row in option_rows),
+                next(i for i, row in enumerate(option_rows) if row["is_correct"] == "True"),
+                tuple(tuple(filter(None, row["misconceptions"].split("|"))) for row in option_rows),
+                twin_group=group.get(item_id),
+            ))
+        with self.assertRaisesRegex(ValueError, "P1: T6-011B.*MATH-1416"):
+            check_p1(items, hyps, Params())
+        # .24 is a valid arithmetic probe, not a decision to use it in production.
+        params = Params(guess=0.24)
+        check_p1(items, hyps, params)
+        remaining = eligible_items(items, ("T6-011",))
+        self.assertNotIn("T6-011B", [item.item_id for item in remaining])
+        choice = select_next(prior(hyps, params), remaining, hyps, params)
+        self.assertIn(choice.item_id, [item.item_id for item in remaining])
+
+    def test_seven_hypothesis_u7_candidate_selects_and_updates(self):
+        rows = defaultdict(list)
+        with (DATA / "bank" / "items.csv").open(newline="", encoding="utf-8-sig") as source:
+            for row in csv.DictReader(source):
+                if row["topic"].startswith("T7 ") and row["status"] == "approved":
+                    rows[row["item_id"]].append(row)
+        ids = tuple(sorted({m for option_rows in rows.values() for row in option_rows
+                            for m in row["misconceptions"].split("|") if m}))
+        self.assertEqual(len(ids), 7)
+        hyps = ids + ("NONE", "UNMODELLED")
+        items = []
+        for item_id, option_rows in rows.items():
+            option_rows.sort(key=lambda row: row["option_id"])
+            items.append(Item(
+                item_id, tuple(row["option_id"] for row in option_rows),
+                next(i for i, row in enumerate(option_rows) if row["is_correct"] == "True"),
+                tuple(tuple(filter(None, row["misconceptions"].split("|"))) for row in option_rows),
+            ))
+        self.assertEqual(len(items), 16)
+        params = Params()
+        check_p1(items, hyps, params)
+        p = prior(hyps, params)
+        choice = select_next(p, items, hyps, params)
+        self.assertIn(choice.item_id, rows)
+        chosen = next(item for item in items if item.item_id == choice.item_id)
+        after = update_posterior(p, likelihood_matrix(chosen, hyps, params), chosen.correct_index)
+        self.assertTrue(np.all(np.isfinite(after)))
+        self.assertAlmostEqual(float(after.sum()), 1.0, places=12)
+
     def test_all_twenty_t1_items_and_eighty_answer_paths_calculate(self):
         hyps, items = current_t1_candidate()
         self.assertEqual(len(hyps), 6)
