@@ -1,0 +1,20 @@
+# Throwaway PostgreSQL 16 for the Iteration 1 schema tests (docs/db/iteration1/tests/).
+# Not Neon and never shared: it holds only test data and is discarded with
+#   docker compose down -v
+# The password below is a local placeholder, not a secret.
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: sonder
+      POSTGRES_PASSWORD: local-test-only
+      POSTGRES_DB: sonder_test
+    ports:
+      - "127.0.0.1:55432:5432"
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sonder -d sonder_test"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
