@@ -1,5 +1,12 @@
 # Independent review of the Maths_v2 bank
 
+**Historical review note:** this records the review against the earlier engine
+draft. Spec v2 now allows three linked wrong options, uses diagnostic units
+instead of topic-scoped sessions, and permits up to eight misconceptions. The
+current validator reports the three T6 items as P1 conflicts at the default
+`guess=0.30`, rather than as V11 structural errors. The content-quality
+findings below still require human review.
+
 **Reviewer:** Ashher
 **Dataset revision inspected:** `4f80f6699ad2e0ae804df3c3dcb38eefe5f8fb32` (`dev`, after Harris's Math PR #5)
 **Purpose:** identify what can safely feed the first diagnostic pack. This is review evidence, **not** approval of every question or a change to Harris's authored CSVs.

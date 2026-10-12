@@ -1,5 +1,7 @@
 # Iteration 1 and Mid-1: team work division
 
+> **Superseded.** The authoritative assignment is [ITERATION_1_TEAM_WORK_DIVISION_MATH_ONLY.md](ITERATION_1_TEAM_WORK_DIVISION_MATH_ONLY.md) (decision of Ahmed, 11 October 2026). This file is kept for reference. Where the two differ, the Math-only file wins; for example, T06.06 (evidence trail) is Harris's here and Ahmed's there.
+
 This is a **proposed assignment checklist**, derived task by task from [ITERATION_1_MID_EVALUATION_CHECKLIST.md](ITERATION_1_MID_EVALUATION_CHECKLIST.md) and aligned with [ROADMAP.md](docs/ROADMAP.md). It assigns preparation, implementation, review, and evidence work for Mid-1. All boxes start unchecked; no item is claimed as complete. Enter actual dates, issue links, commits, results, and any agreed reassignment in the team board and supervisor worksheet.
 
 **Names:** this plan treats "Laiq" as **Ahmed (Laiq)**, the third member named in the request. If those names refer to different people, correct the label before adopting the assignments. The registered roster and repository identities must come from the official project record.

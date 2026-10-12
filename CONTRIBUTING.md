@@ -12,10 +12,9 @@
 1. Branch off `dev`, work, push your feature branch.
 2. Open a PR into `dev`. CI runs automatically (install, lint, tests, build for the UI).
 3. Fix anything CI flags by pushing to the same branch.
-4. One teammate reviews and approves. Not the author. This matches the lead/reviewer pairing in the work division.
-5. Squash merge into `dev`.
-6. When `dev` is stable, open a PR from `dev` into `main` with the same CI and one approval, and merge with a regular merge commit. Do not squash, otherwise `dev` and `main` drift apart.
-7. Ahmed tags the evaluation commit on `main`.
+4. Merge into `dev` once CI is green. No approval from another team member is required.
+5. When `dev` is stable, open a PR from `dev` into `main` with CI green and one approval, and merge with a regular merge commit. Do not squash, otherwise `dev` and `main` drift apart.
+6. Ahmed tags the evaluation commit on `main`.
 
 ## Rules
 
@@ -24,8 +23,8 @@
 - Fill in the PR template.
 - Commit counts are not contribution evidence, so keep PRs tied to a task. This makes feature commits easy to track.
 
-## Setup in progress
+## Setup status
 
-- A GitHub Actions workflow for the UI only. An engine workflow job (YAML) will be added once the Python package exists.
-- A PR template.
-- Branch protection on `main` and `dev`, once the workflow has run once.
+- Done: a GitHub Actions workflow (`.github/workflows/ci.yml`) with three jobs: `ci` (the UI), `math-data` (the Maths dataset validator and its tests) and `engine` (the pure engine tests).
+- Done: a PR template (`.github/pull_request_template.md`).
+- Not done: branch protection on `main` and `dev`. Until it is enabled, the no-direct-push rules above are conventions, not enforced by GitHub.

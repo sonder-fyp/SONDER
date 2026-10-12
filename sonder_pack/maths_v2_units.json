@@ -1,0 +1,41 @@
+{
+  "pack_format": 2,
+  "content_version": "Maths_v2",
+  "subject": "mathematics",
+  "labels": [
+    {"label": "T1 Rounding", "unit": "U1"},
+    {"label": "T2 Fractions, decimals and percentage conversion", "unit": "U2"},
+    {"label": "T3 Percentage of an amount", "unit": "U3"},
+    {"label": "T4 Choosing the operation", "unit": "U4"},
+    {"label": "T5 cross-concept (operation version)", "unit": "U4"},
+    {"label": "T5 Powers and roots", "unit": "U5"},
+    {"label": "T6 Time and unit conversion (seconds and hours)", "unit": "U6"},
+    {"label": "T6 x multiplication/division (operation version)", "unit": "U6"},
+    {"label": "T6 x percentage / more / less than (time version)", "unit": "U6"},
+    {"label": "T6 x percentage / more / less than (operation version)", "unit": null,
+     "decision": "D-4",
+     "reason": "Links span 8 misconceptions from three topics; no unit with k <= 8 and enough items holds them, so the item is unused."},
+    {"label": "T7 Negatives, inverse operations, fraction bar", "unit": "U7"}
+  ],
+  "units": [
+    {"unit_id": "U1", "name": "Rounding", "topic": "T1 Rounding"},
+    {"unit_id": "U2", "name": "Conversion", "topic": "T2 Fractions, decimals and percentage conversion"},
+    {"unit_id": "U3", "name": "Percentage of an amount", "topic": "T3 Percentage of an amount"},
+    {"unit_id": "U4", "name": "Choosing the operation", "topic": "T4 Choosing the operation (worded problems)"},
+    {"unit_id": "U5", "name": "Powers and roots", "topic": "T5 Powers and roots"},
+    {"unit_id": "U6", "name": "Time and unit conversion", "topic": "T6 Time and unit conversion",
+     "skip_items": [
+       {"item_id": "T6-011B", "decision": "D-2",
+        "reason": "Links MATH-1416 to 3 options, which fails P1 at guess 0.30. Skipped at load only; the item stays in the bank."},
+       {"item_id": "T6-014B", "decision": "D-2",
+        "reason": "Links MATH-1416 to 3 options, which fails P1 at guess 0.30. Skipped at load only; the item stays in the bank."},
+       {"item_id": "T6-016B", "decision": "D-2",
+        "reason": "Links MATH-1416 to 3 options, which fails P1 at guess 0.30. Skipped at load only; the item stays in the bank."}
+     ],
+     "drop_hypotheses": [
+       {"misconception_id": "MATH-1416", "decision": "D-2 side effect",
+        "reason": "No remaining U6 item links MATH-1416 once the D-2 items are skipped; kept, it would answer exactly like NONE and cause false refusals."}
+     ]},
+    {"unit_id": "U7", "name": "Negatives, inverse operations, fraction bar", "topic": "T7 Negatives, inverse operations, fraction bar"}
+  ]
+}

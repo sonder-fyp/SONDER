@@ -79,3 +79,35 @@ jobs:
 
       - name: Test pure engine calculations
         run: python -m unittest discover -s tests -p 'test_bayes*.py' -v
+
+      - name: Test question selection
+        run: python -m unittest discover -s tests -p 'test_selection.py' -v
+
+      - name: Test pack loader, stopping and run loop
+        run: python -m unittest discover -s tests -p 'test_engine_*.py' -v
+
+  db:
+    name: db
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install engine (the import probe builds units with the engine's loader)
+        run: python -m pip install -e .
+
+      - name: Start throwaway PostgreSQL 16 (docker-compose.yml; no secrets, not Neon)
+        run: docker compose up -d --wait
+
+      - name: Run schema, behaviour and import-probe checks
+        run: python docs/db/iteration1/tests/run_schema_tests.py
+
+      - name: Discard the database
+        if: always()
+        run: docker compose down -v

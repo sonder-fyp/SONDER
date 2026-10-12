@@ -1,9 +1,10 @@
-"""Ashher's pure Bayesian calculations for one diagnostic topic."""
+"""Ashher's pure Bayesian calculations for one diagnostic unit."""
 
 from __future__ import annotations
 
 import numpy as np
 from numpy.typing import NDArray
+from collections.abc import Sequence
 
 from .model import Item, Params, validate_hypotheses
 
@@ -11,15 +12,43 @@ from .model import Item, Params, validate_hypotheses
 def prior(hyps: tuple[str, ...], params: Params) -> NDArray[np.float64]:
     """Allocate assumed mass to NONE/UNMODELLED and share the rest equally."""
 
-    validate_hypotheses(hyps)
     if not isinstance(params, Params):
         raise TypeError("params must be Params")
+    validate_hypotheses(hyps, params.k_max)
     k = len(hyps) - 2
     result = np.empty(len(hyps), dtype=np.float64)
     result[:k] = (1.0 - params.prior_none - params.prior_unmodelled) / k
     result[k] = params.prior_none
     result[k + 1] = params.prior_unmodelled
     return result
+
+
+def check_p1(items: Sequence[Item], hyps: tuple[str, ...], params: Params) -> None:
+    """Refuse a unit whose guess makes a predicted option no likelier than an outsider.
+
+    The structural Item contract allows three linked wrong answers. Whether a
+    response model can use one depends on its parameter set (spec v2 P1).
+    Run this over the unit at model freeze; likelihood_matrix also calls it for
+    its individual item so a direct caller cannot bypass the rule.
+    """
+
+    if not isinstance(params, Params):
+        raise TypeError("params must be Params")
+    validate_hypotheses(hyps, params.k_max)
+    catalogue = set(hyps[:-2])
+    for item in items:
+        if not isinstance(item, Item):
+            raise TypeError("items must contain Item values")
+        unknown = {m for links in item.links for m in links} - catalogue
+        if unknown:
+            raise ValueError(f"{item.item_id} links undeclared misconception IDs: {sorted(unknown)}")
+        for misconception in hyps[:-2]:
+            size = sum(misconception in links for links in item.links)
+            if size and params.guess >= (4 - size) / 4:
+                raise ValueError(
+                    f"P1: {item.item_id} links {misconception} to {size} options; "
+                    f"guess must be < {(4 - size) / 4:g}, got {params.guess:g}"
+                )
 
 
 def likelihood_matrix(
@@ -36,26 +65,27 @@ def likelihood_matrix(
 
     if not isinstance(item, Item):
         raise TypeError("item must be Item")
-    validate_hypotheses(hyps)
-    if not isinstance(params, Params):
-        raise TypeError("params must be Params")
-    catalogue = set(hyps[:-2])
-    unknown = {m for option_links in item.links for m in option_links} - catalogue
-    if unknown:
-        raise ValueError(f"item links undeclared misconception IDs: {sorted(unknown)}")
+    check_p1((item,), hyps, params)
 
     n = len(item.option_ids)
     result = np.empty((len(hyps), n), dtype=np.float64)
+    none_row = np.full(n, params.slip / (n - 1), dtype=np.float64)
+    none_row[item.correct_index] = 1.0 - params.slip
+    assert item.link_grades is not None  # Item fills missing grades with S.
     for row, misconception in enumerate(hyps[:-2]):
         predicted = [j for j, links in enumerate(item.links) if misconception in links]
-        off_rate = params.guess if predicted else params.slip
         if not predicted:
-            predicted = [item.correct_index]
+            result[row, :] = none_row
+            continue
+        off_rate = params.guess
+        grades = [item.link_grades[j][item.links[j].index(misconception)] for j in predicted]
+        weight = min(params.w_sound if grade == "S" else params.w_stretch for grade in grades)
         result[row, :] = off_rate / (n - len(predicted))
         result[row, predicted] = (1.0 - off_rate) / len(predicted)
+        if weight != 1.0:
+            result[row, :] = weight * result[row, :] + (1.0 - weight) * none_row
 
-    result[-2, :] = params.slip / (n - 1)
-    result[-2, item.correct_index] = 1.0 - params.slip
+    result[-2, :] = none_row
     result[-1, :] = 1.0 / n
     return result
 
