@@ -1,12 +1,12 @@
-﻿item_id,topic,target,stem,option_id,option_text,is_correct,misconceptions,status
-T1-001,T1 Rounding,MATH-1379,"A farm packed 3,908 kg of mangoes this season. What is this weight rounded to the nearest 10 kg?",A,"3,900",False,MATH-1379|MATH-2392,draft
-T1-001,T1 Rounding,MATH-1379,"A farm packed 3,908 kg of mangoes this season. What is this weight rounded to the nearest 10 kg?",B,"3,910",True,,draft
-T1-001,T1 Rounding,MATH-1379,"A farm packed 3,908 kg of mangoes this season. What is this weight rounded to the nearest 10 kg?",C,"3,908",False,MATH-1248,draft
-T1-001,T1 Rounding,MATH-1379,"A farm packed 3,908 kg of mangoes this season. What is this weight rounded to the nearest 10 kg?",D,"4,000",False,,draft
-T1-002,T1 Rounding,MATH-2392,"4,192 people watched a cricket match at the stadium. What is this number rounded to the nearest 10?",A,"4,192",False,MATH-1248,draft
-T1-002,T1 Rounding,MATH-2392,"4,192 people watched a cricket match at the stadium. What is this number rounded to the nearest 10?",B,"4,200",False,MATH-1988|MATH-2392,draft
-T1-002,T1 Rounding,MATH-2392,"4,192 people watched a cricket match at the stadium. What is this number rounded to the nearest 10?",C,"4,000",False,,draft
-T1-002,T1 Rounding,MATH-2392,"4,192 people watched a cricket match at the stadium. What is this number rounded to the nearest 10?",D,"4,190",True,,draft
+item_id,topic,target,stem,option_id,option_text,is_correct,misconceptions,status
+T1-001,T1 Rounding,MATH-1379,"A farm packed 3,868 kg of mangoes this season. What is this weight rounded to the nearest 100 kg?",A,"3,800",False,MATH-1379,draft
+T1-001,T1 Rounding,MATH-1379,"A farm packed 3,868 kg of mangoes this season. What is this weight rounded to the nearest 100 kg?",B,"3,900",True,,draft
+T1-001,T1 Rounding,MATH-1379,"A farm packed 3,868 kg of mangoes this season. What is this weight rounded to the nearest 100 kg?",C,"3,870",False,MATH-1248,draft
+T1-001,T1 Rounding,MATH-1379,"A farm packed 3,868 kg of mangoes this season. What is this weight rounded to the nearest 100 kg?",D,"4,000",False,MATH-2392,draft
+T1-002,T1 Rounding,MATH-2392,"4,942 people watched a cricket match at the stadium. What is this number rounded to the nearest 100?",A,"4,940",False,MATH-1248,draft
+T1-002,T1 Rounding,MATH-2392,"4,942 people watched a cricket match at the stadium. What is this number rounded to the nearest 100?",B,"5,000",False,MATH-1988|MATH-2392,draft
+T1-002,T1 Rounding,MATH-2392,"4,942 people watched a cricket match at the stadium. What is this number rounded to the nearest 100?",C,"4,800",False,,draft
+T1-002,T1 Rounding,MATH-2392,"4,942 people watched a cricket match at the stadium. What is this number rounded to the nearest 100?",D,"4,900",True,,draft
 T1-003,T1 Rounding,MATH-1988,"A second-hand bicycle costs Rs 5,942. What is this price rounded to the nearest Rs 100?",A,"5,900",True,,draft
 T1-003,T1 Rounding,MATH-1988,"A second-hand bicycle costs Rs 5,942. What is this price rounded to the nearest Rs 100?",B,"5,940",False,MATH-1248,draft
 T1-003,T1 Rounding,MATH-1988,"A second-hand bicycle costs Rs 5,942. What is this price rounded to the nearest Rs 100?",C,"6,000",False,MATH-1988|MATH-2392,draft
@@ -27,15 +27,15 @@ T1-007,T1 Rounding,MATH-1248,"The distance from Karachi to a village is 8,374 me
 T1-007,T1 Rounding,MATH-1248,"The distance from Karachi to a village is 8,374 metres by road. What is this distance rounded to the nearest 100 metres?",B,"8,300",False,MATH-1379,draft
 T1-007,T1 Rounding,MATH-1248,"The distance from Karachi to a village is 8,374 metres by road. What is this distance rounded to the nearest 100 metres?",C,"8,400",True,,draft
 T1-007,T1 Rounding,MATH-1248,"The distance from Karachi to a village is 8,374 metres by road. What is this distance rounded to the nearest 100 metres?",D,"8,370",False,MATH-1248,draft
-T1-008,T1 Rounding,MATH-1248,"A shop sold 6,243 pens in a year. What is this number rounded to the nearest 10?",A,"6,240",True,,draft
-T1-008,T1 Rounding,MATH-1248,"A shop sold 6,243 pens in a year. What is this number rounded to the nearest 10?",B,"6,200",False,MATH-2392,draft
-T1-008,T1 Rounding,MATH-1248,"A shop sold 6,243 pens in a year. What is this number rounded to the nearest 10?",C,"6,243",False,MATH-1248,draft
-T1-008,T1 Rounding,MATH-1248,"A shop sold 6,243 pens in a year. What is this number rounded to the nearest 10?",D,"6,250",False,MATH-1988,draft
+T1-008,T1 Rounding,MATH-1248,"A shop sold 6,243 pens in a year. What is this number rounded to the nearest 100?",A,"6,200",True,,draft
+T1-008,T1 Rounding,MATH-1248,"A shop sold 6,243 pens in a year. What is this number rounded to the nearest 100?",B,"6,000",False,MATH-2392,draft
+T1-008,T1 Rounding,MATH-1248,"A shop sold 6,243 pens in a year. What is this number rounded to the nearest 100?",C,"6,240",False,MATH-1248,draft
+T1-008,T1 Rounding,MATH-1248,"A shop sold 6,243 pens in a year. What is this number rounded to the nearest 100?",D,"6,300",False,MATH-1988,draft
 T1-009,T1 Rounding,MATH-1379,"A charity raised Rs 15,720. What is this amount rounded to the nearest Rs 1,000?",A,"15,000",False,MATH-1379,draft
 T1-009,T1 Rounding,MATH-1379,"A charity raised Rs 15,720. What is this amount rounded to the nearest Rs 1,000?",B,"16,000",True,,draft
 T1-009,T1 Rounding,MATH-1379,"A charity raised Rs 15,720. What is this amount rounded to the nearest Rs 1,000?",C,"15,700",False,MATH-1248,draft
 T1-009,T1 Rounding,MATH-1379,"A charity raised Rs 15,720. What is this amount rounded to the nearest Rs 1,000?",D,"20,000",False,MATH-2392,draft
-T1-010,T1 Rounding,MATH-2392,A parcel weighs 7.346 kg. What is its weight rounded to 2 decimal places?,A,7.30,False,MATH-2392,draft
-T1-010,T1 Rounding,MATH-2392,A parcel weighs 7.346 kg. What is its weight rounded to 2 decimal places?,B,7.34,False,MATH-1379,draft
-T1-010,T1 Rounding,MATH-2392,A parcel weighs 7.346 kg. What is its weight rounded to 2 decimal places?,C,7.346,False,MATH-1248,draft
-T1-010,T1 Rounding,MATH-2392,A parcel weighs 7.346 kg. What is its weight rounded to 2 decimal places?,D,7.35,True,,draft
+T1-010,T1 Rounding,MATH-2392,A parcel weighs 7.3462 kg. What is its weight rounded to 2 decimal places?,A,7.30,False,MATH-2392,draft
+T1-010,T1 Rounding,MATH-2392,A parcel weighs 7.3462 kg. What is its weight rounded to 2 decimal places?,B,7.34,False,MATH-1379,draft
+T1-010,T1 Rounding,MATH-2392,A parcel weighs 7.3462 kg. What is its weight rounded to 2 decimal places?,C,7.346,False,MATH-1248,draft
+T1-010,T1 Rounding,MATH-2392,A parcel weighs 7.3462 kg. What is its weight rounded to 2 decimal places?,D,7.35,True,,draft

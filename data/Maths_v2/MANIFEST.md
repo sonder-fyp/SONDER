@@ -39,7 +39,6 @@ Counts: 7 topics, 28 misconceptions (27 are the target of at least one item; MAT
 | 2026-10-09 | Link audit of all batches run (agents). |
 | 2026-10-10 | Five FORCED links in approved items fixed (B13 MATH-2359 x4, B08 T5-014 option C). The ~90 STRETCH links were left unchanged by decision. |
 
-Approval dates for B01–B08 are not recorded in `coverage.md`. TODO: add if known.
 
 ## Known limitations (do not present as solved)
 

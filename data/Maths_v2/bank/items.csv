@@ -1,12 +1,12 @@
-﻿item_id,topic,target,stem,option_id,option_text,is_correct,misconceptions,status,batch
-T1-001,T1 Rounding,MATH-1379,"A farm packed 3,908 kg of mangoes this season. What is this weight rounded to the nearest 10 kg?",A,"3,900",False,MATH-1379|MATH-2392,approved,B01
-T1-001,T1 Rounding,MATH-1379,"A farm packed 3,908 kg of mangoes this season. What is this weight rounded to the nearest 10 kg?",B,"3,910",True,,approved,B01
-T1-001,T1 Rounding,MATH-1379,"A farm packed 3,908 kg of mangoes this season. What is this weight rounded to the nearest 10 kg?",C,"3,908",False,MATH-1248,approved,B01
-T1-001,T1 Rounding,MATH-1379,"A farm packed 3,908 kg of mangoes this season. What is this weight rounded to the nearest 10 kg?",D,"4,000",False,,approved,B01
-T1-002,T1 Rounding,MATH-2392,"4,192 people watched a cricket match at the stadium. What is this number rounded to the nearest 10?",A,"4,192",False,MATH-1248,approved,B01
-T1-002,T1 Rounding,MATH-2392,"4,192 people watched a cricket match at the stadium. What is this number rounded to the nearest 10?",B,"4,200",False,MATH-1988|MATH-2392,approved,B01
-T1-002,T1 Rounding,MATH-2392,"4,192 people watched a cricket match at the stadium. What is this number rounded to the nearest 10?",C,"4,000",False,,approved,B01
-T1-002,T1 Rounding,MATH-2392,"4,192 people watched a cricket match at the stadium. What is this number rounded to the nearest 10?",D,"4,190",True,,approved,B01
+item_id,topic,target,stem,option_id,option_text,is_correct,misconceptions,status,batch
+T1-001,T1 Rounding,MATH-1379,"A farm packed 3,868 kg of mangoes this season. What is this weight rounded to the nearest 100 kg?",A,"3,800",False,MATH-1379,approved,B01
+T1-001,T1 Rounding,MATH-1379,"A farm packed 3,868 kg of mangoes this season. What is this weight rounded to the nearest 100 kg?",B,"3,900",True,,approved,B01
+T1-001,T1 Rounding,MATH-1379,"A farm packed 3,868 kg of mangoes this season. What is this weight rounded to the nearest 100 kg?",C,"3,870",False,MATH-1248,approved,B01
+T1-001,T1 Rounding,MATH-1379,"A farm packed 3,868 kg of mangoes this season. What is this weight rounded to the nearest 100 kg?",D,"4,000",False,MATH-2392,approved,B01
+T1-002,T1 Rounding,MATH-2392,"4,942 people watched a cricket match at the stadium. What is this number rounded to the nearest 100?",A,"4,940",False,MATH-1248,approved,B01
+T1-002,T1 Rounding,MATH-2392,"4,942 people watched a cricket match at the stadium. What is this number rounded to the nearest 100?",B,"5,000",False,MATH-1988|MATH-2392,approved,B01
+T1-002,T1 Rounding,MATH-2392,"4,942 people watched a cricket match at the stadium. What is this number rounded to the nearest 100?",C,"4,800",False,,approved,B01
+T1-002,T1 Rounding,MATH-2392,"4,942 people watched a cricket match at the stadium. What is this number rounded to the nearest 100?",D,"4,900",True,,approved,B01
 T1-003,T1 Rounding,MATH-1988,"A second-hand bicycle costs Rs 5,942. What is this price rounded to the nearest Rs 100?",A,"5,900",True,,approved,B01
 T1-003,T1 Rounding,MATH-1988,"A second-hand bicycle costs Rs 5,942. What is this price rounded to the nearest Rs 100?",B,"5,940",False,MATH-1248,approved,B01
 T1-003,T1 Rounding,MATH-1988,"A second-hand bicycle costs Rs 5,942. What is this price rounded to the nearest Rs 100?",C,"6,000",False,MATH-1988|MATH-2392,approved,B01
@@ -27,58 +27,58 @@ T1-007,T1 Rounding,MATH-1248,"The distance from Karachi to a village is 8,374 me
 T1-007,T1 Rounding,MATH-1248,"The distance from Karachi to a village is 8,374 metres by road. What is this distance rounded to the nearest 100 metres?",B,"8,300",False,MATH-1379,approved,B01
 T1-007,T1 Rounding,MATH-1248,"The distance from Karachi to a village is 8,374 metres by road. What is this distance rounded to the nearest 100 metres?",C,"8,400",True,,approved,B01
 T1-007,T1 Rounding,MATH-1248,"The distance from Karachi to a village is 8,374 metres by road. What is this distance rounded to the nearest 100 metres?",D,"8,370",False,MATH-1248,approved,B01
-T1-008,T1 Rounding,MATH-1248,"A shop sold 6,243 pens in a year. What is this number rounded to the nearest 10?",A,"6,240",True,,approved,B01
-T1-008,T1 Rounding,MATH-1248,"A shop sold 6,243 pens in a year. What is this number rounded to the nearest 10?",B,"6,200",False,MATH-2392,approved,B01
-T1-008,T1 Rounding,MATH-1248,"A shop sold 6,243 pens in a year. What is this number rounded to the nearest 10?",C,"6,243",False,MATH-1248,approved,B01
-T1-008,T1 Rounding,MATH-1248,"A shop sold 6,243 pens in a year. What is this number rounded to the nearest 10?",D,"6,250",False,MATH-1988,approved,B01
+T1-008,T1 Rounding,MATH-1248,"A shop sold 6,243 pens in a year. What is this number rounded to the nearest 100?",A,"6,200",True,,approved,B01
+T1-008,T1 Rounding,MATH-1248,"A shop sold 6,243 pens in a year. What is this number rounded to the nearest 100?",B,"6,000",False,MATH-2392,approved,B01
+T1-008,T1 Rounding,MATH-1248,"A shop sold 6,243 pens in a year. What is this number rounded to the nearest 100?",C,"6,240",False,MATH-1248,approved,B01
+T1-008,T1 Rounding,MATH-1248,"A shop sold 6,243 pens in a year. What is this number rounded to the nearest 100?",D,"6,300",False,MATH-1988,approved,B01
 T1-009,T1 Rounding,MATH-1379,"A charity raised Rs 15,720. What is this amount rounded to the nearest Rs 1,000?",A,"15,000",False,MATH-1379,approved,B01
 T1-009,T1 Rounding,MATH-1379,"A charity raised Rs 15,720. What is this amount rounded to the nearest Rs 1,000?",B,"16,000",True,,approved,B01
 T1-009,T1 Rounding,MATH-1379,"A charity raised Rs 15,720. What is this amount rounded to the nearest Rs 1,000?",C,"15,700",False,MATH-1248,approved,B01
 T1-009,T1 Rounding,MATH-1379,"A charity raised Rs 15,720. What is this amount rounded to the nearest Rs 1,000?",D,"20,000",False,MATH-2392,approved,B01
-T1-010,T1 Rounding,MATH-2392,A parcel weighs 7.346 kg. What is its weight rounded to 2 decimal places?,A,7.30,False,MATH-2392,approved,B01
-T1-010,T1 Rounding,MATH-2392,A parcel weighs 7.346 kg. What is its weight rounded to 2 decimal places?,B,7.34,False,MATH-1379,approved,B01
-T1-010,T1 Rounding,MATH-2392,A parcel weighs 7.346 kg. What is its weight rounded to 2 decimal places?,C,7.346,False,MATH-1248,approved,B01
-T1-010,T1 Rounding,MATH-2392,A parcel weighs 7.346 kg. What is its weight rounded to 2 decimal places?,D,7.35,True,,approved,B01
-T1-011,T1 Rounding,MATH-1988,"A delivery van travelled 2,694 km this year. What is this distance rounded to the nearest 10 km?",A,"2,694",False,MATH-1248,approved,B02
-T1-011,T1 Rounding,MATH-1988,"A delivery van travelled 2,694 km this year. What is this distance rounded to the nearest 10 km?",B,"2,700",False,MATH-1988|MATH-2392,approved,B02
-T1-011,T1 Rounding,MATH-1988,"A delivery van travelled 2,694 km this year. What is this distance rounded to the nearest 10 km?",C,"2,690",True,,approved,B02
-T1-011,T1 Rounding,MATH-1988,"A delivery van travelled 2,694 km this year. What is this distance rounded to the nearest 10 km?",D,"2,680",False,,approved,B02
+T1-010,T1 Rounding,MATH-2392,A parcel weighs 7.3462 kg. What is its weight rounded to 2 decimal places?,A,7.30,False,MATH-2392,approved,B01
+T1-010,T1 Rounding,MATH-2392,A parcel weighs 7.3462 kg. What is its weight rounded to 2 decimal places?,B,7.34,False,MATH-1379,approved,B01
+T1-010,T1 Rounding,MATH-2392,A parcel weighs 7.3462 kg. What is its weight rounded to 2 decimal places?,C,7.346,False,MATH-1248,approved,B01
+T1-010,T1 Rounding,MATH-2392,A parcel weighs 7.3462 kg. What is its weight rounded to 2 decimal places?,D,7.35,True,,approved,B01
+T1-011,T1 Rounding,MATH-1988,"A delivery van travelled 2,643 km this year. What is this distance rounded to the nearest 100 km?",A,"2,640",False,MATH-1248,approved,B02
+T1-011,T1 Rounding,MATH-1988,"A delivery van travelled 2,643 km this year. What is this distance rounded to the nearest 100 km?",B,"2,700",False,MATH-1988,approved,B02
+T1-011,T1 Rounding,MATH-1988,"A delivery van travelled 2,643 km this year. What is this distance rounded to the nearest 100 km?",C,"2,600",True,,approved,B02
+T1-011,T1 Rounding,MATH-1988,"A delivery van travelled 2,643 km this year. What is this distance rounded to the nearest 100 km?",D,"3,000",False,MATH-2392,approved,B02
 T1-012,T1 Rounding,MATH-1988,"A mobile phone shop made Rs 8,943 in sales on Saturday. What is this amount rounded to the nearest Rs 100?",A,"8,900",True,,approved,B02
 T1-012,T1 Rounding,MATH-1988,"A mobile phone shop made Rs 8,943 in sales on Saturday. What is this amount rounded to the nearest Rs 100?",B,"8,940",False,MATH-1248,approved,B02
 T1-012,T1 Rounding,MATH-1988,"A mobile phone shop made Rs 8,943 in sales on Saturday. What is this amount rounded to the nearest Rs 100?",C,"9,000",False,MATH-1988|MATH-2392,approved,B02
 T1-012,T1 Rounding,MATH-1988,"A mobile phone shop made Rs 8,943 in sales on Saturday. What is this amount rounded to the nearest Rs 100?",D,"8,800",False,,approved,B02
-T1-013,T1 Rounding,MATH-1988,A sprinter ran 100 m in 12.43 seconds. What is this time rounded to 1 decimal place?,A,12.0,False,MATH-2392,approved,B02
-T1-013,T1 Rounding,MATH-1988,A sprinter ran 100 m in 12.43 seconds. What is this time rounded to 1 decimal place?,B,12.43,False,MATH-1248,approved,B02
-T1-013,T1 Rounding,MATH-1988,A sprinter ran 100 m in 12.43 seconds. What is this time rounded to 1 decimal place?,C,12.5,False,MATH-1988,approved,B02
-T1-013,T1 Rounding,MATH-1988,A sprinter ran 100 m in 12.43 seconds. What is this time rounded to 1 decimal place?,D,12.4,True,,approved,B02
-T1-014,T1 Rounding,MATH-2392,"A train carried 5,408 passengers in one week. What is this number rounded to the nearest 10?",A,"5,400",False,MATH-1379|MATH-2392,approved,B02
-T1-014,T1 Rounding,MATH-2392,"A train carried 5,408 passengers in one week. What is this number rounded to the nearest 10?",B,"5,410",True,,approved,B02
-T1-014,T1 Rounding,MATH-2392,"A train carried 5,408 passengers in one week. What is this number rounded to the nearest 10?",C,"5,408",False,MATH-1248,approved,B02
-T1-014,T1 Rounding,MATH-2392,"A train carried 5,408 passengers in one week. What is this number rounded to the nearest 10?",D,"5,420",False,,approved,B02
-T1-015,T1 Rounding,MATH-2392,A rope is 3.76 m long. What is its length rounded to 1 decimal place?,A,3.7,False,MATH-1379,approved,B02
-T1-015,T1 Rounding,MATH-2392,A rope is 3.76 m long. What is its length rounded to 1 decimal place?,B,3.76,False,MATH-1248,approved,B02
-T1-015,T1 Rounding,MATH-2392,A rope is 3.76 m long. What is its length rounded to 1 decimal place?,C,3.8,True,,approved,B02
-T1-015,T1 Rounding,MATH-2392,A rope is 3.76 m long. What is its length rounded to 1 decimal place?,D,4.0,False,MATH-2392,approved,B02
+T1-013,T1 Rounding,MATH-1988,A sprinter ran 100 m in 12.432 seconds. What is this time rounded to 1 decimal place?,A,12.0,False,MATH-2392,approved,B02
+T1-013,T1 Rounding,MATH-1988,A sprinter ran 100 m in 12.432 seconds. What is this time rounded to 1 decimal place?,B,12.43,False,MATH-1248,approved,B02
+T1-013,T1 Rounding,MATH-1988,A sprinter ran 100 m in 12.432 seconds. What is this time rounded to 1 decimal place?,C,12.5,False,MATH-1988,approved,B02
+T1-013,T1 Rounding,MATH-1988,A sprinter ran 100 m in 12.432 seconds. What is this time rounded to 1 decimal place?,D,12.4,True,,approved,B02
+T1-014,T1 Rounding,MATH-2392,"A train carried 5,488 passengers in one week. What is this number rounded to the nearest 100?",A,"5,400",False,MATH-1379,approved,B02
+T1-014,T1 Rounding,MATH-2392,"A train carried 5,488 passengers in one week. What is this number rounded to the nearest 100?",B,"5,500",True,,approved,B02
+T1-014,T1 Rounding,MATH-2392,"A train carried 5,488 passengers in one week. What is this number rounded to the nearest 100?",C,"5,490",False,MATH-1248,approved,B02
+T1-014,T1 Rounding,MATH-2392,"A train carried 5,488 passengers in one week. What is this number rounded to the nearest 100?",D,"5,000",False,MATH-2392,approved,B02
+T1-015,T1 Rounding,MATH-2392,A rope is 3.764 m long. What is its length rounded to 1 decimal place?,A,3.7,False,MATH-1379,approved,B02
+T1-015,T1 Rounding,MATH-2392,A rope is 3.764 m long. What is its length rounded to 1 decimal place?,B,3.76,False,MATH-1248,approved,B02
+T1-015,T1 Rounding,MATH-2392,A rope is 3.764 m long. What is its length rounded to 1 decimal place?,C,3.8,True,,approved,B02
+T1-015,T1 Rounding,MATH-2392,A rope is 3.764 m long. What is its length rounded to 1 decimal place?,D,4.0,False,MATH-2392,approved,B02
 T1-016,T1 Rounding,MATH-1379,"A village has 4,062 trees. What is this number rounded to the nearest 100?",A,"4,000",False,MATH-1379|MATH-2392,approved,B02
 T1-016,T1 Rounding,MATH-1379,"A village has 4,062 trees. What is this number rounded to the nearest 100?",B,"4,060",False,MATH-1248,approved,B02
 T1-016,T1 Rounding,MATH-1379,"A village has 4,062 trees. What is this number rounded to the nearest 100?",C,"4,200",False,,approved,B02
 T1-016,T1 Rounding,MATH-1379,"A village has 4,062 trees. What is this number rounded to the nearest 100?",D,"4,100",True,,approved,B02
-T1-017,T1 Rounding,MATH-1379,A bag of rice weighs 5.678 kg. What is its weight rounded to 2 decimal places?,A,5.67,False,MATH-1379,approved,B02
-T1-017,T1 Rounding,MATH-1379,A bag of rice weighs 5.678 kg. What is its weight rounded to 2 decimal places?,B,5.68,True,,approved,B02
-T1-017,T1 Rounding,MATH-1379,A bag of rice weighs 5.678 kg. What is its weight rounded to 2 decimal places?,C,5.678,False,MATH-1248,approved,B02
-T1-017,T1 Rounding,MATH-1379,A bag of rice weighs 5.678 kg. What is its weight rounded to 2 decimal places?,D,5.70,False,MATH-2392,approved,B02
-T1-018,T1 Rounding,MATH-1248,A tank holds 47.6 litres of water. What is this volume rounded to the nearest whole number?,A,48,True,,approved,B02
-T1-018,T1 Rounding,MATH-1248,A tank holds 47.6 litres of water. What is this volume rounded to the nearest whole number?,B,47,False,MATH-1379,approved,B02
-T1-018,T1 Rounding,MATH-1248,A tank holds 47.6 litres of water. What is this volume rounded to the nearest whole number?,C,47.6,False,MATH-1248,approved,B02
-T1-018,T1 Rounding,MATH-1248,A tank holds 47.6 litres of water. What is this volume rounded to the nearest whole number?,D,50,False,MATH-2392,approved,B02
+T1-017,T1 Rounding,MATH-1379,A bag of rice weighs 5.6784 kg. What is its weight rounded to 2 decimal places?,A,5.67,False,MATH-1379,approved,B02
+T1-017,T1 Rounding,MATH-1379,A bag of rice weighs 5.6784 kg. What is its weight rounded to 2 decimal places?,B,5.68,True,,approved,B02
+T1-017,T1 Rounding,MATH-1379,A bag of rice weighs 5.6784 kg. What is its weight rounded to 2 decimal places?,C,5.678,False,MATH-1248,approved,B02
+T1-017,T1 Rounding,MATH-1379,A bag of rice weighs 5.6784 kg. What is its weight rounded to 2 decimal places?,D,5.70,False,MATH-2392,approved,B02
+T1-018,T1 Rounding,MATH-1248,A tank holds 47.63 litres of water. What is this volume rounded to the nearest whole number?,A,48,True,,approved,B02
+T1-018,T1 Rounding,MATH-1248,A tank holds 47.63 litres of water. What is this volume rounded to the nearest whole number?,B,47,False,MATH-1379,approved,B02
+T1-018,T1 Rounding,MATH-1248,A tank holds 47.63 litres of water. What is this volume rounded to the nearest whole number?,C,47.6,False,MATH-1248,approved,B02
+T1-018,T1 Rounding,MATH-1248,A tank holds 47.63 litres of water. What is this volume rounded to the nearest whole number?,D,50,False,MATH-2392,approved,B02
 T1-019,T1 Rounding,MATH-1248,"A stadium hosted 12,468 visitors over a season. What is this number rounded to the nearest 1,000?",A,"10,000",False,MATH-2392,approved,B02
 T1-019,T1 Rounding,MATH-1248,"A stadium hosted 12,468 visitors over a season. What is this number rounded to the nearest 1,000?",B,"12,500",False,MATH-1248,approved,B02
 T1-019,T1 Rounding,MATH-1248,"A stadium hosted 12,468 visitors over a season. What is this number rounded to the nearest 1,000?",C,"12,000",True,,approved,B02
 T1-019,T1 Rounding,MATH-1248,"A stadium hosted 12,468 visitors over a season. What is this number rounded to the nearest 1,000?",D,"13,000",False,MATH-1988,approved,B02
-T1-020,T1 Rounding,MATH-1248,A phone is 9.64 mm thick. What is its thickness rounded to 1 decimal place?,A,9.64,False,MATH-1248,approved,B02
-T1-020,T1 Rounding,MATH-1248,A phone is 9.64 mm thick. What is its thickness rounded to 1 decimal place?,B,9.6,True,,approved,B02
-T1-020,T1 Rounding,MATH-1248,A phone is 9.64 mm thick. What is its thickness rounded to 1 decimal place?,C,9.7,False,MATH-1988,approved,B02
-T1-020,T1 Rounding,MATH-1248,A phone is 9.64 mm thick. What is its thickness rounded to 1 decimal place?,D,10.0,False,MATH-2392,approved,B02
+T1-020,T1 Rounding,MATH-1248,A phone is 9.643 mm thick. What is its thickness rounded to 1 decimal place?,A,9.64,False,MATH-1248,approved,B02
+T1-020,T1 Rounding,MATH-1248,A phone is 9.643 mm thick. What is its thickness rounded to 1 decimal place?,B,9.6,True,,approved,B02
+T1-020,T1 Rounding,MATH-1248,A phone is 9.643 mm thick. What is its thickness rounded to 1 decimal place?,C,9.7,False,MATH-1988,approved,B02
+T1-020,T1 Rounding,MATH-1248,A phone is 9.643 mm thick. What is its thickness rounded to 1 decimal place?,D,10.0,False,MATH-2392,approved,B02
 T2-001,"T2 Fractions, decimals and percentage conversion",MATH-61,A phone battery is 0.45 charged. What percentage of the battery is charged?,A,4.5%,False,MATH-61,approved,B03
 T2-001,"T2 Fractions, decimals and percentage conversion",MATH-61,A phone battery is 0.45 charged. What percentage of the battery is charged?,B,45%,True,,approved,B03
 T2-001,"T2 Fractions, decimals and percentage conversion",MATH-61,A phone battery is 0.45 charged. What percentage of the battery is charged?,C,0.45%,False,MATH-1965|MATH-2039,approved,B03
