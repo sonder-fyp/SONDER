@@ -27,12 +27,14 @@ The same command produces byte-identical `runs.csv` and `summary.csv` (checked b
 
 | | Value |
 | --- | --- |
-| Generating commit | `1a16df0990787812d1e44eb98df5d5c7914c655d` (no tracked changes) |
+| Generating commit | `21265e658e677ea48e270b3ba5fd357ef265176d` (no tracked changes). The first generation at `1a16df0` produced byte-identical `runs.csv` and `summary.csv`. |
 | Engine | `0.1.0` |
-| Content | `Maths_v2`: `items.csv` `af0f7584…b45a`, `topics.csv` `7d882238…5972`, unit table `61cfff38…3e62` (full hashes in `manifest.json`) |
+| Content | `Maths_v2`, hashes of the committed files: `items.csv` `502895a9…9cd4`, `topics.csv` `f1a4dfe8…044d`, unit table `4e7102a3…ef21` (full hashes in `manifest.json`) |
 | Parameters | defaults: slip 0.10, guess 0.30, prior NONE 0.25, prior UNMODELLED 0.05, θ 0.80, θ_U 0.50, min_support 2, min_support_none 3, δ 0.05, EIG floor 0.01, budget 8, link weights 1.0 / 0.5 |
 | Python / NumPy | 3.14.0 / 2.4.4 |
 | Seeds | 0–199 (slip and random students), 0–99 (intermittent), 0 (deterministic cases). Seeds 1000–1999 and 2000–2999 are reserved for the evaluation protocol's tuning and held-out runs. |
+
+**Line endings.** The pack loader hashes the bytes on disk. A Windows checkout with Git's `core.autocrlf` has CRLF line endings, so the loader reports `af0f7584…`, `7d882238…` and `61cfff38…` there, but the committed hashes above on Linux. The manifest's `source_sha256` converts CRLF to LF before hashing and therefore matches on every platform; `source_sha256_as_loaded` keeps what the loader saw on the generating machine. The hashes in the Mid-1 report's Appendix D are the Windows as-loaded values.
 
 ## The cases
 
