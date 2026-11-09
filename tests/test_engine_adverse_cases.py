@@ -9,10 +9,16 @@ are synthetic; nothing here measures accuracy.
 
 from __future__ import annotations
 
+import csv
+import json
+import tempfile
 import unittest
+from collections import Counter
+from pathlib import Path
 
 import numpy as np
 
+from experiments.adverse_baseline import cases, write_baseline
 from experiments.harness import item_rng, predicted_label, result_row, run_session, RESULT_FIELDS
 from experiments.policies import (
     always_option,
@@ -223,6 +229,69 @@ class HarnessTests(unittest.TestCase):
         self.assertEqual(row["predicted"], predicted_label(state))
         self.assertIs(state.decision.outcome, Outcome.DIAGNOSED)
         self.assertEqual(row["predicted"], "MATH-1379")
+
+
+class AdverseBaselineCommandTests(unittest.TestCase):
+    """A small run of the baseline command; the frozen output uses the defaults."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.tmp = tempfile.TemporaryDirectory()
+        cls.first = Path(cls.tmp.name) / "first"
+        cls.second = Path(cls.tmp.name) / "second"
+        cls.record = write_baseline(cls.first, 2, 1)
+        write_baseline(cls.second, 2, 1)
+        with (cls.first / "runs.csv").open(encoding="utf-8", newline="") as handle:
+            cls.rows = list(csv.DictReader(handle))
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.tmp.cleanup()
+
+    def test_the_same_command_writes_identical_raw_results(self):
+        for name in ("runs.csv", "summary.csv"):
+            with self.subTest(file=name):
+                self.assertEqual((self.first / name).read_bytes(), (self.second / name).read_bytes())
+
+    def test_every_case_is_present(self):
+        per_policy = Counter(row["policy"] for row in self.rows)
+        self.assertEqual(per_policy["deterministic"], 43)  # spec v2 6.1
+        self.assertEqual(per_policy["always-A"], 7)
+        self.assertEqual(per_policy["partial-holder"], 1)
+        self.assertEqual(per_policy["none-with-slip"], 7 * 2)
+        self.assertEqual(per_policy["random-uniform"], 7 * 2)
+        u1_u2 = len(PACK.unit("U1").hyps) - 2 + len(PACK.unit("U2").hyps) - 2
+        self.assertEqual(per_policy["intermittent"], u1_u2 * 3 * 1)
+        self.assertEqual(len(self.rows), self.record["row_count"])
+
+    def test_raw_rows_agree_with_the_pinned_cases(self):
+        always = {row["unit_id"]: (row["outcome"], row["predicted"], int(row["questions_used"]))
+                  for row in self.rows if row["policy"] == "always-A"}
+        self.assertEqual(always, ALWAYS_A)
+        partial = next(row for row in self.rows if row["policy"] == "partial-holder")
+        self.assertEqual((partial["outcome"], partial["predicted"], int(partial["questions_used"])),
+                         PARTIAL_2039_IN_U2)
+
+    def test_summary_counts_every_run_once(self):
+        with (self.first / "summary.csv").open(encoding="utf-8", newline="") as handle:
+            total = sum(int(row["runs"]) for row in csv.DictReader(handle))
+        self.assertEqual(total, len(self.rows))
+
+    def test_manifest_names_code_content_and_parameters(self):
+        manifest = json.loads((self.first / "manifest.json").read_text(encoding="utf-8"))
+        self.assertEqual(manifest["source_sha256"], {k: v for k, v in PINNED_CONTENT.items()
+                                                     if k != "content_version"})
+        self.assertEqual(manifest["content_version"], PINNED_CONTENT["content_version"])
+        self.assertEqual({k: manifest["params"][k] for k in PINNED_PARAMS}, PINNED_PARAMS)
+        self.assertEqual(manifest["seeds"]["reserved_for_protocol"],
+                         {"tuning": [1000, 1999], "held_out": [2000, 2999]})
+        self.assertIn("not diagnostic accuracy", manifest["note"])
+
+    def test_seed_counts_are_bounded_below_the_reserved_ranges(self):
+        for runs, intermittent_runs in ((0, 1), (1, 0), (1001, 1), (1, 1001), (True, 1)):
+            with self.subTest(runs=runs, intermittent_runs=intermittent_runs):
+                with self.assertRaises(ValueError):
+                    list(cases(PACK, runs, intermittent_runs))
 
 
 if __name__ == "__main__":
