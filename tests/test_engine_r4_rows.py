@@ -29,6 +29,7 @@ from sonder_engine import (
 )
 from sonder_engine.selection import select_next
 from sonder_engine.stopping import check_stop, inseparable_set, total_variation
+from sonder_engine.stopping import reachable_share as engine_reachable_share
 from sonder_pack.maths_v2 import load_maths_v2
 
 from engine_rows import (
@@ -86,6 +87,49 @@ def session_after(unit, params, answers, *, budget=None):
 
 def remaining_items(unit, state):
     return eligible_items(unit.engine_items, state.asked_ids)
+
+
+class EngineReachableShareTests(unittest.TestCase):
+    """sonder_engine.stopping.reachable_share against the independent helper in engine_rows."""
+
+    POSTERIORS = ([0.5, 0.4, 0.05, 0.05], [0.3, 0.6, 0.05, 0.05], [0.45, 0.45, 0.06, 0.04])
+
+    def test_it_agrees_with_the_independent_bound_when_no_items_are_twins(self):
+        for params, items in ((NEAR, [near_item(f"N{i}") for i in range(8)]),
+                              (Params(), [exact_item(f"E{i}") for i in range(8)]),
+                              (Params(), [near_item("N"), separating_item("S"), exact_item("E")])):
+            for values in self.POSTERIORS:
+                p = np.array(values)
+                for member in (0, 1):
+                    for left in range(9):
+                        with self.subTest(items=items[0].item_id, p=values, member=member, left=left):
+                            self.assertAlmostEqual(
+                                engine_reachable_share(p, member, (0, 1), items, left, HYPS, params),
+                                reachable_share(p, member, (0, 1), items, left, HYPS, params), places=13)
+
+    def test_for_exact_rows_it_is_exactly_the_current_share(self):
+        p = np.array([0.47, 0.41, 0.07, 0.05])
+        items = [exact_item(f"E{i}") for i in range(6)]
+        for left in range(7):
+            self.assertEqual(engine_reachable_share(p, 0, (0, 1), items, left, HYPS, Params()),
+                             float(p[0]) / float(p[[0, 1]].sum()))
+
+    def test_items_of_one_twin_group_count_once(self):
+        p = np.array([0.5, 0.4, 0.05, 0.05])
+        twins = [near_item("N1", twin_group="g"), near_item("N2", twin_group="g")]
+        engine = engine_reachable_share(p, 0, (0, 1), twins, 2, HYPS, NEAR)
+        one_answer = reachable_share(p, 0, (0, 1), twins[:1], 1, HYPS, NEAR)
+        ignoring_twins = reachable_share(p, 0, (0, 1), twins, 2, HYPS, NEAR)
+        self.assertAlmostEqual(engine, one_answer, places=15)
+        self.assertLess(engine, ignoring_twins)
+
+    def test_it_refuses_invalid_requests(self):
+        p = np.array([0.5, 0.4, 0.05, 0.05])
+        with self.assertRaises(ValueError):
+            engine_reachable_share(p, 2, (0, 1), [near_item("N")], 1, HYPS, NEAR)
+        for bad in (-1, True, 1.0):
+            with self.subTest(answers_left=bad), self.assertRaises(ValueError):
+                engine_reachable_share(p, 0, (0, 1), [near_item("N")], bad, HYPS, NEAR)
 
 
 class RealBankRowTests(unittest.TestCase):

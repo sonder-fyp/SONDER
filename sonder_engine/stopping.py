@@ -102,6 +102,57 @@ def inseparable_set(p: NDArray[np.float64], remaining: Sequence[Item],
     return lead, tied
 
 
+def _growth(rows: Sequence[NDArray[np.float64]], items: Sequence[Item],
+            member: int, other: int, answers_left: int) -> float:
+    """Largest factor the odds of ``member`` over ``other`` can grow by in at most
+    ``answers_left`` answers to distinct remaining items.
+
+    One answer to an item multiplies the odds by at most max_o P(o|member)/P(o|other).
+    Asking an item removes its twins (``eligible_items``), so at most one item per
+    twin group counts. Only factors above one help: answering fewer items is allowed.
+    """
+
+    best: dict[object, float] = {}
+    for item, L in zip(items, rows, strict=True):
+        key = ("item", item.item_id) if item.twin_group is None else ("twin", item.twin_group)
+        ratio = float(np.max(L[member] / L[other]))
+        best[key] = max(best.get(key, 0.0), ratio)
+    growth = 1.0
+    for ratio in sorted(best.values(), reverse=True)[:answers_left]:
+        if ratio <= 1.0:
+            break
+        growth *= ratio
+    return growth
+
+
+def _reachable(p: NDArray[np.float64], member: int, tied: Sequence[int],
+               rows: Sequence[NDArray[np.float64]], items: Sequence[Item], answers_left: int) -> float:
+    # p(member)/p(C) after the most favourable answers: each other member's mass shrinks
+    # by its own best growth factor. Bounding each pair separately gives an upper bound.
+    # With identical rows every factor is exactly 1.0, so this equals p(member)/p(C).
+    scaled = np.array([p[j] if j == member else p[j] / _growth(rows, items, member, j, answers_left)
+                       for j in tied], dtype=np.float64)
+    return float(p[member]) / float(scaled.sum())
+
+
+def reachable_share(p: NDArray[np.float64], member: int, tied: Sequence[int],
+                    remaining: Sequence[Item], answers_left: int,
+                    hyps: tuple[str, ...], params: Params) -> float:
+    """Upper bound on p(member)/p(tied) after at most ``answers_left`` more answers.
+
+    ``tied`` holds hypothesis indices and must contain ``member``. Because
+    p(member) <= p(member)/p(tied), a bound below theta means the member cannot
+    reach theta either. For exactly equal rows the bound is the current share.
+    """
+
+    if member not in tied:
+        raise ValueError("member must belong to the tied set")
+    if isinstance(answers_left, bool) or not isinstance(answers_left, int) or answers_left < 0:
+        raise ValueError("answers_left must be a non-negative integer")
+    rows = [likelihood_matrix(item, hyps, params) for item in remaining]
+    return _reachable(np.asarray(p, dtype=np.float64), member, tuple(tied), rows, remaining, answers_left)
+
+
 def _names(names: Sequence[str]) -> str:
     return names[0] if len(names) == 1 else ", ".join(names[:-1]) + " and " + names[-1]
 

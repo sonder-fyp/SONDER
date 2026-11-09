@@ -43,10 +43,10 @@ def exact_item(item_id: str, *, twin_group: str | None = None) -> Item:
     return make_item(item_id, [(), ("M1", "M2"), (), ()], twin_group=twin_group)
 
 
-def near_item(item_id: str) -> Item:
+def near_item(item_id: str, *, twin_group: str | None = None) -> Item:
     """B is linked to M1 (sound) and M2 (stretch): with w_stretch near 1 the rows are near."""
 
-    return make_item(item_id, [(), ("M1", "M2"), (), ()], [(), ("S", "T"), (), ()])
+    return make_item(item_id, [(), ("M1", "M2"), (), ()], [(), ("S", "T"), (), ()], twin_group=twin_group)
 
 
 def separating_item(item_id: str, *, twin_group: str | None = None) -> Item:
