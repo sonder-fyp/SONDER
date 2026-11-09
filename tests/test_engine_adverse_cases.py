@@ -10,15 +10,18 @@ are synthetic; nothing here measures accuracy.
 from __future__ import annotations
 
 import csv
+import hashlib
 import json
 import tempfile
 import unittest
 from collections import Counter
+from dataclasses import replace
 from pathlib import Path
 
 import numpy as np
 
 from experiments.adverse_baseline import cases, write_baseline
+from experiments.content import canonical_source_sha256, lf_sha256
 from experiments.harness import item_rng, predicted_label, result_row, run_session, RESULT_FIELDS
 from experiments.policies import (
     always_option,
@@ -38,12 +41,13 @@ RNG = np.random.default_rng(0)  # never used by deterministic policies
 
 # The content and parameters the retained adverse outcomes below were recorded with.
 # A content or parameter change must fail here first, so that its effect on the
-# adverse cases is reviewed instead of silently absorbed.
+# adverse cases is reviewed instead of silently absorbed. Hashes are of the committed
+# files (line-ending independent), so they agree on Windows and Linux checkouts.
 PINNED_CONTENT = {
     "content_version": "Maths_v2",
-    "bank/items.csv": "af0f75846c763bdc19ee1760ba22e1f4426b27c52ef5933a616f53cd0583b45a",
-    "topics.csv": "7d88223803beb462501eb9fa1cb882dd4a44c841324c616bb6de36494d765972",
-    "maths_v2_units.json": "61cfff3884738a2fac2621a3443e64455d1104870b2c462c999bf684e4af3e62",
+    "bank/items.csv": "502895a90823dedf6c15b3ddbd95e874371583bb0a2127b8ad1e0018cf9f9cd4",
+    "topics.csv": "f1a4dfe8ea0e035b03b84b5bb03809aabbfd2fbabceec10681ecd1c78482044d",
+    "maths_v2_units.json": "4e7102a34cc195801faae6b6b416e3ad64c443e3ae7e8ee6d99819da628fef21",
 }
 PINNED_PARAMS = {
     "slip": 0.10, "guess": 0.30, "prior_none": 0.25, "prior_unmodelled": 0.05,
@@ -81,8 +85,21 @@ def triggered(item: Item, misconception: str) -> list[int]:
 
 class PinnedAdverseCaseTests(unittest.TestCase):
     def test_content_identity_is_the_recorded_one(self):
-        identity = {"content_version": PACK.identity.content_version, **dict(PACK.identity.source_sha256)}
+        identity = {"content_version": PACK.identity.content_version, **canonical_source_sha256(PACK)}
         self.assertEqual(identity, PINNED_CONTENT, REBASELINE)
+
+    def test_content_identity_ignores_crlf_line_endings(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            lf, crlf = Path(tmp) / "lf.csv", Path(tmp) / "crlf.csv"
+            lf.write_bytes(b"item_id,topic\nT1-001,T1\n")
+            crlf.write_bytes(b"item_id,topic\r\nT1-001,T1\r\n")
+            self.assertEqual(lf_sha256(lf), lf_sha256(crlf))
+            self.assertEqual(lf_sha256(lf), hashlib.sha256(lf.read_bytes()).hexdigest())
+
+    def test_content_identity_refuses_a_pack_from_other_files(self):
+        other = replace(PACK, identity=replace(PACK.identity, source_sha256=(("other.csv", "0" * 64),)))
+        with self.assertRaises(ValueError):
+            canonical_source_sha256(other)
 
     def test_default_parameters_are_the_recorded_ones(self):
         params = Params()
@@ -281,6 +298,7 @@ class AdverseBaselineCommandTests(unittest.TestCase):
         manifest = json.loads((self.first / "manifest.json").read_text(encoding="utf-8"))
         self.assertEqual(manifest["source_sha256"], {k: v for k, v in PINNED_CONTENT.items()
                                                      if k != "content_version"})
+        self.assertEqual(manifest["source_sha256_as_loaded"], dict(PACK.identity.source_sha256))
         self.assertEqual(manifest["content_version"], PINNED_CONTENT["content_version"])
         self.assertEqual({k: manifest["params"][k] for k in PINNED_PARAMS}, PINNED_PARAMS)
         self.assertEqual(manifest["seeds"]["reserved_for_protocol"],

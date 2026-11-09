@@ -42,6 +42,7 @@ from sonder_engine import Params, Unit, __version__
 from sonder_engine.pack import Pack
 from sonder_pack.maths_v2 import load_maths_v2
 
+from .content import canonical_source_sha256
 from .harness import RESULT_FIELDS, result_row, run_session
 from .policies import (
     StudentPolicy,
@@ -113,6 +114,8 @@ def _git(*args: str) -> str | None:
 
 def manifest(pack: Pack, params: Params, runs: int, intermittent_runs: int,
              row_count: int, commit: str | None, dirty: bool | None) -> dict:
+    """Run record. ``source_sha256`` is line-ending independent (see experiments.content)."""
+
     return {
         "experiment": "adverse-baseline",
         "task": "I2-A01",
@@ -122,7 +125,11 @@ def manifest(pack: Pack, params: Params, runs: int, intermittent_runs: int,
         "git_tracked_changes": dirty,
         "engine_version": __version__,
         "content_version": pack.identity.content_version,
-        "source_sha256": dict(pack.identity.source_sha256),
+        "source_sha256": canonical_source_sha256(pack),
+        "source_sha256_as_loaded": dict(pack.identity.source_sha256),
+        "source_sha256_note": ("source_sha256 hashes each file with CRLF converted to LF, which equals the "
+                               "committed file on every platform. source_sha256_as_loaded is what the pack "
+                               "loader hashed on this machine and differs on a CRLF (Windows) checkout."),
         "params": asdict(params),
         "question_budget": params.default_budget,
         "seeds": {
