@@ -98,6 +98,10 @@ def create_app(token: str, *, store=None, trace=False, capacity=256, ttl=86400):
                 log.exception("Trace logging failed after acceptance")
         return reply
 
+    @app.get("/engine/latest", dependencies=auth)
+    def latest(request: Request):
+        return db(request).latest_finished()
+
     @app.get("/engine/sessions/{sid}/trace", dependencies=auth)
     def inspect(request: Request, sid: str):
         return db(request).inspect(sid)

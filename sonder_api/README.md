@@ -52,7 +52,7 @@ For D1 choose U1 and D/B/B/A. Expected items: T1-005, T1-006, T1-007, T1-009. In
 
 ## Request boundary
 
-Browser endpoints are `/api/diagnostic/units`, `/sessions`, `/sessions/{id}`, and `/sessions/{id}/answers`. Python endpoints use `/engine/units`, `/sessions`, `/sessions/{id}`, `/sessions/{id}/answers`, `/sessions/{id}/trace` and `/health`. Every internal endpoint requires `X-Sonder-Token`; session operations also require a verified owner. Only the internal trace endpoint exposes diagnostic evidence.
+Browser endpoints are `/api/diagnostic/units`, `/sessions`, `/sessions/{id}`, and `/sessions/{id}/answers`. Python endpoints use `/engine/units`, `/sessions`, `/sessions/{id}`, `/sessions/{id}/answers`, `/sessions/{id}/trace` and `/health`. Every internal endpoint requires `X-Sonder-Token`; session operations also require a verified owner. Only the internal trace endpoint exposes diagnostic evidence, plus `GET /engine/latest`, which returns the trace of the run that finished last (token only, no owner). The Next.js route `/api/teacher/latest-diagnostic` reads it to show a demo-only notice and popup on the teacher screens; it is a read-only demo view with no login, no saving and no approval step.
 
 Begin takes `{unit_id, create_request_id}` (UUID v4). This nonce is a sensitive bootstrap capability; identical retries recover the same start reply even before Set-Cookie. The BFF derives its owner with HMAC, then sets a signed HttpOnly SameSite per-run cookie scoped to that run's API path. Different runs have separate cookies. This deliberately is not login or enrolment authorization.
 

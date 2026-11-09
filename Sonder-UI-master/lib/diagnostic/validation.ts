@@ -1,15 +1,15 @@
 import type { AnswerRequest, BeginRequest, Catalogue, OptionId, Snapshot } from "./types";
 
 export const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
-function object(value: unknown): Record<string, unknown> {
+export function object(value: unknown): Record<string, unknown> {
   if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("Invalid object");
   return value as Record<string, unknown>;
 }
-function text(value: unknown, max = 10000): string {
+export function text(value: unknown, max = 10000): string {
   if (typeof value !== "string" || !value.length || value.length > max) throw new Error("Invalid text");
   return value;
 }
-function integer(value: unknown, min = 0, max = 1000): number {
+export function integer(value: unknown, min = 0, max = 1000): number {
   if (typeof value !== "number" || !Number.isInteger(value) || value < min || value > max) throw new Error("Invalid integer");
   return value;
 }

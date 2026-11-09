@@ -28,6 +28,7 @@ class Entry:
     initial: dict
     trace: dict
     replies: dict[int, tuple[AnswerRequest, dict]] = field(default_factory=dict)
+    finished_seq: int | None = None
 
 
 class InMemoryStore:
@@ -41,6 +42,13 @@ class InMemoryStore:
         self.entries: dict[str, Entry] = {}
         self.creates: dict[tuple[str, str], str] = {}
         self.expired: dict[str, tuple[str, float]] = {}
+        self.finished_count = 0
+
+    def _mark_finished(self, entry):
+        # Order in which runs finished. Not the activity time: that also changes on reads.
+        if entry.state.finished and entry.finished_seq is None:
+            self.finished_count += 1
+            entry.finished_seq = self.finished_count
 
     def catalogue(self):
         return {"contract_version": 1, "subject": self.pack.subject,
@@ -106,6 +114,7 @@ class InMemoryStore:
             reply, trace = snapshot(sid, state), evidence(state)
             self.entries[sid] = Entry(owner, state, self.clock(), key, reply, trace)
             self.creates[key] = sid
+            self._mark_finished(self.entries[sid])
             return deepcopy(reply)
 
     def current(self, sid: str, owner: str):
@@ -138,6 +147,7 @@ class InMemoryStore:
             # All numerical/projection work succeeds before any publication.
             entry.state, entry.trace = updated, trace
             entry.replies[request.step_index] = (request, reply)
+            self._mark_finished(entry)
             entry.activity = self.clock()
             return deepcopy(reply), True
 
@@ -147,3 +157,17 @@ class InMemoryStore:
             if sid not in self.entries:
                 raise ServiceError(404, "session_unavailable")
             return deepcopy(self.entries[sid].trace)
+
+    def latest_finished(self):
+        # Demo view: the run that finished last. Does not touch activity, so a teacher
+        # looking at a result neither keeps it alive nor changes which run is evicted.
+        with self.lock:
+            self._prune()
+            done = [(e.finished_seq, sid) for sid, e in self.entries.items() if e.finished_seq is not None]
+            if not done:
+                raise ServiceError(404, "session_unavailable")
+            seq, sid = max(done)
+            entry = self.entries[sid]
+            return {"session_id": sid, "finished_seq": seq,
+                    "unit": {"unit_id": entry.state.unit.unit_id, "name": entry.state.unit.name},
+                    **deepcopy(entry.trace)}
