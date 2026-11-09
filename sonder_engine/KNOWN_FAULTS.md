@@ -148,6 +148,16 @@ Each entry has these fields: what is wrong, what it affects, what the user sees,
 - **Decision:** none.
 - **Backed by:** `tests/test_engine_session.py`: `test_answer_notes_quote_the_option_text`.
 
+## KF-15. R4's ceiling is exact only when the tied rows are identical (supervisor action 3)
+
+- **What is wrong:** R4 groups into the tied set C every hypothesis whose answer distribution is within `delta_sep` (total variation) of the leader's on every remaining item, then states that "the most the leader can reach is p(leader)/p(C)". That ratio is a true ceiling only when the rows are identical: then no answer changes the odds inside C. When rows are near but not equal (0 < TV ≤ 0.05), every answer multiplies the odds by a likelihood ratio, so the share can move past the stated value. R4 also ignores the budget: a pair whose only separating item can no longer be asked ends in R5 with no tied set named.
+- **Affects:** no outcome on the current bank. At default parameters every pair of rows in Maths_v2 is either identical or more than `delta_sep` apart, so every current R4 refusal (including D2 and the 8 deterministic refusals) is an exact-row refusal. Near rows appear once link grades or parameters bring a stretch row close to its sound row (for example a T-graded link with `w_stretch` 0.95).
+- **What the user sees:** with near rows, a refusal whose explanation states a ceiling that further answers would exceed. Whether the refusal decision itself is wrong depends on the remaining budget and the EIG floor: in the constructed case the leader can reach at most 0.596 within budget 8, but with 40 items, budget 40 and EIG floor 0.001 the session is stopped only by R4 although R1 would diagnose at answer 29.
+- **Evidence:** spec §3.5 ("their ratios are frozen"); the constructed cases below.
+- **Fix and owner:** I2-A03 (Ashher, agreed with Ahmed as owner of `stopping.py`): choose between exact-row membership of C, a budget-aware bound on the reachable share, or qualified wording, using these regression cases; then update the specification, trace text and tests together.
+- **Decision:** none yet (I2-A03).
+- **Backed by:** `tests/test_engine_r4_rows.py`: `RealBankRowTests` (no near rows in the current bank; D2 is exact), `ExactRowTests`, `NearRowTests`, `NearRowDecisionChangeTests`, `InteractionTests`.
+
 ---
 
 ## What backs each entry
@@ -168,3 +178,4 @@ Each entry has these fields: what is wrong, what it affects, what the user sees,
 | KF-12 | — | `test_engine_students.py`: `test_kf12_one_slip_would_hide_a_misconception_without_the_three_answer_rule`; `test_engine_stopping.py`: `test_d1_none_blocked_by_support_then_1379_diagnosed` |
 | KF-13 | W4 ×10 | `test_engine_pack.py`: `test_warning_lists` |
 | KF-14 | — | `test_engine_session.py`: `test_answer_notes_quote_the_option_text` |
+| KF-15 | — | `test_engine_r4_rows.py`: `RealBankRowTests`, `ExactRowTests`, `NearRowTests`, `NearRowDecisionChangeTests`, `InteractionTests` |
