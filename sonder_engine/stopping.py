@@ -36,7 +36,10 @@ class StopDecision:
     rule: str | None  # "R1".."R5"; None while in progress
     leader: str  # m* (R1), NONE (R2), UNMODELLED (R3), otherwise the leader over misconceptions and NONE
     tied: tuple[str, ...] = ()  # the inseparable set C for R4, in hypothesis order
-    ceiling: float | None = None  # p(leader) / p(C) for R4; derived, never stored
+    leader_share: float | None = None  # p(leader) / p(C) for R4; derived, never stored
+    # Highest p(member) / p(C) any member of C could reach in the answers left (R4);
+    # derived, never stored. Equals leader_share when C's rows are identical.
+    reachable_share: float | None = None
     support: int | None = None  # support of the rule's hypothesis set when it fired
     exhausted_by: str | None = None  # "budget" | "no_items" | "eig_floor" for R5
     detail: str = ""  # generated sentence; becomes escalation.reason for refusals
@@ -94,11 +97,15 @@ def inseparable_set(p: NDArray[np.float64], remaining: Sequence[Item],
     is every hypothesis in the range (nothing can separate them).
     """
 
-    k = len(hyps) - 2
-    lead = _leader(p, k + 1)
     rows = [likelihood_matrix(item, hyps, params) for item in remaining]
+    return _inseparable(p, rows, len(hyps) - 2, params.delta_sep)
+
+
+def _inseparable(p: NDArray[np.float64], rows: Sequence[NDArray[np.float64]], k: int,
+                 delta_sep: float) -> tuple[int, tuple[int, ...]]:
+    lead = _leader(p, k + 1)
     tied = tuple(j for j in range(k + 1)
-                 if all(total_variation(L[j], L[lead]) <= params.delta_sep for L in rows))
+                 if all(total_variation(L[j], L[lead]) <= delta_sep for L in rows))
     return lead, tied
 
 
@@ -206,17 +213,21 @@ def check_stop(p: NDArray[np.float64], history: Sequence[tuple[Item, int]],
 
     lead = _leader(p, k + 1)
     if remaining:  # R4: no remaining item can separate the leader from its tied set
-        lead, tied = inseparable_set(p, remaining, hyps, params)
+        rows = [likelihood_matrix(item, hyps, params) for item in remaining]
+        lead, tied = _inseparable(p, rows, k, params.delta_sep)
         mass = float(p[list(tied)].sum())
         if len(tied) >= 2 and mass >= theta:
-            ceiling = float(p[lead]) / mass
+            share = float(p[lead]) / mass
+            answers_left = max(budget - len(history), 0)
+            reachable = max(_reachable(p, j, tied, rows, remaining, answers_left) for j in tied)
             held = support(history, [hyps[j] for j in tied])
-            if ceiling < theta and held >= params.min_support:
+            if share < theta and held >= params.min_support:
                 names = tuple(hyps[j] for j in tied)
                 return StopDecision(
-                    Outcome.ESCALATED_NO_SEPARATOR, "R4", hyps[lead], names, ceiling, held,
+                    Outcome.ESCALATED_NO_SEPARATOR, "R4", hyps[lead], names,
+                    leader_share=share, reachable_share=reachable, support=held,
                     detail=(f"R4: no remaining item separates {_names(names)} (together p = "
-                            f"{mass:.3f}); the most {hyps[lead]} can reach is {ceiling:.3f}, "
+                            f"{mass:.3f}); the most {hyps[lead]} can reach is {share:.3f}, "
                             f"below theta = {theta:.2f}."))
 
     answered = len(history)  # R5: exhausted

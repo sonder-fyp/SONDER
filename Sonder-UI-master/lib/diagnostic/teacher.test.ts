@@ -30,7 +30,7 @@ function step(index: number, posterior: number[], decision: Record<string, unkno
   };
 }
 function upstream(overrides: Record<string, unknown> = {}) {
-  const decision = { outcome: "diagnosed", rule: "R1", leader: "MATH-1379", tied: [], ceiling: null, support: 2,
+  const decision = { outcome: "diagnosed", rule: "R1", leader: "MATH-1379", tied: [], leader_share: null, reachable_share: null, support: 2,
     exhausted_by: null, detail: "R1: MATH-1379 at p = 0.942 with 2 supporting answers (theta = 0.80, min_support = 2)." };
   return {
     session_id: sid, finished_seq: 3, unit: { unit_id: "U1", name: "Rounding" },
@@ -39,7 +39,7 @@ function upstream(overrides: Record<string, unknown> = {}) {
       steps: [step(0, [0.3, 0.05, 0.6, 0.05], { ...decision, outcome: "in_progress", rule: null, leader: "NONE", detail: "" }),
         step(1, [0.9423, 0.01, 0.03, 0.0177], decision)],
       outcome: { outcome: "diagnosed", rule: "R1", diagnosis_candidates: [[1, 0], [2, 2]], escalation_reason: null,
-        escalation_leader_slot: null, escalation_candidates: [], ceiling: null },
+        escalation_leader_slot: null, escalation_candidates: [], leader_share: null, reachable_share: null },
     },
     hypothesis_names: { "MATH-1379": "Rounds down instead of up", "MATH-1988": "Rounds up instead of down" },
     ...overrides,
@@ -63,7 +63,7 @@ describe("teacher demo view", () => {
 
   it("keeps the tied set of a refusal", () => {
     const decision = { outcome: "escalated_no_separator", rule: "R4", leader: "MATH-1379", tied: ["MATH-1379", "MATH-1988"],
-      ceiling: 0.5, support: 2, exhausted_by: null, detail: "R4: no remaining item separates MATH-1379 and MATH-1988." };
+      leader_share: 0.5, reachable_share: 0.5, support: 2, exhausted_by: null, detail: "R4: no remaining item separates MATH-1379 and MATH-1988." };
     const base = upstream();
     const value = upstream({ trace: { ...base.trace, steps: [step(0, [0.48, 0.48, 0.02, 0.02], decision)],
       outcome: { ...base.trace.outcome, outcome: "escalated_no_separator", rule: "R4" } } });

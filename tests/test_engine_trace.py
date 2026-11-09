@@ -153,7 +153,8 @@ class TraceSchemaTests(SchemaFit, unittest.TestCase):
         refused = trace_of(replay(u4, Params(), ["D", "A"])).outcome
         self.assertEqual((refused.escalation_leader_slot, refused.escalation_candidates),
                          (3, ((1, 3), (2, 4))))  # MATH-1514 leads, MATH-1773 tied
-        self.assertAlmostEqual(refused.ceiling, 0.5, places=12)
+        self.assertAlmostEqual(refused.leader_share, 0.5, places=12)
+        self.assertEqual(refused.reachable_share, refused.leader_share)  # D2 rows are identical
         self.assertTrue(refused.escalation_reason.startswith("R4: "))
         exhausted = trace_of(run_student(u1, Params(), "NONE", budget=2)).outcome
         self.assertEqual(len(exhausted.escalation_candidates), 2)

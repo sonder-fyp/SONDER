@@ -57,7 +57,7 @@ class WorkedExampleTests(unittest.TestCase):
         d = state.decision
         self.assertEqual((d.outcome, d.tied, d.support), (Outcome.ESCALATED_NO_SEPARATOR,
                                                           ("MATH-1514", "MATH-1773"), 2))
-        self.assertAlmostEqual(d.ceiling, 0.5, places=12)
+        self.assertAlmostEqual(d.leader_share, 0.5, places=12)
 
     def test_answer_notes_quote_the_option_text(self):
         state = replay(self.pack.unit("U1"), Params(), ["D", "B", "B"])

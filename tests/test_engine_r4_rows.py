@@ -178,7 +178,7 @@ class ExactRowTests(unittest.TestCase):
         self.assertEqual((decision.rule, decision.leader, decision.tied, decision.support),
                          ("R4", "M1", ("M1", "M2"), 2))
         self.assertEqual(self.state.posterior[0], self.state.posterior[1])
-        self.assertAlmostEqual(decision.ceiling, 0.5, places=15)
+        self.assertAlmostEqual(decision.leader_share, 0.5, places=15)
 
     def test_no_answer_sequence_on_the_remaining_items_changes_the_ratio(self):
         remaining = remaining_items(self.unit, self.state)
@@ -189,13 +189,13 @@ class ExactRowTests(unittest.TestCase):
                     p = start_p
                     for item, observed in zip(remaining, options):
                         p = update_posterior(p, likelihood_matrix(item, HYPS, Params()), observed)
-                    self.assertAlmostEqual(p[0] / (p[0] + p[1]), self.state.decision.ceiling, places=12)
+                    self.assertAlmostEqual(p[0] / (p[0] + p[1]), self.state.decision.leader_share, places=12)
 
     def test_the_bound_over_the_whole_budget_equals_the_ratio(self):
         remaining = remaining_items(self.unit, self.state)
         left = self.state.budget - len(self.state.steps)
         bound = reachable_share(np.array(self.state.posterior), 0, (0, 1), remaining, left, HYPS, Params())
-        self.assertAlmostEqual(bound, self.state.decision.ceiling, places=15)
+        self.assertAlmostEqual(bound, self.state.decision.leader_share, places=15)
 
 
 class NearRowTests(unittest.TestCase):
@@ -218,13 +218,13 @@ class NearRowTests(unittest.TestCase):
         decision = self.state.decision
         self.assertEqual((decision.rule, decision.leader, decision.tied, len(self.state.steps)),
                          ("R4", "M1", ("M1", "M2"), 2))
-        self.assertAlmostEqual(decision.ceiling, 0.5243757431629014, places=12)
+        self.assertAlmostEqual(decision.leader_share, 0.5243757431629014, places=12)
         self.assertIn("the most M1 can reach is 0.524", decision.detail)
 
     def test_one_more_answer_takes_the_leader_past_the_stated_ceiling(self):
         item = remaining_items(self.unit, self.state)[0]
         p = update_posterior(np.array(self.state.posterior), likelihood_matrix(item, HYPS, NEAR), 1)
-        self.assertGreater(p[0] / (p[0] + p[1]), self.state.decision.ceiling + 0.01)
+        self.assertGreater(p[0] / (p[0] + p[1]), self.state.decision.leader_share + 0.01)
 
     def test_within_the_default_budget_the_leader_still_cannot_reach_theta(self):
         # The claim is false, but at budget 8 the refusal decision itself is consistent:
