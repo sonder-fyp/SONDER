@@ -221,14 +221,18 @@ def check_stop(p: NDArray[np.float64], history: Sequence[tuple[Item, int]],
             answers_left = max(budget - len(history), 0)
             reachable = max(_reachable(p, j, tied, rows, remaining, answers_left) for j in tied)
             held = support(history, [hyps[j] for j in tied])
-            if share < theta and held >= params.min_support:
+            # Refuse only when no member of C can reach theta in the answers left: any
+            # member's probability is at most its share of C, which is at most
+            # ``reachable``. With identical rows reachable == share (spec 3.5).
+            if reachable < theta and held >= params.min_support:
                 names = tuple(hyps[j] for j in tied)
+                answers = "answer" if answers_left == 1 else "answers"
                 return StopDecision(
                     Outcome.ESCALATED_NO_SEPARATOR, "R4", hyps[lead], names,
                     leader_share=share, reachable_share=reachable, support=held,
                     detail=(f"R4: no remaining item separates {_names(names)} (together p = "
-                            f"{mass:.3f}); the most {hyps[lead]} can reach is {share:.3f}, "
-                            f"below theta = {theta:.2f}."))
+                            f"{mass:.3f}); with {answers_left} {answers} left none of them can reach "
+                            f"theta = {theta:.2f} (highest reachable share {reachable:.3f})."))
 
     answered = len(history)  # R5: exhausted
     if answered >= budget:
