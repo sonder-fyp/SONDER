@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { BoundaryError, engine } from "./server";
 import { beginOwner, capability, checkOrigin, cookieName, sessionOwner } from "./owner";
 import { parseAnswer, parseBegin, parseCatalogue, parseSnapshot } from "./validation";
+import { parseLatest } from "./teacher";
 import type { Snapshot } from "./types";
 
 const headers = { "Cache-Control": "no-store" };
@@ -53,4 +54,8 @@ export function answerRoute(request: Request, sid: string) {
     const owner = sessionOwner(request, sid), payload = await body(request, parseAnswer);
     return reply(await engine(`/engine/sessions/${sid}/answers`, parseSnapshot, owner, payload), owner, sid);
   });
+}
+// Demo teacher view: the diagnostic that finished last. Read only; the token stays on the server.
+export function latestTeacherRoute() {
+  return safe(async () => NextResponse.json(await engine("/engine/latest", parseLatest), { headers }));
 }

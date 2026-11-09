@@ -196,6 +196,68 @@ class ApiTests(unittest.TestCase):
             self.assertEqual(self.client.post(path, headers=self.headers, content=raw).status_code, 422)
         self.assertEqual(self.client.get(f'/engine/sessions/{v["session_id"]}', headers=self.headers).json(), v)
 
+    def finish(self, unit, options):
+        v = self.begin(unit)
+        for option in options:
+            v, _ = self.submit(v, option)
+        self.assertEqual(v["status"], "complete")
+        return v
+
+    def latest(self, headers=None):
+        return self.client.get("/engine/latest", headers=self.headers if headers is None else headers)
+
+    def test_latest_is_unavailable_until_a_run_finishes(self):
+        self.assertEqual(self.latest().status_code, 404)
+        v = self.begin("U1")
+        self.assertEqual(self.latest().status_code, 404)
+        v, _ = self.submit(v, "D")
+        self.assertEqual(self.latest().status_code, 404)
+
+    def test_latest_returns_the_run_that_finished_last(self):
+        a = self.finish("U1", "DBBA")
+        first = self.latest().json()
+        self.assertEqual(set(first), {"session_id", "finished_seq", "unit", "trace", "hypothesis_names"})
+        self.assertEqual(first["session_id"], a["session_id"])
+        self.assertEqual(first["unit"], {"unit_id": "U1", "name": "Rounding"})
+        self.assertEqual(first["trace"]["outcome"]["outcome"], "diagnosed")
+        self.assertEqual(first["trace"]["outcome"]["rule"], "R1")
+        self.assertEqual(first["trace"], self.inspect(a["session_id"]))
+        b = self.finish("U4", "DA")
+        latest = self.latest().json()
+        self.assertEqual(latest["session_id"], b["session_id"])
+        self.assertEqual(latest["trace"]["outcome"]["outcome"], "escalated_no_separator")
+        self.assertGreater(latest["finished_seq"], first["finished_seq"])
+        # Reads of the older run do not change which run finished last.
+        self.client.get(f'/engine/sessions/{a["session_id"]}', headers=self.headers)
+        self.assertEqual(self.latest().json()["session_id"], b["session_id"])
+
+    def test_latest_requires_the_token_but_no_owner(self):
+        self.finish("U1", "DBBA")
+        self.assertEqual(self.latest({}).status_code, 401)
+        self.assertEqual(self.latest({"X-Sonder-Token": "wrong"}).status_code, 401)
+        self.assertEqual(self.latest({"X-Sonder-Token": "t" * 32}).status_code, 200)
+
+    def test_latest_ignores_unfinished_runs_and_survives_eviction(self):
+        store = InMemoryStore(self.pack, self.params, capacity=2)
+        client = TestClient(create_app("t" * 32, store=store))
+        client.__enter__()
+        self.addCleanup(client.__exit__, None, None, None)
+        owner = "a" * 64
+        def run(unit, options):
+            v = store.create(owner, StartRequest(unit_id=unit, create_request_id=str(uuid4())))
+            for option in options:
+                q = v["question"]
+                v, _ = store.submit(v["session_id"], owner, AnswerRequest(
+                    step_index=q["step_index"], item_id=q["item_id"], option_id=option))
+            return v
+        first = run("U1", "DBBA")
+        second = run("U4", "DA")
+        self.assertEqual(store.latest_finished()["session_id"], second["session_id"])
+        active = store.create(owner, StartRequest(unit_id="U1", create_request_id=str(uuid4())))
+        self.assertEqual(store.latest_finished()["session_id"], second["session_id"])
+        self.assertNotIn(first["session_id"], store.entries)  # evicted to make room
+        self.assertIn(active["session_id"], store.entries)
+
     def test_token_owner_and_unavailable_sessions(self):
         v = self.begin()
         for headers, status in [({}, 401), ({"X-Sonder-Token": "wrong"}, 401),
