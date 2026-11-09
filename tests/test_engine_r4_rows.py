@@ -26,7 +26,8 @@ from sonder_engine import (
     start,
     update_posterior,
 )
-from sonder_engine.stopping import total_variation
+from sonder_engine.selection import select_next
+from sonder_engine.stopping import check_stop, inseparable_set, total_variation
 from sonder_pack.maths_v2 import load_maths_v2
 
 from engine_rows import best_ratio, exact_item, make_unit, near_item, reachable_share
@@ -143,6 +144,97 @@ class ExactRowTests(unittest.TestCase):
         left = self.state.budget - len(self.state.steps)
         bound = reachable_share(np.array(self.state.posterior), 0, (0, 1), remaining, left, HYPS, Params())
         self.assertAlmostEqual(bound, self.state.decision.ceiling, places=15)
+
+
+class NearRowTests(unittest.TestCase):
+    """M2's link on every item is stretch-graded; with w_stretch 0.95 its row is 0.04 TV from M1's."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.unit = make_unit([near_item(f"N{i}") for i in range(1, 9)])
+        cls.state = session_after(cls.unit, NEAR, ["B", "B"])
+
+    def test_the_rows_differ_but_r4_groups_them(self):
+        L = likelihood_matrix(near_item("N"), HYPS, NEAR)
+        self.assertFalse(np.array_equal(L[0], L[1]))
+        self.assertAlmostEqual(total_variation(L[0], L[1]), 0.04, places=12)
+        lead, tied = inseparable_set(np.array(self.state.posterior), remaining_items(self.unit, self.state),
+                                     HYPS, NEAR)
+        self.assertEqual((lead, tied), (0, (0, 1)))
+
+    def test_r4_refuses_after_two_answers_and_states_a_ceiling(self):
+        decision = self.state.decision
+        self.assertEqual((decision.rule, decision.leader, decision.tied, len(self.state.steps)),
+                         ("R4", "M1", ("M1", "M2"), 2))
+        self.assertAlmostEqual(decision.ceiling, 0.5243757431629014, places=12)
+        self.assertIn("the most M1 can reach is 0.524", decision.detail)
+
+    def test_one_more_answer_takes_the_leader_past_the_stated_ceiling(self):
+        item = remaining_items(self.unit, self.state)[0]
+        p = update_posterior(np.array(self.state.posterior), likelihood_matrix(item, HYPS, NEAR), 1)
+        self.assertGreater(p[0] / (p[0] + p[1]), self.state.decision.ceiling + 0.01)
+
+    def test_within_the_default_budget_the_leader_still_cannot_reach_theta(self):
+        # The claim is false, but at budget 8 the refusal decision itself is consistent:
+        # six more answers can lift p(M1)/p(C) to at most 0.596.
+        remaining = remaining_items(self.unit, self.state)
+        left = self.state.budget - len(self.state.steps)
+        bound = reachable_share(np.array(self.state.posterior), 0, (0, 1), remaining, left, HYPS, NEAR)
+        p = np.array(self.state.posterior)
+        for item in remaining[:left]:  # B on every remaining item is the best path for M1
+            p = update_posterior(p, likelihood_matrix(item, HYPS, NEAR), 1)
+        self.assertAlmostEqual(p[0] / (p[0] + p[1]), bound, places=12)
+        self.assertLess(bound, NEAR.theta)
+        self.assertAlmostEqual(bound, 0.5964, places=4)
+
+    def test_without_r4_the_default_eig_floor_would_end_the_session_one_answer_later(self):
+        remaining = remaining_items(self.unit, self.state)
+        p = np.array(self.state.posterior)
+        at_refusal = select_next(p, remaining, HYPS, NEAR).eig
+        self.assertGreaterEqual(at_refusal, NEAR.eig_floor)  # 0.0101: R5 would not stop here
+        p = update_posterior(p, likelihood_matrix(remaining[0], HYPS, NEAR), 1)
+        after_one_more = select_next(p, remaining[1:], HYPS, NEAR).eig
+        self.assertLess(after_one_more, NEAR.eig_floor)  # 0.0048: R5 (EIG floor) would stop here
+
+
+class NearRowDecisionChangeTests(unittest.TestCase):
+    """With more items, a larger budget and a lower EIG floor, R4 alone blocks a reachable diagnosis."""
+
+    PARAMS = Params(w_stretch=0.95, eig_floor=0.001)
+    BUDGET = 40
+
+    @classmethod
+    def setUpClass(cls):
+        cls.unit = make_unit([near_item(f"N{i:02d}") for i in range(1, 41)])
+        cls.state = session_after(cls.unit, cls.PARAMS, ["B", "B"], budget=cls.BUDGET)
+
+    def test_r4_refuses_at_the_same_point(self):
+        self.assertEqual((self.state.decision.rule, len(self.state.steps)), ("R4", 2))
+
+    def test_the_bound_over_the_remaining_budget_exceeds_theta(self):
+        remaining = remaining_items(self.unit, self.state)
+        bound = reachable_share(np.array(self.state.posterior), 0, (0, 1), remaining,
+                                self.BUDGET - len(self.state.steps), HYPS, self.PARAMS)
+        self.assertGreater(bound, self.PARAMS.theta)
+
+    def test_only_r4_stops_the_session_until_m1_is_diagnosed_at_answer_29(self):
+        by_id = {item.item_id: item for item in self.unit.engine_items}
+        history = [(by_id[step.question.item_id], step.option_index) for step in self.state.steps]
+        p = np.array(self.state.posterior)
+        for item in remaining_items(self.unit, self.state):
+            p = update_posterior(p, likelihood_matrix(item, HYPS, self.PARAMS), 1)
+            history.append((item, 1))
+            remaining = eligible_items(self.unit.engine_items, [it.item_id for it, _ in history])
+            best = select_next(p, remaining, HYPS, self.PARAMS).eig
+            decision = check_stop(p, history, remaining, best, self.BUDGET, HYPS, self.PARAMS)
+            if decision.rule != "R4":
+                break
+            with self.subTest(answers=len(history)):
+                # R1-R3 did not fire (they come first) and R5 would not: budget, items and EIG remain.
+                self.assertLess(len(history), self.BUDGET)
+                self.assertGreaterEqual(best, self.PARAMS.eig_floor)
+        self.assertEqual((decision.rule, decision.leader, len(history)), ("R1", "M1", 29))
+        self.assertAlmostEqual(p[0], 0.8045, places=4)
 
 
 if __name__ == "__main__":
