@@ -31,6 +31,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     return <div className="relative z-[1] min-h-dvh bg-transparent">{children}</div>;
   }
 
+  if (mode === "auth") {
+    return <div className="relative z-[1] min-h-dvh bg-transparent">{children}</div>;
+  }
+
   return (
     <div className="relative z-[1] min-h-dvh bg-transparent">
       <a

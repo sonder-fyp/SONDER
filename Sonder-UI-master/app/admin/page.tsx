@@ -100,6 +100,11 @@ export default function AdminHome() {
           title="Provenance"
           description="Who generated what, and who validated it."
         />
+        <LinkRow
+          href="/admin/access"
+          title="Role requests"
+          description="Review teacher and parent access requests."
+        />
       </Section>
     </Container>
   );

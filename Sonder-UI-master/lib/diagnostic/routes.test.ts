@@ -1,12 +1,23 @@
 // @vitest-environment node
 import { beforeEach, afterEach, describe, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
+vi.mock("@/lib/auth/access", () => ({
+  AccessError: class AccessError extends Error {
+    constructor(public status: 401 | 403, message: string) { super(message); }
+  },
+  requireApiRole: vi.fn(async () => ({
+    user: { id: "00000000-0000-4000-8000-000000000001" },
+    account: { id: "00000000-0000-4000-8000-000000000002", role: "student" },
+  })),
+}));
 import { answerRoute, beginRoute, catalogueRoute, currentRoute } from "./routes";
+import { AccessError, requireApiRole } from "@/lib/auth/access";
 import { beginOwner, capability, cookieName } from "./owner";
 import { catalogue, sid, snapshot } from "./testFixtures";
 
 const origin = "http://127.0.0.1:3000";
 const nonce = "22222222-2222-4222-8222-222222222222";
+const authUserId = "00000000-0000-4000-8000-000000000001";
 function request(body?: unknown, cookie?: string, requestOrigin = origin) {
   return new Request(`${origin}/api/diagnostic/sessions`, { method: body ? "POST" : "GET",
     headers: { origin: requestOrigin, ...(cookie ? { cookie } : {}) }, body: body ? JSON.stringify(body) : undefined });
@@ -40,16 +51,16 @@ describe("student BFF", () => {
     const payload = { unit_id: "U1", create_request_id: nonce };
     expect((await beginRoute(request(payload, undefined, "http://localhost:3000"))).status).toBe(200);
   });
-  it("different Begin nonces have separate owner and cookie identities", async () => {
+  it("uses the signed-in account as the owner regardless of client retry nonce", async () => {
     const other = "33333333-3333-4333-8333-333333333333";
     fetchMock.mockResolvedValueOnce(upstream(snapshot())).mockResolvedValueOnce(upstream({ ...snapshot(), session_id: other }));
     const a = await beginRoute(request({ unit_id: "U1", create_request_id: nonce }));
     const b = await beginRoute(request({ unit_id: "U1", create_request_id: other }));
     expect(a.headers.get("set-cookie")).not.toBe(b.headers.get("set-cookie"));
-    expect(fetchMock.mock.calls[0][1].headers["X-Sonder-Owner"]).not.toBe(fetchMock.mock.calls[1][1].headers["X-Sonder-Owner"]);
+    expect(fetchMock.mock.calls[0][1].headers["X-Sonder-Owner"]).toBe(fetchMock.mock.calls[1][1].headers["X-Sonder-Owner"]);
   });
   it("verifies session-bound cookie and ignores caller owner headers", async () => {
-    const owner = beginOwner(nonce), cookie = `${cookieName(sid)}=${capability(sid, owner)}`;
+    const owner = beginOwner(authUserId), cookie = `${cookieName(sid)}=${capability(sid, owner)}`;
     fetchMock.mockResolvedValue(upstream(snapshot(1)));
     const r = request({ step_index: 0, item_id: "T1-005", option_id: "D" }, cookie);
     r.headers.set("X-Sonder-Owner", "forged");
@@ -73,10 +84,23 @@ describe("student BFF", () => {
     vi.stubEnv("SONDER_COOKIE_KEY", "");
     expect((await beginRoute(request(payload))).status).toBe(503);
   });
+  it("returns API authentication and role errors without calling the engine", async () => {
+    vi.mocked(requireApiRole).mockRejectedValueOnce(new AccessError(401, "Authentication required."));
+    expect((await beginRoute(request({ unit_id: "U1", create_request_id: nonce }))).status).toBe(401);
+    vi.mocked(requireApiRole).mockRejectedValueOnce(new AccessError(403, "Student access required."));
+    expect((await catalogueRoute()).status).toBe(403);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+  it("does not allow a different signed-in account to use a run capability", async () => {
+    const otherOwner = beginOwner("00000000-0000-4000-8000-000000000003");
+    const cookie = `${cookieName(sid)}=${capability(sid, otherOwner)}`;
+    expect((await currentRoute(request(undefined, cookie), sid)).status).toBe(404);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
   it("projects success and errors, rejects upstream session mismatch", async () => {
     fetchMock.mockResolvedValueOnce(upstream({ ...catalogue, trace: "MATH-secret" }));
     expect(await (await catalogueRoute()).json()).toEqual(catalogue);
-    const cookie = `${cookieName(sid)}=${capability(sid, beginOwner(nonce))}`;
+    const cookie = `${cookieName(sid)}=${capability(sid, beginOwner(authUserId))}`;
     fetchMock.mockResolvedValueOnce(upstream({ ...snapshot(), outcome: "diagnosed", posterior: [1] }));
     expect(await (await currentRoute(request(undefined, cookie), sid)).json()).toEqual(snapshot());
     fetchMock.mockResolvedValueOnce(upstream({ error: { code: "answer_conflict", detail: "MATH-secret" } }, 409));

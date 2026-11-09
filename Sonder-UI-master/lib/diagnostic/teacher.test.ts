@@ -1,6 +1,15 @@
 // @vitest-environment node
 import { beforeEach, afterEach, describe, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
+vi.mock("@/lib/auth/access", () => ({
+  AccessError: class AccessError extends Error {
+    constructor(public status: 401 | 403, message: string) { super(message); }
+  },
+  requireApiRole: vi.fn(async () => ({
+    user: { id: "00000000-0000-4000-8000-000000000001" },
+    account: { id: "00000000-0000-4000-8000-000000000002", role: "teacher" },
+  })),
+}));
 import { latestTeacherRoute } from "./routes";
 import { parseLatest } from "./teacher";
 import { sid } from "./testFixtures";

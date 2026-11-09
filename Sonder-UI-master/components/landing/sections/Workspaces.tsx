@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Container, Section } from "@/components/layout";
 import { Label, LayeredNumber } from "@/components/type";
-import { useSession, type Role } from "@/lib/session";
+import type { AppRole as Role } from "@/lib/auth/types";
 import { ROLES, ROLE_ORDER } from "@/lib/roles";
 import { useReveal } from "../useReveal";
 
@@ -18,8 +18,6 @@ const CLAIM: Record<Role, string> = {
 
 export function Workspaces() {
   const ref = useReveal<HTMLElement>();
-  const { signIn } = useSession();
-
   return (
     <Section ref={ref} id="workspaces" size="hero" bordered>
       <Container>
@@ -39,8 +37,7 @@ export function Workspaces() {
             return (
               <Link
                 key={role}
-                href={meta.home}
-                onClick={() => signIn(role)}
+                href={`/auth/sign-in?next=${encodeURIComponent(meta.home)}`}
                 data-reveal
                 className="group relative flex flex-col gap-6 border-b border-border py-10 transition-colors duration-150 ease-[var(--ease)] hover:border-border-hover lg:grid lg:grid-cols-12 lg:items-baseline lg:gap-12"
               >
@@ -54,10 +51,7 @@ export function Workspaces() {
                     {meta.label}
                   </Label>
                   <span className="mt-3 block text-sm text-muted-foreground">
-                    {meta.person}
-                  </span>
-                  <span className="block text-sm text-muted-foreground">
-                    {meta.context}
+                    Sign in to open this workspace. Access is assigned to your account.
                   </span>
                 </div>
 
