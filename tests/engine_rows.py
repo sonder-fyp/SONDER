@@ -37,10 +37,10 @@ def make_unit(items: Sequence[Item], misconceptions: Sequence[str] = ("M1", "M2"
     return Unit(unit_id, "synthetic", hypotheses, pack_items, PackIdentity("synthetic", ()))
 
 
-def exact_item(item_id: str) -> Item:
+def exact_item(item_id: str, *, twin_group: str | None = None) -> Item:
     """B is linked to both M1 and M2 with sound grades: their rows are identical."""
 
-    return make_item(item_id, [(), ("M1", "M2"), (), ()])
+    return make_item(item_id, [(), ("M1", "M2"), (), ()], twin_group=twin_group)
 
 
 def near_item(item_id: str) -> Item:

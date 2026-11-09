@@ -22,6 +22,7 @@ from sonder_engine import (
     eligible_items,
     likelihood_matrix,
     next_question,
+    prior,
     replay,
     start,
     update_posterior,
@@ -30,7 +31,14 @@ from sonder_engine.selection import select_next
 from sonder_engine.stopping import check_stop, inseparable_set, total_variation
 from sonder_pack.maths_v2 import load_maths_v2
 
-from engine_rows import best_ratio, exact_item, make_unit, near_item, reachable_share
+from engine_rows import (
+    best_ratio,
+    exact_item,
+    make_unit,
+    near_item,
+    reachable_share,
+    separating_item,
+)
 
 HYPS = ("M1", "M2", "NONE", "UNMODELLED")
 NEAR = Params(w_stretch=0.95)  # one stretch-graded link sits 0.04 TV from its sound twin
@@ -235,6 +243,58 @@ class NearRowDecisionChangeTests(unittest.TestCase):
                 self.assertGreaterEqual(best, self.PARAMS.eig_floor)
         self.assertEqual((decision.rule, decision.leader, len(history)), ("R1", "M1", 29))
         self.assertAlmostEqual(p[0], 0.8045, places=4)
+
+
+def decide_after(items, asked, options, budget=8, params=Params()):
+    """Posterior and stopping decision after answering ``asked`` items with ``options``."""
+
+    p = prior(HYPS, params)
+    history = []
+    for item, observed in zip(asked, options):
+        p = update_posterior(p, likelihood_matrix(item, HYPS, params), observed)
+        history.append((item, observed))
+    remaining = eligible_items(items, [item.item_id for item in asked])
+    best = select_next(p, remaining, HYPS, params).eig if remaining and len(history) < budget else None
+    return p, remaining, check_stop(p, history, remaining, best, budget, HYPS, params)
+
+
+class InteractionTests(unittest.TestCase):
+    """C is computed over the remaining eligible items only, not over the budget."""
+
+    def test_a_separator_excluded_as_a_twin_makes_the_pair_inseparable_in_this_session(self):
+        shared = [exact_item("X1", twin_group="g"), exact_item("X2"), exact_item("X3")]
+        twinned = shared + [separating_item("Y", twin_group="g")]  # Y repeats X1's stem
+        untwinned = shared + [separating_item("Y")]
+        _, remaining, decision = decide_after(twinned, shared[:2], [1, 1])
+        self.assertNotIn("Y", [item.item_id for item in remaining])
+        self.assertEqual((decision.rule, decision.tied), ("R4", ("M1", "M2")))
+        _, remaining, decision = decide_after(untwinned, shared[:2], [1, 1])
+        self.assertIn("Y", [item.item_id for item in remaining])
+        self.assertIsNone(decision.rule)  # the separator can still be asked
+
+    def test_the_tied_set_grows_as_separating_items_are_used(self):
+        separator, shared = separating_item("Y"), [exact_item(f"X{i}") for i in range(1, 4)]
+        p = prior(HYPS, Params())
+        for item in shared[:2]:
+            p = update_posterior(p, likelihood_matrix(item, HYPS, Params()), 1)
+        self.assertEqual(inseparable_set(p, [separator, shared[2]], HYPS, Params()), (0, (0,)))
+        self.assertEqual(inseparable_set(p, [shared[2]], HYPS, Params()), (0, (0, 1)))
+
+    def test_with_the_budget_spent_an_exact_pair_still_ends_in_r4(self):
+        shared = [exact_item(f"X{i}") for i in range(1, 4)]
+        _, _, decision = decide_after(shared, shared[:2], [1, 1], budget=2)
+        self.assertEqual((decision.rule, decision.tied), ("R4", ("M1", "M2")))
+
+    def test_with_the_budget_spent_a_pair_whose_only_separator_is_unasked_ends_in_r5(self):
+        # The separator cannot be asked any more, so within this session M1 and M2 can
+        # no longer be told apart, but R4 does not look at the budget: the outcome is
+        # R5 (budget) and no tied set is named. A budget-aware R4 would name {M1, M2}.
+        shared = [exact_item("X1"), exact_item("X2")]
+        items = shared + [separating_item("Y")]
+        p, remaining, decision = decide_after(items, shared, [1, 1], budget=2)
+        self.assertEqual((decision.rule, decision.exhausted_by, decision.tied), ("R5", "budget", ()))
+        bound = reachable_share(p, 0, (0, 1), remaining, 0, HYPS, Params())
+        self.assertLess(bound, Params().theta)
 
 
 if __name__ == "__main__":
