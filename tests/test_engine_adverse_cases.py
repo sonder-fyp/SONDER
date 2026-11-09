@@ -28,6 +28,7 @@ from experiments.policies import (
     deterministic,
     intermittent,
     none_student,
+    off_catalogue,
     partial_holder,
     random_uniform,
 )
@@ -185,6 +186,18 @@ class PolicyTests(unittest.TestCase):
         counts = np.bincount([policy.answer(item, item_rng(seed, item.item_id)) for seed in range(4000)],
                              minlength=4)
         self.assertTrue(all(900 <= c <= 1100 for c in counts), counts)
+
+    def test_off_catalogue_prefers_unlinked_wrong_options(self):
+        policy = off_catalogue()
+        self.assertIsNone(policy.truth)
+        for item in all_items():
+            wrong = [j for j in range(4) if j != item.correct_index]
+            unlinked = [j for j in wrong if not item.links[j]]
+            allowed = unlinked or wrong
+            choices = {policy.answer(item, item_rng(seed, item.item_id)) for seed in range(60)}
+            with self.subTest(item=item.item_id):
+                self.assertLessEqual(choices, set(allowed))
+                self.assertEqual(choices, set(allowed))  # 60 draws reach every allowed option
 
     def test_rates_outside_zero_to_one_are_refused(self):
         for bad in (-0.1, 1.5, float("nan"), True, "0.5"):
