@@ -64,7 +64,8 @@ class OutcomeRecord:  # -> diagnostic_session.status and the diagnosis/escalatio
     escalation_reason: str | None  # -> escalation.reason
     escalation_leader_slot: int | None  # -> escalation.leader_session_hypothesis_id
     escalation_candidates: tuple[tuple[int, int], ...]  # (rank, slot) -> escalation_candidate
-    ceiling: float | None  # derived from the last posterior, never stored
+    leader_share: float | None  # R4: p(leader)/p(C); derived from the last posterior, never stored
+    reachable_share: float | None  # R4: highest share a tied hypothesis could reach; derived, never stored
 
 
 @dataclass(frozen=True)
@@ -115,7 +116,7 @@ def _outcome(decision: StopDecision, hyps: tuple[str, ...],
     refused = decision.outcome.value.startswith("escalated_")
     return OutcomeRecord(decision.outcome, decision.rule, diagnosis,
                          decision.detail if refused else None, leader_slot, escalation,
-                         decision.ceiling)
+                         decision.leader_share, decision.reachable_share)
 
 
 def trace_of(state: SessionState) -> Trace:

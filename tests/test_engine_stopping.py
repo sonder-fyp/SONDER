@@ -170,22 +170,25 @@ class RuleTests(unittest.TestCase):
         self.assertIs(decide((0.15, 0.15, 0.1, 0.6), unlinked[:1]).outcome, Outcome.IN_PROGRESS)
         self.assertIs(decide((0.16, 0.16, 0.18, 0.5 - 1e-9), unlinked).outcome, Outcome.IN_PROGRESS)
 
-    def test_r4_names_the_tied_set_and_its_ceiling(self):
+    def test_r4_names_the_tied_set_and_its_reachable_share(self):
         d = decide((0.45, 0.45, 0.05, 0.05), [(SHARED, 1), (SHARED, 1)], remaining=[SHARED])
         self.assertEqual((d.outcome, d.rule, d.leader, d.tied, d.support),
                          (Outcome.ESCALATED_NO_SEPARATOR, "R4", "M1", ("M1", "M2"), 2))
-        self.assertAlmostEqual(d.ceiling, 0.5, places=15)
+        self.assertAlmostEqual(d.leader_share, 0.5, places=15)
+        self.assertEqual(d.reachable_share, d.leader_share)  # identical rows: no answer moves the odds
         self.assertEqual(d.detail, "R4: no remaining item separates M1 and M2 (together p = 0.900); "
-                                   "the most M1 can reach is 0.500, below theta = 0.80.")
+                                   "with 6 answers left none of them can reach theta = 0.80 "
+                                   "(highest reachable share 0.500).")
 
     def test_r4_can_tie_a_misconception_set_with_none(self):
         # On an unlinked item M1, M2 and NONE all predict the correct answer (the U7 1514 case).
         correct = [(UNLINKED, 0), (UNLINKED, 0)]
         d = decide((0.3, 0.3, 0.3, 0.1), correct, remaining=[UNLINKED])
         self.assertEqual((d.outcome, d.tied), (Outcome.ESCALATED_NO_SEPARATOR, ("M1", "M2", "NONE")))
-        self.assertAlmostEqual(d.ceiling, 1 / 3, places=15)
+        self.assertAlmostEqual(d.leader_share, 1 / 3, places=15)
+        self.assertEqual(d.reachable_share, d.leader_share)
 
-    def test_r4_needs_mass_ceiling_below_theta_and_support(self):
+    def test_r4_needs_mass_reachable_share_below_theta_and_support(self):
         shared = [(SHARED, 1), (SHARED, 1)]
         self.assertIs(decide((0.4, 0.35, 0.2, 0.05), shared, remaining=[SHARED]).outcome,
                       Outcome.IN_PROGRESS)  # p(C) = 0.75 < theta
@@ -266,7 +269,7 @@ class RealBankTests(unittest.TestCase):
         self.assertEqual((decision.outcome, decision.leader, decision.tied, decision.support),
                          (Outcome.ESCALATED_NO_SEPARATOR, "MATH-1514", ("MATH-1514", "MATH-1773"), 2))
         self.assertAlmostEqual(float(posteriors[-1][3] + posteriors[-1][4]), 0.9626, places=4)
-        self.assertAlmostEqual(decision.ceiling, 0.5, places=12)
+        self.assertAlmostEqual(decision.leader_share, 0.5, places=12)
 
     def test_deterministic_students_spec_6_1(self):
         counts = {}

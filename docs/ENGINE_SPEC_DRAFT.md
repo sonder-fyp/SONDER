@@ -23,6 +23,7 @@
 | 8 | Stale dataset claims (item counts, B03 status, `952 in 6 items`) | Replaced by measured values (§1) |
 | 9 | Hypotheses with too few trigger items were not flagged | New pack warning W3 and the measured list in §1.5 |
 | 10 | Threshold trade-off not measured | §6.4 measures it. `min_support = 3` halves the random-clicker diagnosis rate |
+| 11 | (Amendment, November 2026, I2-A03.) R4 treated `p(ℓ)/p(C)` as a ceiling, which is true only for identical rows | R4 refuses only when the reachable share `ρ` over the answers left stays below θ (§3.5). Identical rows behave exactly as before |
 
 Two bugs found while building the reference (fixed, so you do not repeat them): the support function must map hypothesis *indices* to names before testing `NONE`/`UNMODELLED`; and the first reference run showed every NONE student as `escalated_exhausted` for exactly that reason.
 
@@ -163,11 +164,15 @@ Rules, in order, evaluated after each update:
 | R1 | `diagnosed` | leader `m*` among misconceptions has `p ≥ θ` and `support({m*}) ≥ min_support` |
 | R2 | `none_detected` | `p(NONE) ≥ θ` and `support({NONE}) ≥ min_support_none` |
 | R3 | `escalated_unmodelled` | `p(UNMODELLED) ≥ θ_U` and its support ≥ `min_support` |
-| R4 | `escalated_no_separator` | `ℓ` = leader over misconceptions ∪ NONE; `R` = unused eligible items (not limited by the budget); `C` = hypotheses with `TV ≤ δ` to `ℓ` on every item of `R`. Fires iff `R ≠ ∅`, `|C| ≥ 2`, `p(C) ≥ θ`, `p(ℓ)/p(C) < θ` and `support(C) ≥ min_support` |
+| R4 | `escalated_no_separator` | `ℓ` = leader over misconceptions ∪ NONE; `R` = unused eligible items (not limited by the budget); `C` = hypotheses with `TV ≤ δ` to `ℓ` on every item of `R`; `a` = answers left (`budget − answered`, at least 0); `ρ` = the highest share `p(c)/p(C)` any `c ∈ C` could reach within `a` answers on `R` (below). Fires iff `R ≠ ∅`, `|C| ≥ 2`, `p(C) ≥ θ`, `ρ < θ` and `support(C) ≥ min_support` |
 | R5 | `escalated_exhausted` | `answered ≥ budget`, or `R = ∅`, or the best EIG `< η` |
 | — | `in_progress` | otherwise |
 
-R4 has no "close to each other" test. If no remaining item separates the hypotheses in `C`, their ratios are frozen, `p(ℓ)/p(C)` is the best `ℓ` can ever reach, and when that is below θ the honest outcome is a refusal naming the tied set. Note that `R` here already excludes twin partners of asked items, which is how a hypothesis with a single trigger item becomes inseparable *in a particular session* (seen in U7 with 1514/1773, where `C` also contains NONE).
+R4 has no "close to each other" test. **Reachable share (amended for I2-A03, November 2026).** One answer `o` to item `i` multiplies the odds of `c` over another member `d` of `C` by `P(o|c,i)/P(o|d,i)`. For each pair, the odds can therefore grow by at most `G(c,d)` = the product of the `a` largest per-item values `max_o P(o|c,i)/P(o|d,i)` above 1 over `R`, counting at most one item per twin group (asking an item removes its twins). Then `ρ(c) = p(c) / (p(c) + Σ_{d ∈ C, d ≠ c} p(d)/G(c,d))` bounds `p(c)/p(C)` after any `a` further answers, and `ρ = max_c ρ(c)`. Since `p(c) ≤ p(c)/p(C)`, `ρ < θ` means no member of `C` can reach θ in this session under the model, which is what the refusal claims. Bounding each pair separately makes `ρ` an upper bound that need not be attainable, so R4 errs towards continuing, never towards refusing a reachable decision.
+
+When the rows of `C` are identical on every item of `R` (exact rows), every ratio is 1, the posterior ratios inside `C` are frozen, and `ρ = p(ℓ)/p(C)` exactly; the rule is then the original one. Every R4 refusal in the current Maths_v2 bank at default parameters is of this kind (no pair has `0 < TV ≤ δ`), so the amendment changes no current outcome. The earlier text called `p(ℓ)/p(C)` "the best `ℓ` can ever reach"; that is true only for exact rows. With near rows (`0 < TV ≤ δ`) small ratios accumulate, and the old rule could refuse a session that would have reached a diagnosis (`tests/test_engine_r4_rows.py`; `sonder_engine/KNOWN_FAULTS.md` KF-15). R4 still ignores the budget when forming `C`: a pair whose only separating item can no longer be asked ends in R5, not R4.
+
+Note that `R` here already excludes twin partners of asked items, which is how a hypothesis with a single trigger item becomes inseparable *in a particular session* (seen in U7 with 1514/1773, where `C` also contains NONE).
 
 ### 3.6 Parameters (all assumed)
 
@@ -230,7 +235,7 @@ U4 hypotheses (126, 228, 1416, 1514, 1773, 2093, NONE, UNM). The student always 
 | 0 | T4-001, 0.7517 | D `Rs 27` | .0181, .0542, .0542, .3794, .3794, .0181, .0387, .0581 |
 | 1 | T5-011, 0.3668 | A `39` | .0011, .0033, .0033, **.4813**, **.4813**, .0011, .0023, .0263 |
 
-`C = {1514, 1773}` (identical rows on every remaining U4 item), `p(C) = .9626 ≥ .80`, ceiling `p(ℓ)/p(C) = .5 < .80`, support 2 → refusal naming both. The teacher gets both candidates. Note the same refusal occurs in U7, where `C` also contains NONE for 1514/1773 students because only one U7 item triggers them.
+`C = {1514, 1773}` (identical rows on every remaining U4 item), `p(C) = .9626 ≥ .80`, `p(ℓ)/p(C) = .5`, which for identical rows is also the reachable share `ρ = .5 < .80`, support 2 → refusal naming both. The teacher gets both candidates. Note the same refusal occurs in U7, where `C` also contains NONE for 1514/1773 students because only one U7 item triggers them.
 
 ---
 

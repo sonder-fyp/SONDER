@@ -36,7 +36,10 @@ class StopDecision:
     rule: str | None  # "R1".."R5"; None while in progress
     leader: str  # m* (R1), NONE (R2), UNMODELLED (R3), otherwise the leader over misconceptions and NONE
     tied: tuple[str, ...] = ()  # the inseparable set C for R4, in hypothesis order
-    ceiling: float | None = None  # p(leader) / p(C) for R4; derived, never stored
+    leader_share: float | None = None  # p(leader) / p(C) for R4; derived, never stored
+    # Highest p(member) / p(C) any member of C could reach in the answers left (R4);
+    # derived, never stored. Equals leader_share when C's rows are identical.
+    reachable_share: float | None = None
     support: int | None = None  # support of the rule's hypothesis set when it fired
     exhausted_by: str | None = None  # "budget" | "no_items" | "eig_floor" for R5
     detail: str = ""  # generated sentence; becomes escalation.reason for refusals
@@ -94,12 +97,67 @@ def inseparable_set(p: NDArray[np.float64], remaining: Sequence[Item],
     is every hypothesis in the range (nothing can separate them).
     """
 
-    k = len(hyps) - 2
-    lead = _leader(p, k + 1)
     rows = [likelihood_matrix(item, hyps, params) for item in remaining]
+    return _inseparable(p, rows, len(hyps) - 2, params.delta_sep)
+
+
+def _inseparable(p: NDArray[np.float64], rows: Sequence[NDArray[np.float64]], k: int,
+                 delta_sep: float) -> tuple[int, tuple[int, ...]]:
+    lead = _leader(p, k + 1)
     tied = tuple(j for j in range(k + 1)
-                 if all(total_variation(L[j], L[lead]) <= params.delta_sep for L in rows))
+                 if all(total_variation(L[j], L[lead]) <= delta_sep for L in rows))
     return lead, tied
+
+
+def _growth(rows: Sequence[NDArray[np.float64]], items: Sequence[Item],
+            member: int, other: int, answers_left: int) -> float:
+    """Largest factor the odds of ``member`` over ``other`` can grow by in at most
+    ``answers_left`` answers to distinct remaining items.
+
+    One answer to an item multiplies the odds by at most max_o P(o|member)/P(o|other).
+    Asking an item removes its twins (``eligible_items``), so at most one item per
+    twin group counts. Only factors above one help: answering fewer items is allowed.
+    """
+
+    best: dict[object, float] = {}
+    for item, L in zip(items, rows, strict=True):
+        key = ("item", item.item_id) if item.twin_group is None else ("twin", item.twin_group)
+        ratio = float(np.max(L[member] / L[other]))
+        best[key] = max(best.get(key, 0.0), ratio)
+    growth = 1.0
+    for ratio in sorted(best.values(), reverse=True)[:answers_left]:
+        if ratio <= 1.0:
+            break
+        growth *= ratio
+    return growth
+
+
+def _reachable(p: NDArray[np.float64], member: int, tied: Sequence[int],
+               rows: Sequence[NDArray[np.float64]], items: Sequence[Item], answers_left: int) -> float:
+    # p(member)/p(C) after the most favourable answers: each other member's mass shrinks
+    # by its own best growth factor. Bounding each pair separately gives an upper bound.
+    # With identical rows every factor is exactly 1.0, so this equals p(member)/p(C).
+    scaled = np.array([p[j] if j == member else p[j] / _growth(rows, items, member, j, answers_left)
+                       for j in tied], dtype=np.float64)
+    return float(p[member]) / float(scaled.sum())
+
+
+def reachable_share(p: NDArray[np.float64], member: int, tied: Sequence[int],
+                    remaining: Sequence[Item], answers_left: int,
+                    hyps: tuple[str, ...], params: Params) -> float:
+    """Upper bound on p(member)/p(tied) after at most ``answers_left`` more answers.
+
+    ``tied`` holds hypothesis indices and must contain ``member``. Because
+    p(member) <= p(member)/p(tied), a bound below theta means the member cannot
+    reach theta either. For exactly equal rows the bound is the current share.
+    """
+
+    if member not in tied:
+        raise ValueError("member must belong to the tied set")
+    if isinstance(answers_left, bool) or not isinstance(answers_left, int) or answers_left < 0:
+        raise ValueError("answers_left must be a non-negative integer")
+    rows = [likelihood_matrix(item, hyps, params) for item in remaining]
+    return _reachable(np.asarray(p, dtype=np.float64), member, tuple(tied), rows, remaining, answers_left)
 
 
 def _names(names: Sequence[str]) -> str:
@@ -155,18 +213,26 @@ def check_stop(p: NDArray[np.float64], history: Sequence[tuple[Item, int]],
 
     lead = _leader(p, k + 1)
     if remaining:  # R4: no remaining item can separate the leader from its tied set
-        lead, tied = inseparable_set(p, remaining, hyps, params)
+        rows = [likelihood_matrix(item, hyps, params) for item in remaining]
+        lead, tied = _inseparable(p, rows, k, params.delta_sep)
         mass = float(p[list(tied)].sum())
         if len(tied) >= 2 and mass >= theta:
-            ceiling = float(p[lead]) / mass
+            share = float(p[lead]) / mass
+            answers_left = max(budget - len(history), 0)
+            reachable = max(_reachable(p, j, tied, rows, remaining, answers_left) for j in tied)
             held = support(history, [hyps[j] for j in tied])
-            if ceiling < theta and held >= params.min_support:
+            # Refuse only when no member of C can reach theta in the answers left: any
+            # member's probability is at most its share of C, which is at most
+            # ``reachable``. With identical rows reachable == share (spec 3.5).
+            if reachable < theta and held >= params.min_support:
                 names = tuple(hyps[j] for j in tied)
+                answers = "answer" if answers_left == 1 else "answers"
                 return StopDecision(
-                    Outcome.ESCALATED_NO_SEPARATOR, "R4", hyps[lead], names, ceiling, held,
+                    Outcome.ESCALATED_NO_SEPARATOR, "R4", hyps[lead], names,
+                    leader_share=share, reachable_share=reachable, support=held,
                     detail=(f"R4: no remaining item separates {_names(names)} (together p = "
-                            f"{mass:.3f}); the most {hyps[lead]} can reach is {ceiling:.3f}, "
-                            f"below theta = {theta:.2f}."))
+                            f"{mass:.3f}); with {answers_left} {answers} left none of them can reach "
+                            f"theta = {theta:.2f} (highest reachable share {reachable:.3f})."))
 
     answered = len(history)  # R5: exhausted
     if answered >= budget:
