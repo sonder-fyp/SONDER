@@ -1,8 +1,10 @@
-"""Synthetic student policies and the experiment harness (I2-A01).
+"""Retained adverse cases, synthetic student policies and the experiment harness (I2-A01).
 
-These tests check that the experiment-side students answer exactly as documented
-and that the harness drives the real run loop the same way the existing engine
-test helpers do. All students are synthetic; nothing here measures accuracy.
+The adverse outcomes are pinned together with the content hashes and parameters
+they were recorded with. The policy and harness tests check that the
+experiment-side students answer exactly as documented and that the harness drives
+the real run loop the same way the existing engine test helpers do. All students
+are synthetic; nothing here measures accuracy.
 """
 
 from __future__ import annotations
@@ -28,6 +30,36 @@ from engine_students import deterministic_answer, run_policy, run_student
 PACK = load_maths_v2()
 RNG = np.random.default_rng(0)  # never used by deterministic policies
 
+# The content and parameters the retained adverse outcomes below were recorded with.
+# A content or parameter change must fail here first, so that its effect on the
+# adverse cases is reviewed instead of silently absorbed.
+PINNED_CONTENT = {
+    "content_version": "Maths_v2",
+    "bank/items.csv": "af0f75846c763bdc19ee1760ba22e1f4426b27c52ef5933a616f53cd0583b45a",
+    "topics.csv": "7d88223803beb462501eb9fa1cb882dd4a44c841324c616bb6de36494d765972",
+    "maths_v2_units.json": "61cfff3884738a2fac2621a3443e64455d1104870b2c462c999bf684e4af3e62",
+}
+PINNED_PARAMS = {
+    "slip": 0.10, "guess": 0.30, "prior_none": 0.25, "prior_unmodelled": 0.05,
+    "theta": 0.80, "theta_unmodelled": 0.50, "min_support": 2, "min_support_none": 3,
+    "delta_sep": 0.05, "eig_floor": 0.01, "default_budget": 8, "k_max": 8,
+    "w_sound": 1.0, "w_stretch": 0.5,
+}
+REBASELINE = ("Content or default parameters changed. Rerun `python -m experiments.adverse_baseline`, "
+              "review every changed adverse outcome, update experiments/ADVERSE_CASES.md and these pins "
+              "in the same pull request.")
+
+# Retained adverse outcomes (supervisor action 2). Always-A has no named truth: its
+# diagnoses are adverse-response labels. The partial MATH-2039 holder's MATH-1965
+# label is a wrong diagnosis (KF-07). (outcome, predicted label, questions used)
+ALWAYS_A = {
+    "U1": ("diagnosed", "MATH-2392", 5), "U2": ("diagnosed", "MATH-61", 4),
+    "U3": ("escalated_exhausted", "", 8), "U4": ("diagnosed", "MATH-1416", 4),
+    "U5": ("diagnosed", "MATH-952", 4), "U6": ("diagnosed", "MATH-161", 2),
+    "U7": ("diagnosed", "MATH-2271", 3),
+}
+PARTIAL_2039_IN_U2 = ("diagnosed", "MATH-1965", 3)
+
 
 def all_items():
     seen = {}
@@ -39,6 +71,29 @@ def all_items():
 
 def triggered(item: Item, misconception: str) -> list[int]:
     return [j for j, links in enumerate(item.links) if misconception in links]
+
+
+class PinnedAdverseCaseTests(unittest.TestCase):
+    def test_content_identity_is_the_recorded_one(self):
+        identity = {"content_version": PACK.identity.content_version, **dict(PACK.identity.source_sha256)}
+        self.assertEqual(identity, PINNED_CONTENT, REBASELINE)
+
+    def test_default_parameters_are_the_recorded_ones(self):
+        params = Params()
+        self.assertEqual({name: getattr(params, name) for name in PINNED_PARAMS}, PINNED_PARAMS, REBASELINE)
+
+    def test_always_a_outcomes_are_retained(self):
+        for unit in PACK.units:
+            with self.subTest(unit=unit.unit_id):
+                state = run_session(unit, Params(), always_option(0))
+                observed = (state.decision.outcome.value, predicted_label(state), len(state.steps))
+                self.assertEqual(observed, ALWAYS_A[unit.unit_id], REBASELINE)
+
+    def test_partial_2039_holder_is_still_labelled_1965(self):
+        state = run_session(PACK.unit("U2"), Params(), partial_holder("MATH-2039", "MATH-1965"))
+        observed = (state.decision.outcome.value, predicted_label(state), len(state.steps))
+        self.assertEqual(observed, PARTIAL_2039_IN_U2, REBASELINE)
+        self.assertNotEqual(predicted_label(state), "MATH-2039")  # the truth is not recovered
 
 
 class PolicyTests(unittest.TestCase):
