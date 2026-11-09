@@ -153,6 +153,23 @@ def intermittent(target: str, apply_rate: float, slip: float) -> StudentPolicy:
                          description="applies the misconception with probability apply_rate when triggered")
 
 
+def off_catalogue() -> StudentPolicy:
+    """Answers wrongly for a reason outside the catalogue (protocol section 4).
+
+    Chooses uniformly among the wrong options that link no misconception when the
+    item has any, otherwise uniformly among all wrong options. There is no named
+    truth: the closest engine hypothesis is UNMODELLED, but that is a model state,
+    not a label this student was built from.
+    """
+
+    def answer(item: Item, rng: np.random.Generator) -> int:
+        unlinked = [j for j in _wrong(item) if not item.links[j]]
+        return int(rng.choice(unlinked or _wrong(item)))
+
+    return StudentPolicy("off-catalogue", None, answer, stochastic=True,
+                         description="a uniformly chosen unlinked wrong option, else any wrong option")
+
+
 def random_uniform() -> StudentPolicy:
     """Chooses each of the four options with equal probability on every item."""
 

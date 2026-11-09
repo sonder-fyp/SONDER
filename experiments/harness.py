@@ -1,8 +1,9 @@
 """Drive one synthetic student through the real engine run loop (I2-A01).
 
-The engine chooses every question (start, next_question, answer); the policy only
-answers. A run is fully determined by the unit, the parameters, the policy and the
-seed, so a raw result row can always be regenerated.
+By default the engine chooses every question (start, next_question, answer); the
+evaluation can substitute a fixed or random selection method (experiments.selection).
+The policy only answers. A run is fully determined by the unit, the parameters, the
+selection method, the policy and the seed, so a raw result row can always be regenerated.
 """
 
 from __future__ import annotations
@@ -11,9 +12,10 @@ import zlib
 
 import numpy as np
 
-from sonder_engine import Outcome, Params, SessionState, Unit, answer, next_question, start
+from sonder_engine import Outcome, Params, SessionState, Unit, answer, start
 
 from .policies import StudentPolicy
+from .selection import SelectionMethod, ask
 
 RESULT_FIELDS = (
     "unit_id", "policy", "target", "apply_rate", "slip", "truth", "seed",
@@ -36,13 +38,17 @@ def item_rng(seed: int, item_id: str) -> np.random.Generator:
 
 
 def run_session(unit: Unit, params: Params, policy: StudentPolicy, seed: int = 0, *,
-                budget: int | None = None) -> SessionState:
-    """Run one session to its terminal outcome with the engine choosing every item."""
+                budget: int | None = None, method: SelectionMethod | None = None) -> SessionState:
+    """Run one session to its terminal outcome.
+
+    Without ``method`` (or with ``Adaptive``) the engine's own ``next_question``
+    chooses every item; another method chooses through ``next_question_with``.
+    """
 
     state = start(unit, params, budget=budget)
     by_id = {item.item_id: item for item in unit.engine_items}
     while not state.finished:
-        state = next_question(state)
+        state = ask(state, method)
         item = by_id[state.pending.item_id]
         choice = policy.answer(item, item_rng(seed, item.item_id))
         if isinstance(choice, bool) or not isinstance(choice, int) or not 0 <= choice < 4:

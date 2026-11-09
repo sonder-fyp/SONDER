@@ -1,0 +1,16 @@
+{
+  "name": "u1u2-tuning",
+  "protocol_version": 1,
+  "split": "tuning",
+  "units": ["U1", "U2"],
+  "methods": ["adaptive", "fixed", "random"],
+  "seeds": {"first": 1000, "count": 300},
+  "cases": [
+    {"policy": "intermittent", "apply_rates": [0.5, 0.7, 0.9], "slip": 0.08},
+    {"policy": "none-with-slip", "slip": 0.08},
+    {"policy": "always-A"},
+    {"policy": "random-uniform"},
+    {"policy": "off-catalogue"},
+    {"policy": "partial-holder", "target": "MATH-2039", "companion": "MATH-1965", "units": ["U2"]}
+  ]
+}
