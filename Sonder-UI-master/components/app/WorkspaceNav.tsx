@@ -20,7 +20,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
  */
 export function WorkspaceNav() {
   const [collapsed, setCollapsed] = useLocalFlag("sonder.sidebar.collapsed");
-  const { role } = useSession();
+  const { account } = useSession();
+  const role = account?.role;
   if (!role) return null;
 
   const groups = NAV[role];

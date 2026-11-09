@@ -4,10 +4,10 @@ import { BoundaryError, config } from "./server";
 import { UUID } from "./validation";
 
 function hmac(value: string) { return createHmac("sha256", config().key).update(value).digest("hex"); }
-export function beginOwner(nonce: string) { return hmac(`begin:${nonce}`); }
+export function beginOwner(authUserId: string) { return hmac(`account:${authUserId}`); }
 export function cookieName(sid: string) { return `sonder_run_${sid}`; }
 export function capability(sid: string, owner: string) { return `${owner}.${hmac(`run:${sid}:${owner}`)}`; }
-export function sessionOwner(request: Request, sid: string) {
+export function sessionOwner(request: Request, sid: string, expectedOwner?: string) {
   if (!UUID.test(sid)) throw new BoundaryError(404, "session_unavailable");
   const values = (request.headers.get("cookie") ?? "").split(";").map(s => s.trim())
     .filter(s => s.startsWith(cookieName(sid) + "="));
@@ -16,6 +16,9 @@ export function sessionOwner(request: Request, sid: string) {
   const [owner, signature] = value.split(".");
   if (!/^[0-9a-f]{64}$/.test(owner ?? "") || !/^[0-9a-f]{64}$/.test(signature ?? "")
     || value.split(".").length !== 2 || !timingSafeEqual(Buffer.from(signature), Buffer.from(hmac(`run:${sid}:${owner}`)))) {
+    throw new BoundaryError(404, "session_unavailable");
+  }
+  if (expectedOwner && !timingSafeEqual(Buffer.from(owner), Buffer.from(expectedOwner))) {
     throw new BoundaryError(404, "session_unavailable");
   }
   return owner;

@@ -18,7 +18,8 @@ export function MobileNav({
   onClose: () => void;
 }) {
   const pathname = usePathname();
-  const { role } = useSession();
+  const { account } = useSession();
+  const role = account?.role;
 
   // Close on navigation.
   useEffect(() => {

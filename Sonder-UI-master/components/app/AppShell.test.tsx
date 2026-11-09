@@ -9,6 +9,12 @@ vi.mock("next/navigation", () => ({
   usePathname: () => pathname,
   useRouter: () => ({ push: vi.fn() }),
 }));
+vi.mock("@/lib/auth/client", () => ({
+  authClient: {
+    useSession: () => ({ data: null, isPending: false }),
+    signOut: vi.fn(),
+  },
+}));
 
 import { AppShell } from "./AppShell";
 
@@ -39,18 +45,18 @@ describe("AppShell persistent chrome", () => {
     expect(document.querySelector("header.topbar")?.className).toContain("fixed");
     expect(screen.getByRole("navigation", { name: "Landing" })).toBeTruthy();
     expect(screen.getByRole("link", { name: "Student" }).getAttribute("href")).toBe(
-      "/student",
+      "/auth/sign-in?next=%2Fstudent",
     );
     expect(screen.getByRole("link", { name: "Teacher" }).getAttribute("href")).toBe(
-      "/teacher",
+      "/auth/sign-in?next=%2Fteacher",
     );
     expect(screen.getByRole("link", { name: "Parent" }).getAttribute("href")).toBe(
-      "/parent",
+      "/auth/sign-in?next=%2Fparent",
     );
     expect(screen.getByRole("link", { name: "Admin" }).getAttribute("href")).toBe(
-      "/admin",
+      "/auth/sign-in?next=%2Fadmin",
     );
-    expect(screen.queryByText("Choose a workspace")).toBeNull();
+    expect(screen.getByRole("link", { name: "Create account" }).getAttribute("href")).toBe("/auth/sign-up");
     expect(screen.getByText("Skip to how it works")).toBeTruthy();
     expect(screen.queryByRole("navigation", { name: "Breadcrumb" })).toBeNull();
     expect(screen.getByRole("button", { name: "Play background music" })).toBeTruthy();

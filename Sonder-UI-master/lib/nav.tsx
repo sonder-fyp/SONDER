@@ -15,9 +15,10 @@ import {
   GraduationCap,
   School,
   MessagesSquare,
+  ShieldCheck,
   type LucideIcon,
 } from "lucide-react";
-import type { Role } from "@/lib/session";
+import type { AppRole as Role } from "@/lib/auth/types";
 
 export type NavItem = {
   label: string;
@@ -139,6 +140,12 @@ export const NAV: Record<Role, NavGroup[]> = {
       label: "Insight",
       items: [
         { label: "Performance", href: "/admin/performance", icon: Gauge },
+      ],
+    },
+    {
+      label: "Access",
+      items: [
+        { label: "Role requests", href: "/admin/access", icon: ShieldCheck },
       ],
     },
   ],

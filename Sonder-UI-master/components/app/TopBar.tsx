@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 import { Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { chromeMode, LANDING_CHROME_SENTINEL_ID } from "@/lib/chrome";
-import { useSession } from "@/lib/session";
 import { ROLES, ROLE_ORDER } from "@/lib/roles";
 import { BrandMark } from "./BrandMark";
 import { Breadcrumb } from "./Breadcrumb";
@@ -92,8 +91,6 @@ export function TopBar() {
 }
 
 function LandingSlots() {
-  const { signIn } = useSession();
-
   return (
     <nav
       aria-label="Landing"
@@ -123,8 +120,7 @@ function LandingSlots() {
           return (
             <Link
               key={role}
-              href={meta.home}
-              onClick={() => signIn(role)}
+              href={`/auth/sign-in?next=${encodeURIComponent(meta.home)}`}
               className="label group relative flex min-h-11 shrink-0 items-center text-muted-foreground transition-colors duration-150 hover:text-foreground"
             >
               {meta.label}
@@ -136,6 +132,18 @@ function LandingSlots() {
           );
         })}
       </div>
+      <Link
+        href="/auth/sign-in"
+        className="label hidden min-h-11 shrink-0 items-center text-muted-foreground transition-colors duration-150 hover:text-foreground sm:flex"
+      >
+        Log in
+      </Link>
+      <Link
+        href="/auth/sign-up"
+        className="label flex min-h-11 shrink-0 items-center text-accent transition-colors duration-150 hover:text-foreground"
+      >
+        Create account
+      </Link>
       <ThemeToggle />
       <MusicToggle />
     </nav>

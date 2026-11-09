@@ -1,16 +1,16 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import { ChevronDown } from "lucide-react";
-import { useSession, type Role } from "@/lib/session";
-import { ROLES, ROLE_ORDER } from "@/lib/roles";
+import Link from "next/link";
+import { useSession } from "@/lib/session";
+import { ROLES } from "@/lib/roles";
 import { cn } from "@/lib/utils";
 
 export function RoleMenu() {
-  const { role, signIn, signOut } = useSession();
-  const router = useRouter();
+  const { account, email, loading, signOut } = useSession();
   const [open, setOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
 
@@ -35,13 +35,18 @@ export function RoleMenu() {
     };
   }, [open]);
 
-  const current = role ? ROLES[role] : null;
-
-  const enter = (next: Role) => {
-    signIn(next);
-    setOpen(false);
-    router.push(ROLES[next].home);
-  };
+  const current = account ? ROLES[account.role] : null;
+  if (loading) return <span className="label text-muted-foreground">Account</span>;
+  if (!account) {
+    return (
+      <Link
+        href="/auth/sign-in"
+        className="label flex min-h-11 items-center px-2 text-muted-foreground transition-colors hover:text-foreground"
+      >
+        Log in
+      </Link>
+    );
+  }
 
   return (
     <div ref={rootRef} className="relative">
@@ -58,11 +63,11 @@ export function RoleMenu() {
             <>
               <span className="shrink-0 text-foreground">{current.label}</span>
               <span className="hidden max-w-[14ch] truncate text-faint md:inline">
-                {current.person}
+                {email}
               </span>
             </>
           ) : (
-            "Choose a workspace"
+            "Account"
           )}
         </span>
         <ChevronDown
@@ -84,64 +89,36 @@ export function RoleMenu() {
           {current ? (
             <div className="border-b border-border p-6">
               <p className="label text-accent">{current.label}</p>
-              <p className="mt-3 text-lg font-medium leading-snug">
-                {current.person}
-              </p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {current.context}
-              </p>
+              <p className="mt-3 max-w-[28ch] truncate text-lg font-medium leading-snug">{email}</p>
+              <p className="mt-1 text-sm text-muted-foreground">{account.display_name}</p>
             </div>
           ) : null}
 
-          <p className="label px-6 pb-3 pt-6 text-muted-foreground">
-            Switch workspace
-          </p>
-
-          {ROLE_ORDER.map((r) => {
-            const meta = ROLES[r];
-            const active = r === role;
-            return (
-              <button
-                key={r}
-                type="button"
-                role="menuitem"
-                onClick={() => enter(r)}
-                className={cn(
-                  "group relative flex min-h-14 w-full items-center justify-between gap-4 px-6 text-left",
-                  "transition-colors duration-150 hover:bg-muted",
-                  active && "bg-muted",
-                )}
-              >
-                <span
-                  aria-hidden
-                  className={cn(
-                    "absolute inset-y-2 left-0 w-0.5 transition-colors duration-150 ease-[var(--ease)]",
-                    active ? "bg-accent" : "bg-transparent group-hover:bg-border-strong",
-                  )}
-                />
-                <span className="min-w-0">
-                  <span className="block text-base font-medium">{meta.label}</span>
-                  <span className="block truncate text-sm text-muted-foreground">
-                    {meta.person}
-                  </span>
-                </span>
-                <span className="label shrink-0 text-faint">{meta.home}</span>
-              </button>
-            );
-          })}
+          <Link
+            href={ROLES[account.role].home}
+            role="menuitem"
+            onClick={() => setOpen(false)}
+            className={cn("label flex min-h-14 w-full items-center px-6 text-muted-foreground", "hover:bg-muted hover:text-foreground")}
+          >
+            Open {current?.label.toLowerCase()} workspace
+          </Link>
 
           <button
             type="button"
             role="menuitem"
-            onClick={() => {
-              signOut();
-              setOpen(false);
-              router.push("/");
+            onClick={async () => {
+              setError(null);
+              try {
+                await signOut();
+              } catch (cause) {
+                setError(cause instanceof Error ? cause.message : "Unable to sign out.");
+              }
             }}
             className="label flex min-h-14 w-full items-center border-t border-border px-6 text-left text-muted-foreground transition-colors duration-150 hover:text-foreground"
           >
             Sign out
           </button>
+          {error ? <p role="alert" className="px-6 pb-4 text-sm text-attention">{error}</p> : null}
         </div>
       ) : null}
     </div>

@@ -1,19 +1,16 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { ROLES } from "@/lib/roles";
 import { buttonVariants } from "@/components/ui/button";
 import { Container, PageMasthead, Section, Callout, ListRow, LinkRow, GroupHeading } from "@/components/layout";
 import { StatusMark } from "@/components/shared";
 
 export default function StudentHome() {
-  const first = ROLES.student.person.split(" ")[0];
-
   return (
     <Container>
       <PageMasthead
         scale="page"
         label="Student"
-        title={`Welcome back, ${first}`}
+        title="Welcome back"
         lede="Start a diagnostic when a topic feels shaky. Your teacher reviews everything before it goes anywhere."
         actions={
           <Link href="/student/start" className={buttonVariants({ size: "lg" })}>

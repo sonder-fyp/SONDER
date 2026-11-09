@@ -1,18 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useSession } from "@/lib/session";
-import { ROLES } from "@/lib/roles";
 import { Container } from "@/components/layout";
 import { Label, LayeredNumber, AccentBar } from "@/components/type";
 import { buttonVariants } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 
 export default function NotFound() {
-  const { role } = useSession();
-  const home = role ? ROLES[role].home : "/";
-  const label = role ? `Back to ${ROLES[role].label.toLowerCase()} home` : "Back to home";
-
   return (
     <Container className="relative py-28 md:py-40">
       <LayeredNumber value="404" className="right-0 top-10" />
@@ -26,8 +20,8 @@ export default function NotFound() {
         hiding behind a guessed URL.
       </p>
       <div className="mt-12">
-        <Link href={home} className={buttonVariants()}>
-          {label}
+        <Link href="/" className={buttonVariants()}>
+          Back to home
           <ArrowRight className="size-4" strokeWidth={1.5} aria-hidden />
         </Link>
       </div>
