@@ -4,8 +4,8 @@
 
 Runs every (unit, truth case, selection method, seed) in the configuration through
 the real engine and writes ``experiments/results/<name>/``: ``runs.csv`` (one raw
-row per run) and ``manifest.json`` (code, configuration, content and parameter
-identity). Metrics are computed from ``runs.csv`` alone (experiments.metrics).
+row per run), ``manifest.json`` (code, configuration, content and parameter
+identity) and ``metrics.csv``, computed from ``runs.csv`` alone (experiments.metrics).
 
 Configuration (JSON):
 
@@ -48,6 +48,7 @@ from sonder_pack.maths_v2 import load_maths_v2
 from .adverse_baseline import _git, _write_csv
 from .content import canonical_source_sha256
 from .harness import RESULT_FIELDS, result_row, run_session
+from .metrics import write_metrics
 from .policies import (
     StudentPolicy,
     always_option,
@@ -225,6 +226,7 @@ def evaluate(config_path: Path, out: Path | None = None, progress=None) -> dict:
                  "cases without a named truth are adverse-response labels, never correct or wrong diagnoses."),
     }
     (out / "manifest.json").write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    write_metrics(out)  # computed from the runs.csv just written, nothing else
     return manifest
 
 
