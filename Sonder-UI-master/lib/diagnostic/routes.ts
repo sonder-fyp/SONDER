@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { AccessError, requireApiRole } from "@/lib/auth/access";
 import { BoundaryError, engine } from "./server";
 import { checkOrigin } from "./origin";
-import { ACCOUNT_ID, UUID, parseAnswer, parseBegin, parseCatalogue, parseSessionList, parseSnapshot } from "./validation";
+import { ACCOUNT_ID, UUID, parseAnswer, parseBegin, parseCatalogue, parseSnapshot } from "./validation";
 import { parseLatest } from "./teacher";
 import type { Snapshot } from "./types";
 
