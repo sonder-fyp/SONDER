@@ -1,4 +1,4 @@
-import type { AnswerRequest, BeginRequest, Catalogue, OptionId, SessionList, Snapshot } from "./types";
+import type { AnswerRequest, BeginRequest, Catalogue, OptionId, SessionList, SessionSummary, Snapshot } from "./types";
 
 export const ACCOUNT_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 export const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
@@ -77,7 +77,7 @@ export function parseSnapshot(value: unknown): Snapshot {
 export function parseSessionList(value: unknown): SessionList {
   const v = object(value);
   if (v.contract_version !== 2 || !Array.isArray(v.sessions) || v.sessions.length > 50) throw new Error("Invalid sessions");
-  const sessions = v.sessions.map(raw => {
+  const sessions: SessionSummary[] = v.sessions.map(raw => {
     const row = object(raw), unit = object(row.unit);
     if (row.status !== "in_progress" && row.status !== "complete") throw new Error("Invalid status");
     const timestamp = (x: unknown) => x === null ? null : text(x, 40);
