@@ -53,3 +53,15 @@ For D1 choose U1 and D/B/B/A. Expected items: T1-005, T1-006, T1-007, T1-009. In
 The browser authenticates to the Next.js BFF using its Neon Auth session. The BFF sends the application account ID as `X-Sonder-Actor` and a shared `X-Sonder-Token` to the loopback engine service. Only internal token-authenticated readers can access traces; student snapshots omit diagnosis, answers and probabilities. See the [session API contract](../docs/api/SESSION_CONTRACT.md) for version 2 endpoints, errors, retries and lifecycle.
 
 Memory mode is explicitly selected with `--store memory`; it loses sessions on restart and is not a database fallback. Capacity defaults to 256 and inactivity TTL to 86400 seconds, configurable with `SONDER_SESSION_CAPACITY` and `SONDER_SESSION_TTL`.
+
+## Persistent mode
+
+With `SONDER_DATABASE_URL` set to a development database, run:
+
+```sh
+python -m sonder_db.migrate up
+SONDER_ALLOW_DEV_SEED=true python -m sonder_api.devseed
+python -m sonder_api --store postgres --release Maths_v2-U1-dev/spec-v2-prior
+```
+
+The development seed is a development candidate, not the content importer. Use it only with a development database.

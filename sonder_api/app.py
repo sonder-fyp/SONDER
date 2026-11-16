@@ -30,6 +30,15 @@ def memory_store_factory(capacity=256, ttl=86400):
     return build
 
 
+def postgres_store_factory(url: str, release: str):
+    """Durable mode. Fails startup if the database or the release is unavailable."""
+
+    def build():
+        from .pgstore import PostgresStore  # psycopg is an optional extra
+        return PostgresStore(url, release)
+    return build
+
+
 def create_app(token: str, *, store=None, store_factory=None, trace=False):
     if len(token) < 32:
         raise ValueError("SONDER_ENGINE_TOKEN must contain at least 32 characters")
