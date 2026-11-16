@@ -1,0 +1,17 @@
+{
+  "contract_version": 2,
+  "sessions": [
+    {
+      "session_id": "6f1c2d4e-0000-4000-8000-000000000001",
+      "unit": {
+        "unit_id": "U1",
+        "name": "Rounding"
+      },
+      "status": "complete",
+      "answered_count": 5,
+      "question_budget": 8,
+      "started_at": null,
+      "ended_at": null
+    }
+  ]
+}
