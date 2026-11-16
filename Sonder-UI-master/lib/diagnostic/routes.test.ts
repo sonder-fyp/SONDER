@@ -3,10 +3,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
 vi.mock("@/lib/auth/access", () => ({
   AccessError: class AccessError extends Error { constructor(public status: 401 | 403, message: string) { super(message); } },
+  requireAccess: vi.fn(async () => ({ appUserId: "00000000-0000-4000-8000-000000000002" })),
   requireApiRole: vi.fn(async () => ({ user: { id: "00000000-0000-4000-8000-000000000001" },
     account: { id: "00000000-0000-4000-8000-000000000002", role: "student" } })),
 }));
-import { AccessError, requireApiRole } from "@/lib/auth/access";
+import { AccessError, requireAccess } from "@/lib/auth/access";
 import { answerRoute, beginRoute, catalogueRoute, currentRoute } from "./routes";
 import { catalogue, sid, snapshot } from "./testFixtures";
 
@@ -59,7 +60,7 @@ describe("student BFF", () => {
   });
   it("maps authentication and role errors", async () => {
     for (const [status, code] of [[401, "authentication_required"], [403, "role_required"]] as const) {
-      vi.mocked(requireApiRole).mockRejectedValueOnce(new AccessError(status, code));
+      vi.mocked(requireAccess).mockRejectedValueOnce(new AccessError(status, code));
       const res = await beginRoute(request(payload)); expect(res.status).toBe(status); expect(await res.json()).toEqual({ error: { code } });
     }
     expect(fetchMock).not.toHaveBeenCalled();
