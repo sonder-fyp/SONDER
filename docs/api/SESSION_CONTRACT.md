@@ -89,3 +89,9 @@ See [health](examples/health.json), [units](examples/units.json), [start request
 ## Persisted evidence
 
 Internal consumers can read rows and verify replay through the [persisted evidence interface](PERSISTED_EVIDENCE.md). Class-scope authorization is the consumer's responsibility.
+
+## Failure behaviour
+
+PostgreSQL mode fails startup when the database or configured release is unavailable; it never falls back to memory. During an outage the service returns `503 storage_unavailable`; a dropped connection can cause the first request after connection loss to return 503 before the pool recovers. Each answer is atomic: the step, posterior and next question or outcome commit together. After a lost reply, read the current session and resend the identical answer only if that question is still pending. A row lock serialises concurrent requests even across service processes.
+
+PostgreSQL sessions are retained indefinitely pending a retention policy. Memory mode alone uses a TTL and capacity limit and loses sessions on restart.
