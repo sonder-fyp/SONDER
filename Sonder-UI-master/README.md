@@ -50,3 +50,5 @@ The runnable source is in `app/`, `components/`, `fixtures/`, `lib/`, and `publi
 ## Asset provenance
 
 The landing design was adapted from `brain-extract-anatomy`, which drew from `github.com/thebuggeddev/anatomy`. The upstream project did not provide a license file. The `brain.glb` model appears to contain Tripo AI material. Check rights for those assets before public or commercial reuse. The app uses GSAP, three.js, and Lenis; their applicable licenses should be checked for any later deployment.
+
+The live diagnostic needs the engine service; see [engine setup](../sonder_api/README.md).
