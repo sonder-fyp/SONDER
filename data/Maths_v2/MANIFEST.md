@@ -38,6 +38,8 @@ Counts: 7 topics, 28 misconceptions (27 are the target of at least one item; MAT
 | 2026-10-09 | B11, B12 (T7), B13 (T3), B14, B15, B16 (T6 cross batches) approved and added to the bank. |
 | 2026-10-09 | Link audit of all batches run (agents). |
 | 2026-10-10 | Five FORCED links in approved items fixed (B13 MATH-2359 x4, B08 T5-014 option C). The ~90 STRETCH links were left unchanged by decision. |
+| 2026-11-03 | Harris approved the exact T2-015 through T2-019 single-value replacements and requested application. Applied to the bank and B04 source batch with original targets, exact option mappings, correct letters and all three coverage measures preserved. Review: `HarrisDOcs/B04_Group_01_Single_Value_Review.md`; application/check evidence: `HarrisDOcs/dataset_revisions/B04_T2-015_to_T2-019_application.json`. Independent Maths-expert acceptance and diagnostic evaluation remain outstanding. |
+| 2026-11-04 | Harris approved T4-001 through T4-005 after reviewing the questions and their remaining limitations. Exact replacements applied to the bank and B06 source batch with original targets, per-option mappings, correct letters and all three coverage measures preserved. Review: `HarrisDOcs/B06_Group_01_MATH-1416_Review.md`; application evidence: `HarrisDOcs/dataset_revisions/B06_T4-001_to_T4-005_application.json`. The numerical MATH-1416 links retain the recorded two-step inference limitation. |
 
 
 ## Known limitations (do not present as solved)

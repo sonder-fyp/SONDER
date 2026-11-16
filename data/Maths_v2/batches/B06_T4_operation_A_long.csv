@@ -1,24 +1,24 @@
 ﻿item_id,topic,target,stem,option_id,option_text,is_correct,misconceptions,status
-T4-001,T4 Choosing the operation,MATH-1416,Ali buys 4 notebooks at Rs 6 each. Sara pays Rs 3 less than Ali. How much does Sara pay?,A,Rs 7,False,MATH-1416,draft
-T4-001,T4 Choosing the operation,MATH-1416,Ali buys 4 notebooks at Rs 6 each. Sara pays Rs 3 less than Ali. How much does Sara pay?,B,Rs 21,True,,draft
-T4-001,T4 Choosing the operation,MATH-1416,Ali buys 4 notebooks at Rs 6 each. Sara pays Rs 3 less than Ali. How much does Sara pay?,C,Rs 8,False,MATH-228,draft
-T4-001,T4 Choosing the operation,MATH-1416,Ali buys 4 notebooks at Rs 6 each. Sara pays Rs 3 less than Ali. How much does Sara pay?,D,Rs 27,False,MATH-1514|MATH-1773,draft
-T4-002,T4 Choosing the operation,MATH-1416,A baker makes 5 trays of buns with 8 buns on each tray. A second baker makes 4 less than the first baker. How many buns does the second baker make?,A,9,False,MATH-1416,draft
-T4-002,T4 Choosing the operation,MATH-1416,A baker makes 5 trays of buns with 8 buns on each tray. A second baker makes 4 less than the first baker. How many buns does the second baker make?,B,10,False,MATH-228,draft
-T4-002,T4 Choosing the operation,MATH-1416,A baker makes 5 trays of buns with 8 buns on each tray. A second baker makes 4 less than the first baker. How many buns does the second baker make?,C,44,False,MATH-1514|MATH-1773,draft
-T4-002,T4 Choosing the operation,MATH-1416,A baker makes 5 trays of buns with 8 buns on each tray. A second baker makes 4 less than the first baker. How many buns does the second baker make?,D,36,True,,draft
-T4-003,T4 Choosing the operation,MATH-1416,A truck carries 3 loads of 12 bricks each. A second truck carries 6 less than the first truck. How many bricks does the second truck carry?,A,30,True,,draft
-T4-003,T4 Choosing the operation,MATH-1416,A truck carries 3 loads of 12 bricks each. A second truck carries 6 less than the first truck. How many bricks does the second truck carry?,B,9,False,MATH-1416,draft
-T4-003,T4 Choosing the operation,MATH-1416,A truck carries 3 loads of 12 bricks each. A second truck carries 6 less than the first truck. How many bricks does the second truck carry?,C,6,False,MATH-228,draft
-T4-003,T4 Choosing the operation,MATH-1416,A truck carries 3 loads of 12 bricks each. A second truck carries 6 less than the first truck. How many bricks does the second truck carry?,D,42,False,MATH-1514|MATH-1773,draft
-T4-004,T4 Choosing the operation,MATH-1416,A cinema has 6 rows with 5 seats in each row. A small hall has 10 less seats than the cinema. How many seats are in the small hall?,A,1,False,MATH-1416,draft
-T4-004,T4 Choosing the operation,MATH-1416,A cinema has 6 rows with 5 seats in each row. A small hall has 10 less seats than the cinema. How many seats are in the small hall?,B,3,False,MATH-228,draft
-T4-004,T4 Choosing the operation,MATH-1416,A cinema has 6 rows with 5 seats in each row. A small hall has 10 less seats than the cinema. How many seats are in the small hall?,C,20,True,,draft
-T4-004,T4 Choosing the operation,MATH-1416,A cinema has 6 rows with 5 seats in each row. A small hall has 10 less seats than the cinema. How many seats are in the small hall?,D,40,False,MATH-1514|MATH-1773,draft
-T4-005,T4 Choosing the operation,MATH-1416,A teacher makes 7 groups of 4 students. Another class has 2 less students than this. How many students are in the other class?,A,9,False,MATH-1416,draft
-T4-005,T4 Choosing the operation,MATH-1416,A teacher makes 7 groups of 4 students. Another class has 2 less students than this. How many students are in the other class?,B,14,False,MATH-228,draft
-T4-005,T4 Choosing the operation,MATH-1416,A teacher makes 7 groups of 4 students. Another class has 2 less students than this. How many students are in the other class?,C,30,False,MATH-1514|MATH-1773,draft
-T4-005,T4 Choosing the operation,MATH-1416,A teacher makes 7 groups of 4 students. Another class has 2 less students than this. How many students are in the other class?,D,26,True,,draft
+T4-001,T4 Choosing the operation,MATH-1416,An arcade charges Rs 8 per game. Mariam plays 3 games. Her friend pays Rs 4 less than Mariam. How much does her friend pay?,A,Rs 7,False,MATH-1416,draft
+T4-001,T4 Choosing the operation,MATH-1416,An arcade charges Rs 8 per game. Mariam plays 3 games. Her friend pays Rs 4 less than Mariam. How much does her friend pay?,B,Rs 20,True,,draft
+T4-001,T4 Choosing the operation,MATH-1416,An arcade charges Rs 8 per game. Mariam plays 3 games. Her friend pays Rs 4 less than Mariam. How much does her friend pay?,C,Rs 6,False,MATH-228,draft
+T4-001,T4 Choosing the operation,MATH-1416,An arcade charges Rs 8 per game. Mariam plays 3 games. Her friend pays Rs 4 less than Mariam. How much does her friend pay?,D,Rs 28,False,MATH-1514|MATH-1773,draft
+T4-002,T4 Choosing the operation,MATH-1416,A school fair stall prepares 4 trays with 9 mini cakes on each tray. Another stall prepares 3 fewer cakes. How many cakes does the other stall prepare?,A,10,False,MATH-1416,draft
+T4-002,T4 Choosing the operation,MATH-1416,A school fair stall prepares 4 trays with 9 mini cakes on each tray. Another stall prepares 3 fewer cakes. How many cakes does the other stall prepare?,B,12,False,MATH-228,draft
+T4-002,T4 Choosing the operation,MATH-1416,A school fair stall prepares 4 trays with 9 mini cakes on each tray. Another stall prepares 3 fewer cakes. How many cakes does the other stall prepare?,C,39,False,MATH-1514|MATH-1773,draft
+T4-002,T4 Choosing the operation,MATH-1416,A school fair stall prepares 4 trays with 9 mini cakes on each tray. Another stall prepares 3 fewer cakes. How many cakes does the other stall prepare?,D,33,True,,draft
+T4-003,T4 Choosing the operation,MATH-1416,The Blue team wins 3 rounds worth 12 points each. The Red team finishes with 4 points less than the Blue team. How many points does the Red team have?,A,32,True,,draft
+T4-003,T4 Choosing the operation,MATH-1416,The Blue team wins 3 rounds worth 12 points each. The Red team finishes with 4 points less than the Blue team. How many points does the Red team have?,B,11,False,MATH-1416,draft
+T4-003,T4 Choosing the operation,MATH-1416,The Blue team wins 3 rounds worth 12 points each. The Red team finishes with 4 points less than the Blue team. How many points does the Red team have?,C,9,False,MATH-228,draft
+T4-003,T4 Choosing the operation,MATH-1416,The Blue team wins 3 rounds worth 12 points each. The Red team finishes with 4 points less than the Blue team. How many points does the Red team have?,D,40,False,MATH-1514|MATH-1773,draft
+T4-004,T4 Choosing the operation,MATH-1416,A cinema has 6 rows with 4 seats in each row. A smaller screening room has 3 fewer seats than the cinema. How many seats are in the smaller room?,A,7,False,MATH-1416,draft
+T4-004,T4 Choosing the operation,MATH-1416,A cinema has 6 rows with 4 seats in each row. A smaller screening room has 3 fewer seats than the cinema. How many seats are in the smaller room?,B,8,False,MATH-228,draft
+T4-004,T4 Choosing the operation,MATH-1416,A cinema has 6 rows with 4 seats in each row. A smaller screening room has 3 fewer seats than the cinema. How many seats are in the smaller room?,C,21,True,,draft
+T4-004,T4 Choosing the operation,MATH-1416,A cinema has 6 rows with 4 seats in each row. A smaller screening room has 3 fewer seats than the cinema. How many seats are in the smaller room?,D,27,False,MATH-1514|MATH-1773,draft
+T4-005,T4 Choosing the operation,MATH-1416,A teacher makes 7 groups of 4 students. Another class has 2 fewer students. Which calculation gives the number of students in the other class?,A,(7 + 4) - 2,False,MATH-1416,draft
+T4-005,T4 Choosing the operation,MATH-1416,A teacher makes 7 groups of 4 students. Another class has 2 fewer students. Which calculation gives the number of students in the other class?,B,(7 x 4) / 2,False,MATH-228,draft
+T4-005,T4 Choosing the operation,MATH-1416,A teacher makes 7 groups of 4 students. Another class has 2 fewer students. Which calculation gives the number of students in the other class?,C,(7 x 4) + 2,False,MATH-1514|MATH-1773,draft
+T4-005,T4 Choosing the operation,MATH-1416,A teacher makes 7 groups of 4 students. Another class has 2 fewer students. Which calculation gives the number of students in the other class?,D,(7 x 4) - 2,True,,draft
 T4-006,T4 Choosing the operation,MATH-126,Ali has 8 stickers. Sara has 4 more than Ali. Bilal has 3 less than Sara. How many stickers does Bilal have?,A,29,False,MATH-126,draft
 T4-006,T4 Choosing the operation,MATH-126,Ali has 8 stickers. Sara has 4 more than Ali. Bilal has 3 less than Sara. How many stickers does Bilal have?,B,4,False,MATH-228,draft
 T4-006,T4 Choosing the operation,MATH-126,Ali has 8 stickers. Sara has 4 more than Ali. Bilal has 3 less than Sara. How many stickers does Bilal have?,C,9,True,,draft
