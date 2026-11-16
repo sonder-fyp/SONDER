@@ -3,6 +3,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import gsap from "gsap";
 import { AnatomyAssetManager, ORGAN_HOME_ROTATION, type LoadedOrgan } from "./loaders";
 import { NeuronActivity } from "./neuron-activity";
+import { pixelRatioForBudget } from "../render-budget";
 import {
   LIGHT_AMBIENT,
   LIGHT_HEMI,
@@ -121,12 +122,9 @@ export class AnatomyViewer {
     if (this.entryAnimation) this.autoRotateWanted = false;
 
     const lowPower = window.matchMedia("(max-width: 780px)").matches || (navigator.hardwareConcurrency ?? 8) < 6;
-    // Fixed, decided once. A dynamic controller used to live here and it was a
-    // net negative: frame *intervals* are vsync-quantised, so a brief hitch read
-    // as GPU load, dropped the buffer, and — because a vsync-locked 16.7ms never
-    // met the step-up threshold — never recovered. The scene renders in ~2ms, so
-    // there is nothing to adapt away from.
-    this.basePixelRatio = Math.min(window.devicePixelRatio, lowPower ? 1.5 : 2);
+    // Bound the drawing buffer on large or high-density screens. The CSS size
+    // and pointer coordinates remain unchanged.
+    this.basePixelRatio = lowPower ? 1 : 1.25;
 
     this.renderer = new THREE.WebGLRenderer({
       antialias: !lowPower,
@@ -135,7 +133,6 @@ export class AnatomyViewer {
       stencil: false,
       depth: true,
     });
-    this.renderer.setPixelRatio(this.basePixelRatio);
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = TONE_MAPPING_EXPOSURE;
@@ -504,6 +501,8 @@ export class AnatomyViewer {
     this.height = Math.max(this.container.clientHeight, 1);
     this.camera.aspect = this.width / this.height;
     this.camera.updateProjectionMatrix();
+    const pixelRatio = pixelRatioForBudget(this.width, this.height, window.devicePixelRatio, 1_500_000, this.basePixelRatio);
+    if (this.renderer.getPixelRatio() !== pixelRatio) this.renderer.setPixelRatio(pixelRatio);
     this.renderer.setSize(this.width, this.height, false);
     this.dirty = true;
   }
