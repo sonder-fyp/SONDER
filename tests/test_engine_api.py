@@ -12,7 +12,8 @@ from engine_students import deterministic_answer
 
 try:
     from fastapi.testclient import TestClient
-    from sonder_api.app import create_app
+    from sonder_api.app import create_app, memory_store_factory
+    from sonder_api.contract_check import run_checks
     from sonder_api.contracts import AnswerRequest, StartRequest
     from sonder_api.store import InMemoryStore, ServiceError
     API_AVAILABLE = True
@@ -20,6 +21,10 @@ except ModuleNotFoundError as exc:
     if exc.name not in {"fastapi", "httpx", "pydantic", "starlette"}:
         raise
     API_AVAILABLE = False
+
+
+ACTOR_A = "00000000-0000-4000-8000-00000000000a"
+ACTOR_B = "00000000-0000-4000-8000-00000000000b"
 
 
 @unittest.skipUnless(API_AVAILABLE, "install approved API/test extras to run HTTP integration tests")
@@ -31,7 +36,7 @@ class ApiTests(unittest.TestCase):
 
     def setUp(self):
         self.store = InMemoryStore(self.pack, self.params)
-        self.headers = {"X-Sonder-Token": "t" * 32, "X-Sonder-Owner": "a" * 64}
+        self.headers = {"X-Sonder-Token": "t" * 32, "X-Sonder-Actor": ACTOR_A}
         self.client = TestClient(create_app("t" * 32, store=self.store))
         self.client.__enter__()
         self.addCleanup(self.client.__exit__, None, None, None)
@@ -242,7 +247,7 @@ class ApiTests(unittest.TestCase):
         client = TestClient(create_app("t" * 32, store=store))
         client.__enter__()
         self.addCleanup(client.__exit__, None, None, None)
-        owner = "a" * 64
+        owner = ACTOR_A
         def run(unit, options):
             v = store.create(owner, StartRequest(unit_id=unit, create_request_id=str(uuid4())))
             for option in options:
@@ -262,7 +267,7 @@ class ApiTests(unittest.TestCase):
         v = self.begin()
         for headers, status in [({}, 401), ({"X-Sonder-Token": "wrong"}, 401),
                                 ({"X-Sonder-Token": "t" * 32}, 404),
-                                ({**self.headers, "X-Sonder-Owner": "b" * 64}, 404)]:
+                                ({**self.headers, "X-Sonder-Actor": ACTOR_B}, 404)]:
             response = self.client.get(f'/engine/sessions/{v["session_id"]}', headers=headers)
             self.assertEqual(response.status_code, status)
             self.assertEqual(set(response.json()), {"error"})
@@ -290,22 +295,22 @@ class ApiTests(unittest.TestCase):
         now = [0]
         store = InMemoryStore(self.pack, self.params, capacity=1, ttl=10, clock=lambda: now[0])
         req = StartRequest(unit_id="U1", create_request_id=str(uuid4()))
-        v = store.create("a" * 64, req)
+        v = store.create(ACTOR_A, req)
         with self.assertRaises(ServiceError) as caught:
-            store.create("b" * 64, req)
+            store.create(ACTOR_B, req)
         self.assertEqual(caught.exception.code, "capacity_exceeded")
         now[0] = 9
-        store.current(v["session_id"], "a" * 64)
+        store.current(v["session_id"], ACTOR_A)
         now[0] = 19
         with self.assertRaises(ServiceError) as caught:
-            store.current(v["session_id"], "a" * 64)
+            store.current(v["session_id"], ACTOR_A)
         self.assertEqual(caught.exception.status, 410)
         with self.assertRaises(ServiceError) as caught:
-            store.current(v["session_id"], "b" * 64)
+            store.current(v["session_id"], ACTOR_B)
         self.assertEqual(caught.exception.status, 404)
         self.assertFalse(store.creates)
         for _ in range(4):
-            store.create("a" * 64, StartRequest(unit_id="U1", create_request_id=str(uuid4())))
+            store.create(ACTOR_A, StartRequest(unit_id="U1", create_request_id=str(uuid4())))
             now[0] += 10
         store._prune()
         self.assertLessEqual(len(store.expired), 1)
@@ -314,7 +319,7 @@ class ApiTests(unittest.TestCase):
     def test_finished_runs_make_room_but_active_runs_are_kept(self):
         now = [0]
         store = InMemoryStore(self.pack, self.params, capacity=2, clock=lambda: now[0])
-        owner = "a" * 64
+        owner = ACTOR_A
         def run(unit, options):
             v = store.create(owner, StartRequest(unit_id=unit, create_request_id=str(uuid4())))
             for option in options:
@@ -340,9 +345,9 @@ class ApiTests(unittest.TestCase):
 
     def test_returned_reply_cannot_mutate_cache(self):
         request = StartRequest(unit_id="U1", create_request_id=str(uuid4()))
-        v = self.store.create("a" * 64, request)
+        v = self.store.create(ACTOR_A, request)
         v["question"]["stem"] = "corrupted"
-        self.assertNotEqual(self.store.create("a" * 64, request)["question"]["stem"], "corrupted")
+        self.assertNotEqual(self.store.create(ACTOR_A, request)["question"]["stem"], "corrupted")
 
     def test_read_is_nonadvancing_and_restart_loses_sessions(self):
         v = self.begin()
@@ -353,7 +358,7 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(self.inspect(sid), before)
         replacement = InMemoryStore(self.pack, self.params)
         with self.assertRaises(ServiceError):
-            replacement.current(sid, "a" * 64)
+            replacement.current(sid, ACTOR_A)
 
     def test_logging_failure_does_not_duplicate_transition(self):
         self.client.app.state.store = self.store
@@ -368,15 +373,36 @@ class ApiTests(unittest.TestCase):
             self.assertEqual(first.json(), second.json())
             self.assertEqual(warning.call_count, 1)
 
+    def test_contract_check_passes_in_memory(self):
+        self.assertEqual(run_checks(self.client, "t" * 32, ACTOR_A, ACTOR_B, "U1"), [])
+
+    def test_assignment_id_is_refused_until_assignments_exist(self):
+        payload = {"unit_id": "U1", "create_request_id": str(uuid4()), "assignment_id": str(uuid4())}
+        response = self.client.post("/engine/sessions", headers=self.headers, json=payload)
+        self.assertEqual((response.status_code, response.json()), (404, {"error": {"code": "assignment_not_found"}}))
+        payload["assignment_id"] = None
+        self.assertEqual(self.client.post("/engine/sessions", headers=self.headers, json=payload).status_code, 200)
+
+    def test_actor_header_must_be_a_uuid(self):
+        for actor in ("a" * 64, ACTOR_A.upper()):
+            response = self.client.post("/engine/sessions", headers={**self.headers, "X-Sonder-Actor": actor}, json={"unit_id": "U1", "create_request_id": str(uuid4())})
+            self.assertEqual(response.status_code, 404)
+
+    def test_create_app_needs_exactly_one_store_source(self):
+        with self.assertRaises(ValueError):
+            create_app("t" * 32)
+        with self.assertRaises(ValueError):
+            create_app("t" * 32, store=self.store, store_factory=memory_store_factory())
+
     def test_startup_loads_once_and_refuses_pack_failure(self):
         with patch("sonder_api.app.load_maths_v2", return_value=self.pack) as loader:
-            with TestClient(create_app("t" * 32)) as client:
+            with TestClient(create_app("t" * 32, store_factory=memory_store_factory())) as client:
                 for _ in range(2):
                     client.get("/engine/units", headers=self.headers)
             self.assertEqual(loader.call_count, 1)
         with patch("sonder_api.app.load_maths_v2", side_effect=ValueError("bad pack")):
             with self.assertRaises(ValueError):
-                with TestClient(create_app("t" * 32)):
+                with TestClient(create_app("t" * 32, store_factory=memory_store_factory())):
                     pass
 
 
