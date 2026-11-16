@@ -8,7 +8,7 @@ vi.mock("@/lib/auth/access", () => ({
     account: { id: "00000000-0000-4000-8000-000000000002", role: "student" } })),
 }));
 import { AccessError, requireAccess } from "@/lib/auth/access";
-import { answerRoute, beginRoute, catalogueRoute, currentRoute } from "./routes";
+import { answerRoute, beginRoute, catalogueRoute, currentRoute, unfinishedRoute } from "./routes";
 import { catalogue, sid, snapshot } from "./testFixtures";
 
 const origin = "http://127.0.0.1:3000";
@@ -73,6 +73,16 @@ describe("student BFF", () => {
       expect(res.status).toBe(status); expect(await res.json()).toEqual({ error: { code } });
     }
     fetchMock.mockResolvedValueOnce(upstream({ ...snapshot(), session_id: nonce })); expect((await currentRoute(request(), sid)).status).toBe(503);
+  });
+  it("forwards unfinished lookup and rejects invalid units", async () => {
+    fetchMock.mockResolvedValueOnce(upstream({ contract_version: 2, sessions: [], secret: true }));
+    const response = await unfinishedRoute(new Request(`${origin}/api/diagnostic/sessions?unit_id=U1`));
+    expect(await response.json()).toEqual({ contract_version: 2, sessions: [] });
+    expect(fetchMock.mock.calls[0][0]).toContain("status=in_progress&unit_id=U1");
+    expect(fetchMock.mock.calls[0][1].headers["X-Sonder-Actor"]).toBe(account);
+    fetchMock.mockClear();
+    expect((await unfinishedRoute(new Request(`${origin}/api/diagnostic/sessions?unit_id=%21`))).status).toBe(422);
+    expect(fetchMock).not.toHaveBeenCalled();
   });
   it("maps unreachable, timeout and invalid contracts safely", async () => {
     for (const [error, status] of [[new Error("secret"), 503], [new DOMException("timeout", "TimeoutError"), 504]] as const) {

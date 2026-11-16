@@ -6,15 +6,15 @@ import { useDiagnosticSession } from "./useDiagnosticSession";
 import { catalogue, sid, snapshot } from "./testFixtures";
 import { parseCatalogue, parseSnapshot } from "./validation";
 vi.mock("./client", async importOriginal => ({ ...await importOriginal<typeof import("./client")>(),
-  diagnosticClient: { catalogue: vi.fn(), begin: vi.fn(), current: vi.fn(), answer: vi.fn() } }));
+  diagnosticClient: { catalogue: vi.fn(), unfinished: vi.fn(), begin: vi.fn(), current: vi.fn(), answer: vi.fn() } }));
 const client = vi.mocked(diagnosticClient);
 function deferred<T>() {
   let resolve!: (value: T) => void;
   const promise = new Promise<T>(r => { resolve = r; });
   return { promise, resolve };
 }
-async function mount(initialSession?: string) {
-  const hook = renderHook(() => useDiagnosticSession("U1", initialSession), { wrapper: StrictMode });
+async function mount(initialSession?: string, assignmentId?: string) {
+  const hook = renderHook(() => useDiagnosticSession("U1", initialSession, assignmentId), { wrapper: StrictMode });
   await waitFor(() => expect(hook.result.current.phase).not.toBe("loading_metadata"));
   return hook;
 }
@@ -26,11 +26,39 @@ describe("live diagnostic controller", () => {
     vi.resetAllMocks();
     window.history.replaceState(null, "", "/student/diagnostic/U1");
     client.catalogue.mockResolvedValue(parseCatalogue(catalogue));
+    client.unfinished.mockResolvedValue({ contract_version: 2, sessions: [] });
     client.begin.mockResolvedValue(parseSnapshot(snapshot()));
     client.answer.mockResolvedValue(parseSnapshot(snapshot(1)));
     client.current.mockResolvedValue(parseSnapshot(snapshot()));
   });
   afterEach(cleanup);
+  it("offers an unfinished run and resumes without starting another", async () => {
+    client.unfinished.mockResolvedValue({ contract_version: 2, sessions: [{ session_id: sid, unit: { unit_id: "U1", name: "Rounding" }, status: "in_progress", answered_count: 1, question_budget: 8, started_at: null, ended_at: null }] });
+    client.current.mockResolvedValue(parseSnapshot(snapshot(1)));
+    const hook = await mount();
+    expect(hook.result.current.unfinished?.session_id).toBe(sid);
+    await act(async () => { await hook.result.current.begin(); await hook.result.current.resume(); });
+    expect(client.begin).not.toHaveBeenCalled();
+    expect(client.current).toHaveBeenCalledWith(sid);
+    expect(hook.result.current.snapshot?.answered_count).toBe(1);
+  });
+  it("sends and preserves assignment context", async () => {
+    const assignment = "00000000-0000-4000-8000-000000000002";
+    const hook = await mount(undefined, assignment); await begin(hook);
+    expect(client.begin.mock.calls[0][0].assignment_id).toBe(assignment);
+    expect(new URLSearchParams(window.location.search).get("assignment")).toBe(assignment);
+    act(() => hook.result.current.restart());
+    expect(new URLSearchParams(window.location.search).get("assignment")).toBe(assignment);
+  });
+  it("retries the same pending answer after a storage outage", async () => {
+    const hook = await mount(); await begin(hook);
+    client.answer.mockRejectedValueOnce(new DiagnosticError("storage_unavailable"));
+    await act(async () => { hook.result.current.answer("D"); });
+    client.current.mockResolvedValue(parseSnapshot(snapshot()));
+    await act(async () => { await hook.result.current.retry(); });
+    expect(client.answer.mock.calls[0]).toEqual(client.answer.mock.calls[1]);
+    expect(hook.result.current.snapshot?.answered_count).toBe(1);
+  });
   it("Strict Mode metadata mounts never create a run; Begin rapid clicks create once", async () => {
     const hook = await mount();
     expect(hook.result.current.phase).toBe("intro");
@@ -132,6 +160,7 @@ describe("live diagnostic controller", () => {
     const hook = await mount();
     expect(hook.result.current.phase).toBe("unavailable");
     client.catalogue.mockResolvedValue(parseCatalogue(catalogue));
+    client.unfinished.mockResolvedValue({ contract_version: 2, sessions: [] });
     await act(async () => { await hook.result.current.retry(); });
     expect(hook.result.current.phase).toBe("intro");
   });
