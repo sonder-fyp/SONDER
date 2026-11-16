@@ -125,3 +125,55 @@ class FailureTests(DatabaseTestCase):
             response = client.get('/engine/health', headers={'X-Sonder-Token': 't' * 32})
         self.assertEqual(response.status_code, 503)
         self.assertEqual(response.json(), {'error': {'code': 'storage_unavailable'}})
+
+    def test_process_restart_resumes(self):
+        actor, token = self.students[4], 't' * 32
+        with socket.socket() as sock:
+            sock.bind(('127.0.0.1', 0))
+            port = sock.getsockname()[1]
+        env = {**os.environ, 'SONDER_DATABASE_URL': self.url, 'SONDER_ENGINE_TOKEN': token, 'PYTHONPATH': str(Path(__file__).resolve().parents[1])}
+        args = [sys.executable, '-m', 'sonder_api', '--store', 'postgres', '--release', self.label, '--port', str(port)]
+        base = f'http://127.0.0.1:{port}'
+        processes = []
+        def launch():
+            proc = subprocess.Popen(args, env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            processes.append(proc)
+            deadline = time.monotonic() + 20
+            while time.monotonic() < deadline:
+                if proc.poll() is not None:
+                    self.fail('engine exited before health check')
+                try:
+                    if httpx.get(base + '/engine/health', headers={'X-Sonder-Token': token}, timeout=1).status_code == 200:
+                        return proc
+                except httpx.HTTPError:
+                    pass
+                time.sleep(0.1)
+            self.fail('engine health timed out')
+        def cleanup():
+            for proc in processes:
+                if proc.poll() is None:
+                    proc.kill()
+                proc.wait(timeout=10)
+        self.addCleanup(cleanup)
+        proc = launch()
+        headers = {'X-Sonder-Token': token, 'X-Sonder-Actor': actor}
+        with httpx.Client(base_url=base, headers=headers, timeout=30) as client:
+            response = client.post('/engine/sessions', json={'unit_id': 'U1', 'create_request_id': str(uuid4())})
+            self.assertEqual(response.status_code, 200)
+            value = response.json()
+            path = '/engine/sessions/' + value['session_id']
+            response = client.post(path + '/answers', json=self.request(value).model_dump())
+            self.assertEqual(response.status_code, 200)
+            value = response.json()
+            proc.kill(); proc.wait(timeout=10)
+            launch()
+            response = client.get(path)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.json(), value)
+            while value['status'] != 'complete':
+                response = client.post(path + '/answers', json=self.request(value, 'B').model_dump())
+                self.assertEqual(response.status_code, 200)
+                value = response.json()
+        with psycopg.connect(self.url) as conn:
+            self.assertEqual(verify_session(conn, value['session_id']), [])
+
