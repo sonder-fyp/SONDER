@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth/client";
 import { Input } from "@/components/ui/input";
@@ -28,12 +29,19 @@ export function PasswordRecoveryForm({
     try {
       if (reset) {
         if (!token) {
-          setError("This reset link is invalid or has expired. Request a new one.");
+          setError(
+            "This reset link is invalid or has expired. Request a new one.",
+          );
           return;
         }
-        const result = await authClient.resetPassword({ newPassword: password, token });
+        const result = await authClient.resetPassword({
+          newPassword: password,
+          token,
+        });
         if (result.error) {
-          setError("This reset link is invalid or has expired. Request a new one.");
+          setError(
+            "This reset link is invalid or has expired. Request a new one.",
+          );
           return;
         }
         router.replace("/auth/sign-in?reset=1");
@@ -50,9 +58,11 @@ export function PasswordRecoveryForm({
       }
       setSent(true);
     } catch {
-      setError(reset
-        ? "This reset link is invalid or has expired. Request a new one."
-        : "We couldn't process that request. Please try again later.");
+      setError(
+        reset
+          ? "This reset link is invalid or has expired. Request a new one."
+          : "We couldn't process that request. Please try again later.",
+      );
     } finally {
       setBusy(false);
     }
@@ -62,10 +72,22 @@ export function PasswordRecoveryForm({
     return (
       <section className="w-full max-w-[480px]">
         <p className="label text-accent">Password reset</p>
-        <h1 className="mt-5 text-4xl font-semibold tracking-tight">Check your inbox.</h1>
-        <p className="mt-4 text-base leading-relaxed text-muted-foreground" role="status">
-          If an account exists for that address, a password reset link will be sent.
+        <h1 className="mt-5 text-4xl font-semibold tracking-tight">
+          Check your inbox.
+        </h1>
+        <p
+          className="mt-4 text-base leading-relaxed text-muted-foreground"
+          role="status"
+        >
+          If an account exists for that address, a password reset link will be
+          sent.
         </p>
+        <Link
+          href="/auth/sign-in"
+          className="mt-8 inline-flex min-h-11 items-center text-sm underline underline-offset-4"
+        >
+          Back to log in
+        </Link>
       </section>
     );
   }
@@ -81,10 +103,15 @@ export function PasswordRecoveryForm({
           ? "Choose a new password for your Sonder account."
           : "Enter your email and we'll send a reset link if an account matches."}
       </p>
-      <form className="mt-8 grid gap-5" onSubmit={(event) => void submit(event)}>
+      <form
+        className="mt-8 grid gap-5"
+        onSubmit={(event) => void submit(event)}
+      >
         {reset ? (
           <div className="grid gap-2">
-            <label className="label" htmlFor="reset-password">New password</label>
+            <label className="label" htmlFor="reset-password">
+              New password
+            </label>
             <div className="flex gap-2">
               <Input
                 id="reset-password"
@@ -108,7 +135,9 @@ export function PasswordRecoveryForm({
           </div>
         ) : (
           <div className="grid gap-2">
-            <label className="label" htmlFor="reset-email">Email</label>
+            <label className="label" htmlFor="reset-email">
+              Email
+            </label>
             <Input
               id="reset-email"
               type="email"
@@ -120,11 +149,25 @@ export function PasswordRecoveryForm({
             />
           </div>
         )}
-        {error ? <p role="alert" className="text-sm text-attention">{error}</p> : null}
+        {error ? (
+          <p role="alert" className="text-sm text-attention">
+            {error}
+          </p>
+        ) : null}
         <Button type="submit" size="lg" disabled={busy}>
-          {busy ? "Please wait…" : reset ? "Set new password" : "Send reset link"}
+          {busy
+            ? "Please wait…"
+            : reset
+              ? "Set new password"
+              : "Send reset link"}
         </Button>
       </form>
+      <Link
+        href={reset ? "/auth/forgot-password" : "/auth/sign-in"}
+        className="mt-8 inline-flex min-h-11 items-center text-sm underline underline-offset-4"
+      >
+        {reset ? "Request a new reset link" : "Back to log in"}
+      </Link>
     </section>
   );
 }

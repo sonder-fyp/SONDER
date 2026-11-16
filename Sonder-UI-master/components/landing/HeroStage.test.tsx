@@ -8,6 +8,8 @@ import {
   HERO_KICKER,
 } from "@/lib/landing/hero/copy";
 
+vi.mock("@/lib/session", () => ({ useSession: () => ({ account: null }) }));
+
 vi.mock("./styles/hero-stage.css", () => ({}));
 
 vi.mock("./BrainViewer", () => ({
@@ -63,7 +65,9 @@ describe("HeroStage statement", () => {
   it("renders one h1 with the two-line statement", () => {
     render(createElement(HeroStage));
     const heading = screen.getByRole("heading", { level: 1 });
-    expect(heading.textContent?.replace(/\s+/g, " ").trim()).toBe(HERO_HEADLINE);
+    expect(heading.textContent?.replace(/\s+/g, " ").trim()).toBe(
+      HERO_HEADLINE,
+    );
     expect(screen.getByText(HERO_HEADLINE_LEAD)).toBeTruthy();
     expect(screen.getByText(HERO_HEADLINE_ACCENT)).toBeTruthy();
   });

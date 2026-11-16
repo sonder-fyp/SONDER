@@ -42,15 +42,22 @@ export function OnboardingForm({
   return (
     <section className="w-full max-w-[480px]">
       <p className="label text-accent">A little about you</p>
-      <h1 className="mt-5 text-4xl font-semibold tracking-tight sm:text-5xl">Welcome to Sonder.</h1>
+      <h1 className="mt-5 text-4xl font-semibold tracking-tight sm:text-5xl">
+        Welcome to Sonder.
+      </h1>
       <p className="mt-4 text-base leading-relaxed text-muted-foreground">
         {requestedRole === "student"
-          ? "Your student workspace will be ready when you finish."
-          : `Your ${requestedRole} registration will be sent to an administrator for approval.`}
+          ? "Your profile is almost ready. Add the name you would like your teacher to see."
+          : `Add your name to finish your ${requestedRole} registration. An administrator will review your access request.`}
       </p>
-      <form className="mt-8 grid gap-5" onSubmit={(event) => void submit(event)}>
+      <form
+        className="mt-8 grid gap-5"
+        onSubmit={(event) => void submit(event)}
+      >
         <div className="grid gap-2">
-          <label className="label" htmlFor="display-name">Name</label>
+          <label className="label" htmlFor="display-name">
+            Name
+          </label>
           <Input
             id="display-name"
             autoComplete="name"
@@ -63,9 +70,13 @@ export function OnboardingForm({
         <p className="text-sm text-muted-foreground">
           Account type: <span className="text-foreground">{requestedRole}</span>
         </p>
-        {error ? <p role="alert" className="text-sm text-attention">{error}</p> : null}
+        {error ? (
+          <p role="alert" className="text-sm text-attention">
+            {error}
+          </p>
+        ) : null}
         <Button type="submit" size="lg" disabled={busy}>
-          {busy ? "Saving…" : "Continue"}
+          {busy ? "Saving…" : "Finish setup"}
         </Button>
       </form>
     </section>

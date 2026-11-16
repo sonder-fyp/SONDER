@@ -3,7 +3,7 @@
  *
  * Real product copy for the Sonder landing narrative. The vine measures the
  * rendered cards and rebuilds itself around whatever length the copy turns out
- * to be. Product entry is through the navbar workspace links only; meta is a
+ * to be. Product entry is through a single account entrance; meta is a
  * plain dim line, not a link.
  *
  * Guidance:
@@ -27,44 +27,44 @@ export type VineNode = {
 export const VINE_NODES: VineNode[] = [
   {
     id: "problem",
-    eyebrow: "The problem",
-    title: "A wrong answer is not a diagnosis",
-    body: "Marking tells a teacher that a student got it wrong. It does not tell them why. The same wrong answer can come from four different broken ideas, and each one needs a different fix.",
-    meta: "Start a diagnostic",
+    eyebrow: "Start with an answer",
+    title: "Make room for your thinking",
+    body: "Choose an available Mathematics topic and answer one question at a time. There is no timer and no grade to chase. Take a moment to think before choosing an answer.",
+    meta: "Work at your own pace",
   },
   {
     id: "engine",
-    eyebrow: "The engine",
-    title: "It asks until it can tell two ideas apart",
-    body: "Sonder holds a set of competing misconceptions and a probability across all of them. Every answer moves the whole set, and the next question is chosen for one job: to separate the two that are still level.",
-    meta: "Watch the posterior move",
+    eyebrow: "A useful next question",
+    title: "Your answers guide the check",
+    body: "Sonder compares possible explanations for an answer and chooses a useful next question. The check adapts as you work through it.",
+    meta: "Adaptive diagnostics",
   },
   {
     id: "evidence",
-    eyebrow: "The evidence",
-    title: "Every diagnosis shows its work",
-    body: "A teacher does not receive a score. They receive the question that was asked, the answer that was given, the engine's reason for asking it, and the confidence across every hypothesis at every step.",
-    meta: "See what a teacher receives",
+    eyebrow: "Pick up later",
+    title: "Keep the work you have done",
+    body: "Submitted answers are saved. Return to the same topic to continue an unfinished check, even after closing the page, whenever you are ready.",
+    meta: "Saved progress",
   },
   {
     id: "gate",
-    eyebrow: "The gate",
-    title: "Nothing reaches a child unreviewed",
-    body: "No student and no parent sees a result a teacher has not approved. When the engine cannot separate two explanations it says so and escalates. An honest \u201Cunsure\u201D is a first-class outcome, never dressed up as a result.",
-    meta: "See what a parent sees",
+    eyebrow: "An honest outcome",
+    title: "Uncertainty deserves a clear answer",
+    body: "A diagnostic may finish without enough evidence for a specific explanation. Sonder keeps that uncertainty rather than presenting a guess as a conclusion.",
+    meta: "Clarity over certainty",
   },
   {
     id: "loop",
-    eyebrow: "The loop",
-    title: "When the bank falls short, it writes new questions",
-    body: "A pair of misconceptions that no existing question can distinguish is a coverage gap. Sonder drafts candidates, scores them, discards the weak ones automatically, and sends only what survives to two independent human reviewers.",
-    meta: "See a coverage gap",
+    eyebrow: "Support for educators",
+    title: "The answer is a starting point",
+    body: "Class, assignment and evidence-review tools are being prepared to help teachers connect student work with thoughtful follow-up. Access will open as these tools become available.",
+    meta: "Teacher tools in preparation",
   },
   {
     id: "return",
-    eyebrow: "The return",
-    title: "A fix only counts if it holds",
-    body: "Days after a study note is read, one question comes back to check the misconception has not returned. If it has, the case reopens where it left off instead of starting from nothing.",
-    meta: "Take a follow-up check",
+    eyebrow: "A considered next step",
+    title: "Learning continues beyond a check",
+    body: "Study resources, follow-up checks and parent summaries are planned around the same principle: useful support tied to the right person and the right context.",
+    meta: "Further learning tools in preparation",
   },
 ];

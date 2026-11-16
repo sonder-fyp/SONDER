@@ -8,17 +8,15 @@ import {
 
 describe("hero statement copy", () => {
   it("is the two-line statement used on the landing hero", () => {
-    expect(HERO_HEADLINE_LEAD).toBe("Beyond Right or Wrong:");
-    expect(HERO_HEADLINE_ACCENT).toBe("We Decode Every Misconception");
+    expect(HERO_HEADLINE_LEAD).toBe("Beyond right or wrong.");
+    expect(HERO_HEADLINE_ACCENT).toBe("Understand the thinking behind it.");
     expect(HERO_HEADLINE).toBe(
-      "Beyond Right or Wrong: We Decode Every Misconception",
+      "Beyond right or wrong. Understand the thinking behind it.",
     );
   });
 
   it("keeps the kicker as a label, not a second headline", () => {
-    expect(HERO_KICKER).toBe(
-      "Final-year project. Adaptive misconception diagnosis.",
-    );
+    expect(HERO_KICKER).toBe("Adaptive Mathematics diagnostics");
   });
 
   it("does not use em or en dashes", () => {
@@ -26,9 +24,9 @@ describe("hero statement copy", () => {
     expect(all).not.toMatch(/[\u2013\u2014]/);
   });
 
-  it("stays two lines: four words, then four words", () => {
+  it("stays two lines: four words, then five words", () => {
     expect(HERO_HEADLINE_LEAD.trim().split(/\s+/)).toHaveLength(4);
-    expect(HERO_HEADLINE_ACCENT.trim().split(/\s+/)).toHaveLength(4);
+    expect(HERO_HEADLINE_ACCENT.trim().split(/\s+/)).toHaveLength(5);
   });
 
   it("fits a two-line poster without the old 15ch word-stack", () => {

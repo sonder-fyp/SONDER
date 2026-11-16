@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
-import { Inter_Tight, JetBrains_Mono, Playfair_Display } from "next/font/google";
+import {
+  Inter_Tight,
+  JetBrains_Mono,
+  Playfair_Display,
+} from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import { AppShell } from "@/components/app/AppShell";
@@ -38,11 +42,11 @@ export const metadata: Metadata = {
     template: "%s · Sonder",
   },
   description:
-    "Sonder diagnoses the specific misconception behind a wrong answer, shows a teacher its evidence, and never reaches a student or parent unreviewed. Interactive proof of concept.",
+    "Sonder helps students explore the thinking behind their answers through adaptive Mathematics diagnostics.",
   openGraph: {
     title: "Sonder: Beyond Right or Wrong",
     description:
-      "Adaptive misconception diagnosis across Maths, Physics and Chemistry. Every result passes a teacher first.",
+      "One question at a time. Explore the thinking behind an answer with adaptive Mathematics diagnostics.",
     type: "website",
   },
 };
