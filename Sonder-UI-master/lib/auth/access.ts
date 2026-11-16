@@ -98,3 +98,12 @@ export async function requirePageRole(role: AppRole, returnTo: string) {
   if (account.role !== role) redirect(ROLE_HOME[account.role]);
   return account;
 }
+
+const ACCOUNT_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+export type AccessContext = { appUserId: string; role: AppRole; authUserId: string; account: AppAccount };
+/** Server-side identity for API routes. The role always comes from sonder.app_user, never the request. */
+export async function requireAccess(roles: readonly AppRole[]): Promise<AccessContext> {
+  const { user, account } = await requireApiRole(roles);
+  if (!ACCOUNT_ID.test(account.id)) throw new Error("The application account has an invalid ID.");
+  return { appUserId: account.id, role: account.role, authUserId: user.id, account };
+}
