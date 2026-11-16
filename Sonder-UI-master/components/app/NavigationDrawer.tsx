@@ -38,7 +38,7 @@ export function NavigationDrawer({
       onClick={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
-      className="fixed inset-y-0 left-0 right-auto m-0 h-dvh max-h-none w-[min(360px,90vw)] max-w-none border-r border-border bg-background p-0 text-foreground backdrop:bg-black/60"
+      className="product-surface fixed inset-y-0 left-0 right-auto m-0 h-dvh max-h-none w-[min(360px,90vw)] max-w-none border-r border-border bg-background p-0 text-foreground backdrop:bg-black/60"
     >
       <div className="flex h-full flex-col">
         <div className="flex h-[var(--topbar-h)] shrink-0 items-center justify-between border-b border-border px-6">
@@ -47,7 +47,7 @@ export function NavigationDrawer({
             type="button"
             aria-label="Close navigation"
             onClick={onClose}
-            className="grid size-11 place-items-center"
+            className="grid size-11 shrink-0 place-items-center"
           >
             <X className="size-5" aria-hidden />
           </button>

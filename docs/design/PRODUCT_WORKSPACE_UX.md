@@ -44,3 +44,13 @@ Before release, visually inspect the landing, account journey, each role overvie
 ## Scope
 
 This is a presentation and navigation change on top of Ahmed's Iteration 2 stack. It adds no class, assignment, dashboard/history, review, parent-linking, messaging, importer or engine backend. Pending service work retains its team ownership. No database schema or diagnostic engine change is included. Development seed content remains a development candidate.
+
+## Browser layout review — 17 November 2026
+
+A local Microsoft Playwright MCP server was connected to Chrome for visual inspection. The working-screen type scale is now scoped separately from the landing display scale: body copy is 16px, supporting text 15px, and labels are compact. Font families, palettes and the landing graphics are retained. Background graphics are quieter behind account and working screens. The diagnostic task layout uses less vertical spacing so the current question and options are visible sooner on phones.
+
+The mobile drawer uses the working-screen scale. While it is open, the fixed header's named view-transition layer is disabled; Chromium otherwise paints that layer above the modal. Escape closes the drawer and restores focus to its trigger.
+
+The five public account forms were exercised in the real app at 320, 768 and 1440 CSS pixels: login, registration, email verification, forgotten password and reset password. All 15 route/width combinations had 16px body copy and no horizontal overflow. Drawer title/close-button separation and Escape/focus return were checked in the browser. Light and dark screenshots were inspected.
+
+The four role overviews, preferences, unavailable-feature state and diagnostic question were inspected at the same three widths using isolated, read-only component previews with synthetic identities. All 21 layout combinations fit the viewport. These previews exercise the actual components and styles; they do not authenticate a user or verify server data. Mathematical characters were checked with UTF-8 preview documents. The real signed-in student flow and persistent-flow harness remain separate, pending checks.

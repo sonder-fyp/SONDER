@@ -136,7 +136,13 @@ export function DiagnosticClient({
         </>
       ) : (
         <>
-          <h1 className="mt-8 text-4xl font-semibold tracking-tight">
+          <h1
+            className={
+              question
+                ? "mt-6 text-xl font-semibold tracking-tight sm:text-2xl"
+                : "mt-6 text-3xl font-semibold tracking-tight sm:text-4xl"
+            }
+          >
             {snapshot?.unit.name ?? unit?.name ?? "Mathematics diagnostic"}
           </h1>
           <AccentBar className="mt-8" />
@@ -182,10 +188,10 @@ export function DiagnosticClient({
                 {snapshot?.answered_count ?? 0} answers saved · up to {budget}{" "}
                 questions
               </p>
-              <h2 className="mt-6 text-3xl font-semibold leading-snug">
+              <h2 className="mt-4 text-2xl font-semibold leading-snug sm:text-3xl">
                 {question.stem}
               </h2>
-              <div className="mt-12 border-t border-border">
+              <div className="mt-8 border-t border-border">
                 {question.options.map((option) => (
                   <button
                     key={option.option_id}

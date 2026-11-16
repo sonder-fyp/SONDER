@@ -57,7 +57,12 @@ export function FocusFrame({
         </div>
       ) : null}
 
-      <div className={cn("mx-auto w-full max-w-[720px] px-6 py-20 md:py-28", className)}>
+      <div
+        className={cn(
+          "mx-auto w-full max-w-[720px] px-6 py-8 md:py-12",
+          className,
+        )}
+      >
         <Link
           href={exitHref}
           className="label group relative inline-flex min-h-11 items-center gap-3 text-muted-foreground transition-colors duration-150 hover:text-foreground"
@@ -66,7 +71,7 @@ export function FocusFrame({
           {exitLabel}
         </Link>
 
-        <div className="mt-12">{children}</div>
+        <div className="mt-8">{children}</div>
       </div>
     </>
   );

@@ -208,6 +208,45 @@
   --font-mono: var(--stack-mono);
   --font-quote: var(--stack-quote);
 
+  /* ---- tracking ---- */
+  --tracking-tighter: -0.06em;
+  --tracking-tight: -0.04em;
+  --tracking-normal: -0.01em;
+  --tracking-wide: 0.05em;
+  --tracking-wider: 0.1em;
+  --tracking-widest: 0.2em;
+
+  /* ---- leading ---- */
+  --leading-none: 1;
+  --leading-tight: 1.1;
+  --leading-snug: 1.25;
+  --leading-normal: 1.6;
+  --leading-relaxed: 1.75;
+
+  /* ---- radius: zero, at every key, so a stray rounded-* renders sharp ---- */
+  --radius: 0px;
+  --radius-none: 0px;
+  --radius-xs: 0px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
+  --radius-3xl: 0px;
+  --radius-4xl: 0px;
+
+  /* ---- shadow: none, at every key, so a stray shadow-* renders nothing ---- */
+  --shadow-2xs: 0 0 #0000;
+  --shadow-xs: 0 0 #0000;
+  --shadow-sm: 0 0 #0000;
+  --shadow-md: 0 0 #0000;
+  --shadow-lg: 0 0 #0000;
+  --shadow-xl: 0 0 #0000;
+  --shadow-2xl: 0 0 #0000;
+}
+
+/* Type utilities retain CSS variables so workspace scopes can set their scale. */
+@theme {
   /* ---- type scale. Overrides Tailwind's defaults. See plan 2.4.
           --text-sm and --text-base carry body copy sites site-wide (table
           cells, list metas, callouts, inputs) and never a heading — Heading's
@@ -250,41 +289,6 @@
   --text-9xl: 10rem;
   --text-9xl--line-height: 1;
 
-  /* ---- tracking ---- */
-  --tracking-tighter: -0.06em;
-  --tracking-tight: -0.04em;
-  --tracking-normal: -0.01em;
-  --tracking-wide: 0.05em;
-  --tracking-wider: 0.1em;
-  --tracking-widest: 0.2em;
-
-  /* ---- leading ---- */
-  --leading-none: 1;
-  --leading-tight: 1.1;
-  --leading-snug: 1.25;
-  --leading-normal: 1.6;
-  --leading-relaxed: 1.75;
-
-  /* ---- radius: zero, at every key, so a stray rounded-* renders sharp ---- */
-  --radius: 0px;
-  --radius-none: 0px;
-  --radius-xs: 0px;
-  --radius-sm: 0px;
-  --radius-md: 0px;
-  --radius-lg: 0px;
-  --radius-xl: 0px;
-  --radius-2xl: 0px;
-  --radius-3xl: 0px;
-  --radius-4xl: 0px;
-
-  /* ---- shadow: none, at every key, so a stray shadow-* renders nothing ---- */
-  --shadow-2xs: 0 0 #0000;
-  --shadow-xs: 0 0 #0000;
-  --shadow-sm: 0 0 #0000;
-  --shadow-md: 0 0 #0000;
-  --shadow-lg: 0 0 #0000;
-  --shadow-xl: 0 0 #0000;
-  --shadow-2xl: 0 0 #0000;
 }
 
 /* ==========================================================================
@@ -763,4 +767,32 @@ html[data-focus="true"] .topbar-menu {
 @keyframes theme-knob-in {
   from { opacity: 0; transform: rotate(120deg) scale(0.3); }
   to   { opacity: 1; transform: none; }
+}
+
+/* Working screens use a consistent reading scale. Keep the landing display
+   scale above intact; font families, colours and graphical assets are shared. */
+.product-surface,
+.topbar {
+  --text-xs: 0.8125rem;
+  --text-sm: 0.9375rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-4xl: 2.25rem;
+  --text-5xl: 3rem;
+  font-size: 1rem;
+}
+.product-surface .label,
+.topbar .label {
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+}
+:root:has(.product-surface:not(dialog)) {
+  --matter-opacity: 0.035;
+}
+
+/* Named view-transition layers can paint above Chromium's native top layer.
+   Keep the modal drawer visually above the fixed header as well as interactive. */
+:root:has(dialog[open]) .topbar {
+  view-transition-name: none;
 }

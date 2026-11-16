@@ -26,12 +26,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   if (mode === "auth") {
     return (
-      <div className="relative z-[1] min-h-dvh bg-transparent">{children}</div>
+      <div className="product-surface relative z-[1] min-h-dvh bg-transparent">
+        {children}
+      </div>
     );
   }
 
   return (
-    <div className="relative z-[1] min-h-dvh bg-transparent">
+    <div
+      className={`${mode === "landing" ? "" : "product-surface "}relative z-[1] min-h-dvh bg-transparent`}
+    >
       <a
         href={mode === "landing" ? "#narrative" : "#main"}
         className="skip-link"
