@@ -22,8 +22,8 @@ function errorView(code: string): { message: string; retry: boolean } {
   }
 }
 
-export function DiagnosticClient({ unitId, initialSession }: { unitId: string; initialSession?: string }) {
-  const session = useDiagnosticSession(unitId, initialSession);
+export function DiagnosticClient({ unitId, initialSession, assignmentId }: { unitId: string; initialSession?: string; assignmentId?: string }) {
+  const session = useDiagnosticSession(unitId, initialSession, assignmentId);
   const snapshot = session.snapshot;
   const unit = session.catalogue?.units.find(u => u.unit_id === unitId);
   const budget = snapshot?.question_budget ?? session.catalogue?.question_budget;
@@ -49,7 +49,10 @@ export function DiagnosticClient({ unitId, initialSession }: { unitId: string; i
           You will get one question at a time, up to {budget}. Answer as best you can.
           There is no time limit and no score at the end.
         </p>
-        <Button size="lg" className="mt-12 w-full" disabled={working} onClick={session.begin}>Begin</Button>
+        {session.unfinished ? <>
+          <p className="mt-6">You have an unfinished check on this topic (question {session.unfinished.answered_count + 1} of {session.unfinished.question_budget}).</p>
+          <Button size="lg" className="mt-12 w-full" disabled={working} onClick={session.resume}>Continue</Button>
+        </> : <Button size="lg" className="mt-12 w-full" disabled={working} onClick={session.begin}>Begin</Button>}
       </> : null}
       {question ? <>
         <Label tone="muted" className="mt-10">Question {question.step_index + 1}</Label>
