@@ -10,8 +10,8 @@ from sonder_engine.model import Params
 from sonder_engine.pack import Pack
 from sonder_engine.session import SessionState, answer, next_question, start
 
-from .contracts import AnswerRequest, StartRequest
-from .student_view import evidence, snapshot
+from .contracts import AnswerRequest, CONTRACT_VERSION, StartRequest
+from .student_view import evidence, snapshot, summary
 
 
 class ServiceError(Exception):
@@ -32,6 +32,8 @@ class Entry:
 
 
 class InMemoryStore:
+    mode = "in_memory"
+
     def __init__(self, pack: Pack, params: Params, *, capacity=256, ttl=86400,
                  clock=monotonic):
         if capacity < 1 or ttl <= 0 or not isfinite(ttl):
@@ -51,10 +53,13 @@ class InMemoryStore:
             entry.finished_seq = self.finished_count
 
     def catalogue(self):
-        return {"contract_version": 1, "subject": self.pack.subject,
+        return {"contract_version": CONTRACT_VERSION, "subject": self.pack.subject,
                 "question_budget": self.params.default_budget,
                 "units": [{"unit_id": u.unit_id, "name": u.name,
                            "item_count": len(u.items)} for u in self.pack.units]}
+
+    def health(self):
+        return {"contract_version": CONTRACT_VERSION, "mode": self.mode, "ready": True, "release": None, "engine_release": None}
 
     def _prune(self):
         now = self.clock()
@@ -93,6 +98,8 @@ class InMemoryStore:
     def create(self, owner: str, request: StartRequest):
         with self.lock:
             self._prune()
+            if request.assignment_id is not None:
+                raise ServiceError(404, "assignment_not_found")
             key = (owner, request.create_request_id)
             if key in self.creates:
                 entry = self.entries[self.creates[key]]
@@ -123,6 +130,20 @@ class InMemoryStore:
             reply = snapshot(sid, entry.state)
             entry.activity = self.clock()
             return reply
+
+    def list_sessions(self, owner: str, *, status: str | None = None, unit_id: str | None = None):
+        with self.lock:
+            self._prune()
+            rows = [(sid, e) for sid, e in reversed(list(self.entries.items())) if e.owner == owner]
+            out = []
+            for sid, e in rows:
+                if status == "in_progress" and e.state.finished or status == "complete" and not e.state.finished:
+                    continue
+                if unit_id is not None and e.state.unit.unit_id != unit_id:
+                    continue
+                out.append(summary(sid, e.state.unit.unit_id, e.state.unit.name, e.state.finished,
+                                   len(e.state.steps), e.state.budget, None, None))
+            return {"contract_version": CONTRACT_VERSION, "sessions": out[:50]}
 
     def submit(self, sid: str, owner: str, request: AnswerRequest):
         with self.lock:

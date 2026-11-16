@@ -1,8 +1,10 @@
 import logging
+import re
 import secrets
 from contextlib import asynccontextmanager
+from typing import Literal
 
-from fastapi import Depends, FastAPI, Header, Request
+from fastapi import Depends, FastAPI, Header, Query, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
@@ -13,24 +15,38 @@ from .contracts import AnswerRequest, StartRequest
 from .store import InMemoryStore, ServiceError
 
 log = logging.getLogger("sonder_api")
+ACTOR = re.compile(r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}")
 
 
-def create_app(token: str, *, store=None, trace=False, capacity=256, ttl=86400):
+def memory_store_factory(capacity=256, ttl=86400):
+    """Explicit developer mode: one process, sessions lost on restart."""
+
+    def build():
+        params = Params()
+        pack = load_maths_v2(params=params)
+        for warning in pack.warnings:
+            log.warning("Pack warning: %s", warning)
+        return InMemoryStore(pack, params, capacity=capacity, ttl=ttl)
+    return build
+
+
+def create_app(token: str, *, store=None, store_factory=None, trace=False):
     if len(token) < 32:
         raise ValueError("SONDER_ENGINE_TOKEN must contain at least 32 characters")
+    if (store is None) == (store_factory is None):
+        raise ValueError("pass exactly one of store or store_factory")
 
     @asynccontextmanager
     async def lifespan(app):
-        if store is None:
-            params = Params()
-            pack = load_maths_v2(params=params)
-            for warning in pack.warnings:
-                log.warning("Pack warning: %s", warning)
-            app.state.store = InMemoryStore(pack, params, capacity=capacity, ttl=ttl)
-        else:
-            app.state.store = store
-        log.warning("SONDER local in-memory checkpoint: one worker; restart loses sessions")
-        yield
+        # A factory failure (missing database, bad release, bad pack) stops startup: no fallback.
+        app.state.store = store if store is not None else store_factory()
+        log.warning("SONDER engine API using the %s store", app.state.store.mode)
+        try:
+            yield
+        finally:
+            close = getattr(app.state.store, "close", None)
+            if store is None and close is not None:
+                close()
 
     app = FastAPI(lifespan=lifespan, docs_url=None, redoc_url=None, openapi_url=None)
 
@@ -38,10 +54,10 @@ def create_app(token: str, *, store=None, trace=False, capacity=256, ttl=86400):
         if not secrets.compare_digest(x_sonder_token.encode("utf-8"), token.encode("utf-8")):
             raise ServiceError(401, "internal_unauthorized")
 
-    def owner(x_sonder_owner: str = Header(default="")):
-        if len(x_sonder_owner) != 64 or any(c not in "0123456789abcdef" for c in x_sonder_owner):
+    def actor(x_sonder_actor: str = Header(default="")):
+        if not ACTOR.fullmatch(x_sonder_actor):
             raise ServiceError(404, "session_unavailable")
-        return x_sonder_owner
+        return x_sonder_actor
 
     @app.exception_handler(ServiceError)
     async def service_error(request, exc):
@@ -53,7 +69,6 @@ def create_app(token: str, *, store=None, trace=False, capacity=256, ttl=86400):
 
     @app.middleware("http")
     async def safe_errors(request: Request, call_next):
-        # Bound request bodies before FastAPI parses them, including chunked uploads.
         if request.method == "POST":
             body = await request.body()
             if len(body) > 4096:
@@ -73,24 +88,30 @@ def create_app(token: str, *, store=None, trace=False, capacity=256, ttl=86400):
     auth = [Depends(trusted)]
 
     @app.get("/engine/health", dependencies=auth)
-    def health():
-        return {"contract_version": 1, "mode": "in_memory", "ready": True}
+    def health(request: Request):
+        return db(request).health()
 
     @app.get("/engine/units", dependencies=auth)
     def units(request: Request):
         return db(request).catalogue()
 
     @app.post("/engine/sessions", dependencies=auth)
-    def create(request: Request, body: StartRequest, owner_id=Depends(owner)):
-        return db(request).create(owner_id, body)
+    def create(request: Request, body: StartRequest, actor_id=Depends(actor)):
+        return db(request).create(actor_id, body)
+
+    @app.get("/engine/sessions", dependencies=auth)
+    def sessions(request: Request, actor_id=Depends(actor),
+                 status: Literal["in_progress", "complete"] | None = None,
+                 unit_id: str | None = Query(default=None, min_length=1, max_length=32)):
+        return db(request).list_sessions(actor_id, status=status, unit_id=unit_id)
 
     @app.get("/engine/sessions/{sid}", dependencies=auth)
-    def current(request: Request, sid: str, owner_id=Depends(owner)):
-        return db(request).current(sid, owner_id)
+    def current(request: Request, sid: str, actor_id=Depends(actor)):
+        return db(request).current(sid, actor_id)
 
     @app.post("/engine/sessions/{sid}/answers", dependencies=auth)
-    def submit(request: Request, sid: str, body: AnswerRequest, owner_id=Depends(owner)):
-        reply, accepted = db(request).submit(sid, owner_id, body)
+    def submit(request: Request, sid: str, body: AnswerRequest, actor_id=Depends(actor)):
+        reply, accepted = db(request).submit(sid, actor_id, body)
         if trace and accepted:
             try:
                 log.warning("Developer trace session %s: %s", sid, db(request).inspect(sid))
