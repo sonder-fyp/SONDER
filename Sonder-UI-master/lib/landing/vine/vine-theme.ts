@@ -104,9 +104,8 @@ export const VINE_TENDRIL_STEPS = 4;
  *  0.52 = near centre, which reads as "the vine is leading you down". */
 export const VINE_FRONT_VH = 0.52;
 
-/** ScrollTrigger scrub, in seconds of catch-up. 0 = locked to scroll (stiff);
- *  ~0.95 pairs with Lenis inertia for organic lag. Above ~1.2 it feels detached. */
-export const VINE_SCRUB = 0.95;
+/** ScrollTrigger catch-up in seconds; Lenis supplies the remaining smoothing. */
+export const VINE_SCRUB = 0.35;
 
 /** Reveal thresholds are compared against `frontY` in px.
  *  An element opens when frontY >= atY, and only closes again once frontY has
