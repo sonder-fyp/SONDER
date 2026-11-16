@@ -1,7 +1,6 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { cn } from "@/lib/utils";
 import { chromeMode } from "@/lib/chrome";
 import { TopBar } from "./TopBar";
 import { WorkspaceNav } from "./WorkspaceNav";
@@ -14,25 +13,21 @@ import { WorkspaceNav } from "./WorkspaceNav";
  * The header is always mounted on landing and product so crossing `/` and a
  * role home only swaps slots.
  */
-/** Any route whose whole page is a ChatFrame: it owns its own inner scroller. */
-function isChatSurface(pathname: string): boolean {
-  if (pathname.endsWith("/consultant")) return true;
-  if (pathname === "/student/messages" || pathname === "/parent/messages") return true;
-  return /^\/teacher\/messages\/[^/]+$/.test(pathname);
-}
-
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const mode = chromeMode(pathname);
-  const consultant = isChatSurface(pathname);
 
   // The dev component gallery carries no product chrome.
   if (mode === "gallery") {
-    return <div className="relative z-[1] min-h-dvh bg-transparent">{children}</div>;
+    return (
+      <div className="relative z-[1] min-h-dvh bg-transparent">{children}</div>
+    );
   }
 
   if (mode === "auth") {
-    return <div className="relative z-[1] min-h-dvh bg-transparent">{children}</div>;
+    return (
+      <div className="relative z-[1] min-h-dvh bg-transparent">{children}</div>
+    );
   }
 
   return (
@@ -51,11 +46,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       ) : (
         <div className="flex min-w-0 w-full">
           <WorkspaceNav />
-          <main
-            id="main"
-            tabIndex={-1}
-            className={cn("min-w-0 flex-1", consultant ? "overflow-hidden" : "pb-28")}
-          >
+          <main id="main" tabIndex={-1} className="min-w-0 flex-1 pb-16">
             {children}
           </main>
         </div>
