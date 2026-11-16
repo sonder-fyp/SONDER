@@ -49,7 +49,7 @@ This is a presentation and navigation change on top of Ahmed's Iteration 2 stack
 
 A local Microsoft Playwright MCP server was connected to Chrome for visual inspection. The working-screen type scale is now scoped separately from the landing display scale: body copy is 16px, supporting text 15px, and labels are compact. Font families, palettes and the landing graphics are retained. Background graphics are quieter behind account and working screens. The diagnostic task layout uses less vertical spacing so the current question and options are visible sooner on phones.
 
-The mobile drawer uses the working-screen scale. While it is open, the fixed header's named view-transition layer is disabled; Chromium otherwise paints that layer above the modal. Escape closes the drawer and restores focus to its trigger.
+The mobile drawer uses the working-screen scale. While it is open, the fixed header's named view-transition layer is disabled; Chromium otherwise paints that layer above the modal. Escape closes the drawer and restores focus to its trigger. Public account entry remains actionable with a Continue link while the client refreshes its session.
 
 The five public account forms were exercised in the real app at 320, 768 and 1440 CSS pixels: login, registration, email verification, forgotten password and reset password. All 15 route/width combinations had 16px body copy and no horizontal overflow. Drawer title/close-button separation and Escape/focus return were checked in the browser. Light and dark screenshots were inspected.
 

@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 const state = vi.hoisted(() => ({
   path: "/",
+  loading: false,
   email: null as string | null,
   account: null as null | { role: "student"; display_name: string },
 }));
@@ -13,7 +14,7 @@ vi.mock("@/lib/session", () => ({
   useSession: () => ({
     account: state.account,
     email: state.email,
-    loading: false,
+    loading: state.loading,
     signOut: vi.fn(),
   }),
 }));
@@ -31,6 +32,7 @@ describe("product navigation", () => {
     cleanup();
     state.path = "/";
     state.email = null;
+    state.loading = false;
     state.account = null;
     localStorage.clear();
   });
@@ -47,6 +49,16 @@ describe("product navigation", () => {
     expect(
       screen.queryByRole("button", { name: "Play background music" }),
     ).toBeNull();
+  });
+  it("keeps account entry actionable while the session refreshes", () => {
+    state.loading = true;
+    render(<AppShell>Landing</AppShell>);
+    expect(
+      screen
+        .getByRole("link", { name: "Continue" })
+        .getAttribute("href"),
+    ).toBe("/auth/continue");
+    expect(screen.queryByText("Loading account…")).toBeNull();
   });
   it("offers returning accounts their own dashboard instead of registration", () => {
     state.account = { role: "student", display_name: "Test Student" };

@@ -159,9 +159,12 @@ function AccountEntry() {
   const { account, email, loading } = useSession();
   if (loading)
     return (
-      <span role="status" className="text-xs text-muted-foreground">
-        Loading account…
-      </span>
+      <Link
+        href="/auth/continue"
+        className="flex min-h-11 items-center font-mono text-xs uppercase tracking-widest text-accent"
+      >
+        Continue
+      </Link>
     );
   if (account || email)
     return (
