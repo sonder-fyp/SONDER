@@ -120,7 +120,8 @@ class EvidenceTests(DatabaseTestCase):
     def test_tampered_answer_makes_service_refuse(self):
         actor = self.students[16]
         value = self.begin(actor)
-        value = self.submit(actor, value, 'D')
+        for option in 'DBB':
+            value = self.submit(actor, value, option)
         with psycopg.connect(self.url) as conn:
             with conn.transaction():
                 conn.execute('SET LOCAL session_replication_role = replica')
