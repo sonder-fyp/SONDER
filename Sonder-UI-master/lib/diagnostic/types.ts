@@ -22,3 +22,5 @@ export type TeacherResult = {
 
 export type SessionSummary = { session_id: string; unit: Pick<Unit, "unit_id" | "name">; status: "in_progress" | "complete";
   answered_count: number; question_budget: number; started_at: string | null; ended_at: string | null };
+
+export type SessionList = { contract_version: 2; sessions: SessionSummary[] };

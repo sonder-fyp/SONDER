@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { AccessError, requireAccess, requireApiRole } from "@/lib/auth/access";
 import { BoundaryError, engine } from "./server";
 import { checkOrigin } from "./origin";
-import { UUID, parseAnswer, parseBegin, parseCatalogue, parseSnapshot } from "./validation";
+import { UUID, parseAnswer, parseBegin, parseCatalogue, parseSessionList, parseSnapshot } from "./validation";
 import { parseLatest } from "./teacher";
 import type { Snapshot } from "./types";
 
@@ -69,6 +69,15 @@ export function answerRoute(request: Request, sid: string) {
     const actor = await studentActor();
     const payload = await body(request, parseAnswer);
     return json(sameSession(await engine(`/engine/sessions/${sid}/answers`, parseSnapshot, actor, payload), sid));
+  });
+}
+export function unfinishedRoute(request: Request) {
+  return safe(async () => {
+    const actor = await studentActor();
+    const unit = new URL(request.url).searchParams.get("unit_id");
+    if (unit !== null && !/^[A-Za-z0-9_-]{1,32}$/.test(unit)) throw new BoundaryError(422, "invalid_request");
+    const query = new URLSearchParams({ status: "in_progress", ...(unit ? { unit_id: unit } : {}) });
+    return json(await engine(`/engine/sessions?${query}`, parseSessionList, actor));
   });
 }
 // Demo teacher view: the diagnostic that finished last. Read only; the token stays on the server.

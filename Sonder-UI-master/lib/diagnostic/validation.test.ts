@@ -35,7 +35,7 @@ describe("diagnostic contract", () => {
     expect(parseBegin({ ...begin, assignment_id: null })).toEqual(begin);
     for (const bad of [{ ...begin, assignment_id: "bad" }, { ...begin, extra: true }]) expect(() => parseBegin(bad)).toThrow();
     const row = { session_id: sid, unit: { unit_id: "U1", name: "Rounding" }, status: "in_progress", answered_count: 0, question_budget: 8, started_at: null, ended_at: null };
-    expect(parseSessionList({ contract_version: 2, sessions: [{ ...row, secret: true }] })).toEqual([row]);
+    expect(parseSessionList({ contract_version: 2, sessions: [{ ...row, secret: true }] })).toEqual({ contract_version: 2, sessions: [row] });
     expect(() => parseSessionList({ contract_version: 2, sessions: [{ ...row, status: "bad" }] })).toThrow();
     expect(() => parseSessionList({ contract_version: 2, sessions: Array(51).fill(row) })).toThrow();
     expect(() => parseSessionList({ contract_version: 1, sessions: [] })).toThrow();
