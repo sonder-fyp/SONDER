@@ -7,7 +7,7 @@ afterEach(() => {
 });
 
 describe("PageMasthead", () => {
-  it("keeps the poster opening by default", () => {
+  it("uses a compact workspace opening by default", () => {
     const { container } = render(
       <PageMasthead
         label="My insights"
@@ -17,13 +17,16 @@ describe("PageMasthead", () => {
     );
 
     const header = container.querySelector("header") as HTMLElement;
-    expect(header.className).toContain("pt-12");
-    expect(screen.getByRole("heading", { level: 1 }).className).toContain("text-4xl");
+    expect(header.className).toContain("pt-8");
+    expect(screen.getByRole("heading", { level: 1 }).className).toContain(
+      "md:!text-4xl",
+    );
     expect(container.querySelector("[aria-hidden].bg-accent")).toBeTruthy();
     expect(container.querySelector("[data-slot=section-rule]")).toBeTruthy();
     expect(
-      container.querySelector("[data-slot=section-rule]")?.parentElement?.className,
-    ).toContain("mt-10");
+      container.querySelector("[data-slot=section-rule]")?.parentElement
+        ?.className,
+    ).toContain("mt-8");
     expect(container.querySelector("hr")).toBeNull();
   });
 
@@ -47,6 +50,8 @@ describe("PageMasthead", () => {
     expect(container.querySelector("[aria-hidden].h-0\\.5")).toBeNull();
     expect(container.querySelector("[data-slot=section-rule]")).toBeNull();
     expect(container.querySelector("hr")).toBeNull();
-    expect(screen.getByText("Scripted suggestions, not decisions.")).toBeTruthy();
+    expect(
+      screen.getByText("Scripted suggestions, not decisions."),
+    ).toBeTruthy();
   });
 });

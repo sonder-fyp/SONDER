@@ -1,18 +1,12 @@
-import { notFound } from "next/navigation";
-import { getGenerationRun } from "@/fixtures/content/generation-run";
-import { GenerationRunClient } from "./GenerationRunClient";
-
-export function generateStaticParams() {
-  return [{ runId: "gen-run-0912" }];
-}
-
-export default async function GenerationRunPage({
-  params,
-}: {
-  params: Promise<{ runId: string }>;
-}) {
-  const { runId } = await params;
-  const run = getGenerationRun(runId);
-  if (!run) notFound();
-  return <GenerationRunClient run={run} />;
+import { WorkspaceState } from "@/components/product/WorkspaceState";
+export default function Page() {
+  return (
+    <WorkspaceState
+      label="Teacher"
+      title="Generation history"
+      description="Trace how an item came to be."
+      detail="Generation records are not available yet. Published records will include their source and review history."
+      home="/teacher"
+    />
+  );
 }

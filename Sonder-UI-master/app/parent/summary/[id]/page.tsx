@@ -1,18 +1,12 @@
-import { notFound } from "next/navigation";
-import { PARENT_SUMMARIES, getParentSummary } from "@/fixtures/parent";
-import { SummaryView } from "./SummaryView";
-
-export function generateStaticParams() {
-  return PARENT_SUMMARIES.map((s) => ({ id: s.id }));
-}
-
-export default async function SummaryPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
-  const summary = getParentSummary(id);
-  if (!summary) notFound();
-  return <SummaryView summary={summary} />;
+import { WorkspaceState } from "@/components/product/WorkspaceState";
+export default function Page() {
+  return (
+    <WorkspaceState
+      label="Parent"
+      title="Learning summary"
+      description="A clearer picture of your child’s learning."
+      detail="Parent summaries are not available yet. Only summaries released for an authorised child connection will appear here."
+      home="/parent"
+    />
+  );
 }
