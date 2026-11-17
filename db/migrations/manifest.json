@@ -5,6 +5,7 @@
     {"name": "0003_classes", "path": "db/migrations/0003_classes.sql"},
     {"name": "0004_class_membership", "path": "db/migrations/0004_class_membership.sql"},
     {"name": "0005_class_assignment", "path": "db/migrations/0005_class_assignment.sql"},
-    {"name": "0006_session_assignment", "path": "db/migrations/0006_session_assignment.sql"}
+    {"name": "0006_session_assignment", "path": "db/migrations/0006_session_assignment.sql"},
+    {"name": "0007_assignment_start", "path": "db/migrations/0007_assignment_start.sql"}
   ]
 }
