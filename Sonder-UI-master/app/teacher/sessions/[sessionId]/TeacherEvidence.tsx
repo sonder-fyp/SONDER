@@ -9,6 +9,7 @@ import { CONFIDENCE_NOTE, describeOutcome, percent } from "@/lib/teacher/describ
 import { teacherClient, TeacherError } from "@/lib/teacher/client";
 import type { Evidence } from "@/lib/teacher/evidence";
 import { QuestionCard } from "./QuestionCard";
+import { ReviewPanel } from "./ReviewPanel";
 
 const day = (iso: string) => new Date(iso).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
 
@@ -110,6 +111,7 @@ export function TeacherEvidence({ sessionId }: { sessionId: string }) {
           ))}
         </ol>
       </section>
+      <ReviewPanel sessionId={evidence.session_id} finished={evidence.outcome.outcome !== "in_progress"} />
       <footer className="border-t border-border py-6 text-xs text-faint">
         <p>Release {evidence.release} · engine {evidence.engine_release} · parameters {evidence.params_sha256.slice(0, 12)}</p>
         <p className="mt-1">Shown from the stored record of this check; later content changes do not alter it.</p>
