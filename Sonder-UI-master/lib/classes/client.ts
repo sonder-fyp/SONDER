@@ -3,6 +3,7 @@ import {
   parseTeacherAssignmentList, parseTeacherAssignmentResponse, parseTeacherClassList, parseTeacherClassResponse,
 } from "./validation";
 import type { AssignmentStatus, ClassStatus, CreateAssignmentRequest, CreateClassRequest } from "./types";
+import { parseDashboard } from "@/lib/student/dashboard";
 
 export class ClassesError extends Error {
   constructor(public code: string) {
@@ -62,4 +63,5 @@ export const classesClient = {
   setAssignmentStatus: (classId: string, assignmentId: string, status: AssignmentStatus) =>
     request(`${classPath(classId)}/assignments/${encodeURIComponent(assignmentId)}`, parseTeacherAssignmentResponse, "PATCH", { status }),
   studentAssignments: () => request("student/assignments", parseStudentAssignmentList),
+  studentDashboard: () => request("student/dashboard", parseDashboard),
 };

@@ -42,6 +42,10 @@ describe("live diagnostic controller", () => {
     expect(client.current).toHaveBeenCalledWith(sid);
     expect(hook.result.current.snapshot?.answered_count).toBe(1);
   });
+  it("does not offer another unfinished check when starting from an assignment", async () => {
+    await mount(undefined, "00000000-0000-4000-8000-000000000002");
+    expect(client.unfinished).not.toHaveBeenCalled();
+  });
   it("sends and preserves assignment context", async () => {
     const assignment = "00000000-0000-4000-8000-000000000002";
     const hook = await mount(undefined, assignment); await begin(hook);
