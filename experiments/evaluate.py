@@ -21,6 +21,11 @@ Configuration (JSON):
       ]
     }
 
+An optional "params" object overrides engine parameters for a tuning run only, for
+example {"min_support": 3} (I2-A04 candidates). A held-out configuration may not
+override anything: held-out results are reported for the parameters actually in use.
+The manifest records the full parameter set the run used.
+
 An intermittent case expands to every misconception of the unit. A deterministic
 student (always-A, partial holder) gives the same session for every seed under the
 adaptive and fixed methods, so it runs once there (the first seed) and for every
@@ -36,7 +41,7 @@ import json
 import platform
 import sys
 from collections.abc import Iterator
-from dataclasses import asdict
+from dataclasses import asdict, fields, replace
 from pathlib import Path
 
 import numpy as np
@@ -86,8 +91,18 @@ def validate(config: dict, pack: Pack) -> None:
     """Refuse a configuration that does not follow the protocol."""
 
     _require(isinstance(config, dict), "the configuration must be a JSON object")
-    _require(set(config) == {"name", "protocol_version", "split", "units", "methods", "seeds", "cases"},
-             "the configuration needs exactly: name, protocol_version, split, units, methods, seeds, cases")
+    required = {"name", "protocol_version", "split", "units", "methods", "seeds", "cases"}
+    _require(required <= set(config) <= required | {"params"},
+             "the configuration needs exactly: name, protocol_version, split, units, methods, seeds, cases "
+             "(and optionally params)")
+    if "params" in config:
+        overrides = config["params"]
+        known_params = {f.name for f in fields(Params)}
+        _require(config["split"] == "tuning", "params overrides are allowed on the tuning split only (protocol 5)")
+        _require(isinstance(overrides, dict) and overrides and set(overrides) <= known_params,
+                 f"params must be a non-empty object with keys from {sorted(known_params)}")
+        _require(all(isinstance(v, (int, float)) and not isinstance(v, bool) for v in overrides.values()),
+                 "params values must be numbers")
     _require(isinstance(config["name"], str) and config["name"].replace("-", "").isalnum(),
              "name must contain only letters, digits and hyphens")
     _require(config["protocol_version"] == PROTOCOL_VERSION, f"protocol_version must be {PROTOCOL_VERSION}")
@@ -190,15 +205,25 @@ def run(config: dict, pack: Pack, params: Params, progress=None) -> list[dict[st
     return rows
 
 
+def config_params(config: dict) -> Params:
+    """Default parameters with the configuration's tuning overrides applied (validated first)."""
+
+    try:
+        return replace(Params(), **config.get("params", {}))
+    except (TypeError, ValueError) as error:
+        raise ConfigError(f"invalid params: {error}") from error
+
+
 def config_sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
 
 
 def evaluate(config_path: Path, out: Path | None = None, progress=None) -> dict:
     config = json.loads(config_path.read_text(encoding="utf-8"))
-    params = Params()
-    pack = load_maths_v2(params=params)
+    pack = load_maths_v2(params=Params())
     validate(config, pack)
+    params = config_params(config)
+    pack = load_maths_v2(params=params)
     commit = _git("rev-parse", "HEAD")
     status = _git("status", "--porcelain", "--untracked-files=no")
     rows = run(config, pack, params, progress)

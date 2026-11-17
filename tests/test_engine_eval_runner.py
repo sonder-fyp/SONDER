@@ -10,7 +10,7 @@ import unittest
 from collections import Counter
 from pathlib import Path
 
-from experiments.evaluate import EVAL_FIELDS, ConfigError, config_sha256, evaluate, plan, validate
+from experiments.evaluate import EVAL_FIELDS, ConfigError, config_params, config_sha256, evaluate, plan, validate
 from experiments.content import canonical_source_sha256
 from sonder_pack.maths_v2 import load_maths_v2
 
@@ -139,6 +139,42 @@ class ValidationTests(unittest.TestCase):
 
     def test_the_small_configuration_itself_is_valid(self):
         validate(copy.deepcopy(SMALL), PACK)
+
+
+class ParamsOverrideTests(unittest.TestCase):
+    """I2-A04: tuning runs may try candidate parameters; held-out runs may not."""
+
+    def config(self, **params):
+        return {**copy.deepcopy(SMALL), "params": params}
+
+    def test_a_tuning_override_is_accepted_and_applied(self):
+        config = self.config(min_support=3, theta=0.9)
+        validate(config, PACK)
+        params = config_params(config)
+        self.assertEqual((params.min_support, params.theta), (3, 0.9))
+        self.assertEqual(config_params(copy.deepcopy(SMALL)).min_support, 2)  # defaults otherwise
+
+    def test_overrides_are_refused_on_held_out_or_when_malformed(self):
+        held_out = {**self.config(min_support=3), "split": "held-out", "seeds": {"first": 2000, "count": 3}}
+        for bad in (held_out, self.config(), self.config(minimum_support=3), self.config(theta="high"),
+                    self.config(min_support=True)):
+            with self.subTest(bad=bad.get("params")), self.assertRaises(ConfigError):
+                validate(bad, PACK)
+        with self.assertRaises(ConfigError):
+            config_params(self.config(theta=1.5))  # Params itself refuses it
+
+    def test_the_override_changes_the_run_and_is_recorded(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            base, strict = root / "base.json", root / "strict.json"
+            small = {**copy.deepcopy(SMALL), "seeds": {"first": 1000, "count": 2}}
+            base.write_text(json.dumps(small), encoding="utf-8")
+            strict.write_text(json.dumps({**small, "name": "small-strict", "params": {"min_support": 3}}), encoding="utf-8")
+            evaluate(base, root / "base", None)
+            manifest = evaluate(strict, root / "strict", None)
+            self.assertEqual(manifest["params"]["min_support"], 3)
+            self.assertNotEqual((root / "base" / "runs.csv").read_text(encoding="utf-8"),
+                                (root / "strict" / "runs.csv").read_text(encoding="utf-8"))
 
 
 if __name__ == "__main__":
