@@ -114,6 +114,21 @@ describe("authentication entry forms", () => {
       "Invalid email or password.",
     );
   });
+  it("explains a rejected origin instead of blaming the user's details", async () => {
+    const originError = { code: "INVALID_ORIGIN", message: "Invalid origin", status: 403, statusText: "Forbidden" };
+    for (const mode of ["sign-up", "sign-in"] as const) {
+      mocks.signUp.email.mockResolvedValue({ data: null, error: originError });
+      mocks.signIn.email.mockResolvedValue({ data: null, error: originError });
+      const view = render(<AuthEntry mode={mode} nextPath="/auth/continue" />);
+      fireEvent.change(screen.getByLabelText("Email"), { target: { value: "ahmed@example.com" } });
+      fireEvent.change(screen.getByLabelText("Password"), { target: { value: "LongEnough8!" } });
+      fireEvent.click(screen.getByRole("button", { name: mode === "sign-up" ? "Create Account" : "Log In" }));
+      const text = (await screen.findByRole("alert")).textContent ?? "";
+      expect(text).toContain("This address isn't allowed to sign in yet. Open Sonder from its usual address and try again.");
+      expect(text).toContain("http://localhost:3000");
+      view.unmount();
+    }
+  });
   it("returns to a valid task after login and rejects external return URLs", async () => {
     mocks.signIn.email.mockResolvedValue({ data: {}, error: null });
     for (const [nextPath, expected] of [
