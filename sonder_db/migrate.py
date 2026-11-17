@@ -2,7 +2,7 @@
 
     python -m sonder_db.migrate status
     python -m sonder_db.migrate up
-    python -m sonder_db.migrate adopt 0001_iteration1_schema 0002_auth_rbac
+    python -m sonder_db.migrate adopt 0001_iteration1_schema 0002_auth_rbac 0003_app_user_role_change
 
 Applied files are recorded in ``sonder_meta.schema_migration`` with the SHA-256 of
 their content (line endings normalised to LF). ``up`` refuses to continue if a

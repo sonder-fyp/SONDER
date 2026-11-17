@@ -2,6 +2,7 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from uuid import uuid4
 
 from pgtest import DatabaseTestCase, HAVE_PSYCOPG
 
@@ -27,7 +28,7 @@ class ManifestTests(unittest.TestCase):
 
 class MigrateTests(DatabaseTestCase):
     def test_up_applies_all_then_nothing(self):
-        expected = ["0001_iteration1_schema", "0002_auth_rbac"]
+        expected = ["0001_iteration1_schema", "0002_auth_rbac", "0003_app_user_role_change"]
         self.assertEqual(up(self.url), expected)
         self.assertEqual(up(self.url), [])
         self.assertEqual(status(self.url), [(name, "applied") for name in expected])
@@ -37,12 +38,50 @@ class MigrateTests(DatabaseTestCase):
 
 
 
+class RoleChangeTests(DatabaseTestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        up(cls.url)
+
+    def new_user(self, conn, role="student"):
+        return conn.execute(
+            "INSERT INTO sonder.app_user (email, display_name, role) VALUES (%s, 'T', %s) RETURNING id",
+            (f"{uuid4().hex}@example.test", role),
+        ).fetchone()[0]
+
+    def test_role_change_with_audit_row_succeeds(self):
+        with psycopg.connect(self.url) as conn:
+            user = self.new_user(conn)
+            conn.execute("UPDATE sonder.app_user SET role = 'teacher' WHERE id = %s", (user,))
+            conn.execute(
+                "INSERT INTO sonder.auth_role_audit (app_user_id, previous_role, new_role, change_source)"
+                " VALUES (%s, 'student', 'teacher', 'operator_provisioning')", (user,))
+            conn.commit()
+            self.assertEqual(conn.execute("SELECT role FROM sonder.app_user WHERE id = %s", (user,)).fetchone()[0], "teacher")
+
+    def test_role_change_without_audit_row_is_refused(self):
+        with psycopg.connect(self.url) as conn:
+            user = self.new_user(conn)
+            conn.commit()
+            conn.execute("UPDATE sonder.app_user SET role = 'teacher' WHERE id = %s", (user,))
+            with self.assertRaisesRegex(psycopg.Error, "auth_role_audit"):
+                conn.commit()
+
+    def test_id_and_created_at_stay_immutable(self):
+        with psycopg.connect(self.url) as conn:
+            user = self.new_user(conn)
+            conn.commit()
+            with self.assertRaisesRegex(psycopg.Error, "Immutable key"):
+                conn.execute("UPDATE sonder.app_user SET created_at = created_at - interval '1 day' WHERE id = %s", (user,))
+
+
 class AdoptMigrationTests(DatabaseTestCase):
     def test_adopt_records_without_running(self):
         up(self.url)
         with psycopg.connect(self.url) as conn:
             conn.execute("DELETE FROM sonder_meta.schema_migration")
-        names = ["0001_iteration1_schema", "0002_auth_rbac"]
+        names = ["0001_iteration1_schema", "0002_auth_rbac", "0003_app_user_role_change"]
         self.assertEqual(adopt(self.url, names), names)
         self.assertEqual(up(self.url), [])
 
@@ -72,4 +111,4 @@ class FailedMigrationTests(DatabaseTestCase):
 class EmptyDatabaseTests(DatabaseTestCase):
     def test_adopt_refuses_empty_database(self):
         with self.assertRaises(MigrationError):
-            adopt(self.url, ["0001_iteration1_schema", "0002_auth_rbac"])
+            adopt(self.url, ["0001_iteration1_schema", "0002_auth_rbac", "0003_app_user_role_change"])

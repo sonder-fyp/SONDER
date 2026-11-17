@@ -33,7 +33,7 @@ Persistence tests skip if `SONDER_TEST_DATABASE_URL` is unset; API tests skip wi
 
 A Neon development branch is needed for Neon Auth and the UI `DATABASE_URL`. Copy the root and UI `.env.example` files to ignored `.env` and `.env.local` files and fill in your own values. Load the root environment in the service shell; never commit the filled files.
 
-Run `python -m sonder_db.migrate status`. If the branch was already built by hand with the Iteration 1 schema and auth migration, run `python -m sonder_db.migrate adopt 0001_iteration1_schema 0002_auth_rbac` once; otherwise run `python -m sonder_db.migrate up` on an empty development database.
+Run `python -m sonder_db.migrate status`. If the branch was already built by hand with the Iteration 1 schema and auth migration, run `python -m sonder_db.migrate adopt 0001_iteration1_schema 0002_auth_rbac 0003_app_user_role_change` once; otherwise run `python -m sonder_db.migrate up` on an empty development database.
 
 Until Harris's content importer (I2-H14) is available, run `SONDER_ALLOW_DEV_SEED=true python -m sonder_api.devseed`. Its content is a **development candidate**. After the importer lands, use Harris's documented import command and release name. Provision demo accounts as described in [the access contract](api/ACCESS_CONTRACT.md#demo-accounts), then enrol the student with `SONDER_ALLOW_DEV_SEED=true python -m sonder_api.devseed --enrol-email <email>`.
 

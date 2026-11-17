@@ -15,7 +15,7 @@ A database built by hand before this runner existed (for example a Neon developm
 already has the Iteration 1 schema and `001-auth-rbac.sql`) is recorded once, without running
 anything, with:
 
-    python -m sonder_db.migrate adopt 0001_iteration1_schema 0002_auth_rbac
+    python -m sonder_db.migrate adopt 0001_iteration1_schema 0002_auth_rbac 0003_app_user_role_change
 
 Feature owners write and test their own migrations (work division §6.1); this runner only
 executes them.

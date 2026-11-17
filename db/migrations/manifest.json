@@ -1,6 +1,7 @@
 {
   "migrations": [
     {"name": "0001_iteration1_schema", "path": "docs/db/iteration1/sonder_iteration1.sql", "wraps_own_transaction": true},
-    {"name": "0002_auth_rbac", "path": "Sonder-UI-master/db/001-auth-rbac.sql", "wraps_own_transaction": true}
+    {"name": "0002_auth_rbac", "path": "Sonder-UI-master/db/001-auth-rbac.sql", "wraps_own_transaction": true},
+    {"name": "0003_app_user_role_change", "path": "db/migrations/0003_app_user_role_change.sql", "wraps_own_transaction": true}
   ]
 }
