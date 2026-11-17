@@ -44,11 +44,15 @@ Body is always `{"error":{"code":"<code>"}}`; no detail text.
 | `internal_unauthorized` | 401 | wrong/missing service token | configuration error |
 | `session_unavailable` | 404 | no such session for this actor (also malformed IDs, other student's session) | start a fresh check |
 | `unit_not_found` | 404 | unit not in the active release | — |
-| `assignment_not_found` | 404 | assignment unknown/closed/not the student's (always, until PR 10) | — |
+| `assignment_not_found` | 404 | assignment unknown, not in an active class of this student, or for another unit | return to the assignment list |
+| `assignment_closed` | 409 | the teacher closed the assignment | — |
+| `assignment_unavailable` | 409 | the assignment's unit is not in the release this service runs | ask the teacher to assign again |
+| `attempt_in_progress` | 409 | this student already has an unfinished attempt at this assignment | resume that attempt |
+| `attempt_limit_reached` | 409 | a `single` assignment the student has already attempted | — |
 | `session_expired` | 410 | memory mode only: TTL elapsed | start a fresh check |
 | `enrolment_required` | 403 | student has no active enrolment in a class teaching the subject | ask teacher for a class |
 | `enrolment_ambiguous` | 409 | several such enrolments and no assignment given | open from an assignment |
-| `create_conflict` | 409 | `create_request_id` reused with another unit | new request ID |
+| `create_conflict` | 409 | `create_request_id` reused with another unit or another assignment | new request ID |
 | `answer_conflict` | 409 | different answer for an already accepted step | reload state |
 | `step_conflict` | 409 | `step_index` is not the next step | reload state |
 | `item_conflict` | 409 | `item_id` is not the pending question | reload state |
@@ -63,16 +67,21 @@ BFF-only codes (browser ↔ BFF): `authentication_required` 401, `role_required`
 
 ### 5.4 Idempotency and lifecycle
 
-- Start key: `(student's enrolment, create_request_id)`. Identical retry (any time, even after answers) → the original first-question snapshot. Concurrent identical starts create one session.
+- Start key: `(student's enrolment, create_request_id)`. Identical retry (any time, even after answers, and even after the assignment was closed) → the original first-question snapshot. Concurrent identical starts create one session. Concurrent *different* starts of one assignment by one student are decided one after the other: at most one attempt is created.
 - Answer key: `(session_id, step_index)`. Identical retry of an accepted step → that step's original reply. Concurrent different answers for one step → exactly one accepted.
 - Client recovery rule: after a lost answer response, `GET` the session first; resend the identical payload only if that question is still pending.
 - Internal outcome statuses (stored in `diagnostic_session.status`): `in_progress`, `diagnosed`, `none_detected`, `escalated_no_separator`, `escalated_exhausted`, `escalated_unmodelled` (`abandoned` exists in the schema but has no transition). Student-facing status collapses all terminal ones to `complete`.
 - Retention: PostgreSQL mode keeps sessions indefinitely (no expiry); a retention/deletion policy is a later decision recorded in the contract as open. Loss on restart does not occur. Memory mode keeps the old TTL/capacity behaviour.
 - Version pinning: each session stores its response model (content version + engine params) and engine release; replies and evidence always come from those.
 
-### 5.5 Assignment linkage (requested from Harris, I2-H12)
+### 5.5 Assignment linkage (I2-H11, I2-H12)
 
-Ahmed's start service needs from Harris's assignment schema: a table (name to be chosen by Harris, suggested `sonder.class_assignment`) with `id uuid`, `class_id → classroom`, `unit_id → diagnostic_unit` (which pins the content version), an availability status, and the repeat-attempt rule. Ahmed's migration (PR 10) then adds `diagnostic_session.assignment_id uuid NULL REFERENCES <that table>` and a guard that the assignment's class equals the enrolment's class and its unit equals the session unit. Until then `assignment_id` must be null/omitted.
+Implemented by Ashher (who took over I2-H09–H13) with Ahmed's agreement; the full class and assignment contract is [CLASS_ASSIGNMENT_CONTRACT.md](CLASS_ASSIGNMENT_CONTRACT.md).
+
+- `sonder.class_assignment` (migration `0005`) has `id`, `class_id → classroom`, `unit_id → diagnostic_unit` (pins the content version), `title`, `status` open/closed and `attempt_rule` single/repeat.
+- `diagnostic_session.assignment_id uuid NULL REFERENCES sonder.class_assignment` (migration `0006`, the link planned as "PR 10"), with a guard that the assignment's class is the enrolment's class and its unit is the session's unit. It is fixed once written; sessions started without an assignment keep NULL.
+- A start with `assignment_id` (PostgreSQL mode) resolves the enrolment through the assignment (`sonder.assignment_enrolment`), answers an identical retry first, then applies `sonder.check_assignment_start` (migration `0007`): open, same release, attempt rule. The codes are in §5.3. A start without `assignment_id` is unchanged (D9).
+- Memory mode has no classes and still refuses any `assignment_id` with `404 assignment_not_found`.
 
 ## Harness
 
@@ -80,7 +89,7 @@ Run `SONDER_ENGINE_TOKEN=… python -m sonder_api.contract_check --base-url http
 
 ## Changes from v1
 
-The application account `X-Sonder-Actor` replaces the owner HMAC and per-run cookie. Version 2 adds a session list, new error codes and the optional `assignment_id` request field.
+The application account `X-Sonder-Actor` replaces the owner HMAC and per-run cookie. Version 2 adds a session list, new error codes and the optional `assignment_id` request field, which PostgreSQL mode accepts since I2-H12 (§5.5).
 
 ## Examples
 

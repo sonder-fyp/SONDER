@@ -66,6 +66,16 @@ _SESSION_WITH_EVENTS_SQL = ("SELECT " + _SESSION_COLUMNS + """,
             WHERE q.session_id = s.id), '[]'::json)
 """ + _SESSION_FROM)
 _SLOTS_SQL = "SELECT id, slot FROM sonder.session_hypothesis WHERE session_id = %s"
+# The enrolment a start from a class assignment belongs to (db/migrations/0007_assignment_start.sql).
+_ASSIGNMENT_ENROLMENT_SQL = "SELECT enrolment_id, unit_code FROM sonder.assignment_enrolment(%s, %s)"
+# Codes the assignment checks raise (SQLSTATE SN001) and the status the service returns for each.
+_ASSIGNMENT_ERRORS = {
+    "assignment_not_found": 404,
+    "assignment_closed": 409,
+    "assignment_unavailable": 409,
+    "attempt_in_progress": 409,
+    "attempt_limit_reached": 409,
+}
 _ENROLMENT_SQL = """
 SELECT e.id
 FROM sonder.enrolment e
@@ -75,6 +85,13 @@ JOIN sonder.class_subject cs ON cs.class_id = c.id AND cs.subject_id = %s
 WHERE e.student_id = %s AND e.status = 'active'
 ORDER BY e.joined_at, e.id
 """
+
+
+def _assignment_error(exc: psycopg.Error) -> Exception:
+    """An assignment refusal from the database as the service error it means; anything else unchanged."""
+
+    code = exc.diag.message_primary if exc.sqlstate == "SN001" else None
+    return ServiceError(_ASSIGNMENT_ERRORS[code], code) if code in _ASSIGNMENT_ERRORS else exc
 
 
 def _uuid(value: str, status: int, code: str) -> str:
@@ -273,9 +290,12 @@ class PostgresStore:
 
     @staticmethod
     def _enrolment_of(rows, request: StartRequest) -> str:
-        if getattr(request, "assignment_id", None) is not None:
-            # Assignments are I2-H11/H12 (Harris). Until that schema exists no assignment can be resolved.
-            raise ServiceError(404, "assignment_not_found")
+        if request.assignment_id is not None:
+            # rows come from sonder.assignment_enrolment: exactly one (enrolment, unit code) or it raised.
+            # A start names its unit too; a unit other than the assignment's is not this assignment.
+            if len(rows) != 1 or rows[0][1] != request.unit_id:
+                raise ServiceError(404, "assignment_not_found")
+            return str(rows[0][0])
         if not rows:
             raise ServiceError(403, "enrolment_required")
         if len(rows) > 1:
@@ -303,13 +323,14 @@ class PostgresStore:
                 cached = self._catalogue
         return copy.deepcopy(cached)
 
+    # Both start lookups end with the session's assignment_id, which _start_retry compares.
     _EXISTING_START_SQL = (
-        "SELECT s.id, u.unit_code, s.response_model_id, s.question_budget "
+        "SELECT s.id, u.unit_code, s.response_model_id, s.question_budget, s.assignment_id "
         "FROM sonder.diagnostic_session s JOIN sonder.diagnostic_unit u ON u.id = s.unit_id "
         "WHERE s.enrolment_id = %s AND s.request_key = %s")
 
     _STARTS_OF_ACTOR_SQL = (
-        "SELECT s.id, u.unit_code, s.response_model_id, s.question_budget, s.enrolment_id "
+        "SELECT s.id, u.unit_code, s.response_model_id, s.question_budget, s.enrolment_id, s.assignment_id "
         "FROM sonder.diagnostic_session s JOIN sonder.diagnostic_unit u ON u.id = s.unit_id "
         "WHERE s.request_key = %s AND s.enrolment_id IN (SELECT e.id FROM sonder.enrolment e WHERE e.student_id = %s)")
 
@@ -318,6 +339,8 @@ class PostgresStore:
 
         if existing[1] != request.unit_id:
             raise ServiceError(409, "create_conflict")
+        if (None if existing[-1] is None else str(existing[-1])) != request.assignment_id:
+            raise ServiceError(409, "create_conflict")  # the same request key reused for another assignment
         old_release, old_unit, _ = self._unit(conn, str(existing[2]), existing[1])
         return snapshot(str(existing[0]), self._prefix(old_unit, old_release, existing[3], []))
 
@@ -328,15 +351,32 @@ class PostgresStore:
             # Batch 1 (with BEGIN): the enrolment and the existing-start lookup are independent reads, so
             # they travel together. They are read in the same order and checked in the same order as before
             # (enrolment errors first), so every error is unchanged.
-            with conn.pipeline():
-                conn.execute("BEGIN")
-                found = conn.execute(_ENROLMENT_SQL, (self.release.subject_id, actor))
-                looked = conn.execute(self._STARTS_OF_ACTOR_SQL, (request.create_request_id, actor))
+            # A start from an assignment resolves its enrolment through the assignment instead.
+            try:
+                with conn.pipeline():
+                    conn.execute("BEGIN")
+                    if request.assignment_id is None:
+                        found = conn.execute(_ENROLMENT_SQL, (self.release.subject_id, actor))
+                    else:
+                        found = conn.execute(_ASSIGNMENT_ENROLMENT_SQL, (actor, request.assignment_id))
+                    looked = conn.execute(self._STARTS_OF_ACTOR_SQL, (request.create_request_id, actor))
+            except psycopg.Error as exc:
+                raise _assignment_error(exc) from exc
             enrolment = self._enrolment_of(found.fetchall(), request)
             # the lookup covers all the student's enrolments; only the one the start resolves to counts
             existing = next((r for r in looked.fetchall() if str(r[4]) == enrolment), None)
             if existing is not None:  # checked before the unit, so a changed unit is always create_conflict
                 return self._start_retry(conn, existing, request)
+            if request.assignment_id is not None:
+                # Open, same release, attempt rule. Locks the enrolment until COMMIT, so two simultaneous
+                # starts by this student are decided one after the other (an identical retry passes and is
+                # answered by the conflict path below).
+                try:
+                    conn.execute("SELECT sonder.check_assignment_start(%s, %s, %s, %s)",
+                                 (enrolment, request.assignment_id, self.release.content_version_id,
+                                  request.create_request_id))
+                except psycopg.Error as exc:
+                    raise _assignment_error(exc) from exc
             loaded = self._unit(conn, self.release.response_model_id, request.unit_id)
             if loaded is None:
                 raise ServiceError(404, "unit_not_found")
@@ -358,11 +398,11 @@ class PostgresStore:
                                  "set_config('sonder.request_key', %s, true)", (actor, request.create_request_id))
                     inserted = conn.execute(
                         "INSERT INTO sonder.diagnostic_session (id, enrolment_id, response_model_id, "
-                        "engine_release_id, unit_id, question_budget, request_key) "
-                        "VALUES (%s, %s, %s, %s, %s, %s, %s) "
+                        "engine_release_id, unit_id, question_budget, request_key, assignment_id) "
+                        "VALUES (%s, %s, %s, %s, %s, %s, %s, %s) "
                         "ON CONFLICT (enrolment_id, request_key) DO NOTHING RETURNING id",
                         (sid, enrolment, release.response_model_id, self.engine_release_id, index.unit_row_id,
-                         budget, request.create_request_id))
+                         budget, request.create_request_id, request.assignment_id))
                     with conn.cursor() as cur:
                         cur.executemany(
                             "INSERT INTO sonder.session_hypothesis (session_id, hypothesis_id, slot, "
