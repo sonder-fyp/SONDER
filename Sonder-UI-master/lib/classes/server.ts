@@ -1,8 +1,14 @@
 import "server-only";
 import { database } from "@/lib/auth/database";
 import { errorResponse } from "@/lib/auth/guard";
-import { parseRosterStudent, parseStudentClass, parseTeacherClass, UUID } from "./validation";
-import type { ClassStatus, CreateClassRequest, RosterStudent, StudentClass, TeacherClass } from "./types";
+import { BoundaryError, engine } from "@/lib/diagnostic/server";
+import {
+  parseRosterStudent, parseStudentAssignment, parseStudentClass, parseTeacherAssignment, parseTeacherClass, UUID,
+} from "./validation";
+import type {
+  AssignmentStatus, ClassStatus, CreateAssignmentRequest, CreateClassRequest, RosterStudent, StudentAssignment,
+  StudentClass, TeacherAssignment, TeacherClass,
+} from "./types";
 
 /**
  * Codes raised by the class/assignment database functions (SQLSTATE SN001, see
@@ -15,8 +21,14 @@ const PRODUCT_ERROR_STATUS: Record<string, number> = {
   class_note_invalid: 422,
   class_status_invalid: 422,
   join_code_invalid: 422,
+  assignment_title_invalid: 422,
+  attempt_rule_invalid: 422,
+  assignment_status_invalid: 422,
+  unit_not_found: 422,
+  class_archived: 409,
   class_not_found: 404,
   student_not_found: 404,
+  assignment_not_found: 404,
   subject_missing: 503,
   join_code_unavailable: 503,
 };
@@ -27,8 +39,12 @@ export function productErrorCode(error: unknown): string | null {
   return code === "SN001" && typeof message === "string" ? message : null;
 }
 
-/** A known product error becomes its response; anything else is rethrown for withAccess to report as 503. */
+/**
+ * A known product error, or a diagnostic-service boundary error, becomes its response; anything
+ * else is rethrown for withAccess to report as 503.
+ */
 export function productErrorResponse(error: unknown) {
+  if (error instanceof BoundaryError) return errorResponse(error.code, error.status);
   const code = productErrorCode(error);
   const status = code ? PRODUCT_ERROR_STATUS[code] : undefined;
   if (code && status) return errorResponse(code, status);
@@ -103,4 +119,50 @@ export async function regenerateJoinCode(teacherId: string, classId: string) {
 
 export async function setClassStatus(teacherId: string, classId: string, status: ClassStatus) {
   await database()`SELECT sonder.set_class_status(${teacherId}::uuid, ${classId}::uuid, ${status})`;
+}
+
+/**
+ * The content version the diagnostic service is running, from its own health report (release label
+ * "<version_code>/<model_code>"). Assignments are pinned to units of this version, so students can start them.
+ */
+export async function runningContentVersion(): Promise<string> {
+  return engine("/engine/health", (value) => {
+    const release = (value as { release?: unknown } | null)?.release;
+    const [version, model] = typeof release === "string" ? release.split("/") : [];
+    if (!version || !model) throw new BoundaryError(503, "assignments_unavailable");
+    return version;
+  });
+}
+
+export async function listClassAssignments(teacherId: string, classId: string): Promise<TeacherAssignment[]> {
+  const rows = await database()`
+    SELECT assignment_id::text, class_id::text, title, unit_code, unit_name, version_code, status, attempt_rule, created_at
+    FROM sonder.class_assignments(${teacherId}::uuid, ${classId}::uuid)
+    ORDER BY created_at DESC, assignment_id
+  `;
+  return rows.map(parseTeacherAssignment);
+}
+
+export async function createAssignment(teacherId: string, classId: string, versionCode: string,
+  request: CreateAssignmentRequest): Promise<string> {
+  const rows = await database()`
+    SELECT sonder.create_assignment(${teacherId}::uuid, ${classId}::uuid, ${versionCode}, ${request.unit_id},
+                                    ${request.title}, ${request.attempt_rule})::text AS assignment_id
+  `;
+  const id = rows[0]?.assignment_id;
+  if (typeof id !== "string" || !UUID.test(id)) throw new Error("Assignment creation returned no id.");
+  return id;
+}
+
+export async function setAssignmentStatus(teacherId: string, assignmentId: string, status: AssignmentStatus) {
+  await database()`SELECT sonder.set_assignment_status(${teacherId}::uuid, ${assignmentId}::uuid, ${status})`;
+}
+
+export async function listStudentAssignments(studentId: string): Promise<StudentAssignment[]> {
+  const rows = await database()`
+    SELECT assignment_id::text, class_id::text, class_name, title, unit_code, unit_name, attempt_rule, created_at
+    FROM sonder.student_assignments(${studentId}::uuid)
+    ORDER BY created_at DESC, assignment_id
+  `;
+  return rows.map(parseStudentAssignment);
 }

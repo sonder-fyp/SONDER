@@ -1,7 +1,8 @@
 import {
-  parseErrorCode, parseJoinResponse, parseRoster, parseStudentClassList, parseTeacherClassList, parseTeacherClassResponse,
+  parseAssignableUnits, parseErrorCode, parseJoinResponse, parseRoster, parseStudentAssignmentList, parseStudentClassList,
+  parseTeacherAssignmentList, parseTeacherAssignmentResponse, parseTeacherClassList, parseTeacherClassResponse,
 } from "./validation";
-import type { ClassStatus, CreateClassRequest } from "./types";
+import type { AssignmentStatus, ClassStatus, CreateAssignmentRequest, CreateClassRequest } from "./types";
 
 export class ClassesError extends Error {
   constructor(public code: string) {
@@ -54,4 +55,11 @@ export const classesClient = {
     request(`${classPath(classId)}/roster/${encodeURIComponent(studentId)}`, done, "DELETE"),
   studentClasses: () => request("student/classes", parseStudentClassList),
   joinClass: (code: string) => request("student/classes", parseJoinResponse, "POST", { code }),
+  teacherUnits: () => request("teacher/units", parseAssignableUnits),
+  assignments: (classId: string) => request(`${classPath(classId)}/assignments`, parseTeacherAssignmentList),
+  createAssignment: (classId: string, input: CreateAssignmentRequest) =>
+    request(`${classPath(classId)}/assignments`, parseTeacherAssignmentResponse, "POST", input),
+  setAssignmentStatus: (classId: string, assignmentId: string, status: AssignmentStatus) =>
+    request(`${classPath(classId)}/assignments/${encodeURIComponent(assignmentId)}`, parseTeacherAssignmentResponse, "PATCH", { status }),
+  studentAssignments: () => request("student/assignments", parseStudentAssignmentList),
 };

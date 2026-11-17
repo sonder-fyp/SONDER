@@ -2,7 +2,10 @@ import { cleanup, fireEvent, render, screen, within } from "@testing-library/rea
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("@/lib/classes/client", async (original) => ({
   ...(await original<typeof import("@/lib/classes/client")>()),
-  classesClient: { teacherClass: vi.fn(), roster: vi.fn(), removeStudent: vi.fn(), newJoinCode: vi.fn(), setClassStatus: vi.fn() },
+  classesClient: {
+    teacherClass: vi.fn(), roster: vi.fn(), removeStudent: vi.fn(), newJoinCode: vi.fn(), setClassStatus: vi.fn(),
+    assignments: vi.fn(), teacherUnits: vi.fn(),
+  },
 }));
 import { classesClient, ClassesError } from "@/lib/classes/client";
 import type { RosterStudent, TeacherClass } from "@/lib/classes/types";
@@ -15,7 +18,11 @@ const room: TeacherClass = {
 };
 const ali: RosterStudent = { student_id: "33333333-3333-4333-8333-333333333333", display_name: "Ali", joined_at: "2026-11-18T10:00:00.000Z" };
 const sara: RosterStudent = { student_id: "44444444-4444-4444-8444-444444444444", display_name: "Sara", joined_at: "2026-11-18T11:00:00.000Z" };
-beforeEach(() => { vi.mocked(classesClient.roster).mockResolvedValue([ali, sara]); });
+beforeEach(() => {
+  vi.mocked(classesClient.roster).mockResolvedValue([ali, sara]);
+  vi.mocked(classesClient.assignments).mockResolvedValue([]);
+  vi.mocked(classesClient.teacherUnits).mockResolvedValue([]);
+});
 afterEach(() => { cleanup(); vi.resetAllMocks(); vi.unstubAllGlobals(); });
 
 describe("teacher class detail", () => {

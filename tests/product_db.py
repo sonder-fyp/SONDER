@@ -2,7 +2,9 @@
 
 Each test class gets a fresh database (pgtest.DatabaseTestCase) with every migration in
 db/migrations/manifest.json applied. Helpers create accounts and the MATH subject directly,
-the way the application and the development seed do.
+the way the application and the development seed do. A class that sets with_dev_release
+also gets Ahmed's frozen U1 development release (sonder_api.devseed), the same content the
+persistent service runs.
 """
 
 from __future__ import annotations
@@ -19,6 +21,8 @@ if HAVE_PSYCOPG:
 
 class ProductDatabaseTestCase(DatabaseTestCase):
     with_math_subject = True
+    with_dev_release = False
+    release_version = "Maths_v2-U1-dev"
 
     @classmethod
     def setUpClass(cls):
@@ -27,6 +31,12 @@ class ProductDatabaseTestCase(DatabaseTestCase):
         if cls.with_math_subject:
             with psycopg.connect(cls.url) as conn:
                 conn.execute("INSERT INTO sonder.subject (code, name) VALUES ('MATH', 'Mathematics')")
+        if cls.with_dev_release:
+            from sonder_api.devseed import seed
+
+            with psycopg.connect(cls.url) as conn:
+                seeded = seed(conn, version_code=cls.release_version, synthetic_students=0)
+            cls.release_label = seeded["release"]
 
     def connect(self):
         return psycopg.connect(self.url, autocommit=True)
