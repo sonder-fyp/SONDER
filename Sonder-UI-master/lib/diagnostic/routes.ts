@@ -4,7 +4,6 @@ import { AccessError, requireAccess, requireApiRole } from "@/lib/auth/access";
 import { BoundaryError, engine } from "./server";
 import { checkOrigin } from "./origin";
 import { UUID, parseAnswer, parseBegin, parseCatalogue, parseSessionList, parseSnapshot } from "./validation";
-import { parseLatest } from "./teacher";
 import type { Snapshot } from "./types";
 
 const headers = { "Cache-Control": "no-store" };
@@ -78,12 +77,5 @@ export function unfinishedRoute(request: Request) {
     if (unit !== null && !/^[A-Za-z0-9_-]{1,32}$/.test(unit)) throw new BoundaryError(422, "invalid_request");
     const query = new URLSearchParams({ status: "in_progress", ...(unit ? { unit_id: unit } : {}) });
     return json(await engine(`/engine/sessions?${query}`, parseSessionList, actor));
-  });
-}
-// Demo teacher view: the diagnostic that finished last. Read only; the token stays on the server.
-export function latestTeacherRoute() {
-  return safe(async () => {
-    await requireApiRole(["teacher"]);
-    return json(await engine("/engine/latest", parseLatest));
   });
 }
