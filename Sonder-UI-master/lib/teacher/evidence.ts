@@ -183,7 +183,7 @@ export function parseEvidence(value: unknown): Evidence {
     outcome: {
       outcome: outcome.outcome as SessionOutcome,
       diagnosis_candidates: pairs(outcome.diagnosis_candidates, "diagnosis_candidates"),
-      escalation_reason: outcome.escalation_reason === null ? null : str(outcome.escalation_reason, "escalation_reason", 256),
+      escalation_reason: outcome.escalation_reason === null ? null : str(outcome.escalation_reason, "escalation_reason", 4000),
       escalation_leader_slot: outcome.escalation_leader_slot === null ? null : int(outcome.escalation_leader_slot, "leader slot"),
       escalation_candidates: pairs(outcome.escalation_candidates, "escalation_candidates"),
     },
