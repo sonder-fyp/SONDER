@@ -3,6 +3,7 @@ import {
   Compass,
   ShieldCheck,
   Settings,
+  Users,
   type LucideIcon,
 } from "lucide-react";
 import type { AppRole as Role } from "@/lib/auth/types";
@@ -38,7 +39,12 @@ export const NAV: Record<Role, NavGroup[]> = {
     },
   ],
   teacher: [
-    { items: [{ label: "Overview", href: "/teacher", icon: Home }] },
+    {
+      items: [
+        { label: "Overview", href: "/teacher", icon: Home },
+        { label: "Classes", href: "/teacher/classes", icon: Users },
+      ],
+    },
     {
       label: "Account",
       items: [
