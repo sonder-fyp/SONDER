@@ -21,14 +21,24 @@ Email is the displayed sign-in method. The previous unconditional Google, Apple 
 
 Classes, join codes, rosters and assignments are connected to real records (I2-H09–H13, taken over by Ashher from Harris; [contract](../api/CLASS_ASSIGNMENT_CONTRACT.md)): `/teacher/classes`, `/teacher/classes/[classId]` (join code, students, assignments, archive) and `/student/classes` (class list and join). "Classes" is in both navigations. Starting a diagnostic from an assignment works through `/student/diagnostic/[unitId]?assignment=<id>`; the student dashboard that lists assignments is I2-A16.
 
+## Live teacher and student features
+
+Connected to stored records (I2-A11–A19, Ashher; [requirements](I2_TEACHER_STUDENT_REQUIREMENTS.md), [checks](../testing/PRODUCT_PATH_CHECKS.md)):
+- **Teacher:**
+  - the class Activity dashboard on `/teacher/classes/[classId]` (counts, filters, table)
+  - the evidence page `/teacher/sessions/[sessionId]`, with question-by-question evidence and the review panel
+- **Student:**
+  - "Your assignments" with Start / Resume / Done on `/student`
+  - "Past checks" on `/student/history`, which is in the student navigation
+
 ## Pending feature integration
 
 The following URLs retain clear unavailable states and a route back to the workspace. They do not display fixture records or simulate successful operations.
 
 | Area | Routes | Integration dependency |
 | --- | --- | --- |
-| Student class detail | `/student/classes/[classId]` | Ashher: assignments with start/resume belong to the student dashboard (I2-A16–A17). The class list and joining are live (see below). |
-| Activity and teacher review | Student insights; teacher follow-up, evidence, review and student activity | Ashher: dashboards, history, evidence and persistent review (I2-A11–A19). |
+| Student class detail | `/student/classes/[classId]` | Assignments with Start/Resume are on the student home (I2-A16–A17); the class list and joining are live. |
+| Older teacher and student pages | Student insights; teacher escalations, the scenario evidence route `/teacher/session/[scenario]` and per-student insights | Replaced on the live path by the routes below; kept as design references. |
 | Learning | Student library, concept, study-note and follow-up routes | Real resources, permitted record associations and follow-up workflow. |
 | Parent | Child summaries and messages | Authorised child linkage and permitted summary publication. |
 | Communication | Student, teacher and parent messages; consultants | Real delivery/assistant service with account-scoped records. |
