@@ -1,0 +1,25 @@
+﻿item_id,topic,target,stem,option_id,option_text,is_correct,misconceptions,status
+T5-017,T5 Powers and roots,MATH-1072,A fraction has 10² on the top and √25 on the bottom. Which calculation gives the value of the fraction?,A,10² / (25 / 2),False,MATH-414|MATH-734,draft
+T5-017,T5 Powers and roots,MATH-1072,A fraction has 10² on the top and √25 on the bottom. Which calculation gives the value of the fraction?,B,10² / √25,True,,draft
+T5-017,T5 Powers and roots,MATH-1072,A fraction has 10² on the top and √25 on the bottom. Which calculation gives the value of the fraction?,C,(10 x 2) / √25,False,MATH-1072,draft
+T5-017,T5 Powers and roots,MATH-1072,A fraction has 10² on the top and √25 on the bottom. Which calculation gives the value of the fraction?,D,(10 + 2) / √25,False,MATH-952,draft
+T5-020,T5 cross-concept (operation version),MATH-2093,A fraction has 10² on the top and √25 on the bottom. Which calculation gives the value of the fraction?,A,10² x √25,False,,draft
+T5-020,T5 cross-concept (operation version),MATH-2093,A fraction has 10² on the top and √25 on the bottom. Which calculation gives the value of the fraction?,B,10² - √25,False,MATH-2093,draft
+T5-020,T5 cross-concept (operation version),MATH-2093,A fraction has 10² on the top and √25 on the bottom. Which calculation gives the value of the fraction?,C,10² / √25,True,,draft
+T5-020,T5 cross-concept (operation version),MATH-2093,A fraction has 10² on the top and √25 on the bottom. Which calculation gives the value of the fraction?,D,10² + √25,False,,draft
+T5-018,T5 Powers and roots,MATH-952,A fraction has 6³ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,A,6³ / (16 / 2),False,MATH-414|MATH-734,draft
+T5-018,T5 Powers and roots,MATH-952,A fraction has 6³ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,B,(6 x 3) / √16,False,MATH-1072,draft
+T5-018,T5 Powers and roots,MATH-952,A fraction has 6³ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,C,(6 + 3) / √16,False,MATH-952,draft
+T5-018,T5 Powers and roots,MATH-952,A fraction has 6³ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,D,6³ / √16,True,,draft
+T5-021,T5 cross-concept (operation version),MATH-2093,A fraction has 6³ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,A,6³ / √16,True,,draft
+T5-021,T5 cross-concept (operation version),MATH-2093,A fraction has 6³ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,B,6³ x √16,False,,draft
+T5-021,T5 cross-concept (operation version),MATH-2093,A fraction has 6³ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,C,6³ - √16,False,MATH-2093,draft
+T5-021,T5 cross-concept (operation version),MATH-2093,A fraction has 6³ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,D,6³ + √16,False,,draft
+T5-019,T5 Powers and roots,MATH-414,A fraction has 8³ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,A,8³ / √16,True,,draft
+T5-019,T5 Powers and roots,MATH-414,A fraction has 8³ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,B,(8 x 3) / √16,False,MATH-1072,draft
+T5-019,T5 Powers and roots,MATH-414,A fraction has 8³ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,C,8³ / (16 / 2),False,MATH-414|MATH-734,draft
+T5-019,T5 Powers and roots,MATH-414,A fraction has 8³ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,D,(8 + 3) / √16,False,MATH-952,draft
+T5-022,T5 cross-concept (operation version),MATH-2093,A fraction has 8³ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,A,8³ x √16,False,,draft
+T5-022,T5 cross-concept (operation version),MATH-2093,A fraction has 8³ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,B,8³ / √16,True,,draft
+T5-022,T5 cross-concept (operation version),MATH-2093,A fraction has 8³ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,C,8³ - √16,False,MATH-2093,draft
+T5-022,T5 cross-concept (operation version),MATH-2093,A fraction has 8³ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,D,8³ + √16,False,,draft

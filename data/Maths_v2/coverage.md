@@ -87,3 +87,12 @@ See batches/reviews/LINK_AUDIT_SUMMARY.md. 5 FORCED links in approved items (B13
 
 ## Forced-link fixes applied to the approved bank (owner chose 'fix only the 5 forced', 2026-10-10)
 B13 MATH-2359 options made true reversals: T3-003 A '4 / 200', T3-006 A '5 / 150', T3-009 C 0.01, T3-010 C 0.05. B08 T5-014 C 0.0625 unlinked (target now MATH-2093). Items remain approved; the ~90 stretch links are untouched. Backup of the pre-fix bank: batches/superseded/items_bank_before_forced_fix.csv.
+
+## B17, B18 and B14 rework proposed (2026-11-16), DRAFTS, NOT in bank, awaiting owner review
+B17 (3 items): operation versions of B10 stems T6-012/013/018 (MATH-2359 x2, MATH-1416 x1). B18 (6 items): three twin pairs, fraction with a power over a square root (A in U5, B in U4; adds 3 trigger groups for MATH-2093 in U4). B14_proposed_rework_long.csv: removes one MATH-1416 link on each of T6-011B, T6-014B, T6-016B so none breaks rule P1. Scratch-copy test: validator 0 errors / 0 P1 conflicts; see batches/reviews/B17_B18_verification_sheet.md. Bank, unit table and approved batches untouched.
+
+### 2026-11-18 decision on the 16 Nov drafts above
+APPROVED by the owner and applied: B17 (3 items), B18 (6 items, now in calculation-recognition form instead of the numeric draft) and the B14 link removals on T6-011B, T6-014B, T6-016B. Bank 126 items. B14_proposed_rework_long.csv was moved to batches/superseded/. See MANIFEST.md approval log and HarrisDOcs/dataset_revisions/DRAFTS_B14r_B17_B18_application.json.
+
+### 2026-11-18 later the same day: T6-018B removed
+T6-018B (B17) was removed by the owner because it is the only item that makes dev's pack loader refuse the bank (MATH-1416 in U6, which dev's unit table drops). The bank is now 125 items; B17 has 2 items. The MATH-1416 trigger-group gap in U6 that B14-rework/B17 were meant to close is therefore still open until the unit table is changed. See MANIFEST.md.

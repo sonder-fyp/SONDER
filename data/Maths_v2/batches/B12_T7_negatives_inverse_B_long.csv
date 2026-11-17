@@ -1,16 +1,16 @@
 ﻿item_id,topic,target,stem,option_id,option_text,is_correct,misconceptions,status
-T7-010,"T7 Negatives, inverse operations, fraction bar",MATH-1639,"In three hours the temperature changes by −5°C, −2°C and −4°C. What is the total change in temperature?",A,11,False,MATH-1639,draft
-T7-010,"T7 Negatives, inverse operations, fraction bar",MATH-1639,"In three hours the temperature changes by −5°C, −2°C and −4°C. What is the total change in temperature?",B,−11,True,,draft
-T7-010,"T7 Negatives, inverse operations, fraction bar",MATH-1639,"In three hours the temperature changes by −5°C, −2°C and −4°C. What is the total change in temperature?",C,3,False,MATH-1639,draft
-T7-010,"T7 Negatives, inverse operations, fraction bar",MATH-1639,"In three hours the temperature changes by −5°C, −2°C and −4°C. What is the total change in temperature?",D,−7,False,,draft
-T7-011,"T7 Negatives, inverse operations, fraction bar",MATH-1639,Work out −5 + −1 + −2.,A,8,False,MATH-1639,draft
-T7-011,"T7 Negatives, inverse operations, fraction bar",MATH-1639,Work out −5 + −1 + −2.,B,4,False,MATH-1639,draft
-T7-011,"T7 Negatives, inverse operations, fraction bar",MATH-1639,Work out −5 + −1 + −2.,C,−6,False,,draft
-T7-011,"T7 Negatives, inverse operations, fraction bar",MATH-1639,Work out −5 + −1 + −2.,D,−8,True,,draft
-T7-012,"T7 Negatives, inverse operations, fraction bar",MATH-1639,"A submarine moves −4 m, then −6 m, then −2 m. What is the total movement?",A,−12,True,,draft
-T7-012,"T7 Negatives, inverse operations, fraction bar",MATH-1639,"A submarine moves −4 m, then −6 m, then −2 m. What is the total movement?",B,12,False,MATH-1639,draft
-T7-012,"T7 Negatives, inverse operations, fraction bar",MATH-1639,"A submarine moves −4 m, then −6 m, then −2 m. What is the total movement?",C,8,False,MATH-1639,draft
-T7-012,"T7 Negatives, inverse operations, fraction bar",MATH-1639,"A submarine moves −4 m, then −6 m, then −2 m. What is the total movement?",D,−10,False,,draft
+T7-010,"T7 Negatives, inverse operations, fraction bar",MATH-1639,"In the first hour the temperature changes by −5°C, in the second hour by −2°C and in the third hour by −4°C. What is the total change in temperature?",A,11°C,False,MATH-1639,draft
+T7-010,"T7 Negatives, inverse operations, fraction bar",MATH-1639,"In the first hour the temperature changes by −5°C, in the second hour by −2°C and in the third hour by −4°C. What is the total change in temperature?",B,−11°C,True,,draft
+T7-010,"T7 Negatives, inverse operations, fraction bar",MATH-1639,"In the first hour the temperature changes by −5°C, in the second hour by −2°C and in the third hour by −4°C. What is the total change in temperature?",C,3°C,False,MATH-1639,draft
+T7-010,"T7 Negatives, inverse operations, fraction bar",MATH-1639,"In the first hour the temperature changes by −5°C, in the second hour by −2°C and in the third hour by −4°C. What is the total change in temperature?",D,−7°C,False,,draft
+T7-011,"T7 Negatives, inverse operations, fraction bar",MATH-1639,Work out (−5 + −1) + −2.,A,8,False,MATH-1639,draft
+T7-011,"T7 Negatives, inverse operations, fraction bar",MATH-1639,Work out (−5 + −1) + −2.,B,4,False,MATH-1639,draft
+T7-011,"T7 Negatives, inverse operations, fraction bar",MATH-1639,Work out (−5 + −1) + −2.,C,−6,False,,draft
+T7-011,"T7 Negatives, inverse operations, fraction bar",MATH-1639,Work out (−5 + −1) + −2.,D,−8,True,,draft
+T7-012,"T7 Negatives, inverse operations, fraction bar",MATH-1639,"A submarine moves −4 m, then −6 m, then −2 m. What is the total movement?",A,−12 m,True,,draft
+T7-012,"T7 Negatives, inverse operations, fraction bar",MATH-1639,"A submarine moves −4 m, then −6 m, then −2 m. What is the total movement?",B,12 m,False,MATH-1639,draft
+T7-012,"T7 Negatives, inverse operations, fraction bar",MATH-1639,"A submarine moves −4 m, then −6 m, then −2 m. What is the total movement?",C,8 m,False,MATH-1639,draft
+T7-012,"T7 Negatives, inverse operations, fraction bar",MATH-1639,"A submarine moves −4 m, then −6 m, then −2 m. What is the total movement?",D,−10 m,False,,draft
 T7-013,"T7 Negatives, inverse operations, fraction bar",MATH-2271,Hira shares her sweets equally among 6 friends and each friend gets 3 sweets. How many sweets did she have?,A,0.5,False,MATH-2271,draft
 T7-013,"T7 Negatives, inverse operations, fraction bar",MATH-2271,Hira shares her sweets equally among 6 friends and each friend gets 3 sweets. How many sweets did she have?,B,9,False,,draft
 T7-013,"T7 Negatives, inverse operations, fraction bar",MATH-2271,Hira shares her sweets equally among 6 friends and each friend gets 3 sweets. How many sweets did she have?,C,18,True,,draft

@@ -1,8 +1,8 @@
 ﻿item_id,topic,target,stem,option_id,option_text,is_correct,misconceptions,status
-T7-001,"T7 Negatives, inverse operations, fraction bar",MATH-1639,What is −2 + −3 + −4?,A,9,False,MATH-1639,draft
-T7-001,"T7 Negatives, inverse operations, fraction bar",MATH-1639,What is −2 + −3 + −4?,B,1,False,MATH-1639,draft
-T7-001,"T7 Negatives, inverse operations, fraction bar",MATH-1639,What is −2 + −3 + −4?,C,−9,True,,draft
-T7-001,"T7 Negatives, inverse operations, fraction bar",MATH-1639,What is −2 + −3 + −4?,D,−5,False,,draft
+T7-001,"T7 Negatives, inverse operations, fraction bar",MATH-1639,Work out −2 + (−3 + −4).,A,9,False,MATH-1639,draft
+T7-001,"T7 Negatives, inverse operations, fraction bar",MATH-1639,Work out −2 + (−3 + −4).,B,5,False,MATH-1639,draft
+T7-001,"T7 Negatives, inverse operations, fraction bar",MATH-1639,Work out −2 + (−3 + −4).,C,−9,True,,draft
+T7-001,"T7 Negatives, inverse operations, fraction bar",MATH-1639,Work out −2 + (−3 + −4).,D,−7,False,,draft
 T7-002,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 1 / 4 as a decimal.,A,0.25,True,,draft
 T7-002,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 1 / 4 as a decimal.,B,3,False,MATH-2093,draft
 T7-002,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 1 / 4 as a decimal.,C,4,False,MATH-2359,draft
@@ -19,10 +19,10 @@ T7-005,"T7 Negatives, inverse operations, fraction bar",MATH-2271,Zara multiplie
 T7-005,"T7 Negatives, inverse operations, fraction bar",MATH-2271,Zara multiplies a number by 5 and gets 40. What was her number?,B,0.125,False,MATH-2359,draft
 T7-005,"T7 Negatives, inverse operations, fraction bar",MATH-2271,Zara multiplies a number by 5 and gets 40. What was her number?,C,8,True,,draft
 T7-005,"T7 Negatives, inverse operations, fraction bar",MATH-2271,Zara multiplies a number by 5 and gets 40. What was her number?,D,45,False,,draft
-T7-006,"T7 Negatives, inverse operations, fraction bar",MATH-1639,"What is the total of −2, −8 and −3?",A,−13,True,,draft
-T7-006,"T7 Negatives, inverse operations, fraction bar",MATH-1639,"What is the total of −2, −8 and −3?",B,13,False,MATH-1639,draft
-T7-006,"T7 Negatives, inverse operations, fraction bar",MATH-1639,"What is the total of −2, −8 and −3?",C,7,False,MATH-1639,draft
-T7-006,"T7 Negatives, inverse operations, fraction bar",MATH-1639,"What is the total of −2, −8 and −3?",D,−10,False,,draft
+T7-006,"T7 Negatives, inverse operations, fraction bar",MATH-1639,"A balloon's height compared with its start changes by −2 m, then −8 m, then −3 m. What is the total change in height?",A,−13 m,True,,draft
+T7-006,"T7 Negatives, inverse operations, fraction bar",MATH-1639,"A balloon's height compared with its start changes by −2 m, then −8 m, then −3 m. What is the total change in height?",B,13 m,False,MATH-1639,draft
+T7-006,"T7 Negatives, inverse operations, fraction bar",MATH-1639,"A balloon's height compared with its start changes by −2 m, then −8 m, then −3 m. What is the total change in height?",C,7 m,False,MATH-1639,draft
+T7-006,"T7 Negatives, inverse operations, fraction bar",MATH-1639,"A balloon's height compared with its start changes by −2 m, then −8 m, then −3 m. What is the total change in height?",D,−10 m,False,,draft
 T7-007,"T7 Negatives, inverse operations, fraction bar",MATH-2093,What number is the fraction 40 / 8 equal to?,A,32,False,MATH-2093,draft
 T7-007,"T7 Negatives, inverse operations, fraction bar",MATH-2093,What number is the fraction 40 / 8 equal to?,B,5,True,,draft
 T7-007,"T7 Negatives, inverse operations, fraction bar",MATH-2093,What number is the fraction 40 / 8 equal to?,C,0.2,False,MATH-2359,draft

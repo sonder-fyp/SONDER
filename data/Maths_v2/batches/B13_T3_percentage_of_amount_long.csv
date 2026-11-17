@@ -1,8 +1,8 @@
 ﻿item_id,topic,target,stem,option_id,option_text,is_correct,misconceptions,status
-T3-001,T3 Percentage of an amount,MATH-2206,What is 10% of 80?,A,90,False,MATH-2206,draft
-T3-001,T3 Percentage of an amount,MATH-2206,What is 10% of 80?,B,10,False,MATH-2138,draft
-T3-001,T3 Percentage of an amount,MATH-2206,What is 10% of 80?,C,8,True,,draft
-T3-001,T3 Percentage of an amount,MATH-2206,What is 10% of 80?,D,0.125,False,MATH-2359,draft
+T3-001,T3 Percentage of an amount,MATH-2206,A jug holds 8 litres of juice. Ali drinks 10% of it. How many litres does Ali drink?,A,18 litres,False,MATH-2206,draft
+T3-001,T3 Percentage of an amount,MATH-2206,A jug holds 8 litres of juice. Ali drinks 10% of it. How many litres does Ali drink?,B,10 litres,False,MATH-2138,draft
+T3-001,T3 Percentage of an amount,MATH-2206,A jug holds 8 litres of juice. Ali drinks 10% of it. How many litres does Ali drink?,C,0.8 litres,True,,draft
+T3-001,T3 Percentage of an amount,MATH-2206,A jug holds 8 litres of juice. Ali drinks 10% of it. How many litres does Ali drink?,D,1.25 litres,False,MATH-2359,draft
 T3-002,T3 Percentage of an amount,MATH-2138,A phone shop gives a 20% discount on a charger that costs Rs 500. How much is the discount?,A,Rs 100,True,,draft
 T3-002,T3 Percentage of an amount,MATH-2138,A phone shop gives a 20% discount on a charger that costs Rs 500. How much is the discount?,B,Rs 520,False,MATH-2206,draft
 T3-002,T3 Percentage of an amount,MATH-2138,A phone shop gives a 20% discount on a charger that costs Rs 500. How much is the discount?,C,Rs 20,False,MATH-2138,draft
