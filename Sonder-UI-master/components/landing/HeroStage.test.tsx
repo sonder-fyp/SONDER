@@ -8,7 +8,12 @@ import {
   HERO_KICKER,
 } from "@/lib/landing/hero/copy";
 
-vi.mock("@/lib/session", () => ({ useSession: () => ({ account: null }) }));
+const session = vi.hoisted(() => ({
+  account: null as null | { role: string },
+  email: null as string | null,
+}));
+
+vi.mock("@/lib/session", () => ({ useSession: () => session }));
 
 vi.mock("./styles/hero-stage.css", () => ({}));
 
@@ -60,6 +65,21 @@ describe("HeroStage statement", () => {
 
   afterEach(() => {
     cleanup();
+    session.account = null;
+    session.email = null;
+  });
+
+  it("labels the entry by account state", () => {
+    render(createElement(HeroStage));
+    expect(screen.getByRole("link", { name: "Create account" })).toBeTruthy();
+    cleanup();
+    session.email = "a@b.invalid";
+    render(createElement(HeroStage));
+    expect(screen.getByRole("link", { name: "Continue setup" })).toBeTruthy();
+    cleanup();
+    session.account = { role: "student" };
+    render(createElement(HeroStage));
+    expect(screen.getByRole("link", { name: "Open dashboard" })).toBeTruthy();
   });
 
   it("renders one h1 with the two-line statement", () => {

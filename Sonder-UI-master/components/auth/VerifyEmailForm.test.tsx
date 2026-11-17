@@ -4,13 +4,14 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 const mocks = vi.hoisted(() => ({
   replace: vi.fn(),
   emailOtp: { verifyEmail: vi.fn(), sendVerificationOtp: vi.fn() },
+  signOut: vi.fn(),
 }));
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace: mocks.replace, refresh: vi.fn() }),
 }));
 vi.mock("@/lib/auth/client", () => ({
-  authClient: { emailOtp: mocks.emailOtp },
+  authClient: { emailOtp: mocks.emailOtp, signOut: mocks.signOut },
 }));
 
 import { VerifyEmailForm } from "./VerifyEmailForm";
@@ -58,10 +59,38 @@ describe("VerifyEmailForm", () => {
     );
   });
 
-  it("links back to sign-up for a wrong address", () => {
+  it("signs out and starts over from sign-up with a different email", async () => {
+    mocks.signOut.mockResolvedValue({ data: { success: true }, error: null });
     setup();
-    const link = screen.getByRole("link", { name: "Wrong address? Start over" });
-    expect(link.getAttribute("href")).toBe("/auth/sign-up");
+    fireEvent.click(screen.getByRole("button", { name: "Use a different email" }));
+    await waitFor(() => expect(mocks.replace).toHaveBeenCalledWith("/auth/sign-up"));
+    expect(mocks.signOut).toHaveBeenCalledTimes(1);
+  });
+
+  it("signs out and returns to the landing page", async () => {
+    mocks.signOut.mockResolvedValue({ data: { success: true }, error: null });
+    setup();
+    fireEvent.click(screen.getByRole("button", { name: "Sign out" }));
+    await waitFor(() => expect(mocks.replace).toHaveBeenCalledWith("/"));
+    expect(mocks.signOut).toHaveBeenCalledTimes(1);
+  });
+
+  it("shows an alert and stays put when sign-out returns an error", async () => {
+    mocks.signOut.mockResolvedValue({ error: { message: "nope" } });
+    setup();
+    fireEvent.click(screen.getByRole("button", { name: "Sign out" }));
+    const alert = await screen.findByRole("alert");
+    expect(alert.textContent).toBe("We couldn't sign you out. Please try again.");
+    expect(mocks.replace).not.toHaveBeenCalled();
+  });
+
+  it("shows an alert when sign-out throws", async () => {
+    mocks.signOut.mockRejectedValue(new Error("network"));
+    setup();
+    fireEvent.click(screen.getByRole("button", { name: "Use a different email" }));
+    const alert = await screen.findByRole("alert");
+    expect(alert.textContent).toBe("We couldn't sign you out. Please try again.");
+    expect(mocks.replace).not.toHaveBeenCalled();
   });
 
   it("shows the existing error for an invalid code", async () => {

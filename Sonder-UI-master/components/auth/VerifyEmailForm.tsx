@@ -3,7 +3,6 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth/client";
-import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -64,6 +63,24 @@ export function VerifyEmailForm({
     }
   }
 
+  async function leave(destination: string) {
+    setError(null);
+    setMessage(null);
+    setBusy(true);
+    try {
+      const result = await authClient.signOut();
+      if (result?.error) {
+        setError("We couldn't sign you out. Please try again.");
+        return;
+      }
+      router.replace(destination);
+    } catch {
+      setError("We couldn't sign you out. Please try again.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
     <section className="w-full max-w-[480px]">
       <p className="label text-accent">Email verification</p>
@@ -97,14 +114,24 @@ export function VerifyEmailForm({
       >
         Send a new code
       </button>
-      <p className="mt-2">
-        <Link
-          href="/auth/sign-up"
-          className="label inline-flex min-h-11 items-center text-muted-foreground underline underline-offset-4 hover:text-foreground"
+      <div className="mt-2 flex flex-col items-start">
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => void leave("/auth/sign-up")}
+          className="label min-h-11 text-muted-foreground underline underline-offset-4 hover:text-foreground disabled:opacity-50"
         >
-          Wrong address? Start over
-        </Link>
-      </p>
+          Use a different email
+        </button>
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => void leave("/")}
+          className="label min-h-11 text-muted-foreground underline underline-offset-4 hover:text-foreground disabled:opacity-50"
+        >
+          Sign out
+        </button>
+      </div>
     </section>
   );
 }

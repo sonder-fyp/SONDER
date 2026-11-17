@@ -72,8 +72,9 @@ describe("product navigation", () => {
     state.email = "student@sonder.invalid";
     render(<AppShell>Landing</AppShell>);
     expect(
-      screen.getByRole("link", { name: "Open dashboard" }).getAttribute("href"),
+      screen.getByRole("link", { name: "Continue setup" }).getAttribute("href"),
     ).toBe("/auth/continue");
+    expect(screen.queryByRole("link", { name: "Open dashboard" })).toBeNull();
     expect(screen.queryByRole("link", { name: "Create account" })).toBeNull();
   });
   it("opens and closes the product mobile navigation without resetting it during render", () => {

@@ -192,7 +192,7 @@ export default function HeroStage() {
               href={account || email ? "/auth/continue" : "/auth/sign-up"}
               className={`${buttonVariants()} mt-6`}
             >
-              {account || email ? "Open dashboard" : "Create account"}
+              {account ? "Open dashboard" : email ? "Continue setup" : "Create account"}
             </Link>
             <a
               href="#narrative"

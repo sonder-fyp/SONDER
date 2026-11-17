@@ -124,7 +124,7 @@ export function TopBar() {
               href={account || email ? "/auth/continue" : "/auth/sign-in"}
               className="label min-h-11 py-3"
             >
-              {account || email ? "Open dashboard" : "Log in"}
+              {account ? "Open dashboard" : email ? "Continue setup" : "Log in"}
             </Link>
           </nav>
         </NavigationDrawer>
@@ -172,7 +172,7 @@ function AccountEntry() {
         href="/auth/continue"
         className="flex min-h-11 items-center font-mono text-xs uppercase tracking-widest text-accent"
       >
-        Open dashboard
+        {account ? "Open dashboard" : "Continue setup"}
       </Link>
     );
   return (
