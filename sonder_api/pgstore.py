@@ -65,6 +65,7 @@ _SESSION_WITH_EVENTS_SQL = ("SELECT " + _SESSION_COLUMNS + """,
             LEFT JOIN sonder.item_option o ON o.id = st.answer_option_id
             WHERE q.session_id = s.id), '[]'::json)
 """ + _SESSION_FROM)
+_SLOTS_SQL = "SELECT id, slot FROM sonder.session_hypothesis WHERE session_id = %s"
 _ENROLMENT_SQL = """
 SELECT e.id
 FROM sonder.enrolment e
@@ -123,7 +124,7 @@ class PostgresStore:
         ConnectionPool.check_connection(conn)
 
     def _run(self, work, *, read_only: bool = False):
-        """Run work(conn) as one unit: one transaction, or autocommit for a read made of one statement.
+        """Run work(conn) as one unit: a read of one statement, or a transaction the unit begins and commits itself.
 
         The unit is tried at most twice. A psycopg.OperationalError (a dead pooled connection, before or
         during the unit) is retried once on a fresh connection. That is safe for every operation, because
@@ -136,16 +137,19 @@ class PostgresStore:
         for attempt in (1, 2):
             try:
                 with self.pool.connection() as conn:
-                    if read_only:
-                        conn.autocommit = True
+                    # Both kinds of unit run in autocommit. A read is one statement. A write unit sends its own
+                    # BEGIN and COMMIT inside its pipeline batches (see create/submit), because psycopg's
+                    # automatic BEGIN costs a round trip of its own.
+                    conn.autocommit = True
                     try:
                         return work(conn)
                     finally:
-                        if read_only:
-                            try:
-                                conn.autocommit = False
-                            except psycopg.Error:  # a dead connection is discarded by the pool anyway
-                                pass
+                        try:
+                            if conn.info.transaction_status != psycopg.pq.TransactionStatus.IDLE:
+                                conn.rollback()  # a unit that stopped before its COMMIT leaves nothing behind
+                            conn.autocommit = False
+                        except psycopg.Error:  # a dead connection is discarded by the pool anyway
+                            pass
             except ServiceError:
                 raise
             except PoolTimeout as exc:
@@ -183,17 +187,30 @@ class PostgresStore:
         """Load a session, its pinned unit and its stored events; rebuild and check the engine state."""
 
         sid = _uuid(sid, 404, "session_unavailable")
+        slots = None
         if lock:
-            row = conn.execute(_SESSION_SQL + " FOR UPDATE OF s", (sid,)).fetchone()
+            # ONE network round trip (a pipeline batch; psycopg sends the three statements together and
+            # the server runs them in order, one after the other). Each statement still takes its own
+            # snapshot in READ COMMITTED, so the events select starts only after the FOR UPDATE has been
+            # granted and sees every answer committed before that: lock-then-events is kept, they are
+            # just not separated by a network wait. The slots are fixed when the session is created (the
+            # guard trigger refuses a session_hypothesis once a question exists), so reading them here
+            # is the same as reading them after the step insert.
+            with conn.pipeline():
+                conn.execute("BEGIN")
+                locked = conn.execute(_SESSION_SQL + " FOR UPDATE OF s", (sid,))
+                loaded = conn.execute(_EVENTS_SQL, (sid,))
+                slot_rows = conn.execute(_SLOTS_SQL, (sid,))
+            row = locked.fetchone()
+            events = loaded.fetchall()
+            slots = {int(slot): str(row_id) for row_id, slot in slot_rows.fetchall()}
         else:
             row = conn.execute(_SESSION_WITH_EVENTS_SQL, (sid,)).fetchone()
         if row is None or (actor is not None and str(row[5]) != actor):
             raise ServiceError(404, "session_unavailable")
         response_model_id, unit_code, budget, status = row[1], row[2], row[3], row[4]
         release, unit, index = self._unit(conn, str(response_model_id), unit_code)
-        if lock:  # after the lock, so it sees every answer committed before the lock was granted
-            events = conn.execute(_EVENTS_SQL, (sid,)).fetchall()
-        else:
+        if not lock:
             events = [(qid, external, label) for qid, external, label in row[6]]
         answers = [label for _, _, label in events if label is not None]
         try:
@@ -207,7 +224,7 @@ class PostgresStore:
         if asked != [external for _, external, _ in events] or state.decision.outcome.value != status:
             log.error("Session %s: replayed questions or outcome differ from the stored evidence", sid)
             raise ServiceError(500, "replay_mismatch")
-        return sid, release, unit, index, events, state
+        return sid, release, unit, index, events, state, slots
 
     def _prefix(self, unit, release: Release, budget: int, answers: list[str]) -> SessionState:
         state = replay(unit, release.params, answers, budget=budget)
@@ -217,11 +234,14 @@ class PostgresStore:
     @staticmethod
     def _write_question(conn, sid: str, index: UnitIndex, state: SessionState) -> None:
         q = state.pending
-        question_id = conn.execute(
-            "INSERT INTO sonder.session_question (session_id, step_index, item_id, selection_reason, "
-            "entropy_before, expected_ig) VALUES (%s, %s, %s, %s, %s, %s) RETURNING id",
-            (sid, q.step_index, index.item_ids[q.item_id], q.selection_reason,
-             num(q.entropy_before), num(q.expected_ig))).fetchone()[0]
+        # The id is made here (the column is uuid DEFAULT gen_random_uuid(), so an explicit id is the same
+        # kind of value) instead of read back with RETURNING, so the candidates need no round trip first.
+        question_id = str(uuid4())
+        conn.execute(
+            "INSERT INTO sonder.session_question (id, session_id, step_index, item_id, selection_reason, "
+            "entropy_before, expected_ig) VALUES (%s, %s, %s, %s, %s, %s, %s)",
+            (question_id, sid, q.step_index, index.item_ids[q.item_id], q.selection_reason,
+             num(q.entropy_before), num(q.expected_ig)))
         with conn.cursor() as cur:
             cur.executemany(
                 "INSERT INTO sonder.question_candidate (session_question_id, item_id, rank, eig) "
@@ -234,27 +254,28 @@ class PostgresStore:
         conn.execute("UPDATE sonder.diagnostic_session SET status = %s, ended_at = now() WHERE id = %s",
                      (outcome.outcome.value, sid))
         if outcome.outcome is Outcome.DIAGNOSED:
-            diagnosis = conn.execute("INSERT INTO sonder.diagnosis (session_id) VALUES (%s) RETURNING id",
-                                     (sid,)).fetchone()[0]
+            diagnosis = str(uuid4())  # client-side id, as for questions: no read-back needed
+            conn.execute("INSERT INTO sonder.diagnosis (id, session_id) VALUES (%s, %s)", (diagnosis, sid))
             with conn.cursor() as cur:
                 cur.executemany("INSERT INTO sonder.diagnosis_candidate (diagnosis_id, session_hypothesis_id, rank) "
                                 "VALUES (%s, %s, %s)",
                                 [(diagnosis, slots[slot], rank) for rank, slot in outcome.diagnosis_candidates])
         elif outcome.escalation_reason is not None:
-            escalation = conn.execute(
-                "INSERT INTO sonder.escalation (session_id, reason, leader_session_hypothesis_id) "
-                "VALUES (%s, %s, %s) RETURNING id",
-                (sid, outcome.escalation_reason, slots[outcome.escalation_leader_slot])).fetchone()[0]
+            escalation = str(uuid4())
+            conn.execute(
+                "INSERT INTO sonder.escalation (id, session_id, reason, leader_session_hypothesis_id) "
+                "VALUES (%s, %s, %s, %s)",
+                (escalation, sid, outcome.escalation_reason, slots[outcome.escalation_leader_slot]))
             with conn.cursor() as cur:
                 cur.executemany("INSERT INTO sonder.escalation_candidate (escalation_id, session_hypothesis_id, rank) "
                                 "VALUES (%s, %s, %s)",
                                 [(escalation, slots[slot], rank) for rank, slot in outcome.escalation_candidates])
 
-    def _enrolment(self, conn, actor: str, request: StartRequest) -> str:
+    @staticmethod
+    def _enrolment_of(rows, request: StartRequest) -> str:
         if getattr(request, "assignment_id", None) is not None:
             # Assignments are I2-H11/H12 (Harris). Until that schema exists no assignment can be resolved.
             raise ServiceError(404, "assignment_not_found")
-        rows = conn.execute(_ENROLMENT_SQL, (self.release.subject_id, actor)).fetchall()
         if not rows:
             raise ServiceError(403, "enrolment_required")
         if len(rows) > 1:
@@ -287,6 +308,11 @@ class PostgresStore:
         "FROM sonder.diagnostic_session s JOIN sonder.diagnostic_unit u ON u.id = s.unit_id "
         "WHERE s.enrolment_id = %s AND s.request_key = %s")
 
+    _STARTS_OF_ACTOR_SQL = (
+        "SELECT s.id, u.unit_code, s.response_model_id, s.question_budget, s.enrolment_id "
+        "FROM sonder.diagnostic_session s JOIN sonder.diagnostic_unit u ON u.id = s.unit_id "
+        "WHERE s.request_key = %s AND s.enrolment_id IN (SELECT e.id FROM sonder.enrolment e WHERE e.student_id = %s)")
+
     def _start_retry(self, conn, existing, request: StartRequest) -> dict:
         """The original start reply of an already committed start with this request key."""
 
@@ -299,38 +325,64 @@ class PostgresStore:
         actor = _uuid(actor, 404, "session_unavailable")
 
         def work(conn):
-            enrolment = self._enrolment(conn, actor, request)
-            existing = conn.execute(self._EXISTING_START_SQL, (enrolment, request.create_request_id)).fetchone()
+            # Batch 1 (with BEGIN): the enrolment and the existing-start lookup are independent reads, so
+            # they travel together. They are read in the same order and checked in the same order as before
+            # (enrolment errors first), so every error is unchanged.
+            with conn.pipeline():
+                conn.execute("BEGIN")
+                found = conn.execute(_ENROLMENT_SQL, (self.release.subject_id, actor))
+                looked = conn.execute(self._STARTS_OF_ACTOR_SQL, (request.create_request_id, actor))
+            enrolment = self._enrolment_of(found.fetchall(), request)
+            # the lookup covers all the student's enrolments; only the one the start resolves to counts
+            existing = next((r for r in looked.fetchall() if str(r[4]) == enrolment), None)
             if existing is not None:  # checked before the unit, so a changed unit is always create_conflict
                 return self._start_retry(conn, existing, request)
             loaded = self._unit(conn, self.release.response_model_id, request.unit_id)
             if loaded is None:
                 raise ServiceError(404, "unit_not_found")
             release, unit, index = loaded
-            conn.execute("SELECT set_config('sonder.actor_id', %s, true), set_config('sonder.request_key', %s, true)",
-                         (actor, request.create_request_id))
             budget = release.params.default_budget
             sid = str(uuid4())
-            inserted = conn.execute(
-                "INSERT INTO sonder.diagnostic_session (id, enrolment_id, response_model_id, engine_release_id, "
-                "unit_id, question_budget, request_key) VALUES (%s, %s, %s, %s, %s, %s, %s) "
-                "ON CONFLICT (enrolment_id, request_key) DO NOTHING RETURNING id",
-                (sid, enrolment, release.response_model_id, self.engine_release_id, index.unit_row_id,
-                 budget, request.create_request_id)).fetchone()
-            if inserted is None:  # a concurrent identical start committed first: return its reply
-                existing = conn.execute(self._EXISTING_START_SQL, (enrolment, request.create_request_id)).fetchone()
-                return self._start_retry(conn, existing, request)
             state = self._prefix(unit, release, budget, [])
             if state.finished:
                 raise ServiceError(500, "replay_mismatch")  # a valid unit always asks a first question
             reply = snapshot(sid, state)
-            with conn.cursor() as cur:
-                cur.executemany(
-                    "INSERT INTO sonder.session_hypothesis (session_id, hypothesis_id, slot, prior_probability) "
-                    "VALUES (%s, %s, %s, %s)",
-                    [(sid, index.hypothesis_ids[slot], slot, num(prior)) for slot, prior in enumerate(state.prior)])
-            self._write_question(conn, sid, index, state)
-            return reply
+            # Batch 2: every write and the COMMIT in one round trip, in the original order (session row,
+            # hypotheses, question, candidates), so the schema's guard triggers see them in the same order
+            # and the deferred trace_complete check runs at COMMIT as before. Ids are made here, so nothing
+            # needs reading back. An error aborts the rest of the batch and rolls everything back.
+            failure = None
+            try:
+                with conn.pipeline():
+                    conn.execute("SELECT set_config('sonder.actor_id', %s, true), "
+                                 "set_config('sonder.request_key', %s, true)", (actor, request.create_request_id))
+                    inserted = conn.execute(
+                        "INSERT INTO sonder.diagnostic_session (id, enrolment_id, response_model_id, "
+                        "engine_release_id, unit_id, question_budget, request_key) "
+                        "VALUES (%s, %s, %s, %s, %s, %s, %s) "
+                        "ON CONFLICT (enrolment_id, request_key) DO NOTHING RETURNING id",
+                        (sid, enrolment, release.response_model_id, self.engine_release_id, index.unit_row_id,
+                         budget, request.create_request_id))
+                    with conn.cursor() as cur:
+                        cur.executemany(
+                            "INSERT INTO sonder.session_hypothesis (session_id, hypothesis_id, slot, "
+                            "prior_probability) VALUES (%s, %s, %s, %s)",
+                            [(sid, index.hypothesis_ids[slot], slot, num(prior))
+                             for slot, prior in enumerate(state.prior)])
+                    self._write_question(conn, sid, index, state)
+                    conn.execute("COMMIT")
+                if inserted.fetchone() is not None:
+                    return reply
+            except (psycopg.errors.IntegrityError, psycopg.errors.RaiseException) as exc:
+                failure = exc
+            # If a concurrent identical start committed first, the session insert did nothing and the
+            # writes after it in the batch were refused (nothing of ours is stored). Roll back and tell that
+            # case apart from a real failure by looking the start up again; a real failure is re-raised.
+            conn.rollback()
+            existing = conn.execute(self._EXISTING_START_SQL, (enrolment, request.create_request_id)).fetchone()
+            if existing is None:
+                raise failure if failure is not None else ServiceError(500, "storage_error")
+            return self._start_retry(conn, existing, request)
 
         return self._run(work)
 
@@ -338,7 +390,7 @@ class PostgresStore:
         actor = _uuid(actor, 404, "session_unavailable")
 
         def work(conn):
-            sid_, _, _, _, _, state = self._session(conn, sid, actor)
+            sid_, _, _, _, _, state, _ = self._session(conn, sid, actor)
             return snapshot(sid_, state)
 
         return self._run(work, read_only=True)
@@ -367,7 +419,7 @@ class PostgresStore:
         actor = _uuid(actor, 404, "session_unavailable")
 
         def work(conn):
-            sid_, release, unit, index, events, state = self._session(conn, sid, actor, lock=True)
+            sid_, release, unit, index, events, state, slots = self._session(conn, sid, actor, lock=True)
             answered = [(external, label) for _, external, label in events if label is not None]
             if request.step_index < len(answered):  # a retry of an accepted step
                 if answered[request.step_index] != (request.item_id, request.option_id):
@@ -389,25 +441,35 @@ class PostgresStore:
             # All numerical and projection work has succeeded; now publish it in this one transaction.
             step = updated.steps[-1]
             key = f"answer:{step.step_index}"
-            conn.execute("SELECT set_config('sonder.actor_id', %s, true), set_config('sonder.request_key', %s, true)",
-                         (actor, key))
-            step_id = conn.execute(
-                "INSERT INTO sonder.session_step (session_id, step_index, session_question_id, answer_option_id, "
-                "request_key, calculation_ms, answer_note) VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING id",
-                (sid_, step.step_index, events[-1][0], index.option_ids[(request.item_id, request.option_id)],
-                 key, num(round(elapsed_ms, 3)), step.answer_note)).fetchone()[0]
-            slots = {int(slot): str(row_id) for row_id, slot in conn.execute(
-                "SELECT id, slot FROM sonder.session_hypothesis WHERE session_id = %s", (sid_,)).fetchall()}
-            with conn.cursor() as cur:
-                cur.executemany(
-                    "INSERT INTO sonder.step_posterior (step_id, session_hypothesis_id, probability) "
-                    "VALUES (%s, %s, %s)",
-                    [(step_id, slots[slot], num(p)) for slot, p in enumerate(step.posterior)])
-            if updated.finished:
-                self._write_outcome(conn, sid_, updated, slots)
-            else:
-                self._write_question(conn, sid_, index, updated)
-            self._before_commit(sid_, step.step_index)
+            # Batch 2: set_config, the step, its posterior, the next question or the outcome, and the COMMIT
+            # in one round trip. The statements keep their original order, so the guard triggers see the
+            # same state at each one (question, then step, then posterior, then the next question), and the
+            # deferred trace_complete check still runs at COMMIT over the whole trace. Nothing is read back:
+            # ids are made here and the slots came with the locked read. The session row stays locked by
+            # batch 1, so no other answer can interleave. If any statement fails, the rest of the batch is
+            # skipped and the transaction is rolled back, so no partial rows remain.
+            step_id = str(uuid4())
+            with conn.pipeline():
+                conn.execute("SELECT set_config('sonder.actor_id', %s, true), "
+                             "set_config('sonder.request_key', %s, true)", (actor, key))
+                conn.execute(
+                    "INSERT INTO sonder.session_step (id, session_id, step_index, session_question_id, "
+                    "answer_option_id, request_key, calculation_ms, answer_note) "
+                    "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
+                    (step_id, sid_, step.step_index, events[-1][0],
+                     index.option_ids[(request.item_id, request.option_id)], key,
+                     num(round(elapsed_ms, 3)), step.answer_note))
+                with conn.cursor() as cur:
+                    cur.executemany(
+                        "INSERT INTO sonder.step_posterior (step_id, session_hypothesis_id, probability) "
+                        "VALUES (%s, %s, %s)",
+                        [(step_id, slots[slot], num(p)) for slot, p in enumerate(step.posterior)])
+                if updated.finished:
+                    self._write_outcome(conn, sid_, updated, slots)
+                else:
+                    self._write_question(conn, sid_, index, updated)
+                self._before_commit(sid_, step.step_index)
+                conn.execute("COMMIT")
             return reply, True
 
         return self._run(work)
@@ -417,7 +479,7 @@ class PostgresStore:
 
     def inspect(self, sid: str) -> dict:
         def work(conn):
-            _, _, _, _, _, state = self._session(conn, sid, None)
+            _, _, _, _, _, state, _ = self._session(conn, sid, None)
             return evidence(state)
 
         return self._run(work, read_only=True)
@@ -431,7 +493,7 @@ class PostgresStore:
                 "ORDER BY s.ended_at DESC, s.id DESC LIMIT 1").fetchone()
             if row is None:
                 raise ServiceError(404, "session_unavailable")
-            sid, _, unit, _, _, state = self._session(conn, str(row[0]), None)
+            sid, _, unit, _, _, state, _ = self._session(conn, str(row[0]), None)
             return {"session_id": sid, "finished_seq": int(row[1]),
                     "unit": {"unit_id": unit.unit_id, "name": unit.name}, **evidence(state)}
 
