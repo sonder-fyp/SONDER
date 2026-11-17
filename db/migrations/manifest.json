@@ -10,6 +10,7 @@
     {"name": "0008_app_user_role_change", "path": "db/migrations/0008_app_user_role_change.sql", "wraps_own_transaction": true},
     {"name": "0009_session_review", "path": "db/migrations/0009_session_review.sql"},
     {"name": "0010_class_activity", "path": "db/migrations/0010_class_activity.sql"},
-    {"name": "0011_student_dashboard", "path": "db/migrations/0011_student_dashboard.sql"}
+    {"name": "0011_student_dashboard", "path": "db/migrations/0011_student_dashboard.sql"},
+    {"name": "0012_student_history", "path": "db/migrations/0012_student_history.sql"}
   ]
 }
