@@ -61,7 +61,12 @@ All 35 checks passed:
 
 Each step was also tried manually through the same routes on the same branch while it was built: evidence, reviews (including a stale write refused with `review_conflict`), class activity, the student dashboard and history.
 
+## Manual browser check
+
+On 18 November 2026 Ashher clicked through the teacher and student screens in a browser on the Neon development branch and reported that they looked and behaved normally. This is a manual check, recorded as reported; it is not scripted.
+
 ## Not covered here
 
-- **Browser automation** (clicking the screens in a real browser) is not part of these checks. The screens are covered by component tests. The student browser check that was held back before login existed (`git stash`, "PR-0 browser check held…") still needs updating for sign-in.
-- **The demo teacher popup and `/engine/latest`** (from PR #44) are still in the code. Retiring them needs Ahmed's agreement.
+- **Scripted browser automation** is not part of these checks. The screens are covered by component tests, the API path by the live harness, and the screens by the manual check above. The student browser script that was held back before login existed (`git stash`, "PR-0 browser check held…") was not updated for sign-in.
+
+The demo teacher popup and `/engine/latest` (from PR #44) were retired with Ahmed's agreement; teachers use the class-scoped evidence page.
