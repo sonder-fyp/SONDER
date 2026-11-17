@@ -1,16 +1,14 @@
-import { CLASSES } from "@/fixtures/classes";
-import { StudentClassPageClient } from "./StudentClassPageClient";
-
-/** Same client-resolution exception as the teacher's class detail route — see that page's comment. */
-export function generateStaticParams() {
-  return CLASSES.map((c) => ({ classId: c.id }));
-}
-
-export default async function StudentClassPage({
-  params,
-}: {
-  params: Promise<{ classId: string }>;
-}) {
-  const { classId } = await params;
-  return <StudentClassPageClient classId={classId} />;
+import { WorkspaceState } from "@/components/product/WorkspaceState";
+export default function Page() {
+  return (
+    <WorkspaceState
+      label="Student"
+      title="Class details"
+      description="Stay close to your classwork."
+      detail="Class rosters and assignments are not available yet. Your teacher will share class access when it is ready."
+      home="/student"
+      action="Explore diagnostics"
+      actionHref="/student/start"
+    />
+  );
 }

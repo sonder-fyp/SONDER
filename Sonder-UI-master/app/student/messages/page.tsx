@@ -1,24 +1,14 @@
-import { notFound } from "next/navigation";
-import { DirectChat } from "@/components/app/DirectChat";
-import { getStudent } from "@/fixtures/students";
-import { getClassByName } from "@/fixtures/classes";
-import { getStudentThread } from "@/fixtures/messaging/threads";
-
-const STUDENT_ID = "zara";
-
-export default function StudentMessages() {
-  const student = getStudent(STUDENT_ID);
-  const homeClass = student ? getClassByName(student.className) : undefined;
-  const thread = getStudentThread(STUDENT_ID);
-  if (!student || !homeClass || !thread) notFound();
-
+import { WorkspaceState } from "@/components/product/WorkspaceState";
+export default function Page() {
   return (
-    <DirectChat
-      messages={thread.messages}
-      meRole="student"
-      counterpartRole="teacher"
-      counterpartName={homeClass.teacherName}
-      context={`Your teacher for ${homeClass.name}`}
+    <WorkspaceState
+      label="Student"
+      title="Messages"
+      description="A conversation with your teacher."
+      detail="Messaging is not available yet. Please contact your teacher through your usual school channel."
+      home="/student"
+      action="Explore diagnostics"
+      actionHref="/student/start"
     />
   );
 }

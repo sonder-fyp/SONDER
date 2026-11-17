@@ -1,10 +1,27 @@
-export default function AuthLayout({ children }: { children: React.ReactNode }) {
+import Link from "next/link";
+import { BrandMark } from "@/components/app/BrandMark";
+import { ThemeToggle } from "@/components/app/ThemeToggle";
+export default function AuthLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <main className="relative flex min-h-dvh items-center justify-center overflow-hidden px-6 py-20 sm:px-10">
-      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-accent/70" />
-      <div className="w-full max-w-[1080px] border-y border-border py-12 sm:py-16">
-        {children}
-      </div>
-    </main>
+    <div className="relative min-h-dvh">
+      <header className="mx-auto flex h-24 max-w-[1200px] items-center justify-between px-6 md:px-12">
+        <Link href="/" aria-label="Sonder home">
+          <BrandMark size={36} />
+        </Link>
+        <ThemeToggle />
+      </header>
+      <main
+        id="main"
+        className="mx-auto flex min-h-[calc(100dvh-6rem)] max-w-[1200px] items-center px-6 pb-16 pt-8 md:px-12"
+      >
+        <div className="w-full border-t border-border py-10 md:py-14">
+          {children}
+        </div>
+      </main>
+    </div>
   );
 }

@@ -1,5 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 
 const mocks = vi.hoisted(() => ({
   replace: vi.fn(),
@@ -34,17 +40,29 @@ describe("authentication entry forms", () => {
     expect(screen.queryByLabelText(/confirm password/i)).toBeNull();
     expect(screen.getByRole("button", { name: "Show password" })).toBeTruthy();
     expect(screen.getByText(/Password strength:/)).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Continue with Google" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Continue with Apple" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Continue with GitHub" })).toBeTruthy();
+    expect(
+      screen.queryByRole("button", { name: "Continue with Google" }),
+    ).toBeNull();
+    expect(
+      screen.queryByRole("button", { name: "Continue with Apple" }),
+    ).toBeNull();
+    expect(
+      screen.queryByRole("button", { name: "Continue with GitHub" }),
+    ).toBeNull();
   });
 
   it("creates an account and sends the user to email verification", async () => {
     mocks.signUp.email.mockResolvedValue({ data: {}, error: null });
     render(<AuthEntry mode="sign-up" nextPath="/auth/onboarding" />);
-    fireEvent.change(screen.getByLabelText("I am registering as"), { target: { value: "teacher" } });
-    fireEvent.change(screen.getByLabelText("Email"), { target: { value: "Ahmed@Example.com" } });
-    fireEvent.change(screen.getByLabelText("Password"), { target: { value: "LongEnough8!" } });
+    fireEvent.change(screen.getByLabelText("I am registering as"), {
+      target: { value: "teacher" },
+    });
+    fireEvent.change(screen.getByLabelText("Email"), {
+      target: { value: "Ahmed@Example.com" },
+    });
+    fireEvent.change(screen.getByLabelText("Password"), {
+      target: { value: "LongEnough8!" },
+    });
     fireEvent.click(screen.getByRole("button", { name: "Create Account" }));
 
     await waitFor(() => {
@@ -59,28 +77,18 @@ describe("authentication entry forms", () => {
     });
   });
 
-  it("keeps the selected account type through social registration", async () => {
-    mocks.signIn.social.mockResolvedValue({ data: {}, error: null });
-    render(<AuthEntry mode="sign-up" nextPath="/auth/onboarding" />);
-    fireEvent.change(screen.getByLabelText("I am registering as"), { target: { value: "parent" } });
-    fireEvent.click(screen.getByRole("button", { name: "Continue with Google" }));
-
-    await waitFor(() => {
-      expect(mocks.signIn.social).toHaveBeenCalledWith({
-        provider: "google",
-        callbackURL: `${window.location.origin}/auth/onboarding?requestedRole=parent`,
-      });
-    });
-  });
-
   it("suggests signing in when email registration cannot create another account", async () => {
     mocks.signUp.email.mockResolvedValue({
       data: null,
       error: new Error("User already exists"),
     });
     render(<AuthEntry mode="sign-up" nextPath="/auth/onboarding" />);
-    fireEvent.change(screen.getByLabelText("Email"), { target: { value: "ahmed@example.com" } });
-    fireEvent.change(screen.getByLabelText("Password"), { target: { value: "LongEnough8!" } });
+    fireEvent.change(screen.getByLabelText("Email"), {
+      target: { value: "ahmed@example.com" },
+    });
+    fireEvent.change(screen.getByLabelText("Password"), {
+      target: { value: "LongEnough8!" },
+    });
     fireEvent.click(screen.getByRole("button", { name: "Create Account" }));
 
     expect((await screen.findByRole("alert")).textContent).toBe(
@@ -89,12 +97,45 @@ describe("authentication entry forms", () => {
   });
 
   it("uses a generic login error and does not expose account existence", async () => {
-    mocks.signIn.email.mockResolvedValue({ data: null, error: new Error("email not found") });
+    mocks.signIn.email.mockResolvedValue({
+      data: null,
+      error: new Error("email not found"),
+    });
     render(<AuthEntry mode="sign-in" nextPath="/auth/continue" />);
-    fireEvent.change(screen.getByLabelText("Email"), { target: { value: "ahmed@example.com" } });
-    fireEvent.change(screen.getByLabelText("Password"), { target: { value: "incorrect-password" } });
+    fireEvent.change(screen.getByLabelText("Email"), {
+      target: { value: "ahmed@example.com" },
+    });
+    fireEvent.change(screen.getByLabelText("Password"), {
+      target: { value: "incorrect-password" },
+    });
     fireEvent.click(screen.getByRole("button", { name: "Log In" }));
 
-    expect((await screen.findByRole("alert")).textContent).toBe("Invalid email or password.");
+    expect((await screen.findByRole("alert")).textContent).toBe(
+      "Invalid email or password.",
+    );
+  });
+  it("returns to a valid task after login and rejects external return URLs", async () => {
+    mocks.signIn.email.mockResolvedValue({ data: {}, error: null });
+    for (const [nextPath, expected] of [
+      [
+        "/student/diagnostic/U1?session=example",
+        "/student/diagnostic/U1?session=example",
+      ],
+      ["//external.invalid", "/auth/continue"],
+      ["https://external.invalid", "/auth/continue"],
+    ]) {
+      const view = render(<AuthEntry mode="sign-in" nextPath={nextPath} />);
+      fireEvent.change(screen.getByLabelText("Email"), {
+        target: { value: "student@sonder.invalid" },
+      });
+      fireEvent.change(screen.getByLabelText("Password"), {
+        target: { value: "LongEnough8!" },
+      });
+      fireEvent.click(screen.getByRole("button", { name: "Log In" }));
+      await waitFor(() =>
+        expect(mocks.replace).toHaveBeenLastCalledWith(expected),
+      );
+      view.unmount();
+    }
   });
 });

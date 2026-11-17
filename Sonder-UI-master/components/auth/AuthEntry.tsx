@@ -22,28 +22,27 @@ const PASSWORD_CHECKS = [
   (value: string) => /[^A-Za-z0-9]/.test(value),
 ];
 
-const SOCIAL_PROVIDERS = [
-  { id: "google", label: "Continue with Google" },
-  { id: "apple", label: "Continue with Apple" },
-  { id: "github", label: "Continue with GitHub" },
-] as const;
-
 const REGISTRATION_ROLES = [
   { value: "student", label: "Student" },
   { value: "teacher", label: "Teacher" },
   { value: "parent", label: "Parent or guardian" },
-] as const satisfies readonly { value: Exclude<AppRole, "admin">; label: string }[];
+] as const satisfies readonly {
+  value: Exclude<AppRole, "admin">;
+  label: string;
+}[];
 
-function isRegistrationRole(value: string): value is (typeof REGISTRATION_ROLES)[number]["value"] {
+function isRegistrationRole(
+  value: string,
+): value is (typeof REGISTRATION_ROLES)[number]["value"] {
   return REGISTRATION_ROLES.some((role) => role.value === value);
 }
 
-function onboardingPath(role: (typeof REGISTRATION_ROLES)[number]["value"]) {
-  return `/auth/onboarding?requestedRole=${role}`;
-}
-
 function safeNextPath(value: string) {
-  if (!value.startsWith("/") || value.startsWith("//") || value.includes("\\")) {
+  if (
+    !value.startsWith("/") ||
+    value.startsWith("//") ||
+    value.includes("\\")
+  ) {
     return "/auth/continue";
   }
   try {
@@ -60,7 +59,9 @@ export function AuthEntry({ mode, nextPath, verified = false }: Props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [registrationRole, setRegistrationRole] = useState<"student" | "teacher" | "parent">("student");
+  const [registrationRole, setRegistrationRole] = useState<
+    "student" | "teacher" | "parent"
+  >("student");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const isSignUp = mode === "sign-up";
@@ -79,7 +80,9 @@ export function AuthEntry({ mode, nextPath, verified = false }: Props) {
           name: email.trim().toLowerCase(),
         });
         if (result.error) {
-          setError("We couldn't create your account. Check your details, or sign in if you've already registered.");
+          setError(
+            "We couldn't create your account. Check your details, or sign in if you've already registered.",
+          );
           return;
         }
         router.replace(
@@ -100,25 +103,11 @@ export function AuthEntry({ mode, nextPath, verified = false }: Props) {
       router.replace(safeNextPath(nextPath));
       router.refresh();
     } catch {
-      setError(isSignUp
-        ? "We couldn't create your account. Please check your details and try again."
-        : "Invalid email or password.");
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function socialSignIn(provider: (typeof SOCIAL_PROVIDERS)[number]["id"]) {
-    setError(null);
-    setBusy(true);
-    try {
-      const result = await authClient.signIn.social({
-        provider,
-        callbackURL: `${window.location.origin}${isSignUp ? onboardingPath(registrationRole) : "/auth/continue"}`,
-      });
-      if (result.error) setError("That sign-in option is unavailable. Try email instead.");
-    } catch {
-      setError("That sign-in option is unavailable. Try email instead.");
+      setError(
+        isSignUp
+          ? "We couldn't create your account. Please check your details and try again."
+          : "Invalid email or password.",
+      );
     } finally {
       setBusy(false);
     }
@@ -132,58 +121,54 @@ export function AuthEntry({ mode, nextPath, verified = false }: Props) {
       </h1>
       <p className="mt-4 text-base leading-relaxed text-muted-foreground">
         {isSignUp
-          ? "Choose your account type now. Teacher and parent accounts need administrator approval."
-          : "Sign in to continue to your Sonder workspace."}
+          ? "Start with your email and a password. We will help you verify your email and set up your profile."
+          : "Pick up where you left off. Sign in to your Sonder account."}
       </p>
 
       {isSignUp ? (
         <div className="mt-6 grid gap-2">
-          <label className="label" htmlFor="registration-role">I am registering as</label>
+          <label className="label" htmlFor="registration-role">
+            I am registering as
+          </label>
           <select
             id="registration-role"
             value={registrationRole}
             onChange={(event) => {
-              if (isRegistrationRole(event.target.value)) setRegistrationRole(event.target.value);
+              if (isRegistrationRole(event.target.value))
+                setRegistrationRole(event.target.value);
             }}
             className="h-12 w-full border border-border-strong bg-input px-4 text-base text-foreground md:h-14"
           >
             {REGISTRATION_ROLES.map((role) => (
-              <option key={role.value} value={role.value}>{role.label}</option>
+              <option key={role.value} value={role.value}>
+                {role.label}
+              </option>
             ))}
           </select>
         </div>
       ) : null}
 
+      {isSignUp && registrationRole !== "student" ? (
+        <p className="mt-4 border-l-2 border-accent pl-4 text-sm leading-relaxed text-muted-foreground">
+          {registrationRole === "teacher" ? "Teacher" : "Parent"} access
+          requires administrator approval. You can finish your profile while
+          your request is reviewed.
+        </p>
+      ) : null}
       {verified ? (
         <p className="mt-6 border-l-2 border-accent pl-4 text-sm" role="status">
           Your email is verified. Sign in to finish setting up your account.
         </p>
       ) : null}
 
-      <div className="mt-8 grid gap-3">
-        {SOCIAL_PROVIDERS.map((provider) => (
-          <Button
-            key={provider.id}
-            type="button"
-            variant="outline"
-            disabled={busy}
-            onClick={() => void socialSignIn(provider.id)}
-            className="w-full min-w-0 whitespace-normal px-3 text-center leading-snug"
-          >
-            {provider.label}
-          </Button>
-        ))}
-      </div>
-
-      <div className="my-8 flex items-center gap-4" aria-hidden="true">
-        <span className="h-px flex-1 bg-border" />
-        <span className="label text-muted-foreground">or with email</span>
-        <span className="h-px flex-1 bg-border" />
-      </div>
-
-      <form className="grid gap-5" onSubmit={(event) => void submit(event)}>
+      <form
+        className="mt-8 grid gap-5"
+        onSubmit={(event) => void submit(event)}
+      >
         <div className="grid gap-2">
-          <label className="label" htmlFor={`${mode}-email`}>Email</label>
+          <label className="label" htmlFor={`${mode}-email`}>
+            Email
+          </label>
           <Input
             id={`${mode}-email`}
             name="email"
@@ -199,7 +184,9 @@ export function AuthEntry({ mode, nextPath, verified = false }: Props) {
         </div>
         <div className="grid gap-2">
           <div className="flex items-center justify-between gap-4">
-            <label className="label" htmlFor={`${mode}-password`}>Password</label>
+            <label className="label" htmlFor={`${mode}-password`}>
+              Password
+            </label>
             {!isSignUp ? (
               <Link
                 href="/auth/forgot-password"
@@ -242,16 +229,33 @@ export function AuthEntry({ mode, nextPath, verified = false }: Props) {
                 ))}
               </div>
               <p className="mt-2 text-sm text-muted-foreground">
-                Password strength: {password.length === 0 ? "not entered" : checks < 2 ? "weak" : checks < 4 ? "fair" : "strong"}
-                {password.length > 0 && !passwordReady ? " · use at least 8 characters" : ""}
+                Password strength:{" "}
+                {password.length === 0
+                  ? "not entered"
+                  : checks < 2
+                    ? "weak"
+                    : checks < 4
+                      ? "fair"
+                      : "strong"}
+                {password.length > 0 && !passwordReady
+                  ? " · use at least 8 characters"
+                  : ""}
               </p>
             </div>
           ) : null}
         </div>
 
-        {error ? <p role="alert" className="text-sm text-attention">{error}</p> : null}
+        {error ? (
+          <p role="alert" className="text-sm text-attention">
+            {error}
+          </p>
+        ) : null}
 
-        <Button type="submit" size="lg" disabled={busy || (isSignUp && !passwordReady)}>
+        <Button
+          type="submit"
+          size="lg"
+          disabled={busy || (isSignUp && !passwordReady)}
+        >
           {busy ? "Please wait…" : isSignUp ? "Create Account" : "Log In"}
         </Button>
       </form>

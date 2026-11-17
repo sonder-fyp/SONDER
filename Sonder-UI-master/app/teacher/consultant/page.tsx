@@ -1,20 +1,12 @@
-import { ChatConsultant } from "@/components/app/ChatConsultant";
-import {
-  TEACHER_PROMPTS,
-  TEACHER_FALLBACK,
-  TEACHER_GREETING,
-} from "@/fixtures/consultant/teacher-thread";
-
-export default function TeacherConsultant() {
+import { WorkspaceState } from "@/components/product/WorkspaceState";
+export default function Page() {
   return (
-    <ChatConsultant
-      config={{
-        personaLabel: "AI Consultant",
-        greeting: TEACHER_GREETING,
-        prompts: TEACHER_PROMPTS,
-        fallback: TEACHER_FALLBACK,
-      }}
-      label="Ask the consultant"
+    <WorkspaceState
+      label="Teacher"
+      title="Teaching support"
+      description="Support for your next decision."
+      detail="The teaching assistant is not available yet. Your overview shows the tools available to your account."
+      home="/teacher"
     />
   );
 }

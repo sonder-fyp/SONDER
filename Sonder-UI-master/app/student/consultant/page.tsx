@@ -1,20 +1,14 @@
-import { ChatConsultant } from "@/components/app/ChatConsultant";
-import {
-  STUDENT_PROMPTS,
-  STUDENT_FALLBACK,
-  STUDENT_GREETING,
-} from "@/fixtures/consultant/student-thread";
-
-export default function StudentConsultant() {
+import { WorkspaceState } from "@/components/product/WorkspaceState";
+export default function Page() {
   return (
-    <ChatConsultant
-      config={{
-        personaLabel: "AI Consultant",
-        greeting: STUDENT_GREETING,
-        prompts: STUDENT_PROMPTS,
-        fallback: STUDENT_FALLBACK,
-      }}
-      label="Ask the consultant"
+    <WorkspaceState
+      label="Student"
+      title="Learning support"
+      description="Help for the question in front of you."
+      detail="The learning assistant is not available yet. Ask your teacher if you need help with a topic."
+      home="/student"
+      action="Explore diagnostics"
+      actionHref="/student/start"
     />
   );
 }

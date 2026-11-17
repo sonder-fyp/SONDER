@@ -1,30 +1,29 @@
 "use client";
-
 import Link from "next/link";
 import { Container } from "@/components/layout";
 import { Label, LayeredNumber, AccentBar } from "@/components/type";
 import { buttonVariants } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
-
+import { useSession } from "@/lib/session";
 export default function NotFound() {
+  const { account } = useSession();
   return (
-    <Container className="relative py-28 md:py-40">
+    <Container className="relative py-24">
       <LayeredNumber value="404" className="right-0 top-10" />
-      <Label tone="accent">Not found</Label>
-      <h1 className="mt-8 max-w-[16ch] text-5xl font-bold leading-none tracking-tighter sm:text-6xl lg:text-7xl">
-        Nothing here.
+      <Label tone="accent">Page not found</Label>
+      <h1 className="mt-8 max-w-[16ch] text-4xl font-semibold leading-tight tracking-tighter sm:text-5xl">
+        This page is out of reach.
       </h1>
-      <AccentBar className="mt-10" />
-      <p className="mt-10 max-w-xl text-lg leading-relaxed text-muted-foreground">
-        Every real screen is reachable from its own navigation. There is no page
-        hiding behind a guessed URL.
+      <AccentBar className="mt-8" />
+      <p className="mt-8 max-w-lg text-lg leading-relaxed text-muted-foreground">
+        The link may have changed, or the page may no longer be available.
+        Return to a familiar place to continue.
       </p>
-      <div className="mt-12">
-        <Link href="/" className={buttonVariants()}>
-          Back to home
-          <ArrowRight className="size-4" strokeWidth={1.5} aria-hidden />
-        </Link>
-      </div>
+      <Link
+        href={account ? "/auth/continue" : "/"}
+        className={`${buttonVariants()} mt-10`}
+      >
+        {account ? "Back to dashboard" : "Back to Sonder"}
+      </Link>
     </Container>
   );
 }
