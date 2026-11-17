@@ -1,4 +1,4 @@
-"""Append-only teacher reviews of finished checks (I2-A14, migration 0008) on real PostgreSQL."""
+"""Append-only teacher reviews of finished checks (I2-A14, migration 0009) on real PostgreSQL."""
 
 from __future__ import annotations
 

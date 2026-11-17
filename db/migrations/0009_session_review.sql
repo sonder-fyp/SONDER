@@ -1,4 +1,4 @@
--- 0008_session_review: a teacher's review and follow-up status of a finished check (I2-A14).
+-- 0009_session_review: a teacher's review and follow-up status of a finished check (I2-A14).
 --
 -- Rules (docs/design/I2_TEACHER_STUDENT_REQUIREMENTS.md section 5):
 --   * unreviewed = no row; states 'reviewed' and 'follow_up_required'; optional note <= 2000;
