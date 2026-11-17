@@ -8,6 +8,9 @@ The project was previously called **ConceptBridge**. Some proposal material may 
 
 | Path | Purpose |
 | --- | --- |
+| [Setup](docs/SETUP.md) | Reproducible tests and integrated development setup. |
+| [Session API contract](docs/api/SESSION_CONTRACT.md) | Diagnostic service contract and examples. |
+| [Access contract](docs/api/ACCESS_CONTRACT.md) | Identity and reusable access checks. |
 | [Project scope](docs/PROJECT.md) | Problem, users, feature scope, requirements, data plan, and evaluation questions. |
 | [Engineering design](docs/ENGINEERING.md) | Proposed architecture, diagnostic method, data contracts, interfaces, and technical decisions. |
 | [Roadmap](docs/ROADMAP.md) | Four-iteration plan, work packages, milestones, and intended repository layout. |
@@ -20,6 +23,9 @@ The project was previously called **ConceptBridge**. Some proposal material may 
 
 ```text
 docs/                       Project, engineering, roadmap, and evaluation references
+sonder_api/                 Diagnostic service and evidence verification
+sonder_db/                  Database connection and migration runner
+db/migrations/              Ordered migration manifest
 Sonder-UI-master/            Proposal-defence PoC and its required assets
 ```
 
