@@ -98,7 +98,7 @@ export function MathsTopicPicker() {
           <Link
             key={unit.unit_id}
             href={`/student/diagnostic/${encodeURIComponent(unit.unit_id)}`}
-            aria-label={`${unit.name}, ${unit.item_count} questions in this topic`}
+            aria-label={`${unit.name}, up to ${catalogue.question_budget} questions`}
             className="group flex min-h-28 items-center justify-between gap-6 border-b border-border px-2 py-6 hover:bg-muted"
           >
             <div>

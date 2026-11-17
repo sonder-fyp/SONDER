@@ -25,7 +25,7 @@ describe("available diagnostics", () => {
     render(<StartDiagnostic />);
     expect(
       await screen.findByRole("link", {
-        name: "Real unit 1, 20 questions in this topic",
+        name: "Real unit 1, up to 8 questions",
       }),
     ).toBeTruthy();
     expect(screen.getAllByRole("link")).toHaveLength(7);
@@ -42,7 +42,7 @@ describe("available diagnostics", () => {
     fireEvent.click(screen.getByRole("button", { name: "Retry" }));
     expect(
       await screen.findByRole("link", {
-        name: "Rounding, 20 questions in this topic",
+        name: "Rounding, up to 8 questions",
       }),
     ).toBeTruthy();
   });
