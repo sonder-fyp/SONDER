@@ -10,10 +10,11 @@ together. The schema's own triggers check those writes again at commit.
 
 from __future__ import annotations
 
+import copy
 import logging
-from contextlib import contextmanager
+import weakref
 from threading import RLock
-from time import perf_counter
+from time import monotonic, perf_counter
 from uuid import UUID, uuid4
 
 import psycopg
@@ -36,13 +37,14 @@ log = logging.getLogger("sonder_api")
 for _name in ("psycopg", "psycopg.pool"):
     logging.getLogger(_name).addFilter(RedactingFilter())
 
-_SESSION_SQL = """
-SELECT s.id, s.response_model_id, u.unit_code, s.question_budget, s.status, e.student_id
+_SESSION_COLUMNS = "s.id, s.response_model_id, u.unit_code, s.question_budget, s.status, e.student_id"
+_SESSION_FROM = """
 FROM sonder.diagnostic_session s
 JOIN sonder.enrolment e ON e.id = s.enrolment_id
 JOIN sonder.diagnostic_unit u ON u.id = s.unit_id
 WHERE s.id = %s
 """
+_SESSION_SQL = "SELECT " + _SESSION_COLUMNS + _SESSION_FROM
 _EVENTS_SQL = """
 SELECT q.id, i.external_id, o.label
 FROM sonder.session_question q
@@ -52,6 +54,17 @@ LEFT JOIN sonder.item_option o ON o.id = st.answer_option_id
 WHERE q.session_id = %s
 ORDER BY q.step_index
 """
+# The session row and its events in ONE statement, so they come from one snapshot (a concurrent answer
+# cannot be half visible). Used by read-only operations only: with FOR UPDATE, a statement that waited
+# for the lock would still read its events from the older snapshot, so locked reads keep two statements.
+_SESSION_WITH_EVENTS_SQL = ("SELECT " + _SESSION_COLUMNS + """,
+  COALESCE((SELECT json_agg(json_build_array(q.id, i.external_id, o.label) ORDER BY q.step_index)
+            FROM sonder.session_question q
+            JOIN sonder.item i ON i.id = q.item_id
+            LEFT JOIN sonder.session_step st ON st.session_question_id = q.id
+            LEFT JOIN sonder.item_option o ON o.id = st.answer_option_id
+            WHERE q.session_id = s.id), '[]'::json)
+""" + _SESSION_FROM)
 _ENROLMENT_SQL = """
 SELECT e.id
 FROM sonder.enrolment e
@@ -72,6 +85,7 @@ def _uuid(value: str, status: int, code: str) -> str:
 
 class PostgresStore:
     mode = "postgres"
+    RECHECK_AFTER = 30.0  # seconds a pooled connection may sit idle before it is tested again
 
     def __init__(self, url: str, release: str, *, pool_min: int = 1, pool_max: int = 4,
                  timeout: float = 5.0, clock=perf_counter):
@@ -79,11 +93,15 @@ class PostgresStore:
         self.lock = RLock()
         self._releases: dict[str, Release] = {}
         self._units: dict[tuple[str, str], tuple] = {}
+        self._catalogue: dict | None = None
+        self._last_used: weakref.WeakKeyDictionary = weakref.WeakKeyDictionary()
         # prepare_threshold=None: no server-side prepared statements, so a pooled Neon endpoint is safe.
-        # check: test each connection before lending it, so a dropped server connection is replaced.
+        # check/reset: a connection is tested only after sitting idle for RECHECK_AFTER seconds (the pool
+        # calls reset when a connection is returned). A dropped connection inside that window is caught by
+        # _run, which retries the whole unit once on a new connection.
         self.pool = ConnectionPool(url, min_size=pool_min, max_size=pool_max, timeout=timeout,
-                                   kwargs={"prepare_threshold": None}, check=ConnectionPool.check_connection,
-                                   open=False)
+                                   kwargs={"prepare_threshold": None}, check=self._check,
+                                   reset=lambda conn: self._last_used.__setitem__(conn, monotonic()), open=False)
         try:
             self.pool.open(wait=True, timeout=timeout)
             with self.pool.connection() as conn:
@@ -98,21 +116,50 @@ class PostgresStore:
         self.pool.close()
 
     # ------------------------------------------------------------------ plumbing
-    @contextmanager
-    def _tx(self):
-        """One transaction: commit on success, roll back on any error, map database failures."""
+    def _check(self, conn) -> None:
+        returned = self._last_used.get(conn)
+        if returned is not None and monotonic() - returned < self.RECHECK_AFTER:
+            return
+        ConnectionPool.check_connection(conn)
 
-        try:
-            with self.pool.connection() as conn:
-                yield conn
-        except ServiceError:
-            raise
-        except (PoolTimeout, psycopg.OperationalError) as exc:
-            log.error("Database unavailable: %s", type(exc).__name__)
-            raise ServiceError(503, "storage_unavailable") from exc
-        except psycopg.Error as exc:
-            log.error("Database rejected a session write: %s", describe_error(exc))
-            raise ServiceError(500, "storage_error") from exc
+    def _run(self, work, *, read_only: bool = False):
+        """Run work(conn) as one unit: one transaction, or autocommit for a read made of one statement.
+
+        The unit is tried at most twice. A psycopg.OperationalError (a dead pooled connection, before or
+        during the unit) is retried once on a fresh connection. That is safe for every operation, because
+        the unit is re-run from the start in a new transaction and starts and answers are idempotent
+        (design D4): a write whose commit was lost is applied once, and one that did commit is answered
+        from the stored evidence. ServiceError and other database errors are never retried, and neither
+        is a pool timeout (the pool is saturated or the database is down; waiting again only adds delay).
+        """
+
+        for attempt in (1, 2):
+            try:
+                with self.pool.connection() as conn:
+                    if read_only:
+                        conn.autocommit = True
+                    try:
+                        return work(conn)
+                    finally:
+                        if read_only:
+                            try:
+                                conn.autocommit = False
+                            except psycopg.Error:  # a dead connection is discarded by the pool anyway
+                                pass
+            except ServiceError:
+                raise
+            except PoolTimeout as exc:
+                log.error("Database unavailable: %s", type(exc).__name__)
+                raise ServiceError(503, "storage_unavailable") from exc
+            except psycopg.OperationalError as exc:
+                if attempt == 1:
+                    log.warning("Database connection failed (%s); retrying once", type(exc).__name__)
+                    continue
+                log.error("Database unavailable: %s", type(exc).__name__)
+                raise ServiceError(503, "storage_unavailable") from exc
+            except psycopg.Error as exc:
+                log.error("Database rejected a session write: %s", describe_error(exc))
+                raise ServiceError(500, "storage_error") from exc
 
     def _unit(self, conn, response_model_id: str, unit_code: str):
         """(Release, Unit, UnitIndex) for a pinned release; frozen rows never change, so cache them."""
@@ -136,12 +183,18 @@ class PostgresStore:
         """Load a session, its pinned unit and its stored events; rebuild and check the engine state."""
 
         sid = _uuid(sid, 404, "session_unavailable")
-        row = conn.execute(_SESSION_SQL + (" FOR UPDATE OF s" if lock else ""), (sid,)).fetchone()
+        if lock:
+            row = conn.execute(_SESSION_SQL + " FOR UPDATE OF s", (sid,)).fetchone()
+        else:
+            row = conn.execute(_SESSION_WITH_EVENTS_SQL, (sid,)).fetchone()
         if row is None or (actor is not None and str(row[5]) != actor):
             raise ServiceError(404, "session_unavailable")
-        _, response_model_id, unit_code, budget, status, _ = row
+        response_model_id, unit_code, budget, status = row[1], row[2], row[3], row[4]
         release, unit, index = self._unit(conn, str(response_model_id), unit_code)
-        events = conn.execute(_EVENTS_SQL, (sid,)).fetchall()
+        if lock:  # after the lock, so it sees every answer committed before the lock was granted
+            events = conn.execute(_EVENTS_SQL, (sid,)).fetchall()
+        else:
+            events = [(qid, external, label) for qid, external, label in row[6]]
         answers = [label for _, _, label in events if label is not None]
         try:
             state = replay(unit, release.params, answers, budget=budget)
@@ -210,16 +263,24 @@ class PostgresStore:
 
     # ------------------------------------------------------------------ service operations
     def health(self) -> dict:
-        with self._tx() as conn:
-            conn.execute("SELECT 1")
+        self._run(lambda conn: conn.execute("SELECT 1"), read_only=True)
         return {"contract_version": CONTRACT_VERSION, "mode": self.mode, "ready": True,
                 "release": self.release.label, "engine_release": self.engine_release_code}
 
     def catalogue(self) -> dict:
-        with self._tx() as conn:
-            units = unit_catalogue(conn, self.release)
-        return {"contract_version": CONTRACT_VERSION, "subject": self.release.subject_name,
-                "question_budget": self.release.params.default_budget, "units": units}
+        """The release is frozen, so its catalogue is read once; callers get a copy they may change."""
+
+        with self.lock:
+            cached = self._catalogue
+        if cached is None:
+            units = self._run(lambda conn: unit_catalogue(conn, self.release), read_only=True)
+            cached = {"contract_version": CONTRACT_VERSION, "subject": self.release.subject_name,
+                      "question_budget": self.release.params.default_budget, "units": units}
+            with self.lock:
+                if self._catalogue is None:
+                    self._catalogue = cached
+                cached = self._catalogue
+        return copy.deepcopy(cached)
 
     _EXISTING_START_SQL = (
         "SELECT s.id, u.unit_code, s.response_model_id, s.question_budget "
@@ -236,7 +297,8 @@ class PostgresStore:
 
     def create(self, actor: str, request: StartRequest) -> dict:
         actor = _uuid(actor, 404, "session_unavailable")
-        with self._tx() as conn:
+
+        def work(conn):
             enrolment = self._enrolment(conn, actor, request)
             existing = conn.execute(self._EXISTING_START_SQL, (enrolment, request.create_request_id)).fetchone()
             if existing is not None:  # checked before the unit, so a changed unit is always create_conflict
@@ -270,10 +332,16 @@ class PostgresStore:
             self._write_question(conn, sid, index, state)
             return reply
 
+        return self._run(work)
+
     def current(self, sid: str, actor: str) -> dict:
-        with self._tx() as conn:
-            sid, _, _, _, _, state = self._session(conn, sid, _uuid(actor, 404, "session_unavailable"))
-            return snapshot(sid, state)
+        actor = _uuid(actor, 404, "session_unavailable")
+
+        def work(conn):
+            sid_, _, _, _, _, state = self._session(conn, sid, actor)
+            return snapshot(sid_, state)
+
+        return self._run(work, read_only=True)
 
     def list_sessions(self, actor: str, *, status: str | None = None, unit_id: str | None = None) -> dict:
         actor = _uuid(actor, 404, "session_unavailable")
@@ -290,22 +358,22 @@ class PostgresStore:
                "FROM sonder.diagnostic_session s JOIN sonder.enrolment e ON e.id = s.enrolment_id "
                "JOIN sonder.diagnostic_unit u ON u.id = s.unit_id WHERE " + " AND ".join(where) +
                " ORDER BY s.started_at DESC, s.id DESC LIMIT 50")
-        with self._tx() as conn:
-            rows = conn.execute(sql, args).fetchall()
+        rows = self._run(lambda conn: conn.execute(sql, args).fetchall(), read_only=True)
         return {"contract_version": CONTRACT_VERSION, "sessions": [
             summary(str(r[0]), r[1], r[2], r[3] != "in_progress", int(r[7]), int(r[4]),
                     r[5].isoformat(), None if r[6] is None else r[6].isoformat()) for r in rows]}
 
     def submit(self, sid: str, actor: str, request: AnswerRequest) -> tuple[dict, bool]:
         actor = _uuid(actor, 404, "session_unavailable")
-        with self._tx() as conn:
-            sid, release, unit, index, events, state = self._session(conn, sid, actor, lock=True)
+
+        def work(conn):
+            sid_, release, unit, index, events, state = self._session(conn, sid, actor, lock=True)
             answered = [(external, label) for _, external, label in events if label is not None]
             if request.step_index < len(answered):  # a retry of an accepted step
                 if answered[request.step_index] != (request.item_id, request.option_id):
                     raise ServiceError(409, "answer_conflict")
                 prefix = [label for _, label in answered[:request.step_index + 1]]
-                return snapshot(sid, self._prefix(unit, release, state.budget, prefix)), False
+                return snapshot(sid_, self._prefix(unit, release, state.budget, prefix)), False
             if state.finished:
                 raise ServiceError(409, "session_finished")
             if request.step_index != len(answered):
@@ -317,7 +385,7 @@ class PostgresStore:
             if not updated.finished:
                 updated = next_question(updated)
             elapsed_ms = max((self.clock() - started) * 1000.0, 0.0)
-            reply = snapshot(sid, updated)
+            reply = snapshot(sid_, updated)
             # All numerical and projection work has succeeded; now publish it in this one transaction.
             step = updated.steps[-1]
             key = f"answer:{step.step_index}"
@@ -326,32 +394,36 @@ class PostgresStore:
             step_id = conn.execute(
                 "INSERT INTO sonder.session_step (session_id, step_index, session_question_id, answer_option_id, "
                 "request_key, calculation_ms, answer_note) VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING id",
-                (sid, step.step_index, events[-1][0], index.option_ids[(request.item_id, request.option_id)],
+                (sid_, step.step_index, events[-1][0], index.option_ids[(request.item_id, request.option_id)],
                  key, num(round(elapsed_ms, 3)), step.answer_note)).fetchone()[0]
             slots = {int(slot): str(row_id) for row_id, slot in conn.execute(
-                "SELECT id, slot FROM sonder.session_hypothesis WHERE session_id = %s", (sid,)).fetchall()}
+                "SELECT id, slot FROM sonder.session_hypothesis WHERE session_id = %s", (sid_,)).fetchall()}
             with conn.cursor() as cur:
                 cur.executemany(
                     "INSERT INTO sonder.step_posterior (step_id, session_hypothesis_id, probability) "
                     "VALUES (%s, %s, %s)",
                     [(step_id, slots[slot], num(p)) for slot, p in enumerate(step.posterior)])
             if updated.finished:
-                self._write_outcome(conn, sid, updated, slots)
+                self._write_outcome(conn, sid_, updated, slots)
             else:
-                self._write_question(conn, sid, index, updated)
-            self._before_commit(sid, step.step_index)
+                self._write_question(conn, sid_, index, updated)
+            self._before_commit(sid_, step.step_index)
             return reply, True
+
+        return self._run(work)
 
     def _before_commit(self, sid: str, step_index: int) -> None:
         """Test seam: called after every write of an answer, just before the transaction commits."""
 
     def inspect(self, sid: str) -> dict:
-        with self._tx() as conn:
+        def work(conn):
             _, _, _, _, _, state = self._session(conn, sid, None)
             return evidence(state)
 
+        return self._run(work, read_only=True)
+
     def latest_finished(self) -> dict:
-        with self._tx() as conn:
+        def work(conn):
             row = conn.execute(
                 "SELECT s.id, (SELECT count(*) FROM sonder.diagnostic_session f "
                 "              WHERE f.status NOT IN ('in_progress', 'abandoned')) "
@@ -362,3 +434,5 @@ class PostgresStore:
             sid, _, unit, _, _, state = self._session(conn, str(row[0]), None)
             return {"session_id": sid, "finished_seq": int(row[1]),
                     "unit": {"unit_id": unit.unit_id, "name": unit.name}, **evidence(state)}
+
+        return self._run(work, read_only=True)
