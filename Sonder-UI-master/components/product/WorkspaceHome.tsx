@@ -11,7 +11,8 @@ import { Container, PageMasthead } from "@/components/layout";
 import { buttonVariants } from "@/components/ui/button";
 import type { AppAccount } from "@/lib/auth/types";
 
-export function WorkspaceHome({ account }: { account: AppAccount }) {
+/** children (students only) appear right under the heading, before the general guidance. */
+export function WorkspaceHome({ account, children }: { account: AppAccount; children?: React.ReactNode }) {
   const role = account.role;
   const firstName = account.display_name.trim().split(/\s+/)[0];
   const student = role === "student";
@@ -58,6 +59,7 @@ export function WorkspaceHome({ account }: { account: AppAccount }) {
           ) : undefined
         }
       />
+      {student ? children : null}
       {student ? (
         <section className="grid gap-8 py-10 lg:grid-cols-[1.2fr_1fr] lg:gap-16 lg:py-14">
           <div className="border border-border bg-background/70 p-6 md:p-8">
