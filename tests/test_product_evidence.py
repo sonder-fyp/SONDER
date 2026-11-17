@@ -9,11 +9,15 @@ from product_db import HAVE_PSYCOPG, ProductDatabaseTestCase
 
 if HAVE_PSYCOPG:
     import psycopg
+    from fastapi.testclient import TestClient
+    from sonder_api.app import create_app
     from sonder_api.contracts import AnswerRequest, StartRequest
     from sonder_api.devseed import seed
     from sonder_api.pgstore import PostgresStore
     from sonder_api.stored_evidence import stored_evidence, verify_session
     from sonder_api.store import ServiceError
+
+TOKEN = "t" * 32
 
 
 class EvidenceTests(ProductDatabaseTestCase):
@@ -125,6 +129,19 @@ class EvidenceTests(ProductDatabaseTestCase):
         for bad in (str(uuid4()), "not-a-uuid"):
             with self.subTest(sid=bad), self.assertRaises(ServiceError):
                 self.store.teacher_evidence(bad, self.teacher)
+
+    def test_the_http_endpoint(self):
+        sid = self.finish()
+        with TestClient(create_app(TOKEN, store=self.store)) as client:
+            get = lambda actor, s=sid: client.get(f"/engine/teacher/sessions/{s}/evidence",
+                                                  headers={"X-Sonder-Token": TOKEN, "X-Sonder-Actor": actor})
+            ok = get(self.teacher)
+            self.assertEqual(ok.status_code, 200)
+            self.assertEqual(ok.json()["session_id"], sid)
+            for actor in (self.user("teacher"), self.student):
+                self.assertEqual((get(actor).status_code, get(actor).json()), (404, {"error": {"code": "session_not_found"}}))
+            self.assertEqual(client.get(f"/engine/teacher/sessions/{sid}/evidence",
+                                        headers={"X-Sonder-Actor": self.teacher}).status_code, 401)
 
 
 if __name__ == "__main__":

@@ -137,6 +137,11 @@ def create_app(token: str, *, store=None, store_factory=None, trace=False):
     def latest(request: Request):
         return db(request).latest_finished()
 
+    @app.get("/engine/teacher/sessions/{sid}/evidence", dependencies=auth)
+    def teacher_session_evidence(request: Request, sid: str, actor_id=Depends(actor)):
+        # The actor is a teacher here: the BFF sends it only after requireAccess(["teacher"]).
+        return db(request).teacher_evidence(sid, actor_id)
+
     @app.get("/engine/sessions/{sid}/trace", dependencies=auth)
     def inspect(request: Request, sid: str):
         return db(request).inspect(sid)
