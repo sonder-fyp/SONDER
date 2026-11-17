@@ -9,8 +9,8 @@ flowchart LR
   API --> Store[PostgresStore]
   Store --> Engine[Pure deterministic engine]
   Store --> DB[(PostgreSQL: identity, content, sessions, evidence)]
-  Harris[Harris: classes, assignments, content] --> DB
-  Ashher[Ashher: dashboards and evidence] --> DB
+  Harris[Harris: content] --> DB
+  Ashher[Ashher: classes, assignments, dashboards and evidence] --> DB
 ```
 
 ## Start
@@ -65,7 +65,7 @@ sequenceDiagram
 - **D6. Release pinning.** A "release" is one frozen `response_model` row named `<content_version.version_code>/<response_model.model_code>`. The API process is started with one release for **new** sessions (`--release`). Each session stores `response_model_id` (→ content version, engine params) and `engine_release_id`; old sessions are always rebuilt from **their own** pinned release, so a later release never alters them (verified, §3.4 item 8).
 - **D7. Engine identity.** `engine_release.release_code = "<sonder_engine.__version__>+<first 12 hex of SHA-256 over sonder_engine/*.py>"`, registered at startup. Replay uses the running engine code; if engine code changes in a way that alters behaviour, `replay_mismatch` exposes it rather than silently changing evidence (documented limitation).
 - **D8. Content before Harris's importer.** `python -m sonder_api.devseed` loads **U1 only** from `data/Maths_v2` into a frozen development release `Maths_v2-U1-dev/spec-v2-prior`, plus placeholder accounts and one development class (`DEVSEED01`). It refuses to run without `SONDER_ALLOW_DEV_SEED=true`. When Harris's importer (I2-H14–H16) lands, the API is simply started with Harris's release name; no service code changes.
-- **D9. Enrolment binding.** Until assignments exist, a start resolves the actor's single active enrolment in an active class that teaches the release's subject. None → `403 enrolment_required`; more than one → `409 enrolment_ambiguous`. A non-null `assignment_id` → `404 assignment_not_found` until PR 10.
+- **D9. Enrolment binding.** A start without `assignment_id` resolves the actor's single active enrolment in an active class that teaches the release's subject. None → `403 enrolment_required`; more than one → `409 enrolment_ambiguous`. A start with `assignment_id` (I2-H12) resolves the enrolment through the assignment instead and applies its open/release/attempt rules (SESSION_CONTRACT §5.5).
 - **D10. No silent fallback.** The service must be started with an explicit `--store postgres|memory`. If PostgreSQL is unreachable at startup the process exits non-zero; during a request it returns `503 storage_unavailable`. The in-memory store remains only as an explicit developer/test mode.
 - **D11. Migrations.** A tiny runner (`sonder_db.migrate`) applies files listed in `db/migrations/manifest.json` exactly once, records their LF-normalised SHA-256 in `sonder_meta.schema_migration`, refuses changed applied files, and serialises runners with an advisory lock. The Iteration 1 schema and `001-auth-rbac.sql` are entries 0001 and 0002 **by path** (no copies). Existing hand-built databases (Ahmed's Neon dev branch) use `adopt` once.
 - **D12. Driver.** `psycopg[binary]==3.3.9` and `psycopg-pool==3.3.3`, optional extra `db`. Pool created with `prepare_threshold=None` (safe with Neon's pooler) and `check=ConnectionPool.check_connection` (dropped connections are replaced; after a server-side kill the first request gets `503`, later requests succeed — verified).
@@ -78,4 +78,4 @@ sequenceDiagram
 
 ## Limitations
 
-The seed is a development candidate, not expert accepted. Each process chooses one release for new sessions; old sessions retain their own pin. Engine code changes may surface as `replay_mismatch`. There is no retention policy yet, assignment binding awaits Harris, and `abandoned` has no transition. Service replay compares selected questions and outcome; full persisted evidence verification checks posterior and other stored fields. `docs/design/architecture-iteration1.*` remains the Iteration 1 record and is not changed here.
+The seed is a development candidate, not expert accepted. Each process chooses one release for new sessions; old sessions retain their own pin. Engine code changes may surface as `replay_mismatch`. There is no retention policy yet, and `abandoned` has no transition (an abandoned attempt would count as used under a `single` assignment). Service replay compares selected questions and outcome; full persisted evidence verification checks posterior and other stored fields. `docs/design/architecture-iteration1.*` remains the Iteration 1 record and is not changed here.
