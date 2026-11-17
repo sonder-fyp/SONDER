@@ -2,6 +2,7 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from uuid import uuid4
 
 from pgtest import DatabaseTestCase, HAVE_PSYCOPG
 
@@ -36,6 +37,44 @@ class MigrateTests(DatabaseTestCase):
             self.assertTrue(conn.execute("SELECT to_regclass('sonder.diagnostic_session')").fetchone()[0])
             self.assertTrue(conn.execute("SELECT to_regclass('sonder.auth_role_request')").fetchone()[0])
 
+
+
+class RoleChangeTests(DatabaseTestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        up(cls.url)
+
+    def new_user(self, conn, role="student"):
+        return conn.execute(
+            "INSERT INTO sonder.app_user (email, display_name, role) VALUES (%s, 'T', %s) RETURNING id",
+            (f"{uuid4().hex}@example.test", role),
+        ).fetchone()[0]
+
+    def test_role_change_with_audit_row_succeeds(self):
+        with psycopg.connect(self.url) as conn:
+            user = self.new_user(conn)
+            conn.execute("UPDATE sonder.app_user SET role = 'teacher' WHERE id = %s", (user,))
+            conn.execute(
+                "INSERT INTO sonder.auth_role_audit (app_user_id, previous_role, new_role, change_source)"
+                " VALUES (%s, 'student', 'teacher', 'operator_provisioning')", (user,))
+            conn.commit()
+            self.assertEqual(conn.execute("SELECT role FROM sonder.app_user WHERE id = %s", (user,)).fetchone()[0], "teacher")
+
+    def test_role_change_without_audit_row_is_refused(self):
+        with psycopg.connect(self.url) as conn:
+            user = self.new_user(conn)
+            conn.commit()
+            conn.execute("UPDATE sonder.app_user SET role = 'teacher' WHERE id = %s", (user,))
+            with self.assertRaisesRegex(psycopg.Error, "auth_role_audit"):
+                conn.commit()
+
+    def test_id_and_created_at_stay_immutable(self):
+        with psycopg.connect(self.url) as conn:
+            user = self.new_user(conn)
+            conn.commit()
+            with self.assertRaisesRegex(psycopg.Error, "Immutable key"):
+                conn.execute("UPDATE sonder.app_user SET created_at = created_at - interval '1 day' WHERE id = %s", (user,))
 
 
 class AdoptMigrationTests(DatabaseTestCase):
