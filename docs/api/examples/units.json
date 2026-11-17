@@ -1,0 +1,42 @@
+{
+  "contract_version": 2,
+  "subject": "mathematics",
+  "question_budget": 8,
+  "units": [
+    {
+      "unit_id": "U1",
+      "name": "Rounding",
+      "item_count": 20
+    },
+    {
+      "unit_id": "U2",
+      "name": "Conversion",
+      "item_count": 25
+    },
+    {
+      "unit_id": "U3",
+      "name": "Percentage of an amount",
+      "item_count": 10
+    },
+    {
+      "unit_id": "U4",
+      "name": "Choosing the operation",
+      "item_count": 16
+    },
+    {
+      "unit_id": "U5",
+      "name": "Powers and roots",
+      "item_count": 10
+    },
+    {
+      "unit_id": "U6",
+      "name": "Time and unit conversion",
+      "item_count": 14
+    },
+    {
+      "unit_id": "U7",
+      "name": "Negatives, inverse operations, fraction bar",
+      "item_count": 16
+    }
+  ]
+}

@@ -88,7 +88,6 @@ describe("latestTeacherRoute", () => {
   const fetchMock = vi.fn();
   beforeEach(() => {
     vi.stubEnv("SONDER_ENGINE_TOKEN", "t".repeat(32));
-    vi.stubEnv("SONDER_COOKIE_KEY", "k".repeat(32));
     vi.stubGlobal("fetch", fetchMock);
     fetchMock.mockReset();
   });

@@ -2,6 +2,10 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
+CONTRACT_VERSION = 2
+UUID4 = r"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+UUID_ANY = r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+
 
 class RequestModel(BaseModel):
     model_config = ConfigDict(strict=True, extra="forbid")
@@ -9,7 +13,8 @@ class RequestModel(BaseModel):
 
 class StartRequest(RequestModel):
     unit_id: str = Field(min_length=1, max_length=32)
-    create_request_id: str = Field(min_length=36, max_length=36, pattern=r"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$")
+    create_request_id: str = Field(min_length=36, max_length=36, pattern=UUID4)
+    assignment_id: str | None = Field(default=None, min_length=36, max_length=36, pattern=UUID_ANY)
 
 
 class AnswerRequest(RequestModel):

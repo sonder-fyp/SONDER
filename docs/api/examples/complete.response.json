@@ -1,0 +1,12 @@
+{
+  "contract_version": 2,
+  "session_id": "6f1c2d4e-0000-4000-8000-000000000001",
+  "unit": {
+    "unit_id": "U1",
+    "name": "Rounding"
+  },
+  "question_budget": 8,
+  "answered_count": 5,
+  "status": "complete",
+  "question": null
+}
