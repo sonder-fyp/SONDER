@@ -30,4 +30,40 @@ Record date, commit, tester and result for each run; do not record credentials o
 
 | Date | Commit | Tester | HTTP harness | Browser checklist | Notes |
 | --- | --- | --- | --- | --- | --- |
-| Not yet run | — | — | Not yet executed | Not yet executed | Requires a signed-in enrolled student and Neon development branch. |
+| 2026-11-17 | `fb7d044` (tip of #62; includes #52 to #62) | Ahmed signed in; Claude drove the browser (Playwright) | Not run (needs a copied session cookie) | Partly run: see the record below | Neon development branch, release `Maths_v2-U1-dev/spec-v2-prior`, engine `0.1.0+fbe0204a623d` |
+
+## Recorded run: 17 November 2026
+
+Environment: Neon development branch (about 0.4 s round trip from the test machine), Python service with `--store postgres`, Next.js dev server on `http://localhost:3000`, Chrome. The service and UI ran from commit `fb7d044`, so this run does **not** include the follow-up fixes in #63 to #69. Two students were enrolled in the development class with `devseed --enrol-email`. No credentials or cookies are recorded here.
+
+| # | Checklist item | Result | Evidence |
+| --- | --- | --- | --- |
+| 1 | Enrolled student begins U1 and answers two questions | Pass | Items T1-005, T1-006 shown for answers D, B |
+| 2 | Refresh keeps the pending question | Pass | Reload on `?session=<id>` after one answer resumed at question 2 |
+| 3 | Leave, return without `?session=`, select Continue | Not run | |
+| 4 | Service stopped during a save: error and Retry | Partly | The service was restarted twice between answers and the next answer was accepted each time (question 3 was T1-007). The error and Retry screen was not exercised. |
+| 5 | Double-click stores one step | Not run | Duplicate and conflicting answers were checked at the service level only (identical reply; `409 answer_conflict`) |
+| 6 | Finish is neutral | Partly | Completion screen shows no outcome or score. Page source and network responses were not inspected for `MATH-` or probabilities. |
+| 7 | Sign out, reload the run URL | Not run | |
+| 8 | Second student opens the first student's run URL | Pass | `GET /api/diagnostic/sessions/<id>` returned 404 and the page said "This check is unavailable"; no question content was shown |
+
+Additional checks made in the same run:
+
+- **Full diagnostic:** answers D, B, B, A gave T1-005, T1-006, T1-007, T1-009 and a finished session after 4 answers (status `diagnosed`).
+- **Budget:** answers A, C, A, C, A, C, A, C went to the full 8 questions and finished as `escalated_exhausted`. This sequence was found with the in-memory service before the browser run.
+- **Run again:** returns to the intro screen; Begin creates a new session and the earlier one stays finished.
+- **Stored evidence:** `python -m sonder_api.stored_evidence --all` reported 5 checked, 5 matching, 0 mismatched.
+- **Not run:** the HTTP harness `scripts/check_persistent_flow.py`, which needs the signed-in student's `Cookie` header.
+
+Problems found during the run (each has its own pull request):
+
+| Finding | Pull request |
+| --- | --- |
+| Database URL and password printed in a migration error message | #63 |
+| `127.0.0.1` rejected by Neon Auth, with a misleading "check your details" message | #64 |
+| Reads cost 4 to 5 round trips; answers still cost about 11 | #65 |
+| Landing page `THREE.Clock` deprecation warning | #66 |
+| Errors thrown by the Neon client were not classified; theme view-transition rejection shown as a Next.js issue | #67 |
+| Editable address on the one-time-code page | #68 |
+| Unverified user could not sign out | #69 |
+| Dev server served a stale compiled file after files changed on disk (`answersSaved is not defined`); fixed by clearing `.next/dev` and restarting. This is a local development issue, not a product defect. | Troubleshooting entry in `docs/SETUP.md` (#64) |
