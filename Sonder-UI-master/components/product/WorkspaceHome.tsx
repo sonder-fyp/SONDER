@@ -37,12 +37,22 @@ export function WorkspaceHome({ account }: { account: AppAccount }) {
         title={title}
         lede={description}
         actions={
-          student || admin ? (
+          student || admin || role === "teacher" ? (
             <Link
-              href={student ? "/student/start" : "/admin/access"}
+              href={
+                student
+                  ? "/student/start"
+                  : admin
+                    ? "/admin/access"
+                    : "/teacher/classes"
+              }
               className={buttonVariants({ size: "lg" })}
             >
-              {student ? "Explore diagnostics" : "Review access requests"}
+              {student
+                ? "Explore diagnostics"
+                : admin
+                  ? "Review access requests"
+                  : "Manage classes"}
               <ArrowRight className="size-4" aria-hidden />
             </Link>
           ) : undefined
@@ -105,7 +115,7 @@ export function WorkspaceHome({ account }: { account: AppAccount }) {
               admin
                 ? "Review teacher and parent registrations. Each request is saved to the account service."
                 : role === "teacher"
-                  ? "Class management and assignments are not available yet. They will appear here when ready."
+                  ? "Create Mathematics classes and share each class's join code with your students. Assignments are not available yet."
                   : "Child linking is not available yet. Summaries will only be accessible through an authorised connection to your child."
             }
           />

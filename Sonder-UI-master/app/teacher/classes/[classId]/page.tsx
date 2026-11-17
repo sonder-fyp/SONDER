@@ -1,12 +1,11 @@
-import { WorkspaceState } from "@/components/product/WorkspaceState";
-export default function Page() {
+import { Container } from "@/components/layout";
+import { TeacherClassDetail } from "./TeacherClassDetail";
+
+export default async function Page({ params }: { params: Promise<{ classId: string }> }) {
+  const { classId } = await params;
   return (
-    <WorkspaceState
-      label="Teacher"
-      title="Class details"
-      description="Keep classwork in context."
-      detail="Class rosters and assignments are not available yet. Return to your overview for workspace availability."
-      home="/teacher"
-    />
+    <Container className="pb-20">
+      <TeacherClassDetail key={classId} classId={classId} />
+    </Container>
   );
 }
