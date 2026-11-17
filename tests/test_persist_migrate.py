@@ -27,7 +27,8 @@ class ManifestTests(unittest.TestCase):
 
 class MigrateTests(DatabaseTestCase):
     def test_up_applies_all_then_nothing(self):
-        expected = ["0001_iteration1_schema", "0002_auth_rbac"]
+        expected = [migration.name for migration in load_manifest()]
+        self.assertEqual(expected[:2], ["0001_iteration1_schema", "0002_auth_rbac"])
         self.assertEqual(up(self.url), expected)
         self.assertEqual(up(self.url), [])
         self.assertEqual(status(self.url), [(name, "applied") for name in expected])
@@ -39,11 +40,15 @@ class MigrateTests(DatabaseTestCase):
 
 class AdoptMigrationTests(DatabaseTestCase):
     def test_adopt_records_without_running(self):
-        up(self.url)
+        # A hand-built database has only the Iteration 1 schema and the auth script.
+        manifest = load_manifest()
+        up(self.url, manifest[:2])
         with psycopg.connect(self.url) as conn:
             conn.execute("DELETE FROM sonder_meta.schema_migration")
         names = ["0001_iteration1_schema", "0002_auth_rbac"]
         self.assertEqual(adopt(self.url, names), names)
+        # Adoption runs nothing; later migrations still apply afterwards, then nothing is pending.
+        self.assertEqual(up(self.url), [migration.name for migration in manifest[2:]])
         self.assertEqual(up(self.url), [])
 
 

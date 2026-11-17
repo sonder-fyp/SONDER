@@ -137,6 +137,9 @@ jobs:
       - name: Migrations, persistent sessions and access checks
         run: python -m unittest discover -s tests -p 'test_persist_*.py' -v
 
+      - name: Classes, enrolment and assignment rules
+        run: python -m unittest discover -s tests -p 'test_product_*.py' -v
+
       - name: Discard the database
         if: always()
         run: docker compose down -v
