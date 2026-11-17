@@ -1,4 +1,4 @@
-import { parseCatalogue, parseError, parseSnapshot } from "./validation";
+import { parseCatalogue, parseError, parseSessionList, parseSnapshot } from "./validation";
 import type { AnswerRequest, BeginRequest } from "./types";
 
 export class DiagnosticError extends Error {
@@ -24,6 +24,7 @@ async function request<T>(path: string, parser: (v: unknown) => T, body?: unknow
 }
 export const diagnosticClient = {
   catalogue: () => request("units", parseCatalogue),
+  unfinished: (unitId: string) => request(`sessions?unit_id=${encodeURIComponent(unitId)}`, parseSessionList),
   begin: (payload: BeginRequest) => request("sessions", parseSnapshot, payload),
   current: (sid: string) => request(`sessions/${encodeURIComponent(sid)}`, parseSnapshot),
   answer: (sid: string, payload: AnswerRequest) => request(`sessions/${encodeURIComponent(sid)}/answers`, parseSnapshot, payload),

@@ -95,3 +95,20 @@ Internal consumers can read rows and verify replay through the [persisted eviden
 PostgreSQL mode fails startup when the database or configured release is unavailable; it never falls back to memory. During an outage the service returns `503 storage_unavailable`; a dropped connection can cause the first request after connection loss to return 503 before the pool recovers. Each answer is atomic: the step, posterior and next question or outcome commit together. After a lost reply, read the current session and resend the identical answer only if that question is still pending. A row lock serialises concurrent requests even across service processes.
 
 PostgreSQL sessions are retained indefinitely pending a retention policy. Memory mode alone uses a TTL and capacity limit and loses sessions on restart.
+
+## Student client states
+
+| Phase | Meaning | Student sees |
+| --- | --- | --- |
+| `loading_metadata` | Loading unit and any unfinished session | Loading message |
+| `intro` | Ready to begin or resume | Topic and Begin, or unfinished count and Continue |
+| `starting` | Start request in flight | Loading message |
+| `question` | Pending question | Question and answer choices |
+| `submitting` | Answer in flight | Selected choice and progress message |
+| `recovering` | Checking authoritative state after a failure | Recovery message or a safe error with Retry when appropriate |
+| `complete` | Session finished | Neutral teacher-review message |
+| `unavailable` | Request cannot currently proceed | Safe error and available next steps |
+
+## Statuses for dashboards
+
+Only `in_progress`, `complete`, and `answered_count` are student-safe progress values. Review status comes from Ashher's I2-A14; a session status is not a diagnosis or review decision.

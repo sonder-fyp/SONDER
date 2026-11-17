@@ -1,4 +1,4 @@
-import type { AnswerRequest, BeginRequest, Catalogue, OptionId, SessionSummary, Snapshot } from "./types";
+import type { AnswerRequest, BeginRequest, Catalogue, OptionId, SessionList, SessionSummary, Snapshot } from "./types";
 
 export const ACCOUNT_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 export const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
@@ -74,10 +74,10 @@ export function parseSnapshot(value: unknown): Snapshot {
     item_id: text(q.item_id, 64), stem: text(q.stem), options } };
 }
 
-export function parseSessionList(value: unknown): SessionSummary[] {
+export function parseSessionList(value: unknown): SessionList {
   const v = object(value);
   if (v.contract_version !== 2 || !Array.isArray(v.sessions) || v.sessions.length > 50) throw new Error("Invalid sessions");
-  return v.sessions.map(raw => {
+  const sessions: SessionSummary[] = v.sessions.map(raw => {
     const row = object(raw), unit = object(row.unit);
     if (row.status !== "in_progress" && row.status !== "complete") throw new Error("Invalid status");
     const timestamp = (x: unknown) => x === null ? null : text(x, 40);
@@ -85,6 +85,7 @@ export function parseSessionList(value: unknown): SessionSummary[] {
       status: row.status, answered_count: integer(row.answered_count), question_budget: integer(row.question_budget, 1),
       started_at: timestamp(row.started_at), ended_at: timestamp(row.ended_at) };
   });
+  return { contract_version: 2, sessions };
 }
 
 export const ERROR_STATUS: Record<string, number> = {

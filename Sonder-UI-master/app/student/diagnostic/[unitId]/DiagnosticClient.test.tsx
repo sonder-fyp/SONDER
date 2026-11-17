@@ -5,13 +5,14 @@ import { diagnosticClient, DiagnosticError } from "@/lib/diagnostic/client";
 import { catalogue, snapshot } from "@/lib/diagnostic/testFixtures";
 import { parseCatalogue, parseSnapshot } from "@/lib/diagnostic/validation";
 vi.mock("@/lib/diagnostic/client", async importOriginal => ({ ...await importOriginal<typeof import("@/lib/diagnostic/client")>(), diagnosticClient: {
-  catalogue: vi.fn(), begin: vi.fn(), current: vi.fn(), answer: vi.fn(),
+  catalogue: vi.fn(), unfinished: vi.fn(), begin: vi.fn(), current: vi.fn(), answer: vi.fn(),
 } }));
 describe("live student diagnostic screen", () => {
   beforeEach(() => {
     vi.resetAllMocks();
     window.history.replaceState(null, "", "/student/diagnostic/U1");
     vi.mocked(diagnosticClient.catalogue).mockResolvedValue(parseCatalogue(catalogue));
+    vi.mocked(diagnosticClient.unfinished).mockResolvedValue({ contract_version: 2, sessions: [] });
     vi.mocked(diagnosticClient.begin).mockResolvedValue(parseSnapshot(snapshot()));
     vi.mocked(diagnosticClient.answer).mockResolvedValue(parseSnapshot(snapshot(1, true)));
   });
@@ -31,8 +32,23 @@ describe("live student diagnostic screen", () => {
     await waitFor(() => expect(screen.getByRole("button", { name: "Begin" })).toBeTruthy());
     expect(diagnosticClient.begin).toHaveBeenCalledTimes(1);
   });
+  it("offers Continue for an unfinished run", async () => {
+    vi.mocked(diagnosticClient.unfinished).mockResolvedValue({ contract_version: 2, sessions: [{ session_id: "11111111-1111-4111-8111-111111111111", unit: { unit_id: "U1", name: "Rounding" }, status: "in_progress", answered_count: 1, question_budget: 8, started_at: null, ended_at: null }] });
+    render(<DiagnosticClient unitId="U1" />);
+    expect(await screen.findByRole("button", { name: "Continue" })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Begin" })).toBeNull();
+  });
   it("explains each failure plainly and offers Retry only when it can help", async () => {
     for (const [code, text, retry] of [
+      ["enrolment_required", /need to be in a Maths class/, false],
+      ["enrolment_ambiguous", /more than one Maths class/, false],
+      ["assignment_not_found", /assignment is not available/, false],
+      ["authentication_required", /sign-in has ended/, false],
+      ["role_required", /only for student accounts/, false],
+      ["storage_unavailable", /cannot save answers right now/, true],
+      ["storage_error", /went wrong while saving/, true],
+      ["engine_numeric_error", /went wrong while saving/, true],
+      ["replay_mismatch", /cannot be continued/, false],
       ["capacity_exceeded", /busy right now/, true],
       ["answer_conflict", /moved on in another tab/, true],
       ["session_expired", /unavailable\. You can start a fresh check/, false],

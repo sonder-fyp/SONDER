@@ -9,6 +9,22 @@ import { useDiagnosticSession } from "@/lib/diagnostic/useDiagnosticSession";
 // What the student is told for each error, and whether Retry can help.
 function errorView(code: string): { message: string; retry: boolean } {
   switch (code) {
+    case "enrolment_required":
+      return { message: "You need to be in a Maths class to take this check. Ask your teacher for a class code.", retry: false };
+    case "enrolment_ambiguous":
+      return { message: "You are in more than one Maths class. Open this check from your class's assignment.", retry: false };
+    case "assignment_not_found":
+      return { message: "This assignment is not available. Go back to your classes.", retry: false };
+    case "authentication_required":
+      return { message: "Your sign-in has ended. Sign in again to continue; your answers so far are saved.", retry: false };
+    case "role_required":
+      return { message: "This check is only for student accounts.", retry: false };
+    case "storage_unavailable":
+      return { message: "Sonder cannot save answers right now. Your earlier answers are safe. Try again in a moment.", retry: true };
+    case "storage_error": case "engine_numeric_error":
+      return { message: "Something went wrong while saving this answer. Try once more.", retry: true };
+    case "replay_mismatch":
+      return { message: "This check cannot be continued. Your saved answers are kept for your teacher.", retry: false };
     case "session_unavailable": case "session_expired": case "unit_not_found":
       return { message: "This check is unavailable. You can start a fresh check.", retry: false };
     case "answer_conflict": case "step_conflict": case "item_conflict": case "session_finished":
@@ -22,8 +38,8 @@ function errorView(code: string): { message: string; retry: boolean } {
   }
 }
 
-export function DiagnosticClient({ unitId, initialSession }: { unitId: string; initialSession?: string }) {
-  const session = useDiagnosticSession(unitId, initialSession);
+export function DiagnosticClient({ unitId, initialSession, assignmentId }: { unitId: string; initialSession?: string; assignmentId?: string }) {
+  const session = useDiagnosticSession(unitId, initialSession, assignmentId);
   const snapshot = session.snapshot;
   const unit = session.catalogue?.units.find(u => u.unit_id === unitId);
   const budget = snapshot?.question_budget ?? session.catalogue?.question_budget;
@@ -49,7 +65,10 @@ export function DiagnosticClient({ unitId, initialSession }: { unitId: string; i
           You will get one question at a time, up to {budget}. Answer as best you can.
           There is no time limit and no score at the end.
         </p>
-        <Button size="lg" className="mt-12 w-full" disabled={working} onClick={session.begin}>Begin</Button>
+        {session.unfinished ? <>
+          <p className="mt-6">You have an unfinished check on this topic (question {session.unfinished.answered_count + 1} of {session.unfinished.question_budget}).</p>
+          <Button size="lg" className="mt-12 w-full" disabled={working} onClick={session.resume}>Continue</Button>
+        </> : <Button size="lg" className="mt-12 w-full" disabled={working} onClick={session.begin}>Begin</Button>}
       </> : null}
       {question ? <>
         <Label tone="muted" className="mt-10">Question {question.step_index + 1}</Label>
@@ -70,6 +89,7 @@ export function DiagnosticClient({ unitId, initialSession }: { unitId: string; i
       {session.error ? <div role="alert" className="mt-10">
         <p>{errorView(session.error).message}</p>
         <div className="mt-6 flex flex-wrap gap-6">
+          {session.error === "authentication_required" ? <Link href={`/auth/sign-in?next=${encodeURIComponent(typeof window === "undefined" ? `/student/diagnostic/${encodeURIComponent(unitId)}` : window.location.pathname + window.location.search)}`} className={buttonVariants()}>Sign in</Link> : null}
           {errorView(session.error).retry ? <Button onClick={session.retry}>Retry</Button> : null}
           <Button variant="ghost" onClick={session.restart}>Start a fresh check</Button>
           <Link href="/student/start" className={buttonVariants({ variant: "ghost" })}>Back to topics</Link>
