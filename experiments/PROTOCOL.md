@@ -109,3 +109,4 @@ Harris reruns the frozen held-out configuration from a clean checkout, confirms 
 | Version | Date | Change |
 | --- | --- | --- |
 | 1 | 10 November 2026 | Initial protocol, before any comparison run |
+| 1 | 18 November 2026 | A tuning configuration may override engine parameters with a `params` object (I2-A04 candidates such as `min_support` and `theta`). A held-out configuration may not; held-out results use the parameters in force. The manifest records the full parameter set. No earlier result changes. |
