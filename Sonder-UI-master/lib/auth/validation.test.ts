@@ -8,6 +8,17 @@ describe("authentication input validation", () => {
     expect(normalizeEmail(`a@${"b".repeat(250)}.com`)).toBeNull();
   });
 
+  it("checks the address used on the one-time-code page", () => {
+    expect(normalizeEmail("user@example.com")).toBe("user@example.com");
+    expect(normalizeEmail("USER@Example.COM")).toBe("user@example.com");
+    expect(normalizeEmail("  user@example.com  ")).toBe("user@example.com");
+    expect(normalizeEmail("a b@example.com")).toBeNull();
+    expect(normalizeEmail("user.example.com")).toBeNull();
+    expect(normalizeEmail("")).toBeNull();
+    expect(normalizeEmail(undefined)).toBeNull();
+    expect(normalizeEmail(`${"a".repeat(250)}@b.com`)).toBeNull();
+  });
+
   it("accepts only safe profile details and non-privileged onboarding roles", () => {
     expect(validateOnboarding({ displayName: "  Ahmed Laiq  ", requestedRole: "student" })).toEqual({
       displayName: "Ahmed Laiq",

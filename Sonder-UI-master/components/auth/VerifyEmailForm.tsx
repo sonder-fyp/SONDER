@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth/client";
+import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -14,7 +15,7 @@ export function VerifyEmailForm({
   requestedRole: "student" | "teacher" | "parent";
 }) {
   const router = useRouter();
-  const [email, setEmail] = useState(initialEmail);
+  const email = initialEmail.trim().toLowerCase();
   const [code, setCode] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -26,7 +27,7 @@ export function VerifyEmailForm({
     setBusy(true);
     try {
       const result = await authClient.emailOtp.verifyEmail({
-        email: email.trim().toLowerCase(),
+        email: email,
         otp: code.trim(),
       });
       if (result.error) {
@@ -48,7 +49,7 @@ export function VerifyEmailForm({
     setBusy(true);
     try {
       const result = await authClient.emailOtp.sendVerificationOtp({
-        email: email.trim().toLowerCase(),
+        email: email,
         type: "email-verification",
       });
       if (result.error) {
@@ -68,21 +69,10 @@ export function VerifyEmailForm({
       <p className="label text-accent">Email verification</p>
       <h1 className="mt-5 text-4xl font-semibold tracking-tight sm:text-5xl">Check your inbox.</h1>
       <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-        Enter the one-time code we sent to your email address.
+        Enter the one-time code we sent to{" "}
+        <strong className="break-all font-semibold text-foreground">{email}</strong>.
       </p>
       <form className="mt-8 grid gap-5" onSubmit={(event) => void verify(event)}>
-        <div className="grid gap-2">
-          <label className="label" htmlFor="verification-email">Email</label>
-          <Input
-            id="verification-email"
-            type="email"
-            autoComplete="email"
-            required
-            maxLength={254}
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-          />
-        </div>
         <div className="grid gap-2">
           <label className="label" htmlFor="verification-code">One-time code</label>
           <Input
@@ -107,6 +97,14 @@ export function VerifyEmailForm({
       >
         Send a new code
       </button>
+      <p className="mt-2">
+        <Link
+          href="/auth/sign-up"
+          className="label inline-flex min-h-11 items-center text-muted-foreground underline underline-offset-4 hover:text-foreground"
+        >
+          Wrong address? Start over
+        </Link>
+      </p>
     </section>
   );
 }
