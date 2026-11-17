@@ -92,7 +92,7 @@ describe("live student diagnostic screen", () => {
   });
   it("explains each failure plainly and offers Retry only when it can help", async () => {
     for (const [code, text, retry] of [
-      ["enrolment_required", /need to be in a Maths class/, false],
+      ["enrolment_required", /need to be in a Maths class.*Join your class under Classes/, false],
       ["enrolment_ambiguous", /more than one Maths class/, false],
       ["assignment_not_found", /assignment is not available/, false],
       ["assignment_closed", /closed this assignment/, false],
