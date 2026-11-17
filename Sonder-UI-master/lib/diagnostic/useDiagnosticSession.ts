@@ -30,7 +30,9 @@ export function useDiagnosticSession(unitId: string, initialSession?: string, as
     try {
       const [catalogue, snapshot, list] = await Promise.all([
         diagnosticClient.catalogue(), locator.current ? diagnosticClient.current(locator.current) : Promise.resolve(undefined),
-        locator.current ? Promise.resolve(undefined) : diagnosticClient.unfinished(unitId),
+        // A start from an assignment never offers another check's "Continue": an unfinished attempt at
+        // this assignment is resumed from the dashboard with ?session=, and the server refuses a second one.
+        locator.current || assignmentId ? Promise.resolve(undefined) : diagnosticClient.unfinished(unitId),
       ]);
       if (generation !== epoch.current) return;
       if (!catalogue.units.some(u => u.unit_id === unitId)) throw new DiagnosticError("unit_not_found");
