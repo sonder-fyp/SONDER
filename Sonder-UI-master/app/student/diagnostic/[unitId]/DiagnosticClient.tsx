@@ -28,6 +28,30 @@ function errorView(code: string): { message: string; retry: boolean } {
           "This assignment is not available. Return to Diagnostics or ask your teacher.",
         retry: false,
       };
+    case "assignment_closed":
+      return {
+        message:
+          "Your teacher has closed this assignment, so it cannot be started now.",
+        retry: false,
+      };
+    case "assignment_unavailable":
+      return {
+        message:
+          "This assignment uses a version of the check that is no longer offered. Ask your teacher to assign it again.",
+        retry: false,
+      };
+    case "attempt_in_progress":
+      return {
+        message:
+          "You already have this assignment in progress. Go back to it and choose Continue to pick up where you left off.",
+        retry: false,
+      };
+    case "attempt_limit_reached":
+      return {
+        message:
+          "You have already done this assignment. It allows one attempt.",
+        retry: false,
+      };
     case "authentication_required":
       return {
         message:
