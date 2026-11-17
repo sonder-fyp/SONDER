@@ -19,7 +19,7 @@ from uuid import UUID, uuid4
 import psycopg
 from psycopg_pool import ConnectionPool, PoolTimeout
 
-from sonder_db import num
+from sonder_db import RedactingFilter, describe_error, num
 from sonder_engine.session import EngineError, SessionState, answer, next_question, replay
 from sonder_engine.stopping import Outcome
 from sonder_engine.trace import trace_of
@@ -31,6 +31,10 @@ from .store import ServiceError
 from .student_view import evidence, snapshot, summary
 
 log = logging.getLogger("sonder_api")
+
+# psycopg_pool logs "error connecting in ...: <message>" itself, and the message can hold the DSN.
+for _name in ("psycopg", "psycopg.pool"):
+    logging.getLogger(_name).addFilter(RedactingFilter())
 
 _SESSION_SQL = """
 SELECT s.id, s.response_model_id, u.unit_code, s.question_budget, s.status, e.student_id
@@ -107,7 +111,7 @@ class PostgresStore:
             log.error("Database unavailable: %s", type(exc).__name__)
             raise ServiceError(503, "storage_unavailable") from exc
         except psycopg.Error as exc:
-            log.exception("Database rejected a session write")
+            log.error("Database rejected a session write: %s", describe_error(exc))
             raise ServiceError(500, "storage_error") from exc
 
     def _unit(self, conn, response_model_id: str, unit_code: str):

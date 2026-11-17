@@ -21,7 +21,7 @@ from pathlib import Path
 
 import psycopg
 
-from sonder_db import database_url, num
+from sonder_db import database_url, describe_error, num
 from sonder_engine.bayes import likelihood_matrix
 from sonder_engine.model import Params
 from sonder_pack.maths_v2 import DEFAULT_CONFIG, DEFAULT_ROOT, load_maths_v2, read_csv_rows
@@ -246,7 +246,7 @@ def main(argv: list[str] | None = None) -> int:
         with psycopg.connect(database_url(args.database_url)) as conn:
             result = seed(conn, unit_id=args.unit, enrol_emails=tuple(args.enrol_email))
     except (RuntimeError, psycopg.Error) as exc:
-        print(f"DEV SEED FAILED: {exc}", file=sys.stderr)
+        print(f"DEV SEED FAILED: {describe_error(exc)}", file=sys.stderr)
         return 1
     print(json.dumps(result, indent=2))
     return 0

@@ -34,8 +34,13 @@ def postgres_store_factory(url: str, release: str):
     """Durable mode. Fails startup if the database or the release is unavailable."""
 
     def build():
+        import psycopg
+        from sonder_db import describe_error
         from .pgstore import PostgresStore  # psycopg is an optional extra
-        return PostgresStore(url, release)
+        try:
+            return PostgresStore(url, release)
+        except psycopg.Error as exc:  # psycopg can echo the connection string in its message
+            raise RuntimeError(f"Database unavailable at startup: {describe_error(exc)}") from None
     return build
 
 
