@@ -7,7 +7,9 @@ vi.mock("@/lib/classes/client", async (original) => ({
     assignments: vi.fn(), teacherUnits: vi.fn(),
   },
 }));
+vi.mock("@/lib/teacher/client", () => ({ teacherClient: { activity: vi.fn() } }));
 import { classesClient, ClassesError } from "@/lib/classes/client";
+import { teacherClient } from "@/lib/teacher/client";
 import type { RosterStudent, TeacherClass } from "@/lib/classes/types";
 import { TeacherClassDetail } from "./TeacherClassDetail";
 
@@ -19,6 +21,7 @@ const room: TeacherClass = {
 const ali: RosterStudent = { student_id: "33333333-3333-4333-8333-333333333333", display_name: "Ali", joined_at: "2026-11-18T10:00:00.000Z" };
 const sara: RosterStudent = { student_id: "44444444-4444-4444-8444-444444444444", display_name: "Sara", joined_at: "2026-11-18T11:00:00.000Z" };
 beforeEach(() => {
+  vi.mocked(teacherClient.activity).mockResolvedValue([]);
   vi.mocked(classesClient.roster).mockResolvedValue([ali, sara]);
   vi.mocked(classesClient.assignments).mockResolvedValue([]);
   vi.mocked(classesClient.teacherUnits).mockResolvedValue([]);

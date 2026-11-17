@@ -7,6 +7,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { SignInAgain } from "@/components/product/SignInAgain";
 import { classesClient, ClassesError } from "@/lib/classes/client";
 import type { RosterStudent, TeacherClass } from "@/lib/classes/types";
+import { ClassActivity } from "./ClassActivity";
 import { ClassAssignments } from "./ClassAssignments";
 
 const code = (cause: unknown) => (cause instanceof ClassesError ? cause.code : "service_unavailable");
@@ -227,6 +228,7 @@ export function TeacherClassDetail({ classId }: { classId: string }) {
         meta={<p className="text-sm text-muted-foreground">Mathematics · Grade {room.grade_level}</p>}
       />
       <div className="pt-10"><JoinCode room={room} onChange={setRoom} /></div>
+      <ClassActivity room={room} />
       <Roster room={room} />
       <ClassAssignments room={room} />
       <ClassStatusControl room={room} onChange={setRoom} />

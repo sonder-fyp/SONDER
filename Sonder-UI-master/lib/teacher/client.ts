@@ -1,4 +1,5 @@
 import { parseErrorCode } from "@/lib/classes/validation";
+import { parseActivity } from "./activity";
 import { parseEvidence } from "./evidence";
 import { parseReviewList } from "./reviews";
 import type { AddReviewRequest } from "./reviews";
@@ -39,4 +40,7 @@ export const teacherClient = {
   reviews: (sessionId: string) => request(`sessions/${encodeURIComponent(sessionId)}/reviews`, parseReviewList),
   addReview: (sessionId: string, input: AddReviewRequest) =>
     request(`sessions/${encodeURIComponent(sessionId)}/reviews`, parseReviewList, "POST", input),
+  activity: (classId: string, assignmentId?: string) =>
+    request(`classes/${encodeURIComponent(classId)}/activity${assignmentId ? `?assignment=${encodeURIComponent(assignmentId)}` : ""}`,
+      parseActivity),
 };
