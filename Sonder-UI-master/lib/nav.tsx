@@ -4,6 +4,7 @@ import {
   ShieldCheck,
   Settings,
   Users,
+  History,
   type LucideIcon,
 } from "lucide-react";
 import type { AppRole as Role } from "@/lib/auth/types";
@@ -30,6 +31,7 @@ export const NAV: Record<Role, NavGroup[]> = {
           match: ["/student/diagnostic"],
         },
         { label: "Classes", href: "/student/classes", icon: Users },
+        { label: "History", href: "/student/history", icon: History },
       ],
     },
     {

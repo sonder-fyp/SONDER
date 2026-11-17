@@ -31,6 +31,9 @@ export function StudentAssignments() {
     <section aria-labelledby="your-assignments" className="py-10">
       <div className="mb-6 flex flex-wrap items-baseline justify-between gap-4">
         <h2 id="your-assignments" className="text-2xl font-semibold tracking-tight">Your assignments</h2>
+        <Link href="/student/history" className="text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground">
+          Past checks
+        </Link>
       </div>
       {error ? (
         <div role="alert" className="border-l-2 border-attention py-3 pl-6">
