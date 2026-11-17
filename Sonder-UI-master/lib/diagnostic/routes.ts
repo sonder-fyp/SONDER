@@ -1,9 +1,9 @@
 import "server-only";
 import { NextResponse } from "next/server";
-import { AccessError, requireApiRole } from "@/lib/auth/access";
+import { AccessError, requireAccess, requireApiRole } from "@/lib/auth/access";
 import { BoundaryError, engine } from "./server";
 import { checkOrigin } from "./origin";
-import { ACCOUNT_ID, UUID, parseAnswer, parseBegin, parseCatalogue, parseSnapshot } from "./validation";
+import { UUID, parseAnswer, parseBegin, parseCatalogue, parseSnapshot } from "./validation";
 import { parseLatest } from "./teacher";
 import type { Snapshot } from "./types";
 
@@ -29,9 +29,7 @@ async function body<T>(request: Request, parser: (value: unknown) => T) {
 function json(value: unknown) { return NextResponse.json(value, { headers }); }
 // The engine binds sessions to the application account, never to anything the browser sends.
 async function studentActor() {
-  const { account } = await requireApiRole(["student"]);
-  if (!ACCOUNT_ID.test(account.id)) throw new BoundaryError(503, "engine_unavailable");
-  return account.id;
+  return (await requireAccess(["student"])).appUserId;
 }
 function sessionId(sid: string) {
   if (!UUID.test(sid)) throw new BoundaryError(404, "session_unavailable");
