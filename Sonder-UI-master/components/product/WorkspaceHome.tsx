@@ -115,7 +115,7 @@ export function WorkspaceHome({ account }: { account: AppAccount }) {
               admin
                 ? "Review teacher and parent registrations. Each request is saved to the account service."
                 : role === "teacher"
-                  ? "Create Mathematics classes and share each class's join code with your students. Assignments are not available yet."
+                  ? "Create Mathematics classes, share each class's join code with your students and assign them a topic."
                   : "Child linking is not available yet. Summaries will only be accessible through an authorised connection to your child."
             }
           />
@@ -132,7 +132,7 @@ export function WorkspaceHome({ account }: { account: AppAccount }) {
               admin
                 ? "Catalogue management and reporting are not available yet. No example statistics are shown here."
                 : role === "teacher"
-                  ? "The review queue is not available yet. Completed diagnostics will appear here once class-scoped review is connected."
+                  ? "Open a class to see who has started and finished each assignment, read a check question by question and record your review."
                   : "Summaries are not available yet. Only information released for your account will appear here."
             }
           />

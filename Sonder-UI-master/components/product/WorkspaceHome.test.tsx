@@ -32,7 +32,8 @@ describe("account workspace homes", () => {
       const view = render(<WorkspaceHome account={{ ...base, role }} />);
       const links = screen.queryAllByRole("link").map((link) => link.getAttribute("href"));
       expect(links).toEqual(role === "teacher" ? ["/teacher/classes"] : []);
-      expect(view.container.textContent).toContain("not available yet");
+      if (role === "parent") expect(view.container.textContent).toContain("not available yet");
+      else expect(view.container.textContent).not.toContain("not available yet");
       expect(view.container.textContent).not.toMatch(/Zara|Imran|9-B|Resolved/);
       view.unmount();
     }
