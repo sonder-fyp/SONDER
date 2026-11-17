@@ -44,8 +44,11 @@ class ProductDatabaseTestCase(DatabaseTestCase):
         return uid
 
     def call(self, sql: str, params: tuple = ()):
+        """Run one statement; return its rows ([] for a statement without a result, e.g. UPDATE)."""
+
         with self.connect() as conn:
-            return conn.execute(sql, params).fetchall()
+            cur = conn.execute(sql, params)
+            return cur.fetchall() if cur.description is not None else []
 
     @contextmanager
     def assertProductError(self, code: str):
