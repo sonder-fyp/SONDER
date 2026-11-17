@@ -29,6 +29,7 @@ from .contracts import AnswerRequest, CONTRACT_VERSION, StartRequest
 from .pgpack import (Release, ReleaseError, UnitIndex, load_release, load_release_by_model, load_unit,
                      register_engine_release, unit_catalogue)
 from .store import ServiceError
+from .teacher_evidence import teacher_evidence
 from .student_view import evidence, snapshot, summary
 
 log = logging.getLogger("sonder_api")
@@ -523,6 +524,16 @@ class PostgresStore:
             return evidence(state)
 
         return self._run(work, read_only=True)
+
+    def teacher_evidence(self, sid: str, actor: str) -> dict:
+        """Stored evidence of a session for a teacher of its class (I2-A12); 404 for anything else."""
+
+        actor = _uuid(actor, 404, "session_not_found")
+        sid = _uuid(sid, 404, "session_not_found")
+        result = self._run(lambda conn: teacher_evidence(conn, actor, sid), read_only=True)
+        if result is None:
+            raise ServiceError(404, "session_not_found")
+        return result
 
     def latest_finished(self) -> dict:
         def work(conn):

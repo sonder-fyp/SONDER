@@ -172,6 +172,11 @@ class InMemoryStore:
             entry.activity = self.clock()
             return deepcopy(reply), True
 
+    def teacher_evidence(self, sid: str, actor: str):
+        """Memory mode has no classes, so no session belongs to a teacher's class."""
+
+        raise ServiceError(404, "session_not_found")
+
     def inspect(self, sid: str):
         with self.lock:
             self._prune()
