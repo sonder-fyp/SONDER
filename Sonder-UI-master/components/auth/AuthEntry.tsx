@@ -6,7 +6,11 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth/client";
-import { isOriginRejected, originRejectedMessage } from "@/lib/auth/errors";
+import {
+  isAlreadyRegistered,
+  isOriginRejected,
+  originRejectedMessage,
+} from "@/lib/auth/errors";
 import type { AppRole } from "@/lib/auth/types";
 
 type Props = {
@@ -55,6 +59,21 @@ function safeNextPath(value: string) {
   }
 }
 
+function authFailureMessage(
+  err: unknown,
+  isSignUp: boolean,
+  thrown: boolean,
+): string {
+  if (isOriginRejected(err)) return originRejectedMessage();
+  if (!isSignUp) return "Invalid email or password.";
+  if (isAlreadyRegistered(err)) {
+    return "This email is already registered. Sign in instead, or use a different email.";
+  }
+  return thrown
+    ? "We couldn't create your account. Please check your details and try again."
+    : "We couldn't create your account. Check your details, or sign in if you've already registered.";
+}
+
 export function AuthEntry({ mode, nextPath, verified = false }: Props) {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -81,11 +100,7 @@ export function AuthEntry({ mode, nextPath, verified = false }: Props) {
           name: email.trim().toLowerCase(),
         });
         if (result.error) {
-          setError(
-            isOriginRejected(result.error)
-              ? originRejectedMessage()
-              : "We couldn't create your account. Check your details, or sign in if you've already registered.",
-          );
+          setError(authFailureMessage(result.error, true, false));
           return;
         }
         router.replace(
@@ -99,22 +114,14 @@ export function AuthEntry({ mode, nextPath, verified = false }: Props) {
         password,
       });
       if (result.error) {
-        setError(
-          isOriginRejected(result.error)
-            ? originRejectedMessage()
-            : "Invalid email or password.",
-        );
+        setError(authFailureMessage(result.error, false, false));
         return;
       }
       if (result.data?.redirect) return;
       router.replace(safeNextPath(nextPath));
       router.refresh();
-    } catch {
-      setError(
-        isSignUp
-          ? "We couldn't create your account. Please check your details and try again."
-          : "Invalid email or password.",
-      );
+    } catch (err) {
+      setError(authFailureMessage(err, isSignUp, true));
     } finally {
       setBusy(false);
     }

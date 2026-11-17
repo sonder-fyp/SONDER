@@ -68,4 +68,42 @@ describe("theme store", () => {
     applyTheme("dark");
     expect(document.documentElement.getAttribute(THEME_ATTRIBUTE)).toBe("dark");
   });
+
+  it("handles rejected ready/updateCallbackDone and releases the switching guard", async () => {
+    const unhandled: unknown[] = [];
+    const onUnhandled = (e: Event) => unhandled.push(e);
+    process.on("unhandledRejection", onUnhandled);
+    const doc = document as unknown as { startViewTransition?: unknown };
+    const abort = () => Promise.reject(new Error("Transition was aborted"));
+    let finishedReject: (e: unknown) => void = () => {};
+    const make = () => ({
+      ready: abort(),
+      updateCallbackDone: abort(),
+      finished: new Promise((_, rej) => {
+        finishedReject = rej;
+      }),
+    });
+    const start = vi.fn((cb: () => void) => {
+      cb();
+      return make();
+    });
+    doc.startViewTransition = start;
+    try {
+      setTheme("light");
+      expect(document.documentElement.getAttribute(THEME_ATTRIBUTE)).toBe("light");
+      expect(document.documentElement.hasAttribute("data-theme-switch")).toBe(true);
+      finishedReject(new Error("aborted"));
+      await new Promise((r) => setTimeout(r, 10));
+      expect(document.documentElement.hasAttribute("data-theme-switch")).toBe(false);
+      // guard released: a second switch uses the transition again
+      setTheme("dark");
+      expect(start).toHaveBeenCalledTimes(2);
+      finishedReject(new Error("aborted"));
+      await new Promise((r) => setTimeout(r, 10));
+      expect(unhandled).toEqual([]);
+    } finally {
+      process.off("unhandledRejection", onUnhandled);
+      delete doc.startViewTransition;
+    }
+  });
 });

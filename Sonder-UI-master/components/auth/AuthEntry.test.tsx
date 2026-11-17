@@ -153,4 +153,47 @@ describe("authentication entry forms", () => {
       view.unmount();
     }
   });
+
+  describe("errors thrown by the Neon client", () => {
+    const neonError = (status: number, message: string, code?: string) =>
+      Object.assign(new Error(message), {
+        status,
+        statusText: "x",
+        error: { code, message, status },
+      });
+
+    async function submitMode(mode: "sign-up" | "sign-in") {
+      render(<AuthEntry mode={mode} nextPath="/auth/continue" />);
+      fireEvent.change(screen.getByLabelText("Email"), { target: { value: "ahmed@example.com" } });
+      fireEvent.change(screen.getByLabelText("Password"), { target: { value: "LongEnough8!" } });
+      fireEvent.click(screen.getByRole("button", { name: mode === "sign-up" ? "Create Account" : "Log In" }));
+      return (await screen.findByRole("alert")).textContent ?? "";
+    }
+
+    it("explains a rejected origin on sign-up", async () => {
+      mocks.signUp.email.mockRejectedValue(neonError(403, "Invalid origin", "INVALID_ORIGIN"));
+      expect(await submitMode("sign-up")).toContain("This address isn't allowed to sign in yet.");
+    });
+
+    it("explains a rejected origin on sign-in", async () => {
+      mocks.signIn.email.mockRejectedValue(neonError(403, "Invalid origin", "INVALID_ORIGIN"));
+      expect(await submitMode("sign-in")).toContain("This address isn't allowed to sign in yet.");
+    });
+
+    it("says the email is already registered on sign-up", async () => {
+      mocks.signUp.email.mockRejectedValue(
+        neonError(422, "User already exists. Use another email.", "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL"),
+      );
+      expect(await submitMode("sign-up")).toBe(
+        "This email is already registered. Sign in instead, or use a different email.",
+      );
+    });
+
+    it("keeps the generic message for other thrown sign-up failures", async () => {
+      mocks.signUp.email.mockRejectedValue(neonError(500, "HTTP 500 Internal Server Error"));
+      expect(await submitMode("sign-up")).toBe(
+        "We couldn't create your account. Please check your details and try again.",
+      );
+    });
+  });
 });
