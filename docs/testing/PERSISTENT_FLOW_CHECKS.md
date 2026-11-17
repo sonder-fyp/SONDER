@@ -66,4 +66,4 @@ Problems found during the run (each has its own pull request):
 | Errors thrown by the Neon client were not classified; theme view-transition rejection shown as a Next.js issue | #67 |
 | Editable address on the one-time-code page | #68 |
 | Unverified user could not sign out | #69 |
-| Dev server served a stale compiled file after files changed on disk (`answersSaved is not defined`); fixed by clearing `.next/dev` and restarting. This is a local development issue, not a product defect. | Troubleshooting entry in `docs/SETUP.md` (#64) |
+| Dev server served a stale compiled file after files changed on disk (`answersSaved is not defined`); fixed by clearing `.next/dev` and restarting. This is a local development issue, not a product defect. | Related stale-cache entry in `docs/SETUP.md` (#64); no code change |
