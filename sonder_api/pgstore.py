@@ -535,17 +535,3 @@ class PostgresStore:
             raise ServiceError(404, "session_not_found")
         return result
 
-    def latest_finished(self) -> dict:
-        def work(conn):
-            row = conn.execute(
-                "SELECT s.id, (SELECT count(*) FROM sonder.diagnostic_session f "
-                "              WHERE f.status NOT IN ('in_progress', 'abandoned')) "
-                "FROM sonder.diagnostic_session s WHERE s.status NOT IN ('in_progress', 'abandoned') "
-                "ORDER BY s.ended_at DESC, s.id DESC LIMIT 1").fetchone()
-            if row is None:
-                raise ServiceError(404, "session_unavailable")
-            sid, _, unit, _, _, state, _ = self._session(conn, str(row[0]), None)
-            return {"session_id": sid, "finished_seq": int(row[1]),
-                    "unit": {"unit_id": unit.unit_id, "name": unit.name}, **evidence(state)}
-
-        return self._run(work, read_only=True)

@@ -7,7 +7,7 @@
 
 - **Browser → Next.js BFF** (`/api/diagnostic/*`): authenticated by the Neon Auth session cookie; role from `sonder.app_user` (`requireApiRole`). Mutations require the configured same origin (`SONDER_UI_ORIGIN`, default `http://localhost:3000`, plus the other loopback name, `localhost` or `127.0.0.1`, on the same port).
 - **BFF → Python service** (`/engine/*`, loopback only): `X-Sonder-Token` (≥ 32 characters, constant-time compare) on every request. Session operations also carry `X-Sonder-Actor`: the **application account ID** (`sonder.app_user.id`, lower-case canonical UUID). The service trusts the actor only because the token proves the caller is the BFF. Browsers never reach the Python service and never set the actor.
-- **Internal readers** (`/engine/sessions/{id}/trace`, `/engine/latest`): token only, no actor; never proxied to students.
+- **Internal reader** (`/engine/sessions/{id}/trace`): token only, no actor; never proxied to students. Teachers read evidence through `/engine/teacher/sessions/{id}/evidence` (token and teacher actor, class-scoped; see `sonder_api/teacher_evidence.py`). The demo `/engine/latest` was retired in Iteration 2 with Ahmed's agreement.
 
 ### 5.2 Endpoints
 
@@ -20,7 +20,7 @@
 | `GET /engine/sessions/{id}` | token, actor | — | Snapshot (never advances) |
 | `POST /engine/sessions/{id}/answers` | token, actor | `{"step_index":int 0..1000,"item_id":str≤64,"option_id":"A"\|"B"\|"C"\|"D"}` | Snapshot |
 | `GET /engine/sessions/{id}/trace` | token | — | `{"trace":Trace,"hypothesis_names":{id:name}}` |
-| `GET /engine/latest` | token | — | `{"session_id","finished_seq","unit":{...},"trace","hypothesis_names"}` (teacher demo notice; kept from PR #44) |
+| `GET /engine/teacher/sessions/{id}/evidence` | token, actor (teacher) | — | stored evidence with question text and names, for a teacher of the session's class; otherwise `404 session_not_found` |
 
 Request bodies are strict: unknown fields, type coercion (`"0"` for `0`, `true` for `0`), and bodies over 4096 bytes → `422 invalid_request`. Every response has `Cache-Control: no-store`. `/docs`, `/redoc`, `/openapi.json` are disabled.
 
