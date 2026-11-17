@@ -1,5 +1,6 @@
 import "server-only";
 import { database } from "@/lib/auth/database";
+import { parseActivityRow, type ActivityRow } from "./activity";
 import { parseReview } from "./reviews";
 import type { AddReviewRequest, Review } from "./reviews";
 
@@ -32,3 +33,14 @@ export async function addReview(teacherId: string, sessionId: string, input: Add
   if (!Number.isInteger(revision)) throw new Error("Review write returned no revision.");
   return revision as number;
 }
+
+/** Dashboard rows of one class (sonder.class_activity); callers check the class is the teacher's first. */
+export async function classActivity(teacherId: string, classId: string, assignmentId: string | null): Promise<ActivityRow[]> {
+  const rows = await database()`
+    SELECT student_id::text, student_name, assignment_id::text, assignment_title, unit_code, attempt_rule, state,
+           session_id::text, answered, question_budget, attempts, last_activity, review_status
+    FROM sonder.class_activity(${teacherId}::uuid, ${classId}::uuid, ${assignmentId}::uuid)
+  `;
+  return rows.map(parseActivityRow);
+}
+
