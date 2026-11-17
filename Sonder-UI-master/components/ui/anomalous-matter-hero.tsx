@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
+import { pixelRatioForBudget } from "@/lib/landing/render-budget";
 
 const NEON = "#39FF14";
 
@@ -108,8 +109,8 @@ export function GenerativeArtScene({ color = NEON }: { color?: string }) {
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setClearColor(0x000000, 0);
+    renderer.setPixelRatio(pixelRatioForBudget(width, height, window.devicePixelRatio, 750_000, 1));
     renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.25));
     mount.appendChild(renderer.domElement);
 
     const geometry = new THREE.IcosahedronGeometry(1.2, 4);
@@ -137,21 +138,27 @@ export function GenerativeArtScene({ color = NEON }: { color?: string }) {
     const reduceMotion = prefersReducedMotion();
     let frameId = 0;
     let running = !reduceMotion;
+    let lastRender: number | null = null;
+    const frameInterval = 1000 / 30;
 
-    const renderFrame = (t: number) => {
+    const renderFrame = (t: number, elapsed: number) => {
       material.uniforms.time.value = t * 0.0003;
-      mesh.rotation.y += 0.0005;
-      mesh.rotation.x += 0.0002;
+      mesh.rotation.y += 0.03 * elapsed;
+      mesh.rotation.x += 0.012 * elapsed;
       renderer.render(scene, camera);
     };
 
     const tick = (t: number) => {
-      renderFrame(t);
+      if (lastRender === null || t - lastRender >= frameInterval - 1) {
+        const elapsed = lastRender === null ? 1 / 60 : Math.min((t - lastRender) / 1000, 0.1);
+        lastRender = t;
+        renderFrame(t, elapsed);
+      }
       if (running) frameId = requestAnimationFrame(tick);
     };
 
     if (reduceMotion) {
-      renderFrame(0);
+      renderFrame(0, 0);
     } else {
       frameId = requestAnimationFrame(tick);
     }
@@ -161,6 +168,7 @@ export function GenerativeArtScene({ color = NEON }: { color?: string }) {
       const nextH = mount.clientHeight || window.innerHeight;
       camera.aspect = nextW / nextH;
       camera.updateProjectionMatrix();
+      renderer.setPixelRatio(pixelRatioForBudget(nextW, nextH, window.devicePixelRatio, 750_000, 1));
       renderer.setSize(nextW, nextH);
     };
 
@@ -173,6 +181,7 @@ export function GenerativeArtScene({ color = NEON }: { color?: string }) {
       }
       if (!running) {
         running = true;
+        lastRender = null;
         frameId = requestAnimationFrame(tick);
       }
     };

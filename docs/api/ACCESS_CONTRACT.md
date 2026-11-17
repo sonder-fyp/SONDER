@@ -39,6 +39,10 @@ Only the BFF sends the shared service token and `X-Sonder-Actor` application acc
 
 `authClient.signOut()` in `lib/session.tsx` ends the Neon session; subsequent API requests receive 401. Session lifetime and revocation are configured in Neon Auth; not stated here.
 
+## Public assets
+
+Static brand images, models, audio and site icons are public assets and bypass the authentication proxy. Application pages and API routes retain their existing server-side access checks.
+
 ## Mutation protection
 
 Every mutation checks same origin and validates JSON bodies. Diagnostic mutations use `SONDER_UI_ORIGIN`.
