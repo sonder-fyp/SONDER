@@ -13,7 +13,7 @@ function errorView(code: string): { message: string; retry: boolean } {
     case "enrolment_required":
       return {
         message:
-          "You need to be in a Maths class to take this check. Ask your teacher to arrange access.",
+          "You need to be in a Maths class to take this check. Join your class under Classes with the code from your teacher.",
         retry: false,
       };
     case "enrolment_ambiguous":

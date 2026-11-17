@@ -28,7 +28,8 @@ describe("available diagnostics", () => {
         name: "Real unit 1, up to 8 questions",
       }),
     ).toBeTruthy();
-    expect(screen.getAllByRole("link")).toHaveLength(7);
+    expect(screen.getAllByRole("link")).toHaveLength(8);
+    expect(screen.getByRole("link", { name: "Join your class" }).getAttribute("href")).toBe("/student/classes");
     expect(screen.queryByText("Physics")).toBeNull();
     expect(screen.queryByText("Chemistry")).toBeNull();
   });

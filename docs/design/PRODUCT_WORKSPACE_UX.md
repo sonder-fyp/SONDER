@@ -17,13 +17,17 @@ Primary navigation includes operational destinations only. Preferences are avail
 
 Email is the displayed sign-in method. The previous unconditional Google, Apple and GitHub buttons are removed because provider availability is not declared by this application. This changes presentation, not Neon Auth configuration. Add a provider only with a configured, verified flow.
 
+## Live class features
+
+Classes, join codes, rosters and assignments are connected to real records (I2-H09–H13, taken over by Ashher from Harris; [contract](../api/CLASS_ASSIGNMENT_CONTRACT.md)): `/teacher/classes`, `/teacher/classes/[classId]` (join code, students, assignments, archive) and `/student/classes` (class list and join). "Classes" is in both navigations. Starting a diagnostic from an assignment works through `/student/diagnostic/[unitId]?assignment=<id>`; the student dashboard that lists assignments is I2-A16.
+
 ## Pending feature integration
 
 The following URLs retain clear unavailable states and a route back to the workspace. They do not display fixture records or simulate successful operations.
 
 | Area | Routes | Integration dependency |
 | --- | --- | --- |
-| Classes | Student/teacher class list and detail | Harris: class, roster, enrolment and assignment services (I2-H09–H13). |
+| Student class detail | `/student/classes/[classId]` | Ashher: assignments with start/resume belong to the student dashboard (I2-A16–A17). The class list and joining are live (see below). |
 | Activity and teacher review | Student insights; teacher follow-up, evidence, review and student activity | Ashher: dashboards, history, evidence and persistent review (I2-A11–A19). |
 | Learning | Student library, concept, study-note and follow-up routes | Real resources, permitted record associations and follow-up workflow. |
 | Parent | Child summaries and messages | Authorised child linkage and permitted summary publication. |

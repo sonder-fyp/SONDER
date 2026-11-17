@@ -117,8 +117,11 @@ export function MathsTopicPicker() {
         ))}
       </div>
       <p className="mt-8 max-w-xl text-sm leading-relaxed text-muted-foreground">
-        You need an active Mathematics class enrolment to begin. If you cannot
-        start a check, ask your teacher about access.
+        You need to be in a Mathematics class to begin.{" "}
+        <Link href="/student/classes" className="text-foreground underline underline-offset-4 hover:text-accent">
+          Join your class
+        </Link>{" "}
+        with the code from your teacher.
       </p>
     </section>
   );
