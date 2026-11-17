@@ -5,7 +5,7 @@ The harness uses the real Next.js BFF and FastAPI over HTTP. It is not browser a
 ## Prerequisites and command
 
 1. Configure a Neon development branch for both the UI's `DATABASE_URL` and the Python service's `SONDER_DATABASE_URL`. Apply migrations with `python -m sonder_db.migrate up`, or adopt the existing Iteration 1 and auth migrations first as described in `db/migrations/README.md`.
-2. Enable and run the development seed, then enrol the existing onboarded student with `SONDER_ALLOW_DEV_SEED=true python -m sonder_api.devseed --enrol-email <student-email>`. Configure the UI in its ignored `.env.local` and start it on `http://127.0.0.1:3000`.
+2. Enable and run the development seed, then enrol the existing onboarded student with `SONDER_ALLOW_DEV_SEED=true python -m sonder_api.devseed --enrol-email <student-email>`. Configure the UI in its ignored `.env.local` and start it on `http://localhost:3000` (the origin Neon Auth trusts by default).
 3. Sign in as that student. Copy the complete `Cookie` request-header value from browser developer tools into `SONDER_HARNESS_COOKIE` in a private terminal. Optionally set `SONDER_HARNESS_OTHER_COOKIE` to a second signed-in student's full cookie to check cross-student access. Never commit or paste these cookies in a PR.
 4. Stop any Python API process on port 8000. With `SONDER_DATABASE_URL`, `SONDER_ENGINE_TOKEN`, and `SONDER_HARNESS_COOKIE` set, run from the repository root:
 

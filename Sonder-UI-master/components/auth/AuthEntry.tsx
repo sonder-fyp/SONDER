@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth/client";
+import { isOriginRejected, originRejectedMessage } from "@/lib/auth/errors";
 import type { AppRole } from "@/lib/auth/types";
 
 type Props = {
@@ -81,7 +82,9 @@ export function AuthEntry({ mode, nextPath, verified = false }: Props) {
         });
         if (result.error) {
           setError(
-            "We couldn't create your account. Check your details, or sign in if you've already registered.",
+            isOriginRejected(result.error)
+              ? originRejectedMessage()
+              : "We couldn't create your account. Check your details, or sign in if you've already registered.",
           );
           return;
         }
@@ -96,7 +99,11 @@ export function AuthEntry({ mode, nextPath, verified = false }: Props) {
         password,
       });
       if (result.error) {
-        setError("Invalid email or password.");
+        setError(
+          isOriginRejected(result.error)
+            ? originRejectedMessage()
+            : "Invalid email or password.",
+        );
         return;
       }
       if (result.data?.redirect) return;

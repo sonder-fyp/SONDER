@@ -5,7 +5,7 @@
 
 ### 5.1 Parties and trust
 
-- **Browser → Next.js BFF** (`/api/diagnostic/*`): authenticated by the Neon Auth session cookie; role from `sonder.app_user` (`requireApiRole`). Mutations require the configured same origin (`SONDER_UI_ORIGIN`, plus the `localhost` alias on the same port).
+- **Browser → Next.js BFF** (`/api/diagnostic/*`): authenticated by the Neon Auth session cookie; role from `sonder.app_user` (`requireApiRole`). Mutations require the configured same origin (`SONDER_UI_ORIGIN`, default `http://localhost:3000`, plus the other loopback name, `localhost` or `127.0.0.1`, on the same port).
 - **BFF → Python service** (`/engine/*`, loopback only): `X-Sonder-Token` (≥ 32 characters, constant-time compare) on every request. Session operations also carry `X-Sonder-Actor`: the **application account ID** (`sonder.app_user.id`, lower-case canonical UUID). The service trusts the actor only because the token proves the caller is the BFF. Browsers never reach the Python service and never set the actor.
 - **Internal readers** (`/engine/sessions/{id}/trace`, `/engine/latest`): token only, no actor; never proxied to students.
 

@@ -43,7 +43,7 @@ In separate terminals:
 
 ```sh
 python -m sonder_api --store postgres --release "$SONDER_RELEASE"
-cd Sonder-UI-master && npm run dev -- --hostname 127.0.0.1 --port 3000
+cd Sonder-UI-master && npm run dev -- --port 3000
 ```
 
 Memory mode is explicitly selected with `--store memory`; it loses sessions on service restart and is not a database fallback.
@@ -54,7 +54,10 @@ Run `python -m sonder_api.contract_check --base-url http://127.0.0.1:8000 --acto
 
 ## 7. Troubleshooting
 
-- `INVALID_ORIGIN`: add the UI origin to the Neon Auth trusted domains; see the UI README.
+- `INVALID_ORIGIN`: open `http://localhost:3000`, or add the origin to the Neon Auth trusted domains; see the UI README.
+- "We could not load diagnostics" or a BFF 503: the Next server cannot reach `SONDER_ENGINE_URL`. The URL is resolved from where Next runs. If Next runs in a container, `127.0.0.1` is the container itself: run the API in the same network namespace (`docker run --network container:<ui-container> ...`) or point `SONDER_ENGINE_URL` at an address the container can reach. Check with `curl -H "X-Sonder-Token: ..." $SONDER_ENGINE_URL/engine/health` from the same place Next runs.
+- `invalid connection option "'postgresql://...`: the value is quoted, and `docker --env-file` keeps the quotes. Remove the quotes, or load the file with `set -a; . ./.env; set +a`.
+- "Can't resolve 'shadcn/tailwind.css'" after reinstalling packages: stop `npm run dev`, delete `Sonder-UI-master/.next/dev`, then start it again. Never run `npm ci` while the dev server is running.
 - `enrolment_required`: sign in as a student enrolled in an active Maths class, or enrol the development account as above.
 - API exits at startup: check `SONDER_DATABASE_URL`, migrations, explicit `--store`, and the frozen release label.
 - `replay_mismatch`: saved evidence disagrees with replay; preserve it and use the stored evidence verifier rather than creating a replacement attempt.
