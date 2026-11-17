@@ -111,3 +111,32 @@ jobs:
       - name: Discard the database
         if: always()
         run: docker compose down -v
+
+  persistence:
+    name: persistence
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      SONDER_TEST_DATABASE_URL: postgresql://sonder:local-test-only@127.0.0.1:55432/sonder_test
+      SONDER_REQUIRE_DB_TESTS: "1"
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install engine, API and database extras
+        run: python -m pip install -e '.[api,api-test,db]'
+
+      - name: Start throwaway PostgreSQL 16 (docker-compose.yml; no secrets, not Neon)
+        run: docker compose up -d --wait
+
+      - name: Migrations, persistent sessions and access checks
+        run: python -m unittest discover -s tests -p 'test_persist_*.py' -v
+
+      - name: Discard the database
+        if: always()
+        run: docker compose down -v
