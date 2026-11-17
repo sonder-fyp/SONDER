@@ -69,7 +69,7 @@ export function Workspaces() {
             href={account || email ? "/auth/continue" : "/auth/sign-up"}
             className={`${buttonVariants({ size: "lg" })} mt-8 shrink-0 md:mt-0`}
           >
-            {account || email ? "Open dashboard" : "Create account"}
+            {account ? "Open dashboard" : email ? "Continue setup" : "Create account"}
             <ArrowRight className="size-4" aria-hidden />
           </Link>
         </div>
