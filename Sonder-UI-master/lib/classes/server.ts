@@ -29,6 +29,12 @@ const PRODUCT_ERROR_STATUS: Record<string, number> = {
   class_not_found: 404,
   student_not_found: 404,
   assignment_not_found: 404,
+  session_not_found: 404,
+  review_conflict: 409,
+  session_unfinished: 409,
+  review_status_invalid: 422,
+  review_note_invalid: 422,
+  invalid_request: 422,
   subject_missing: 503,
   join_code_unavailable: 503,
 };

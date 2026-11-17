@@ -2,7 +2,7 @@ import { cleanup, fireEvent, render, screen, within } from "@testing-library/rea
 import { afterEach, describe, expect, it, vi } from "vitest";
 vi.mock("@/lib/teacher/client", async (original) => ({
   ...(await original<typeof import("@/lib/teacher/client")>()),
-  teacherClient: { evidence: vi.fn() },
+  teacherClient: { evidence: vi.fn(), reviews: vi.fn().mockResolvedValue([]), addReview: vi.fn() },
 }));
 import { teacherClient, TeacherError } from "@/lib/teacher/client";
 import { parseEvidence } from "@/lib/teacher/evidence";
@@ -10,7 +10,7 @@ import { evidenceBody, sessionId } from "@/lib/teacher/testEvidence";
 import { CONFIDENCE_NOTE } from "@/lib/teacher/describe";
 import { TeacherEvidence } from "./TeacherEvidence";
 
-afterEach(() => { cleanup(); vi.resetAllMocks(); });
+afterEach(() => { cleanup(); vi.clearAllMocks(); });
 const load = (overrides = {}) => vi.mocked(teacherClient.evidence).mockResolvedValue(parseEvidence(evidenceBody(overrides)));
 
 describe("teacher evidence page", () => {
