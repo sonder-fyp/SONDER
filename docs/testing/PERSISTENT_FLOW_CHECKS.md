@@ -31,6 +31,7 @@ Record date, commit, tester and result for each run; do not record credentials o
 | Date | Commit | Tester | HTTP harness | Browser checklist | Notes |
 | --- | --- | --- | --- | --- | --- |
 | 2026-11-17 | `fb7d044` (tip of #62; includes #52 to #62) | Ahmed signed in; Claude drove the browser (Playwright) | Pass: 34 checks, 0 failures | Pass: all 8 items (see the record below) | Neon development branch, release `Maths_v2-U1-dev/spec-v2-prior`, engine `0.1.0+fbe0204a623d` |
+| 2026-11-18 | `1ad6348` (`dev`, includes #52–#89) | Ashher (independent reproduction, run with Claude Code) | Pass: 34 checks, 0 failures, including kill and restart | Manual click-through by Ashher, reported normal | Neon development branch, release `Maths_v2-U1-dev/spec-v2-prior`, engine `0.1.0+fbe0204a623d`, his own test student (enrolled in `DEVSEED01` with `devseed --enrol-email`). Also checked a conflicting answer is `409 answer_conflict`. Review: `validation/reviews/I2_PERSISTENCE_2026-11-18_ashher.md` |
 
 ## Recorded run: 17 November 2026
 
