@@ -11,7 +11,7 @@ import { AccessError, requireAccess } from "@/lib/auth/access";
 import { answerRoute, beginRoute, catalogueRoute, currentRoute, unfinishedRoute } from "./routes";
 import { catalogue, sid, snapshot } from "./testFixtures";
 
-const origin = "http://127.0.0.1:3000";
+const origin = "http://localhost:3000";
 const nonce = "22222222-2222-4222-8222-222222222222";
 const account = "00000000-0000-4000-8000-000000000002";
 const payload = { unit_id: "U1", create_request_id: nonce };
@@ -47,6 +47,9 @@ describe("student BFF", () => {
   });
   it("checks origin, strict body and configuration", async () => {
     for (const bad of ["http://evil.example", "http://localhost:3001", "https://localhost:3000", "http://127.0.0.1:3001", "null"]) expect((await beginRoute(request(payload, bad))).status).toBe(403);
+    fetchMock.mockResolvedValue(upstream(snapshot()));
+    expect((await beginRoute(request(payload, "http://127.0.0.1:3000"))).status).toBe(200);
+    fetchMock.mockReset();
     expect((await beginRoute(request({ ...payload, budget: 3 }))).status).toBe(422);
     expect((await beginRoute(new Request(origin, { method: "POST", headers: { origin }, body: "{" }))).status).toBe(422);
     expect(fetchMock).not.toHaveBeenCalled(); vi.stubEnv("SONDER_ENGINE_TOKEN", "");
