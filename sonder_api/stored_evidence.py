@@ -20,7 +20,7 @@ import sys
 
 import psycopg
 
-from sonder_db import database_url
+from sonder_db import database_url, describe_error
 from sonder_engine.session import next_question, replay
 from sonder_engine.trace import trace_of, trace_to_dict
 
@@ -172,13 +172,17 @@ def main(argv: list[str] | None = None) -> int:
     group.add_argument("--all", action="store_true")
     parser.add_argument("--database-url", default=None)
     args = parser.parse_args(argv)
-    with psycopg.connect(database_url(args.database_url)) as conn:
-        ids = ([args.session] if args.session else
-               [str(r[0]) for r in conn.execute("SELECT id FROM sonder.diagnostic_session ORDER BY started_at, id")])
-        failures = {sid: diffs for sid in ids if (diffs := verify_session(conn, sid))}
-        if args.session and not failures:
-            sys.stdout.reconfigure(encoding="utf-8")
-            print(json.dumps(stored_evidence(conn, args.session), indent=2, ensure_ascii=False))
+    try:
+        with psycopg.connect(database_url(args.database_url)) as conn:
+            ids = ([args.session] if args.session else
+                   [str(r[0]) for r in conn.execute("SELECT id FROM sonder.diagnostic_session ORDER BY started_at, id")])
+            failures = {sid: diffs for sid in ids if (diffs := verify_session(conn, sid))}
+            if args.session and not failures:
+                sys.stdout.reconfigure(encoding="utf-8")
+                print(json.dumps(stored_evidence(conn, args.session), indent=2, ensure_ascii=False))
+    except (RuntimeError, psycopg.Error) as exc:
+        print(f"STORED EVIDENCE CHECK FAILED: {describe_error(exc)}", file=sys.stderr)
+        return 2
     print(json.dumps({"checked": len(ids), "matching": len(ids) - len(failures), "mismatched": failures}, indent=2),
           file=sys.stderr if args.session else sys.stdout)
     return 1 if failures else 0

@@ -21,7 +21,7 @@ from pathlib import Path
 
 import psycopg
 
-from . import database_url
+from . import database_url, describe_error
 
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "db" / "migrations" / "manifest.json"
@@ -174,7 +174,7 @@ def main(argv: list[str] | None = None) -> int:
             for name, state in status(url):
                 print(f"{state:8} {name}")
     except (MigrationError, RuntimeError, psycopg.Error) as exc:
-        print(f"MIGRATION FAILED: {exc}", file=sys.stderr)
+        print(f"MIGRATION FAILED: {describe_error(exc)}", file=sys.stderr)
         return 1
     return 0
 
