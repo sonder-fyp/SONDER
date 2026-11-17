@@ -30,7 +30,7 @@ Record date, commit, tester and result for each run; do not record credentials o
 
 | Date | Commit | Tester | HTTP harness | Browser checklist | Notes |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-17 | `fb7d044` (tip of #62; includes #52 to #62) | Ahmed signed in; Claude drove the browser (Playwright) | Not run (needs a copied session cookie) | Partly run: see the record below | Neon development branch, release `Maths_v2-U1-dev/spec-v2-prior`, engine `0.1.0+fbe0204a623d` |
+| 2026-11-17 | `fb7d044` (tip of #62; includes #52 to #62) | Ahmed signed in; Claude drove the browser (Playwright) | Pass: 34 checks, 0 failures | Pass: all 8 items (see the record below) | Neon development branch, release `Maths_v2-U1-dev/spec-v2-prior`, engine `0.1.0+fbe0204a623d` |
 
 ## Recorded run: 17 November 2026
 
@@ -40,11 +40,11 @@ Environment: Neon development branch (about 0.4 s round trip from the test machi
 | --- | --- | --- | --- |
 | 1 | Enrolled student begins U1 and answers two questions | Pass | Items T1-005, T1-006 shown for answers D, B |
 | 2 | Refresh keeps the pending question | Pass | Reload on `?session=<id>` after one answer resumed at question 2 |
-| 3 | Leave, return without `?session=`, select Continue | Not run | |
-| 4 | Service stopped during a save: error and Retry | Partly | The service was restarted twice between answers and the next answer was accepted each time (question 3 was T1-007). The error and Retry screen was not exercised. |
-| 5 | Double-click stores one step | Not run | Duplicate and conflicting answers were checked at the service level only (identical reply; `409 answer_conflict`) |
-| 6 | Finish is neutral | Partly | Completion screen shows no outcome or score. Page source and network responses were not inspected for `MATH-` or probabilities. |
-| 7 | Sign out, reload the run URL | Not run | |
+| 3 | Leave, return without `?session=`, select Continue | Pass | "You have an unfinished check on this topic (1 answer saved)." with Continue; the same question 2 appeared |
+| 4 | Service stopped during a save: error and Retry | Pass | With the service stopped the answer POST returned 503 `engine_unavailable` and the page said "We could not reach your check. Retry to recover your latest answer." After restarting, Retry was accepted once: stored steps 2, matching the 2 saved answers. Restarts between answers were also checked twice. |
+| 5 | Double-click stores one step | Pass | One POST was sent; stored steps went from 2 to 3 |
+| 6 | Finish is neutral | Pass | Completion screen shows no outcome or score. Every retained `/api/diagnostic/*` response body holds only contract_version, session_id, unit, question_budget, answered_count, status and the question (stem and options). The page HTML has no `MATH-`, misconception, posterior, probability, outcome, escalation, candidate or hypothesis text. Some early response bodies were no longer retained by the browser and were not inspected. |
+| 7 | Sign out, reload the run URL | Pass | Redirected to the sign-in page; `GET /api/diagnostic/sessions/<id>` returned 401 |
 | 8 | Second student opens the first student's run URL | Pass | `GET /api/diagnostic/sessions/<id>` returned 404 and the page said "This check is unavailable"; no question content was shown |
 
 Additional checks made in the same run:
@@ -52,10 +52,12 @@ Additional checks made in the same run:
 - **Full diagnostic:** answers D, B, B, A gave T1-005, T1-006, T1-007, T1-009 and a finished session after 4 answers (status `diagnosed`).
 - **Budget:** answers A, C, A, C, A, C, A, C went to the full 8 questions and finished as `escalated_exhausted`. This sequence was found with the in-memory service before the browser run.
 - **Run again:** returns to the intro screen; Begin creates a new session and the earlier one stays finished.
-- **Stored evidence:** `python -m sonder_api.stored_evidence --all` reported 5 checked, 5 matching, 0 mismatched.
-- **Not run:** the HTTP harness `scripts/check_persistent_flow.py`, which needs the signed-in student's `Cookie` header.
+- **Stored evidence:** `python -m sonder_api.stored_evidence --all` reported 6 checked, 6 matching, 0 mismatched after the harness run.
+- **HTTP harness:** `scripts/check_persistent_flow.py --release Maths_v2-U1-dev/spec-v2-prior --ui http://localhost:3000` exited 0: 34 checks passed, no failures, restart passed, items T1-005, T1-006, T1-007, T1-009, development source hash matched. The cookie was passed from the browser to the harness through a file readable only by the owner, deleted right after; it was never printed.
+- **Write batching (#72):** the same D1 run against Neon with the batched write code took 0.5 to 0.6 s per answer at the service (before: about 1.5 s), with stored evidence matching.
 
 Problems found during the run (each has its own pull request):
+
 
 | Finding | Pull request |
 | --- | --- |
@@ -66,4 +68,6 @@ Problems found during the run (each has its own pull request):
 | Errors thrown by the Neon client were not classified; theme view-transition rejection shown as a Next.js issue | #67 |
 | Editable address on the one-time-code page | #68 |
 | Unverified user could not sign out | #69 |
+| Answers still cost about 11 round trips after #65 | #72 |
+| Doubled GETs in the dev log (StrictMode only; pinned by tests) | #71 |
 | Dev server served a stale compiled file after files changed on disk (`answersSaved is not defined`); fixed by clearing `.next/dev` and restarting. This is a local development issue, not a product defect. | Related stale-cache entry in `docs/SETUP.md` (#64); no code change |
