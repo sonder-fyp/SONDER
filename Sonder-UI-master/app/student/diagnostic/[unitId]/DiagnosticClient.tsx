@@ -4,6 +4,7 @@ import Link from "next/link";
 import { FocusFrame } from "@/components/layout";
 import { Label, AccentBar } from "@/components/type";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { answersSaved } from "@/lib/diagnostic/copy";
 import { useDiagnosticSession } from "@/lib/diagnostic/useDiagnosticSession";
 
 // What the student is told for each error, and whether Retry can help.
@@ -156,7 +157,7 @@ export function DiagnosticClient({
                 <>
                   <p className="mt-6">
                     You have an unfinished check on this topic (
-                    {session.unfinished.answered_count} answers saved).
+                    {answersSaved(session.unfinished.answered_count)}).
                   </p>
                   <Button
                     size="lg"
@@ -185,7 +186,7 @@ export function DiagnosticClient({
                 Question {question.step_index + 1}
               </Label>
               <p className="mt-3 text-sm text-muted-foreground">
-                {snapshot?.answered_count ?? 0} answers saved · up to {budget}{" "}
+                {answersSaved(snapshot?.answered_count ?? 0)} · up to {budget}{" "}
                 questions
               </p>
               <h2 className="mt-4 text-2xl font-semibold leading-snug sm:text-3xl">
