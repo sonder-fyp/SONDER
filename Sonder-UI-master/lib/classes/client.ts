@@ -1,5 +1,7 @@
-import { parseErrorCode, parseTeacherClassList, parseTeacherClassResponse } from "./validation";
-import type { CreateClassRequest } from "./types";
+import {
+  parseErrorCode, parseJoinResponse, parseRoster, parseStudentClassList, parseTeacherClassList, parseTeacherClassResponse,
+} from "./validation";
+import type { ClassStatus, CreateClassRequest } from "./types";
 
 export class ClassesError extends Error {
   constructor(public code: string) {
@@ -7,11 +9,13 @@ export class ClassesError extends Error {
   }
 }
 
-async function request<T>(path: string, parser: (value: unknown) => T, body?: unknown) {
+type Method = "GET" | "POST" | "PATCH" | "DELETE";
+
+async function request<T>(path: string, parser: (value: unknown) => T, method: Method = "GET", body?: unknown) {
   let response: Response;
   try {
     response = await fetch(`/api/${path}`, {
-      method: body === undefined ? "GET" : "POST",
+      method,
       credentials: "same-origin",
       cache: "no-store",
       headers: { "Content-Type": "application/json" },
@@ -35,8 +39,19 @@ async function request<T>(path: string, parser: (value: unknown) => T, body?: un
   }
 }
 
+const classPath = (classId: string) => `teacher/classes/${encodeURIComponent(classId)}`;
+const done = () => undefined;
+
 export const classesClient = {
   teacherClasses: () => request("teacher/classes", parseTeacherClassList),
-  teacherClass: (classId: string) => request(`teacher/classes/${encodeURIComponent(classId)}`, parseTeacherClassResponse),
-  createClass: (input: CreateClassRequest) => request("teacher/classes", parseTeacherClassResponse, input),
+  teacherClass: (classId: string) => request(classPath(classId), parseTeacherClassResponse),
+  createClass: (input: CreateClassRequest) => request("teacher/classes", parseTeacherClassResponse, "POST", input),
+  setClassStatus: (classId: string, status: ClassStatus) =>
+    request(classPath(classId), parseTeacherClassResponse, "PATCH", { status }),
+  newJoinCode: (classId: string) => request(`${classPath(classId)}/join-code`, parseTeacherClassResponse, "POST", {}),
+  roster: (classId: string) => request(`${classPath(classId)}/roster`, parseRoster),
+  removeStudent: (classId: string, studentId: string) =>
+    request(`${classPath(classId)}/roster/${encodeURIComponent(studentId)}`, done, "DELETE"),
+  studentClasses: () => request("student/classes", parseStudentClassList),
+  joinClass: (code: string) => request("student/classes", parseJoinResponse, "POST", { code }),
 };

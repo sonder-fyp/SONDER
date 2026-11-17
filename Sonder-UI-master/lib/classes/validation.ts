@@ -1,4 +1,4 @@
-import type { CreateClassRequest, TeacherClass } from "./types";
+import type { ClassStatus, CreateClassRequest, RosterStudent, StudentClass, TeacherClass } from "./types";
 
 export const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 export const CLASS_NAME_MAX = 80;
@@ -21,6 +21,19 @@ export function parseCreateClass(body: unknown): CreateClassRequest {
   if (!trimmedName || trimmedName.length > CLASS_NAME_MAX) throw new ClassRequestError("class_name_invalid");
   if (trimmedNote.length > CLASS_NOTE_MAX) throw new ClassRequestError("class_note_invalid");
   return { name: trimmedName, note: trimmedNote };
+}
+
+/** A join body: the code as typed. The database ignores case, spaces and hyphens. */
+export function parseJoinRequest(body: unknown): string {
+  const code = (body && typeof body === "object" && !Array.isArray(body) ? (body as Record<string, unknown>).code : undefined);
+  if (typeof code !== "string" || !code.trim() || code.length > 64) throw new ClassRequestError("join_code_invalid");
+  return code;
+}
+
+export function parseStatusRequest(body: unknown): ClassStatus {
+  const status = (body && typeof body === "object" && !Array.isArray(body) ? (body as Record<string, unknown>).status : undefined);
+  if (status !== "active" && status !== "archived") throw new ClassRequestError("class_status_invalid");
+  return status;
 }
 
 function timestamp(value: unknown) {
@@ -69,4 +82,42 @@ export function parseErrorCode(value: unknown, status: number) {
   const code = (value as { error?: { code?: unknown } } | null)?.error?.code;
   if (typeof code === "string" && /^[a-z_]{1,64}$/.test(code)) return code;
   return status === 401 ? "authentication_required" : "service_unavailable";
+}
+
+export function parseStudentClass(value: unknown): StudentClass {
+  const row = (value && typeof value === "object" ? value : {}) as Record<string, unknown>;
+  if (
+    typeof row.class_id !== "string" || !UUID.test(row.class_id) || typeof row.name !== "string" ||
+    typeof row.grade_level !== "number" || !Number.isInteger(row.grade_level) || typeof row.teacher_names !== "string"
+  ) {
+    throw new Error("Invalid class.");
+  }
+  return { class_id: row.class_id, name: row.name, grade_level: row.grade_level, teacher_names: row.teacher_names,
+    joined_at: timestamp(row.joined_at) };
+}
+
+export function parseStudentClassList(value: unknown): StudentClass[] {
+  const classes = (value as { classes?: unknown } | null)?.classes;
+  if (!Array.isArray(classes)) throw new Error("Invalid class list.");
+  return classes.map(parseStudentClass);
+}
+
+export function parseJoinResponse(value: unknown): { class: StudentClass; joined: boolean } {
+  const joined = (value as { joined?: unknown } | null)?.joined;
+  if (typeof joined !== "boolean") throw new Error("Invalid join response.");
+  return { class: parseStudentClass((value as { class?: unknown }).class), joined };
+}
+
+export function parseRosterStudent(value: unknown): RosterStudent {
+  const row = (value && typeof value === "object" ? value : {}) as Record<string, unknown>;
+  if (typeof row.student_id !== "string" || !UUID.test(row.student_id) || typeof row.display_name !== "string") {
+    throw new Error("Invalid roster entry.");
+  }
+  return { student_id: row.student_id, display_name: row.display_name, joined_at: timestamp(row.joined_at) };
+}
+
+export function parseRoster(value: unknown): RosterStudent[] {
+  const students = (value as { students?: unknown } | null)?.students;
+  if (!Array.isArray(students)) throw new Error("Invalid roster.");
+  return students.map(parseRosterStudent);
 }

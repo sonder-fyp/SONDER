@@ -1,14 +1,11 @@
-import { WorkspaceState } from "@/components/product/WorkspaceState";
+import { Container, PageMasthead } from "@/components/layout";
+import { StudentClasses } from "./StudentClasses";
+
 export default function Page() {
   return (
-    <WorkspaceState
-      label="Student"
-      title="My classes"
-      description="Your classes, all in one place."
-      detail="Joining a class by code is not available yet. Ask your teacher when class enrolment will open."
-      home="/student"
-      action="Explore diagnostics"
-      actionHref="/student/start"
-    />
+    <Container className="pb-20">
+      <PageMasthead label="Student" title="My classes" lede="Join your Mathematics class with the code from your teacher." />
+      <StudentClasses />
+    </Container>
   );
 }

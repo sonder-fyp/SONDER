@@ -29,6 +29,7 @@ export const NAV: Record<Role, NavGroup[]> = {
           icon: Compass,
           match: ["/student/diagnostic"],
         },
+        { label: "Classes", href: "/student/classes", icon: Users },
       ],
     },
     {
