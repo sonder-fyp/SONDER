@@ -76,7 +76,7 @@ export class AnatomyViewer {
   private contactShadow!: THREE.Mesh;
 
   private frame = 0;
-  private clock = new THREE.Clock();
+  private timer = new THREE.Timer();
   private resizeObserver: ResizeObserver;
   private intersectionObserver: IntersectionObserver;
   private clipPlane = new THREE.Plane(new THREE.Vector3(-1, 0, 0), 0);
@@ -454,7 +454,8 @@ export class AnatomyViewer {
     this.frame = requestAnimationFrame(this.animate);
     if (!this.isVisible || !this.isPageVisible) return;
 
-    const delta = Math.min(this.clock.getDelta(), 0.05);
+    this.timer.update();
+    const delta = Math.min(this.timer.getDelta(), 0.05);
     const now = performance.now();
 
     this.applyAutoRotate(now);
@@ -491,7 +492,7 @@ export class AnatomyViewer {
   private onVisibilityChange = () => {
     this.isPageVisible = !document.hidden;
     if (this.isPageVisible) {
-      this.clock.start();
+      this.timer.reset();
       this.dirty = true;
     }
   };
@@ -724,6 +725,7 @@ export class AnatomyViewer {
     this.disposed = true;
     this.loadRequest += 1;
     cancelAnimationFrame(this.frame);
+    this.timer.dispose();
     gsap.killTweensOf(this.camera.position);
     this.controls.removeEventListener("start", this.onControlStart);
     this.controls.dispose();
