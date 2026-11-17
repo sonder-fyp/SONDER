@@ -1,6 +1,7 @@
-import { loadEnvConfig } from "@next/env";
+import nextEnv from "@next/env";
 import { neon } from "@neondatabase/serverless";
 
+const { loadEnvConfig } = nextEnv; // @next/env is CommonJS: named imports fail on newer Node
 loadEnvConfig(process.cwd());
 
 const [emailArgument, roleArgument, confirmation] = process.argv.slice(2);
