@@ -36,7 +36,6 @@ The browser URL contains a session locator after Begin. To inspect it in another
 cd D:\SONDER-engine-ui
 $env:SONDER_ENGINE_TOKEN = ((Get-Content .\Sonder-UI-master\.env.local | Where-Object { $_ -like 'SONDER_ENGINE_TOKEN=*' }) -split '=',2)[1]
 python -m sonder_api.inspect_session <session-id>
-python scripts/check_engine_ui.py --all-policies
 python -m unittest discover -s tests -v
 cd Sonder-UI-master
 npm test
@@ -44,7 +43,7 @@ npm run lint
 npm run build
 ```
 
-The HTTP script requires both servers; ordinary Python/Vitest tests do not. Production build requires neither server nor keys. The HTTP script verifies D1/D2, 78 policies, exact full engine traces, original response retries, ownership, parallel Begin before cookies and the absence of a student trace proxy. It does not claim browser acceptance.
+The [persistent HTTP harness and manual browser checklist](../docs/testing/PERSISTENT_FLOW_CHECKS.md) describe the real BFF, PostgreSQL and service-restart checks. The live run requires a signed-in enrolled student and has not yet been executed.
 
 For D1 choose U1 and D/B/B/A. Expected items: T1-005, T1-006, T1-007, T1-009. Internal result: diagnosed/R1. For D2 choose U4 and D/A. Items: T4-001, T5-011. Internal result: no separator/R4. Both pages show the same neutral completion.
 
