@@ -97,7 +97,11 @@ function subscribe(cb: () => void) {
 /** Viewport coordinates the circular wipe expands from. */
 export type WipeOrigin = { x: number; y: number };
 
-type ViewTransition = { finished: Promise<unknown> };
+type ViewTransition = {
+  finished: Promise<unknown>;
+  ready: Promise<unknown>;
+  updateCallbackDone: Promise<unknown>;
+};
 type DocumentWithVT = Document & {
   startViewTransition?: (cb: () => void) => ViewTransition;
 };
@@ -165,6 +169,11 @@ export function setTheme(next: Theme, origin?: WipeOrigin) {
     doc.documentElement.removeAttribute(THEME_SWITCH_ATTRIBUTE);
   };
   transition.finished.then(done, done);
+  // `ready` and `updateCallbackDone` also reject when a transition is skipped or
+  // aborted (document hidden, viewport resized). The callback still runs per spec,
+  // so the theme is applied; these handlers only stop an unhandled rejection.
+  transition.ready.catch(() => {});
+  transition.updateCallbackDone.catch(() => {});
 }
 
 export function toggleTheme(origin?: WipeOrigin) {
