@@ -1,9 +1,9 @@
 ﻿item_id,topic,target,stem,option_id,option_text,is_correct,misconceptions,status
-T6-012B,T6 x multiplication/division (operation version),MATH-2359,"A marathon runner finishes in 10,800 seconds. How many hours is that?",A,180 hours,False,,draft
-T6-012B,T6 x multiplication/division (operation version),MATH-2359,"A marathon runner finishes in 10,800 seconds. How many hours is that?",B,0.33 hours,False,MATH-2359,draft
-T6-012B,T6 x multiplication/division (operation version),MATH-2359,"A marathon runner finishes in 10,800 seconds. How many hours is that?",C,3 hours,True,,draft
-T6-012B,T6 x multiplication/division (operation version),MATH-2359,"A marathon runner finishes in 10,800 seconds. How many hours is that?",D,108 hours,False,,draft
-T6-013B,T6 x multiplication/division (operation version),MATH-2359,Which statement is correct?,A,"18,000 seconds = 0.2 hours",False,MATH-2359,draft
-T6-013B,T6 x multiplication/division (operation version),MATH-2359,Which statement is correct?,B,"18,000 seconds = 300 hours",False,,draft
-T6-013B,T6 x multiplication/division (operation version),MATH-2359,Which statement is correct?,C,"18,000 seconds = 180 hours",False,,draft
-T6-013B,T6 x multiplication/division (operation version),MATH-2359,Which statement is correct?,D,"18,000 seconds = 5 hours",True,,draft
+T6-012B,T6 x multiplication/division (operation version),MATH-2359,A marathon runner finishes in 180 minutes. How many hours is that?,A,120 hours,False,,draft
+T6-012B,T6 x multiplication/division (operation version),MATH-2359,A marathon runner finishes in 180 minutes. How many hours is that?,B,0.33 hours,False,MATH-2359,draft
+T6-012B,T6 x multiplication/division (operation version),MATH-2359,A marathon runner finishes in 180 minutes. How many hours is that?,C,3 hours,True,,draft
+T6-012B,T6 x multiplication/division (operation version),MATH-2359,A marathon runner finishes in 180 minutes. How many hours is that?,D,240 hours,False,,draft
+T6-013B,T6 x multiplication/division (operation version),MATH-2359,Which statement is correct?,A,300 minutes = 0.2 hours,False,MATH-2359,draft
+T6-013B,T6 x multiplication/division (operation version),MATH-2359,Which statement is correct?,B,300 minutes = 240 hours,False,,draft
+T6-013B,T6 x multiplication/division (operation version),MATH-2359,Which statement is correct?,C,300 minutes = 360 hours,False,,draft
+T6-013B,T6 x multiplication/division (operation version),MATH-2359,Which statement is correct?,D,300 minutes = 5 hours,True,,draft

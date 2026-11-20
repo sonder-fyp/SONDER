@@ -155,10 +155,10 @@ T2-019,"T2 Fractions, decimals and percentage conversion",MATH-1715,Which of the
 T2-019,"T2 Fractions, decimals and percentage conversion",MATH-1715,Which of these conversions is correct?,B,7/10 = 0.7,True,,approved,B04
 T2-019,"T2 Fractions, decimals and percentage conversion",MATH-1715,Which of these conversions is correct?,C,Scoring 3 marks out of 25 means scoring 3%.,False,MATH-2039,approved,B04
 T2-019,"T2 Fractions, decimals and percentage conversion",MATH-1715,Which of these conversions is correct?,D,1/4 = 0.1,False,MATH-1715,approved,B04
-T2-020,"T2 Fractions, decimals and percentage conversion",MATH-1715,"In a class of 20 students, 3 are left-handed. What percentage of the class is left-handed?",A,6%,False,MATH-658,approved,B04
-T2-020,"T2 Fractions, decimals and percentage conversion",MATH-1715,"In a class of 20 students, 3 are left-handed. What percentage of the class is left-handed?",B,3%,False,MATH-2039,approved,B04
-T2-020,"T2 Fractions, decimals and percentage conversion",MATH-1715,"In a class of 20 students, 3 are left-handed. What percentage of the class is left-handed?",C,30%,False,MATH-1715,approved,B04
-T2-020,"T2 Fractions, decimals and percentage conversion",MATH-1715,"In a class of 20 students, 3 are left-handed. What percentage of the class is left-handed?",D,15%,True,,approved,B04
+T2-020,"T2 Fractions, decimals and percentage conversion",MATH-2039,"In a class of 20 students, 3 are left-handed. What percentage of the class is left-handed?",A,6%,False,MATH-658,approved,B04
+T2-020,"T2 Fractions, decimals and percentage conversion",MATH-2039,"In a class of 20 students, 3 are left-handed. What percentage of the class is left-handed?",B,3%,False,MATH-2039,approved,B04
+T2-020,"T2 Fractions, decimals and percentage conversion",MATH-2039,"In a class of 20 students, 3 are left-handed. What percentage of the class is left-handed?",C,30%,False,,approved,B04
+T2-020,"T2 Fractions, decimals and percentage conversion",MATH-2039,"In a class of 20 students, 3 are left-handed. What percentage of the class is left-handed?",D,15%,True,,approved,B04
 T2-021,"T2 Fractions, decimals and percentage conversion",MATH-61,A water tank is 0.35 full. What percentage of the tank is full?,A,3.5%,False,MATH-61,approved,B05
 T2-021,"T2 Fractions, decimals and percentage conversion",MATH-61,A water tank is 0.35 full. What percentage of the tank is full?,B,0.35%,False,MATH-1965|MATH-2039,approved,B05
 T2-021,"T2 Fractions, decimals and percentage conversion",MATH-61,A water tank is 0.35 full. What percentage of the tank is full?,C,53%,False,,approved,B05
@@ -170,15 +170,15 @@ T2-022,"T2 Fractions, decimals and percentage conversion",MATH-1965,Write 0.25 a
 T2-023,"T2 Fractions, decimals and percentage conversion",MATH-2039,"In a garden, 7 out of 25 plants flowered. What percentage of the plants flowered?",A,28%,True,,approved,B05
 T2-023,"T2 Fractions, decimals and percentage conversion",MATH-2039,"In a garden, 7 out of 25 plants flowered. What percentage of the plants flowered?",B,14%,False,MATH-658,approved,B05
 T2-023,"T2 Fractions, decimals and percentage conversion",MATH-2039,"In a garden, 7 out of 25 plants flowered. What percentage of the plants flowered?",C,7%,False,MATH-2039,approved,B05
-T2-023,"T2 Fractions, decimals and percentage conversion",MATH-2039,"In a garden, 7 out of 25 plants flowered. What percentage of the plants flowered?",D,70%,False,MATH-1715,approved,B05
+T2-023,"T2 Fractions, decimals and percentage conversion",MATH-2039,"In a garden, 7 out of 25 plants flowered. What percentage of the plants flowered?",D,70%,False,,approved,B05
 T2-024,"T2 Fractions, decimals and percentage conversion",MATH-658,4 of the 25 pupils in a class wear glasses. What percentage of the class wears glasses?,A,8%,False,MATH-658,approved,B05
 T2-024,"T2 Fractions, decimals and percentage conversion",MATH-658,4 of the 25 pupils in a class wear glasses. What percentage of the class wears glasses?,B,4%,False,MATH-2039,approved,B05
 T2-024,"T2 Fractions, decimals and percentage conversion",MATH-658,4 of the 25 pupils in a class wear glasses. What percentage of the class wears glasses?,C,16%,True,,approved,B05
-T2-024,"T2 Fractions, decimals and percentage conversion",MATH-658,4 of the 25 pupils in a class wear glasses. What percentage of the class wears glasses?,D,40%,False,MATH-1715,approved,B05
-T2-025,"T2 Fractions, decimals and percentage conversion",MATH-1715,One fifth of a bag of flour was used. What percentage of the bag was used?,A,2%,False,MATH-658,approved,B05
-T2-025,"T2 Fractions, decimals and percentage conversion",MATH-1715,One fifth of a bag of flour was used. What percentage of the bag was used?,B,20%,True,,approved,B05
-T2-025,"T2 Fractions, decimals and percentage conversion",MATH-1715,One fifth of a bag of flour was used. What percentage of the bag was used?,C,1%,False,MATH-2039,approved,B05
-T2-025,"T2 Fractions, decimals and percentage conversion",MATH-1715,One fifth of a bag of flour was used. What percentage of the bag was used?,D,10%,False,MATH-1715,approved,B05
+T2-024,"T2 Fractions, decimals and percentage conversion",MATH-658,4 of the 25 pupils in a class wear glasses. What percentage of the class wears glasses?,D,40%,False,,approved,B05
+T2-025,"T2 Fractions, decimals and percentage conversion",MATH-658,One fifth of a bag of flour was used. What percentage of the bag was used?,A,2%,False,MATH-658,approved,B05
+T2-025,"T2 Fractions, decimals and percentage conversion",MATH-658,One fifth of a bag of flour was used. What percentage of the bag was used?,B,20%,True,,approved,B05
+T2-025,"T2 Fractions, decimals and percentage conversion",MATH-658,One fifth of a bag of flour was used. What percentage of the bag was used?,C,1%,False,MATH-2039,approved,B05
+T2-025,"T2 Fractions, decimals and percentage conversion",MATH-658,One fifth of a bag of flour was used. What percentage of the bag was used?,D,10%,False,,approved,B05
 T4-001,T4 Choosing the operation,MATH-1416,An arcade charges Rs 8 per game. Mariam plays 3 games. Her friend pays Rs 4 less than Mariam. How much does her friend pay?,A,Rs 7,False,MATH-1416,approved,B06
 T4-001,T4 Choosing the operation,MATH-1416,An arcade charges Rs 8 per game. Mariam plays 3 games. Her friend pays Rs 4 less than Mariam. How much does her friend pay?,B,Rs 20,True,,approved,B06
 T4-001,T4 Choosing the operation,MATH-1416,An arcade charges Rs 8 per game. Mariam plays 3 games. Her friend pays Rs 4 less than Mariam. How much does her friend pay?,C,Rs 6,False,MATH-228,approved,B06
@@ -229,36 +229,36 @@ T5-002,T5 Powers and roots,MATH-1072,Which of these is the same as 3⁴?,C,3 × 
 T5-002,T5 Powers and roots,MATH-1072,Which of these is the same as 3⁴?,D,4 × 4 × 4,False,,approved,B07
 T5-003,T5 Powers and roots,MATH-414,A number n satisfies n × n × n = 27. What is n?,A,3,True,,approved,B07
 T5-003,T5 Powers and roots,MATH-414,A number n satisfies n × n × n = 27. What is n?,B,9,False,MATH-414,approved,B07
-T5-003,T5 Powers and roots,MATH-414,A number n satisfies n × n × n = 27. What is n?,C,13.5,False,MATH-734,approved,B07
+T5-003,T5 Powers and roots,MATH-414,A number n satisfies n × n × n = 27. What is n?,C,13.5,False,,approved,B07
 T5-003,T5 Powers and roots,MATH-414,A number n satisfies n × n × n = 27. What is n?,D,81,False,,approved,B07
-T5-004,T5 Powers and roots,MATH-734,What is ∛216?,A,72,False,MATH-414,approved,B07
-T5-004,T5 Powers and roots,MATH-734,What is ∛216?,B,108,False,MATH-734,approved,B07
-T5-004,T5 Powers and roots,MATH-734,What is ∛216?,C,36,False,,approved,B07
-T5-004,T5 Powers and roots,MATH-734,What is ∛216?,D,6,True,,approved,B07
+T5-004,T5 Powers and roots,MATH-414,What is ∛216?,A,72,False,MATH-414,approved,B07
+T5-004,T5 Powers and roots,MATH-414,What is ∛216?,B,108,False,,approved,B07
+T5-004,T5 Powers and roots,MATH-414,What is ∛216?,C,36,False,,approved,B07
+T5-004,T5 Powers and roots,MATH-414,What is ∛216?,D,6,True,,approved,B07
 T5-005,T5 Powers and roots,MATH-1072,"In a game, Zara's score is 6². Ali's score is √16 less than Zara's score. What is Ali's score?",A,4,False,MATH-952,approved,B07
 T5-005,T5 Powers and roots,MATH-1072,"In a game, Zara's score is 6². Ali's score is √16 less than Zara's score. What is Ali's score?",B,8,False,MATH-1072,approved,B07
 T5-005,T5 Powers and roots,MATH-1072,"In a game, Zara's score is 6². Ali's score is √16 less than Zara's score. What is Ali's score?",C,32,True,,approved,B07
-T5-005,T5 Powers and roots,MATH-1072,"In a game, Zara's score is 6². Ali's score is √16 less than Zara's score. What is Ali's score?",D,28,False,MATH-414|MATH-734,approved,B07
+T5-005,T5 Powers and roots,MATH-1072,"In a game, Zara's score is 6². Ali's score is √16 less than Zara's score. What is Ali's score?",D,28,False,MATH-414,approved,B07
 T5-006,T5 Powers and roots,MATH-952,I think of the number 2. I raise it to the power of 4. Then I multiply my answer by the square root of 16. What number do I get?,A,64,True,,approved,B07
 T5-006,T5 Powers and roots,MATH-952,I think of the number 2. I raise it to the power of 4. Then I multiply my answer by the square root of 16. What number do I get?,B,24,False,MATH-952,approved,B07
 T5-006,T5 Powers and roots,MATH-952,I think of the number 2. I raise it to the power of 4. Then I multiply my answer by the square root of 16. What number do I get?,C,32,False,MATH-1072,approved,B07
-T5-006,T5 Powers and roots,MATH-952,I think of the number 2. I raise it to the power of 4. Then I multiply my answer by the square root of 16. What number do I get?,D,128,False,MATH-414|MATH-734,approved,B07
+T5-006,T5 Powers and roots,MATH-952,I think of the number 2. I raise it to the power of 4. Then I multiply my answer by the square root of 16. What number do I get?,D,128,False,MATH-414,approved,B07
 T5-007,T5 Powers and roots,MATH-1072,Sam thinks of the number 2⁵. Hira's number is √16 less than Sam's number. What is Hira's number?,A,3,False,MATH-952,approved,B07
 T5-007,T5 Powers and roots,MATH-1072,Sam thinks of the number 2⁵. Hira's number is √16 less than Sam's number. What is Hira's number?,B,28,True,,approved,B07
 T5-007,T5 Powers and roots,MATH-1072,Sam thinks of the number 2⁵. Hira's number is √16 less than Sam's number. What is Hira's number?,C,6,False,MATH-1072,approved,B07
-T5-007,T5 Powers and roots,MATH-1072,Sam thinks of the number 2⁵. Hira's number is √16 less than Sam's number. What is Hira's number?,D,24,False,MATH-414|MATH-734,approved,B07
+T5-007,T5 Powers and roots,MATH-1072,Sam thinks of the number 2⁵. Hira's number is √16 less than Sam's number. What is Hira's number?,D,24,False,MATH-414,approved,B07
 T5-008,T5 Powers and roots,MATH-952,A fraction has 2⁶ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,A,(2 + 6) / √16,False,MATH-952,approved,B07
 T5-008,T5 Powers and roots,MATH-952,A fraction has 2⁶ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,B,(2 x 6) / √16,False,MATH-1072,approved,B07
-T5-008,T5 Powers and roots,MATH-952,A fraction has 2⁶ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,C,(2⁶) / (16 / 2),False,MATH-414|MATH-734,approved,B07
+T5-008,T5 Powers and roots,MATH-952,A fraction has 2⁶ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,C,(2⁶) / (16 / 2),False,MATH-414,approved,B07
 T5-008,T5 Powers and roots,MATH-952,A fraction has 2⁶ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,D,(2⁶) / √16,True,,approved,B07
 T5-009,T5 Powers and roots,MATH-414,Zara's score is 2⁴. Ali's score is √64 more than Zara's score. Which calculation correctly gives Ali's score?,A,(2 x 2 x 2 x 2) + 8,True,,approved,B07
 T5-009,T5 Powers and roots,MATH-414,Zara's score is 2⁴. Ali's score is √64 more than Zara's score. Which calculation correctly gives Ali's score?,B,(2 + 4) + 8,False,MATH-952,approved,B07
 T5-009,T5 Powers and roots,MATH-414,Zara's score is 2⁴. Ali's score is √64 more than Zara's score. Which calculation correctly gives Ali's score?,C,(2 x 4) + 8,False,MATH-1072,approved,B07
-T5-009,T5 Powers and roots,MATH-414,Zara's score is 2⁴. Ali's score is √64 more than Zara's score. Which calculation correctly gives Ali's score?,D,16 + (64 / 2),False,MATH-414|MATH-734,approved,B07
-T5-010,T5 Powers and roots,MATH-734,Ali thinks of the number 12². Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,A,21,False,MATH-1072,approved,B07
-T5-010,T5 Powers and roots,MATH-734,Ali thinks of the number 12². Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,B,135,False,MATH-414,approved,B07
-T5-010,T5 Powers and roots,MATH-734,Ali thinks of the number 12². Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,C,141,True,,approved,B07
-T5-010,T5 Powers and roots,MATH-734,Ali thinks of the number 12². Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,D,130.5,False,MATH-734,approved,B07
+T5-009,T5 Powers and roots,MATH-414,Zara's score is 2⁴. Ali's score is √64 more than Zara's score. Which calculation correctly gives Ali's score?,D,16 + (64 / 2),False,MATH-414,approved,B07
+T5-010,T5 Powers and roots,MATH-1072,Ali thinks of the number 12². Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,A,21,False,MATH-1072,approved,B07
+T5-010,T5 Powers and roots,MATH-1072,Ali thinks of the number 12². Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,B,135,False,MATH-414,approved,B07
+T5-010,T5 Powers and roots,MATH-1072,Ali thinks of the number 12². Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,C,141,True,,approved,B07
+T5-010,T5 Powers and roots,MATH-1072,Ali thinks of the number 12². Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,D,130.5,False,,approved,B07
 T5-011,T5 cross-concept (operation version),MATH-1514,"In a game, Zara's score is 6². Ali's score is √16 less than Zara's score. What is Ali's score?",A,40,False,MATH-1514|MATH-1773,approved,B08
 T5-011,T5 cross-concept (operation version),MATH-1514,"In a game, Zara's score is 6². Ali's score is √16 less than Zara's score. What is Ali's score?",B,12,False,,approved,B08
 T5-011,T5 cross-concept (operation version),MATH-1514,"In a game, Zara's score is 6². Ali's score is √16 less than Zara's score. What is Ali's score?",C,32,True,,approved,B08
@@ -283,42 +283,42 @@ T5-016,T5 cross-concept (operation version),MATH-228,Ali thinks of the number 12
 T5-016,T5 cross-concept (operation version),MATH-228,Ali thinks of the number 12². Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,B,48,False,MATH-228,approved,B08
 T5-016,T5 cross-concept (operation version),MATH-228,Ali thinks of the number 12². Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,C,147,False,MATH-1514|MATH-1773,approved,B08
 T5-016,T5 cross-concept (operation version),MATH-228,Ali thinks of the number 12². Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,D,432,False,,approved,B08
-T6-010,T6 Time and unit conversion (seconds and hours),MATH-767,"Fill the gap: 7,200 seconds = ___ hours.",A,1.2 hours,False,MATH-161,approved,B10
-T6-010,T6 Time and unit conversion (seconds and hours),MATH-767,"Fill the gap: 7,200 seconds = ___ hours.",B,2 hours,True,,approved,B10
-T6-010,T6 Time and unit conversion (seconds and hours),MATH-767,"Fill the gap: 7,200 seconds = ___ hours.",C,12 hours,False,MATH-767,approved,B10
-T6-010,T6 Time and unit conversion (seconds and hours),MATH-767,"Fill the gap: 7,200 seconds = ___ hours.",D,"25,920,000 hours",False,MATH-1651|MATH-1074,approved,B10
-T6-011,T6 Time and unit conversion (seconds and hours),MATH-161,How many seconds are there in 2 hours?,A,"12,000 seconds",False,MATH-161,approved,B10
-T6-011,T6 Time and unit conversion (seconds and hours),MATH-161,How many seconds are there in 2 hours?,B,"1,200 seconds",False,MATH-767,approved,B10
-T6-011,T6 Time and unit conversion (seconds and hours),MATH-161,How many seconds are there in 2 hours?,C,120 seconds,False,,approved,B10
-T6-011,T6 Time and unit conversion (seconds and hours),MATH-161,How many seconds are there in 2 hours?,D,"7,200 seconds",True,,approved,B10
-T6-012,T6 Time and unit conversion (seconds and hours),MATH-161,"A marathon runner finishes in 10,800 seconds. How many hours is that?",A,3 hours,True,,approved,B10
-T6-012,T6 Time and unit conversion (seconds and hours),MATH-161,"A marathon runner finishes in 10,800 seconds. How many hours is that?",B,1.8 hours,False,MATH-161,approved,B10
-T6-012,T6 Time and unit conversion (seconds and hours),MATH-161,"A marathon runner finishes in 10,800 seconds. How many hours is that?",C,18 hours,False,MATH-767,approved,B10
-T6-012,T6 Time and unit conversion (seconds and hours),MATH-161,"A marathon runner finishes in 10,800 seconds. How many hours is that?",D,"38,880,000 hours",False,MATH-1651|MATH-1074,approved,B10
-T6-013,T6 Time and unit conversion (seconds and hours),MATH-1651,Which statement is correct?,A,"18,000 seconds = 3 hours",False,MATH-161,approved,B10
-T6-013,T6 Time and unit conversion (seconds and hours),MATH-1651,Which statement is correct?,B,"18,000 seconds = 30 hours",False,MATH-767,approved,B10
-T6-013,T6 Time and unit conversion (seconds and hours),MATH-1651,Which statement is correct?,C,"18,000 seconds = 5 hours",True,,approved,B10
-T6-013,T6 Time and unit conversion (seconds and hours),MATH-1651,Which statement is correct?,D,"18,000 seconds = 64,800,000 hours",False,MATH-1651|MATH-1074,approved,B10
-T6-014,T6 Time and unit conversion (seconds and hours),MATH-767,Fill the gap: 1.5 hours = ___ seconds.,A,"9,000 seconds",False,MATH-161,approved,B10
-T6-014,T6 Time and unit conversion (seconds and hours),MATH-767,Fill the gap: 1.5 hours = ___ seconds.,B,900 seconds,False,MATH-767,approved,B10
-T6-014,T6 Time and unit conversion (seconds and hours),MATH-767,Fill the gap: 1.5 hours = ___ seconds.,C,90 seconds,False,,approved,B10
-T6-014,T6 Time and unit conversion (seconds and hours),MATH-767,Fill the gap: 1.5 hours = ___ seconds.,D,"5,400 seconds",True,,approved,B10
-T6-015,T6 Time and unit conversion (seconds and hours),MATH-1074,"Which of these is the same as 14,400 seconds?",A,2.4 hours,False,MATH-161,approved,B10
-T6-015,T6 Time and unit conversion (seconds and hours),MATH-1074,"Which of these is the same as 14,400 seconds?",B,4 hours,True,,approved,B10
-T6-015,T6 Time and unit conversion (seconds and hours),MATH-1074,"Which of these is the same as 14,400 seconds?",C,24 hours,False,MATH-767,approved,B10
-T6-015,T6 Time and unit conversion (seconds and hours),MATH-1074,"Which of these is the same as 14,400 seconds?",D,"51,840,000 hours",False,MATH-1651|MATH-1074,approved,B10
-T6-016,T6 Time and unit conversion (seconds and hours),MATH-161,A film lasts 3 hours. How long is that in seconds?,A,"18,000 seconds",False,MATH-161,approved,B10
-T6-016,T6 Time and unit conversion (seconds and hours),MATH-161,A film lasts 3 hours. How long is that in seconds?,B,"1,800 seconds",False,MATH-767,approved,B10
-T6-016,T6 Time and unit conversion (seconds and hours),MATH-161,A film lasts 3 hours. How long is that in seconds?,C,"10,800 seconds",True,,approved,B10
-T6-016,T6 Time and unit conversion (seconds and hours),MATH-161,A film lasts 3 hours. How long is that in seconds?,D,180 seconds,False,,approved,B10
-T6-017,T6 Time and unit conversion (seconds and hours),MATH-1651,"How many hours is 3,600 seconds? Sana says 1 hour. Bilal says 6 hours. Ali says 0.6 hours. Hira says 12,960,000 hours. Who is correct?",A,Sana,True,,approved,B10
-T6-017,T6 Time and unit conversion (seconds and hours),MATH-1651,"How many hours is 3,600 seconds? Sana says 1 hour. Bilal says 6 hours. Ali says 0.6 hours. Hira says 12,960,000 hours. Who is correct?",B,Ali,False,MATH-161,approved,B10
-T6-017,T6 Time and unit conversion (seconds and hours),MATH-1651,"How many hours is 3,600 seconds? Sana says 1 hour. Bilal says 6 hours. Ali says 0.6 hours. Hira says 12,960,000 hours. Who is correct?",C,Bilal,False,MATH-767,approved,B10
-T6-017,T6 Time and unit conversion (seconds and hours),MATH-1651,"How many hours is 3,600 seconds? Sana says 1 hour. Bilal says 6 hours. Ali says 0.6 hours. Hira says 12,960,000 hours. Who is correct?",D,Hira,False,MATH-1651|MATH-1074,approved,B10
-T6-018,T6 Time and unit conversion (seconds and hours),MATH-767,Which of these is the same as 1 hour and 30 seconds?,A,"6,030 seconds",False,MATH-161,approved,B10
-T6-018,T6 Time and unit conversion (seconds and hours),MATH-767,Which of these is the same as 1 hour and 30 seconds?,B,"3,630 seconds",True,,approved,B10
-T6-018,T6 Time and unit conversion (seconds and hours),MATH-767,Which of these is the same as 1 hour and 30 seconds?,C,630 seconds,False,MATH-767,approved,B10
-T6-018,T6 Time and unit conversion (seconds and hours),MATH-767,Which of these is the same as 1 hour and 30 seconds?,D,90 seconds,False,,approved,B10
+T6-010,T6 Time and unit conversion (seconds and hours),MATH-767,Fill the gap: 120 minutes = ___ hours.,A,1.2 hours,False,MATH-161,approved,B10
+T6-010,T6 Time and unit conversion (seconds and hours),MATH-767,Fill the gap: 120 minutes = ___ hours.,B,2 hours,True,,approved,B10
+T6-010,T6 Time and unit conversion (seconds and hours),MATH-767,Fill the gap: 120 minutes = ___ hours.,C,12 hours,False,MATH-767,approved,B10
+T6-010,T6 Time and unit conversion (seconds and hours),MATH-767,Fill the gap: 120 minutes = ___ hours.,D,"7,200 hours",False,MATH-1651|MATH-1074,approved,B10
+T6-011,T6 Time and unit conversion (seconds and hours),MATH-161,How many minutes are there in 2 hours?,A,200 minutes,False,MATH-161,approved,B10
+T6-011,T6 Time and unit conversion (seconds and hours),MATH-161,How many minutes are there in 2 hours?,B,20 minutes,False,MATH-767,approved,B10
+T6-011,T6 Time and unit conversion (seconds and hours),MATH-161,How many minutes are there in 2 hours?,C,60 minutes,False,,approved,B10
+T6-011,T6 Time and unit conversion (seconds and hours),MATH-161,How many minutes are there in 2 hours?,D,120 minutes,True,,approved,B10
+T6-012,T6 Time and unit conversion (seconds and hours),MATH-161,A marathon runner finishes in 180 minutes. How many hours is that?,A,3 hours,True,,approved,B10
+T6-012,T6 Time and unit conversion (seconds and hours),MATH-161,A marathon runner finishes in 180 minutes. How many hours is that?,B,1.8 hours,False,MATH-161,approved,B10
+T6-012,T6 Time and unit conversion (seconds and hours),MATH-161,A marathon runner finishes in 180 minutes. How many hours is that?,C,18 hours,False,MATH-767,approved,B10
+T6-012,T6 Time and unit conversion (seconds and hours),MATH-161,A marathon runner finishes in 180 minutes. How many hours is that?,D,"10,800 hours",False,MATH-1651|MATH-1074,approved,B10
+T6-013,T6 Time and unit conversion (seconds and hours),MATH-1651,Which statement is correct?,A,300 minutes = 3 hours,False,MATH-161,approved,B10
+T6-013,T6 Time and unit conversion (seconds and hours),MATH-1651,Which statement is correct?,B,300 minutes = 30 hours,False,MATH-767,approved,B10
+T6-013,T6 Time and unit conversion (seconds and hours),MATH-1651,Which statement is correct?,C,300 minutes = 5 hours,True,,approved,B10
+T6-013,T6 Time and unit conversion (seconds and hours),MATH-1651,Which statement is correct?,D,"300 minutes = 18,000 hours",False,MATH-1651|MATH-1074,approved,B10
+T6-014,T6 Time and unit conversion (seconds and hours),MATH-767,Fill the gap: 1.5 hours = ___ minutes.,A,150 minutes,False,MATH-161,approved,B10
+T6-014,T6 Time and unit conversion (seconds and hours),MATH-767,Fill the gap: 1.5 hours = ___ minutes.,B,15 minutes,False,MATH-767,approved,B10
+T6-014,T6 Time and unit conversion (seconds and hours),MATH-767,Fill the gap: 1.5 hours = ___ minutes.,C,60 minutes,False,,approved,B10
+T6-014,T6 Time and unit conversion (seconds and hours),MATH-767,Fill the gap: 1.5 hours = ___ minutes.,D,90 minutes,True,,approved,B10
+T6-015,T6 Time and unit conversion (seconds and hours),MATH-1074,Which of these is the same as 240 minutes?,A,2.4 hours,False,MATH-161,approved,B10
+T6-015,T6 Time and unit conversion (seconds and hours),MATH-1074,Which of these is the same as 240 minutes?,B,4 hours,True,,approved,B10
+T6-015,T6 Time and unit conversion (seconds and hours),MATH-1074,Which of these is the same as 240 minutes?,C,24 hours,False,MATH-767,approved,B10
+T6-015,T6 Time and unit conversion (seconds and hours),MATH-1074,Which of these is the same as 240 minutes?,D,"14,400 hours",False,MATH-1651|MATH-1074,approved,B10
+T6-016,T6 Time and unit conversion (seconds and hours),MATH-161,A film lasts 3 hours. How long is that in minutes?,A,300 minutes,False,MATH-161,approved,B10
+T6-016,T6 Time and unit conversion (seconds and hours),MATH-161,A film lasts 3 hours. How long is that in minutes?,B,30 minutes,False,MATH-767,approved,B10
+T6-016,T6 Time and unit conversion (seconds and hours),MATH-161,A film lasts 3 hours. How long is that in minutes?,C,180 minutes,True,,approved,B10
+T6-016,T6 Time and unit conversion (seconds and hours),MATH-161,A film lasts 3 hours. How long is that in minutes?,D,60 minutes,False,,approved,B10
+T6-017,T6 Time and unit conversion (seconds and hours),MATH-1651,"How many hours is 120 minutes? Sana says 2 hours. Bilal says 12 hours. Ali says 1.2 hours. Hira says 7,200 hours. Who is correct?",A,Sana,True,,approved,B10
+T6-017,T6 Time and unit conversion (seconds and hours),MATH-1651,"How many hours is 120 minutes? Sana says 2 hours. Bilal says 12 hours. Ali says 1.2 hours. Hira says 7,200 hours. Who is correct?",B,Ali,False,MATH-161,approved,B10
+T6-017,T6 Time and unit conversion (seconds and hours),MATH-1651,"How many hours is 120 minutes? Sana says 2 hours. Bilal says 12 hours. Ali says 1.2 hours. Hira says 7,200 hours. Who is correct?",C,Bilal,False,MATH-767,approved,B10
+T6-017,T6 Time and unit conversion (seconds and hours),MATH-1651,"How many hours is 120 minutes? Sana says 2 hours. Bilal says 12 hours. Ali says 1.2 hours. Hira says 7,200 hours. Who is correct?",D,Hira,False,MATH-1651|MATH-1074,approved,B10
+T6-018,T6 Time and unit conversion (seconds and hours),MATH-767,Which of these is the same as 1 hour and 30 minutes?,A,130 minutes,False,MATH-161,approved,B10
+T6-018,T6 Time and unit conversion (seconds and hours),MATH-767,Which of these is the same as 1 hour and 30 minutes?,B,90 minutes,True,,approved,B10
+T6-018,T6 Time and unit conversion (seconds and hours),MATH-767,Which of these is the same as 1 hour and 30 minutes?,C,40 minutes,False,MATH-767,approved,B10
+T6-018,T6 Time and unit conversion (seconds and hours),MATH-767,Which of these is the same as 1 hour and 30 minutes?,D,31 minutes,False,,approved,B10
 T7-001,"T7 Negatives, inverse operations, fraction bar",MATH-1639,Work out −2 + (−3 + −4).,A,9,False,MATH-1639,approved,B11
 T7-001,"T7 Negatives, inverse operations, fraction bar",MATH-1639,Work out −2 + (−3 + −4).,B,5,False,MATH-1639,approved,B11
 T7-001,"T7 Negatives, inverse operations, fraction bar",MATH-1639,Work out −2 + (−3 + −4).,C,−9,True,,approved,B11
@@ -423,26 +423,26 @@ T3-010,T3 Percentage of an amount,MATH-1074,What is 25% of 80?,A,25,False,MATH-2
 T3-010,T3 Percentage of an amount,MATH-1074,What is 25% of 80?,B,20,True,,approved,B13
 T3-010,T3 Percentage of an amount,MATH-1074,What is 25% of 80?,C,0.05,False,MATH-2359,approved,B13
 T3-010,T3 Percentage of an amount,MATH-1074,What is 25% of 80?,D,320,False,MATH-1651|MATH-1074,approved,B13
-T6-011B,T6 x multiplication/division (operation version),MATH-1416,How many seconds are there in 2 hours?,A,122 seconds,False,,approved,B14
-T6-011B,T6 x multiplication/division (operation version),MATH-1416,How many seconds are there in 2 hours?,B,"7,200 seconds",True,,approved,B14
-T6-011B,T6 x multiplication/division (operation version),MATH-1416,How many seconds are there in 2 hours?,C,180 seconds,False,MATH-1416,approved,B14
-T6-011B,T6 x multiplication/division (operation version),MATH-1416,How many seconds are there in 2 hours?,D,"3,720 seconds",False,MATH-1416,approved,B14
-T6-010B,T6 x multiplication/division (operation version),MATH-2359,"Fill the gap: 7,200 seconds = ___ hours.",A,0.5 hours,False,MATH-2359,approved,B14
-T6-010B,T6 x multiplication/division (operation version),MATH-2359,"Fill the gap: 7,200 seconds = ___ hours.",B,72 hours,False,,approved,B14
-T6-010B,T6 x multiplication/division (operation version),MATH-2359,"Fill the gap: 7,200 seconds = ___ hours.",C,"3,600 hours",False,,approved,B14
-T6-010B,T6 x multiplication/division (operation version),MATH-2359,"Fill the gap: 7,200 seconds = ___ hours.",D,2 hours,True,,approved,B14
-T6-014B,T6 x multiplication/division (operation version),MATH-1416,Fill the gap: 1.5 hours = ___ seconds.,A,"5,400 seconds",True,,approved,B14
-T6-014B,T6 x multiplication/division (operation version),MATH-1416,Fill the gap: 1.5 hours = ___ seconds.,B,121.5 seconds,False,,approved,B14
-T6-014B,T6 x multiplication/division (operation version),MATH-1416,Fill the gap: 1.5 hours = ___ seconds.,C,150 seconds,False,MATH-1416,approved,B14
-T6-014B,T6 x multiplication/division (operation version),MATH-1416,Fill the gap: 1.5 hours = ___ seconds.,D,"3,690 seconds",False,MATH-1416,approved,B14
-T6-016B,T6 x multiplication/division (operation version),MATH-1416,A film lasts 3 hours. How long is that in seconds?,A,123 seconds,False,,approved,B14
-T6-016B,T6 x multiplication/division (operation version),MATH-1416,A film lasts 3 hours. How long is that in seconds?,B,240 seconds,False,MATH-1416,approved,B14
-T6-016B,T6 x multiplication/division (operation version),MATH-1416,A film lasts 3 hours. How long is that in seconds?,C,"10,800 seconds",True,,approved,B14
-T6-016B,T6 x multiplication/division (operation version),MATH-1416,A film lasts 3 hours. How long is that in seconds?,D,"3,780 seconds",False,MATH-1416,approved,B14
-T6-015B,T6 x multiplication/division (operation version),MATH-2359,"Which of these is the same as 14,400 seconds?",A,0.25 hours,False,MATH-2359,approved,B14
-T6-015B,T6 x multiplication/division (operation version),MATH-2359,"Which of these is the same as 14,400 seconds?",B,144 hours,False,,approved,B14
-T6-015B,T6 x multiplication/division (operation version),MATH-2359,"Which of these is the same as 14,400 seconds?",C,"10,800 hours",False,,approved,B14
-T6-015B,T6 x multiplication/division (operation version),MATH-2359,"Which of these is the same as 14,400 seconds?",D,4 hours,True,,approved,B14
+T6-011B,T6 x multiplication/division (operation version),MATH-1416,How many minutes are there in 2 hours?,A,60 minutes,False,,approved,B14
+T6-011B,T6 x multiplication/division (operation version),MATH-1416,How many minutes are there in 2 hours?,B,120 minutes,True,,approved,B14
+T6-011B,T6 x multiplication/division (operation version),MATH-1416,How many minutes are there in 2 hours?,C,62 minutes,False,MATH-1416,approved,B14
+T6-011B,T6 x multiplication/division (operation version),MATH-1416,How many minutes are there in 2 hours?,D,122 minutes,False,,approved,B14
+T6-010B,T6 x multiplication/division (operation version),MATH-2359,Fill the gap: 120 minutes = ___ hours.,A,0.5 hours,False,MATH-2359,approved,B14
+T6-010B,T6 x multiplication/division (operation version),MATH-2359,Fill the gap: 120 minutes = ___ hours.,B,60 hours,False,,approved,B14
+T6-010B,T6 x multiplication/division (operation version),MATH-2359,Fill the gap: 120 minutes = ___ hours.,C,180 hours,False,,approved,B14
+T6-010B,T6 x multiplication/division (operation version),MATH-2359,Fill the gap: 120 minutes = ___ hours.,D,2 hours,True,,approved,B14
+T6-014B,T6 x multiplication/division (operation version),MATH-1416,Fill the gap: 1.5 hours = ___ minutes.,A,90 minutes,True,,approved,B14
+T6-014B,T6 x multiplication/division (operation version),MATH-1416,Fill the gap: 1.5 hours = ___ minutes.,B,60 minutes,False,,approved,B14
+T6-014B,T6 x multiplication/division (operation version),MATH-1416,Fill the gap: 1.5 hours = ___ minutes.,C,61.5 minutes,False,MATH-1416,approved,B14
+T6-014B,T6 x multiplication/division (operation version),MATH-1416,Fill the gap: 1.5 hours = ___ minutes.,D,91.5 minutes,False,,approved,B14
+T6-016B,T6 x multiplication/division (operation version),MATH-1416,A film lasts 3 hours. How long is that in minutes?,A,60 minutes,False,,approved,B14
+T6-016B,T6 x multiplication/division (operation version),MATH-1416,A film lasts 3 hours. How long is that in minutes?,B,63 minutes,False,MATH-1416,approved,B14
+T6-016B,T6 x multiplication/division (operation version),MATH-1416,A film lasts 3 hours. How long is that in minutes?,C,180 minutes,True,,approved,B14
+T6-016B,T6 x multiplication/division (operation version),MATH-1416,A film lasts 3 hours. How long is that in minutes?,D,183 minutes,False,,approved,B14
+T6-015B,T6 x multiplication/division (operation version),MATH-2359,Which of these is the same as 240 minutes?,A,0.25 hours,False,MATH-2359,approved,B14
+T6-015B,T6 x multiplication/division (operation version),MATH-2359,Which of these is the same as 240 minutes?,B,180 hours,False,,approved,B14
+T6-015B,T6 x multiplication/division (operation version),MATH-2359,Which of these is the same as 240 minutes?,C,300 hours,False,,approved,B14
+T6-015B,T6 x multiplication/division (operation version),MATH-2359,Which of these is the same as 240 minutes?,D,4 hours,True,,approved,B14
 T6-019A,T6 x percentage / more / less than (time version),MATH-161,"What is 10% of 2 hours, in minutes?",A,20 minutes,False,MATH-161,approved,B15
 T6-019A,T6 x percentage / more / less than (time version),MATH-161,"What is 10% of 2 hours, in minutes?",B,12 minutes,True,,approved,B15
 T6-019A,T6 x percentage / more / less than (time version),MATH-161,"What is 10% of 2 hours, in minutes?",C,2 minutes,False,MATH-767,approved,B15
@@ -467,15 +467,15 @@ T6-021B,T6 x percentage / more / less than (operation version),MATH-126,Zara cyc
 T6-021B,T6 x percentage / more / less than (operation version),MATH-126,Zara cycled for 3 hours. Ali cycled 40 minutes more than Zara. How many minutes did Ali cycle?,B,140 minutes,False,,approved,B16
 T6-021B,T6 x percentage / more / less than (operation version),MATH-126,Zara cycled for 3 hours. Ali cycled 40 minutes more than Zara. How many minutes did Ali cycle?,C,180 minutes,False,,approved,B16
 T6-021B,T6 x percentage / more / less than (operation version),MATH-126,Zara cycled for 3 hours. Ali cycled 40 minutes more than Zara. How many minutes did Ali cycle?,D,220 minutes,True,,approved,B16
-T6-012B,T6 x multiplication/division (operation version),MATH-2359,"A marathon runner finishes in 10,800 seconds. How many hours is that?",A,180 hours,False,,approved,B17
-T6-012B,T6 x multiplication/division (operation version),MATH-2359,"A marathon runner finishes in 10,800 seconds. How many hours is that?",B,0.33 hours,False,MATH-2359,approved,B17
-T6-012B,T6 x multiplication/division (operation version),MATH-2359,"A marathon runner finishes in 10,800 seconds. How many hours is that?",C,3 hours,True,,approved,B17
-T6-012B,T6 x multiplication/division (operation version),MATH-2359,"A marathon runner finishes in 10,800 seconds. How many hours is that?",D,108 hours,False,,approved,B17
-T6-013B,T6 x multiplication/division (operation version),MATH-2359,Which statement is correct?,A,"18,000 seconds = 0.2 hours",False,MATH-2359,approved,B17
-T6-013B,T6 x multiplication/division (operation version),MATH-2359,Which statement is correct?,B,"18,000 seconds = 300 hours",False,,approved,B17
-T6-013B,T6 x multiplication/division (operation version),MATH-2359,Which statement is correct?,C,"18,000 seconds = 180 hours",False,,approved,B17
-T6-013B,T6 x multiplication/division (operation version),MATH-2359,Which statement is correct?,D,"18,000 seconds = 5 hours",True,,approved,B17
-T5-017,T5 Powers and roots,MATH-1072,A fraction has 10² on the top and √25 on the bottom. Which calculation gives the value of the fraction?,A,(10²) / (25 / 2),False,MATH-414|MATH-734,approved,B18
+T6-012B,T6 x multiplication/division (operation version),MATH-2359,A marathon runner finishes in 180 minutes. How many hours is that?,A,120 hours,False,,approved,B17
+T6-012B,T6 x multiplication/division (operation version),MATH-2359,A marathon runner finishes in 180 minutes. How many hours is that?,B,0.33 hours,False,MATH-2359,approved,B17
+T6-012B,T6 x multiplication/division (operation version),MATH-2359,A marathon runner finishes in 180 minutes. How many hours is that?,C,3 hours,True,,approved,B17
+T6-012B,T6 x multiplication/division (operation version),MATH-2359,A marathon runner finishes in 180 minutes. How many hours is that?,D,240 hours,False,,approved,B17
+T6-013B,T6 x multiplication/division (operation version),MATH-2359,Which statement is correct?,A,300 minutes = 0.2 hours,False,MATH-2359,approved,B17
+T6-013B,T6 x multiplication/division (operation version),MATH-2359,Which statement is correct?,B,300 minutes = 240 hours,False,,approved,B17
+T6-013B,T6 x multiplication/division (operation version),MATH-2359,Which statement is correct?,C,300 minutes = 360 hours,False,,approved,B17
+T6-013B,T6 x multiplication/division (operation version),MATH-2359,Which statement is correct?,D,300 minutes = 5 hours,True,,approved,B17
+T5-017,T5 Powers and roots,MATH-1072,A fraction has 10² on the top and √25 on the bottom. Which calculation gives the value of the fraction?,A,(10²) / (25 / 2),False,MATH-414,approved,B18
 T5-017,T5 Powers and roots,MATH-1072,A fraction has 10² on the top and √25 on the bottom. Which calculation gives the value of the fraction?,B,(10²) / √25,True,,approved,B18
 T5-017,T5 Powers and roots,MATH-1072,A fraction has 10² on the top and √25 on the bottom. Which calculation gives the value of the fraction?,C,(10 x 2) / √25,False,MATH-1072,approved,B18
 T5-017,T5 Powers and roots,MATH-1072,A fraction has 10² on the top and √25 on the bottom. Which calculation gives the value of the fraction?,D,(10 + 2) / √25,False,MATH-952,approved,B18
@@ -483,7 +483,7 @@ T5-020,T5 cross-concept (operation version),MATH-2093,A fraction has 10² on the
 T5-020,T5 cross-concept (operation version),MATH-2093,A fraction has 10² on the top and √25 on the bottom. Which calculation gives the value of the fraction?,B,10² - √25,False,MATH-2093,approved,B18
 T5-020,T5 cross-concept (operation version),MATH-2093,A fraction has 10² on the top and √25 on the bottom. Which calculation gives the value of the fraction?,C,10² / √25,True,,approved,B18
 T5-020,T5 cross-concept (operation version),MATH-2093,A fraction has 10² on the top and √25 on the bottom. Which calculation gives the value of the fraction?,D,10² + √25,False,,approved,B18
-T5-018,T5 Powers and roots,MATH-952,A fraction has 6³ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,A,(6³) / (16 / 2),False,MATH-414|MATH-734,approved,B18
+T5-018,T5 Powers and roots,MATH-952,A fraction has 6³ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,A,(6³) / (16 / 2),False,MATH-414,approved,B18
 T5-018,T5 Powers and roots,MATH-952,A fraction has 6³ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,B,(6 x 3) / √16,False,MATH-1072,approved,B18
 T5-018,T5 Powers and roots,MATH-952,A fraction has 6³ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,C,(6 + 3) / √16,False,MATH-952,approved,B18
 T5-018,T5 Powers and roots,MATH-952,A fraction has 6³ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,D,(6³) / √16,True,,approved,B18
@@ -493,7 +493,7 @@ T5-021,T5 cross-concept (operation version),MATH-2093,A fraction has 6³ on the 
 T5-021,T5 cross-concept (operation version),MATH-2093,A fraction has 6³ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,D,6³ + √16,False,,approved,B18
 T5-019,T5 Powers and roots,MATH-414,A fraction has 8³ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,A,(8³) / √16,True,,approved,B18
 T5-019,T5 Powers and roots,MATH-414,A fraction has 8³ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,B,(8 x 3) / √16,False,MATH-1072,approved,B18
-T5-019,T5 Powers and roots,MATH-414,A fraction has 8³ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,C,(8³) / (16 / 2),False,MATH-414|MATH-734,approved,B18
+T5-019,T5 Powers and roots,MATH-414,A fraction has 8³ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,C,(8³) / (16 / 2),False,MATH-414,approved,B18
 T5-019,T5 Powers and roots,MATH-414,A fraction has 8³ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,D,(8 + 3) / √16,False,MATH-952,approved,B18
 T5-022,T5 cross-concept (operation version),MATH-2093,A fraction has 8³ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,A,8³ x √16,False,,approved,B18
 T5-022,T5 cross-concept (operation version),MATH-2093,A fraction has 8³ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,B,8³ / √16,True,,approved,B18
