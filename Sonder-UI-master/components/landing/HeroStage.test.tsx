@@ -8,6 +8,13 @@ import {
   HERO_KICKER,
 } from "@/lib/landing/hero/copy";
 
+const session = vi.hoisted(() => ({
+  account: null as null | { role: string },
+  email: null as string | null,
+}));
+
+vi.mock("@/lib/session", () => ({ useSession: () => session }));
+
 vi.mock("./styles/hero-stage.css", () => ({}));
 
 vi.mock("./BrainViewer", () => ({
@@ -58,12 +65,29 @@ describe("HeroStage statement", () => {
 
   afterEach(() => {
     cleanup();
+    session.account = null;
+    session.email = null;
+  });
+
+  it("labels the entry by account state", () => {
+    render(createElement(HeroStage));
+    expect(screen.getByRole("link", { name: "Create account" })).toBeTruthy();
+    cleanup();
+    session.email = "a@b.invalid";
+    render(createElement(HeroStage));
+    expect(screen.getByRole("link", { name: "Continue setup" })).toBeTruthy();
+    cleanup();
+    session.account = { role: "student" };
+    render(createElement(HeroStage));
+    expect(screen.getByRole("link", { name: "Open dashboard" })).toBeTruthy();
   });
 
   it("renders one h1 with the two-line statement", () => {
     render(createElement(HeroStage));
     const heading = screen.getByRole("heading", { level: 1 });
-    expect(heading.textContent?.replace(/\s+/g, " ").trim()).toBe(HERO_HEADLINE);
+    expect(heading.textContent?.replace(/\s+/g, " ").trim()).toBe(
+      HERO_HEADLINE,
+    );
     expect(screen.getByText(HERO_HEADLINE_LEAD)).toBeTruthy();
     expect(screen.getByText(HERO_HEADLINE_ACCENT)).toBeTruthy();
   });

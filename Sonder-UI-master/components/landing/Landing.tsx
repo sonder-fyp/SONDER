@@ -1,6 +1,12 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import Link from "next/link";
+import {
+  HERO_HEADLINE_LEAD,
+  HERO_HEADLINE_ACCENT,
+  HERO_KICKER,
+} from "@/lib/landing/hero/copy";
 import { useEffect } from "react";
 import { LANDING_CHROME_SENTINEL_ID } from "@/lib/chrome";
 import { Thesis } from "./sections/Thesis";
@@ -8,7 +14,10 @@ import { Workspaces } from "./sections/Workspaces";
 import { LandingFooter } from "./sections/LandingFooter";
 import VineScroller from "./VineScroller";
 import { Container } from "@/components/layout";
-import { initSmoothScroll, destroySmoothScroll } from "@/lib/landing/smooth-scroll";
+import {
+  initSmoothScroll,
+  destroySmoothScroll,
+} from "@/lib/landing/smooth-scroll";
 import "./styles/landing.css";
 
 /**
@@ -21,7 +30,21 @@ const HeroStage = dynamic(() => import("./HeroStage"), {
   // Exactly one dynamic viewport tall, on the page ground, so nothing shifts
   // when the real hero swaps in. This is the CLS defence.
   loading: () => (
-    <div className="hero-stage ink-stage h-[100dvh] w-full" aria-hidden />
+    <div className="hero-stage ink-stage relative h-[100dvh] w-full">
+      <div className="absolute inset-x-0 bottom-0 mx-auto max-w-[1440px] px-6 pb-[8vh] md:px-12 lg:px-16">
+        <p className="label text-accent">{HERO_KICKER}</p>
+        <h1 className="mt-5 max-w-lg text-3xl font-semibold leading-tight tracking-tighter sm:text-5xl">
+          {HERO_HEADLINE_LEAD}
+          <span className="mt-2 block text-accent">{HERO_HEADLINE_ACCENT}</span>
+        </h1>
+        <Link
+          href="#narrative"
+          className="mt-6 inline-flex min-h-11 items-center text-sm text-muted-foreground underline underline-offset-4"
+        >
+          How it works
+        </Link>
+      </div>
+    </div>
   ),
 });
 
@@ -31,7 +54,9 @@ export function Landing() {
 
     if (typeof document !== "undefined" && document.fonts?.ready) {
       void document.fonts.ready.then(() => {
-        void import("gsap/ScrollTrigger").then((m) => m.ScrollTrigger.refresh());
+        void import("gsap/ScrollTrigger").then((m) =>
+          m.ScrollTrigger.refresh(),
+        );
       });
     }
 
@@ -59,7 +84,7 @@ export function Landing() {
           <Container>
             <p className="label text-paper-muted">The mechanism</p>
             <h2 className="mt-8 max-w-[20ch] text-4xl font-semibold leading-tight tracking-tighter text-paper-ink sm:text-5xl lg:text-6xl">
-              Six things it does that marking cannot.
+              From an answer to understanding.
             </h2>
           </Container>
           <VineScroller />

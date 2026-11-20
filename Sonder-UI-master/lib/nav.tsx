@@ -1,190 +1,122 @@
 import {
   Home,
   Compass,
-  LineChart,
-  MessageCircleQuestion,
-  LayoutDashboard,
-  AlertTriangle,
-  ClipboardCheck,
-  Bot,
-  FileText,
-  BookMarked,
-  Grid3x3,
-  Gauge,
-  ScrollText,
-  GraduationCap,
-  School,
-  MessagesSquare,
+  ShieldCheck,
+  Settings,
+  Users,
+  History,
   type LucideIcon,
 } from "lucide-react";
-import type { Role } from "@/lib/session";
+import type { AppRole as Role } from "@/lib/auth/types";
 
 export type NavItem = {
   label: string;
-  /** Short caption for the student dock. Full `label` stays on aria-label. */
   dockLabel?: string;
   href: string;
   icon: LucideIcon;
-  /** Extra path prefixes that also mark this item active. */
   match?: string[];
 };
 export type NavGroup = { label?: string; items: NavItem[] };
 
-/**
- * Per-role sidebar navigation. Grouped, with an optional section label.
- * Contextual screens (an evidence panel, a single summary) are reached from
- * within a section, not listed here.
- */
+/** Only operational destinations belong in the primary navigation. */
 export const NAV: Record<Role, NavGroup[]> = {
   student: [
     {
       items: [
-        { label: "Home", dockLabel: "Home", href: "/student", icon: Home },
+        { label: "Home", href: "/student", icon: Home },
         {
-          label: "New Diagnostic",
-          dockLabel: "New",
+          label: "Diagnostics",
           href: "/student/start",
           icon: Compass,
-          match: ["/student/session", "/student/verify"],
+          match: ["/student/diagnostic"],
         },
-        {
-          label: "Learn",
-          dockLabel: "Learn",
-          href: "/student/learn",
-          icon: GraduationCap,
-        },
+        { label: "Classes", href: "/student/classes", icon: Users },
+        { label: "History", href: "/student/history", icon: History },
       ],
     },
     {
-      label: "Class",
+      label: "Account",
       items: [
-        { label: "My classes", href: "/student/classes", icon: School },
-        { label: "Message teacher", href: "/student/messages", icon: MessagesSquare },
-      ],
-    },
-    {
-      label: "Progress",
-      items: [
-        {
-          label: "My Insights",
-          dockLabel: "Insights",
-          href: "/student/insights",
-          icon: LineChart,
-        },
-        {
-          label: "Ask consultant",
-          dockLabel: "Ask",
-          href: "/student/consultant",
-          icon: MessageCircleQuestion,
-        },
+        { label: "Preferences", href: "/student/settings", icon: Settings },
       ],
     },
   ],
   teacher: [
     {
       items: [
-        { label: "Dashboard", href: "/teacher", icon: LayoutDashboard },
+        { label: "Overview", href: "/teacher", icon: Home },
+        { label: "Classes", href: "/teacher/classes", icon: Users },
       ],
     },
     {
-      label: "Class",
+      label: "Account",
       items: [
-        { label: "Classes", href: "/teacher/classes", icon: School },
-        { label: "Messages", href: "/teacher/messages", icon: MessagesSquare },
+        { label: "Preferences", href: "/teacher/settings", icon: Settings },
       ],
-    },
-    {
-      label: "Queues",
-      items: [
-        {
-          label: "Escalations",
-          href: "/teacher/escalations",
-          icon: AlertTriangle,
-        },
-        {
-          label: "Content review",
-          href: "/teacher/content-review",
-          icon: ClipboardCheck,
-        },
-      ],
-    },
-    {
-      label: "Assist",
-      items: [{ label: "AI consultant", href: "/teacher/consultant", icon: Bot }],
     },
   ],
   parent: [
+    { items: [{ label: "Overview", href: "/parent", icon: Home }] },
     {
+      label: "Account",
       items: [
-        { label: "Summaries", href: "/parent", icon: FileText },
-        { label: "Message teacher", href: "/parent/messages", icon: MessagesSquare },
+        { label: "Preferences", href: "/parent/settings", icon: Settings },
       ],
     },
   ],
   admin: [
     {
       items: [
-        { label: "Overview", href: "/admin", icon: LayoutDashboard },
+        { label: "Overview", href: "/admin", icon: Home },
+        { label: "Access requests", href: "/admin/access", icon: ShieldCheck },
       ],
     },
     {
-      label: "Content",
+      label: "Account",
       items: [
-        { label: "Catalogue", href: "/admin/catalogue", icon: BookMarked },
-        { label: "Coverage", href: "/admin/coverage", icon: Grid3x3 },
-        { label: "Provenance", href: "/admin/provenance", icon: ScrollText },
-      ],
-    },
-    {
-      label: "Insight",
-      items: [
-        { label: "Performance", href: "/admin/performance", icon: Gauge },
+        { label: "Preferences", href: "/admin/settings", icon: Settings },
       ],
     },
   ],
 };
-
-/** A role home matches exactly; every other item owns its subtree, plus `match`. */
 export function isNavItemActive(
   pathname: string,
   item: NavItem,
   home: string,
 ): boolean {
   if (item.href === home) return pathname === item.href;
-  if (pathname === item.href || pathname.startsWith(`${item.href}/`)) return true;
+  if (pathname === item.href || pathname.startsWith(`${item.href}/`))
+    return true;
   return (item.match ?? []).some(
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
   );
 }
-
-/** Human labels for path segments, for the top-bar breadcrumb. */
 export const SEGMENT_LABELS: Record<string, string> = {
-  student: "Student",
-  teacher: "Teacher",
-  parent: "Parent",
-  admin: "Admin",
-  start: "New diagnostic",
+  student: "Home",
+  teacher: "Overview",
+  parent: "Overview",
+  admin: "Overview",
+  start: "Diagnostics",
+  diagnostic: "Diagnostic",
+  settings: "Preferences",
+  access: "Access requests",
   session: "Session",
   review: "Review",
   remediation: "Study note",
-  learn: "Learn",
-  verify: "Follow-up check",
-  insights: "Insights",
-  consultant: "AI consultant",
-  escalations: "Escalations",
+  learn: "Learning",
+  verify: "Follow-up",
+  insights: "Activity",
+  consultant: "Consultant",
+  escalations: "Follow-up",
   "content-review": "Content review",
-  agreement: "Two-reviewer check",
-  students: "Students",
+  agreement: "Review agreement",
+  students: "Student",
   summary: "Summary",
   catalogue: "Catalogue",
   coverage: "Coverage",
-  performance: "Performance",
+  performance: "Reports",
   provenance: "Provenance",
   classes: "Classes",
   messages: "Messages",
-  A: "Scenario A",
-  B: "Scenario B",
-  C: "Scenario C",
-  topic: "Topic",
-  general: "Broad check",
+  generation: "Generation history",
 };

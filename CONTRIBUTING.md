@@ -23,8 +23,11 @@
 - Fill in the PR template.
 - Commit counts are not contribution evidence, so keep PRs tied to a task. This makes feature commits easy to track.
 
-## Setup in progress
+## Setup status
 
-- A GitHub Actions workflow for the UI only. An engine workflow job (YAML) will be added once the Python package exists.
-- A PR template.
-- Branch protection on `main` and `dev`, once the workflow has run once.
+See [setup](docs/SETUP.md) for installation and reproducible local checks.
+
+- Done: a GitHub Actions workflow (`.github/workflows/ci.yml`) with three jobs: `ci` (the UI), `math-data` (the Maths dataset validator and its tests) and `engine` (the pure engine tests).
+- Done: a `persistence` CI job (Docker PostgreSQL 16) that runs `tests/test_persist_*.py`: migrations, persistent sessions and access checks.
+- Done: a PR template (`.github/pull_request_template.md`).
+- Not done: branch protection on `main` and `dev`. Until it is enabled, the no-direct-push rules above are conventions, not enforced by GitHub.

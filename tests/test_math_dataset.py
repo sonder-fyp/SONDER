@@ -44,11 +44,11 @@ class MathDatasetValidationTests(unittest.TestCase):
             "misconceptions": links, "status": "approved", "batch": "B01",
         }
 
-    def findings(self) -> list:
+    def findings(self, *, guess: float = 0.30) -> list:
         write_csv(self.root / "topics.csv", TOPIC_COLUMNS, self.topics)
         write_csv(self.root / "bank" / "items.csv", BANK_COLUMNS, self.bank)
         write_csv(self.root / "batches" / "B01_example_long.csv", BATCH_COLUMNS, self.batch)
-        return validate_dataset(self.root)
+        return validate_dataset(self.root, guess=guess)
 
     def codes(self) -> set[str]:
         return {finding.code for finding in self.findings()}
@@ -81,14 +81,16 @@ class MathDatasetValidationTests(unittest.TestCase):
         self.assertIn("UNKNOWN_LINK", codes)
         self.assertIn("INVALID_LINK_LIST", codes)
 
-    def test_three_options_linked_to_one_misconception_conflict_with_draft(self) -> None:
+    def test_three_links_are_structurally_valid_but_default_guess_fails_p1(self) -> None:
         self.bank[2]["misconceptions"] = "MATH-1"
         self.bank[3]["misconceptions"] = "MATH-1"
         self.batch[2]["misconceptions"] = "MATH-1"
         self.batch[3]["misconceptions"] = "MATH-1"
         findings = self.findings()
-        self.assertIn("DRAFT_PACK_V11", {finding.code for finding in findings})
+        self.assertIn("P1_GUESS", {finding.code for finding in findings})
         self.assertFalse(any(finding.kind == "error" for finding in findings))
+        self.assertEqual([], self.findings(guess=0.24))
+        self.assertIn("P1_GUESS", {finding.code for finding in self.findings(guess=0.25)})
 
     def test_bank_change_without_matching_batch_change_is_detected(self) -> None:
         self.bank[0]["option_text"] = "Changed answer"
@@ -115,18 +117,16 @@ class MathDatasetValidationTests(unittest.TestCase):
             row["topic"] = "T1 Alternate label"
         self.assertIn("TOPIC_LABEL_NEEDS_MAPPING", self.codes())
 
-    def test_cross_topic_link_needs_pack_decision_under_draft_v5(self) -> None:
+    def test_declared_cross_topic_link_is_not_rejected_by_old_topic_rule(self) -> None:
         self.topics.append({
             "topic": "T2 Another", "MisconceptionId": "MATH-3",
             "MisconceptionName": "Third",
         })
         self.bank[0]["misconceptions"] = "MATH-3"
         self.batch[0]["misconceptions"] = "MATH-3"
-        findings = self.findings()
-        self.assertIn("DRAFT_PACK_V5", {finding.code for finding in findings})
-        self.assertFalse(any(finding.kind == "error" for finding in findings))
+        self.assertEqual([], self.findings())
 
-    def test_label_with_too_many_linked_hypotheses_needs_pack_split(self) -> None:
+    def test_topic_label_does_not_define_a_diagnostic_unit(self) -> None:
         for number in range(3, 8):
             self.topics.append({
                 "topic": "T1 Example", "MisconceptionId": f"MATH-{number}",
@@ -134,7 +134,18 @@ class MathDatasetValidationTests(unittest.TestCase):
             })
         self.bank[0]["misconceptions"] = "MATH-1|MATH-3|MATH-4|MATH-5|MATH-6|MATH-7"
         self.batch[0]["misconceptions"] = self.bank[0]["misconceptions"]
-        self.assertIn("DRAFT_PACK_V7", self.codes())
+        self.assertEqual([], self.findings())
+
+    def test_per_item_p1_uses_one_and_two_link_thresholds(self) -> None:
+        self.assertEqual([], self.findings(guess=0.49))
+        self.assertIn("P1_GUESS", {f.code for f in self.findings(guess=0.75)})
+        self.bank[2]["misconceptions"] = "MATH-1"
+        self.batch[2]["misconceptions"] = "MATH-1"
+        self.assertIn("P1_GUESS", {f.code for f in self.findings(guess=0.50)})
+
+    def test_invalid_guess_is_rejected(self) -> None:
+        with self.assertRaises(ValueError):
+            validate_dataset(self.root, guess=1.0)
 
 
 if __name__ == "__main__":

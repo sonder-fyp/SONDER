@@ -1,111 +1,108 @@
-import { describe, it, expect, vi, afterEach } from "vitest";
-import { render, screen, cleanup } from "@testing-library/react";
-import { SessionProvider } from "@/lib/session";
-import { MusicProvider } from "@/lib/music";
-
-let pathname = "/";
-
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+const state = vi.hoisted(() => ({
+  path: "/",
+  loading: false,
+  email: null as string | null,
+  account: null as null | { role: "student"; display_name: string },
+}));
 vi.mock("next/navigation", () => ({
-  usePathname: () => pathname,
+  usePathname: () => state.path,
   useRouter: () => ({ push: vi.fn() }),
 }));
-
+vi.mock("@/lib/session", () => ({
+  useSession: () => ({
+    account: state.account,
+    email: state.email,
+    loading: state.loading,
+    signOut: vi.fn(),
+  }),
+}));
 import { AppShell } from "./AppShell";
-
-function renderShell(children: string) {
-  return render(
-    <SessionProvider>
-      <MusicProvider>
-        <AppShell>
-          <div>{children}</div>
-        </AppShell>
-      </MusicProvider>
-    </SessionProvider>,
-  );
-}
-
-describe("AppShell persistent chrome", () => {
+describe("product navigation", () => {
+  beforeEach(() => {
+    HTMLDialogElement.prototype.showModal = function () {
+      this.setAttribute("open", "");
+    };
+    HTMLDialogElement.prototype.close = function () {
+      this.removeAttribute("open");
+    };
+  });
   afterEach(() => {
     cleanup();
-    pathname = "/";
+    state.path = "/";
+    state.email = null;
+    state.loading = false;
+    state.account = null;
     localStorage.clear();
-    document.documentElement.removeAttribute("data-theme");
   });
-
-  it("shows landing slots on /", () => {
-    renderShell("landing page");
-
-    expect(document.querySelector("header.topbar")).toBeTruthy();
-    expect(document.querySelector("header.topbar")?.className).toContain("fixed");
-    expect(screen.getByRole("navigation", { name: "Landing" })).toBeTruthy();
-    expect(screen.getByRole("link", { name: "Student" }).getAttribute("href")).toBe(
-      "/student",
-    );
-    expect(screen.getByRole("link", { name: "Teacher" }).getAttribute("href")).toBe(
-      "/teacher",
-    );
-    expect(screen.getByRole("link", { name: "Parent" }).getAttribute("href")).toBe(
-      "/parent",
-    );
-    expect(screen.getByRole("link", { name: "Admin" }).getAttribute("href")).toBe(
-      "/admin",
-    );
-    expect(screen.queryByText("Choose a workspace")).toBeNull();
-    expect(screen.getByText("Skip to how it works")).toBeTruthy();
-    expect(screen.queryByRole("navigation", { name: "Breadcrumb" })).toBeNull();
-    expect(screen.getByRole("button", { name: "Play background music" })).toBeTruthy();
+  it("offers product information and account entry without role entrances", () => {
+    render(<AppShell>Landing</AppShell>);
     expect(
-      screen.getByRole("button", { name: /Switch to (light|dark) theme/ }),
+      screen.getByRole("navigation", { name: "Public website" }),
     ).toBeTruthy();
-    expect(document.querySelector("header.topbar")?.className).not.toContain("border-accent");
-  });
-
-  it("keeps the same header node when crossing landing and product", () => {
-    const { rerender } = renderShell("landing page");
-    const header = document.querySelector("header.topbar");
-    expect(header).toBeTruthy();
-
-    pathname = "/student";
-    rerender(
-      <SessionProvider>
-        <MusicProvider>
-          <AppShell>
-            <div>student page</div>
-          </AppShell>
-        </MusicProvider>
-      </SessionProvider>,
-    );
-
-    expect(document.querySelector("header.topbar")).toBe(header);
-    expect(screen.getByRole("navigation", { name: "Breadcrumb" })).toBeTruthy();
-    expect(screen.getByText("Skip to content")).toBeTruthy();
-    expect(screen.queryByRole("navigation", { name: "Landing" })).toBeNull();
-    expect(screen.getByRole("button", { name: "Play background music" })).toBeTruthy();
     expect(
-      screen.getByRole("button", { name: /Switch to (light|dark) theme/ }),
-    ).toBeTruthy();
-    expect(document.querySelector("header.topbar")?.className).toContain("border-border");
-    expect(document.querySelector("header.topbar")?.className).not.toContain("border-accent");
+      screen.getByRole("link", { name: "Create account" }).getAttribute("href"),
+    ).toBe("/auth/sign-up");
+    for (const name of ["Student", "Teacher", "Parent", "Admin"])
+      expect(screen.queryByRole("link", { name })).toBeNull();
+    expect(
+      screen.queryByRole("button", { name: "Play background music" }),
+    ).toBeNull();
   });
-
-  it("renders no chrome on the component gallery", () => {
-    pathname = "/dev/components";
-    renderShell("gallery");
-
-    expect(document.querySelector("header.topbar")).toBeNull();
-    expect(screen.queryByText("Skip to content")).toBeNull();
-    expect(screen.getByText("gallery")).toBeTruthy();
-    expect(screen.queryByRole("button", { name: "Play background music" })).toBeNull();
+  it("keeps account entry actionable while the session refreshes", () => {
+    state.loading = true;
+    render(<AppShell>Landing</AppShell>);
+    expect(
+      screen
+        .getByRole("link", { name: "Continue" })
+        .getAttribute("href"),
+    ).toBe("/auth/continue");
+    expect(screen.queryByText("Loading account…")).toBeNull();
   });
-
-  it("keeps the consultant column shrinkable beside the sidebar", () => {
-    pathname = "/student/consultant";
-    renderShell("consultant");
-
-    const main = document.getElementById("main") as HTMLElement;
-    expect(main.className).toContain("min-w-0");
-    expect(main.className).toContain("overflow-hidden");
-    expect(main.parentElement?.className).toContain("min-w-0");
-    expect(main.parentElement?.className).toContain("w-full");
+  it("offers returning accounts their own dashboard instead of registration", () => {
+    state.account = { role: "student", display_name: "Test Student" };
+    render(<AppShell>Landing</AppShell>);
+    expect(
+      screen.getByRole("link", { name: "Open dashboard" }).getAttribute("href"),
+    ).toBe("/auth/continue");
+    expect(screen.queryByRole("link", { name: "Create account" })).toBeNull();
+  });
+  it("routes an account awaiting onboarding back to account setup", () => {
+    state.email = "student@sonder.invalid";
+    render(<AppShell>Landing</AppShell>);
+    expect(
+      screen.getByRole("link", { name: "Continue setup" }).getAttribute("href"),
+    ).toBe("/auth/continue");
+    expect(screen.queryByRole("link", { name: "Open dashboard" })).toBeNull();
+    expect(screen.queryByRole("link", { name: "Create account" })).toBeNull();
+  });
+  it("opens and closes the product mobile navigation without resetting it during render", () => {
+    state.path = "/student";
+    state.account = { role: "student", display_name: "Test Student" };
+    render(<AppShell>Student</AppShell>);
+    fireEvent.click(screen.getByRole("button", { name: "Open navigation" }));
+    expect(screen.getByRole("dialog", { name: "Your workspace" })).toBeTruthy();
+    expect(document.body.style.overflow).toBe("hidden");
+    fireEvent.click(screen.getByRole("button", { name: "Close navigation" }));
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(document.body.style.overflow).toBe("");
+  });
+  it("closes the public menu on selection", () => {
+    render(<AppShell>Landing</AppShell>);
+    fireEvent.click(screen.getByRole("button", { name: "Open navigation" }));
+    const nav = screen.getByRole("navigation", {
+      name: "Public mobile navigation",
+    });
+    fireEvent.click(nav.querySelector('a[href="#educators"]')!);
+    expect(screen.queryByRole("dialog")).toBeNull();
+  });
+  it("keeps identifiers out of the breadcrumb", () => {
+    state.path = "/teacher/session/11111111-1111-4111-8111-111111111111";
+    render(<AppShell>Evidence</AppShell>);
+    const crumb = screen.getByRole("navigation", { name: "Breadcrumb" });
+    expect(crumb.textContent).toContain("Details");
+    expect(crumb.textContent).not.toContain("11111111");
+    expect(crumb.querySelector('a[href="/teacher/session"]')).toBeNull();
   });
 });

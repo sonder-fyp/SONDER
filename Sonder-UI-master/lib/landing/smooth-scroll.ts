@@ -20,7 +20,7 @@ export function initSmoothScroll() {
   if (lenis || prefersReducedMotion()) return;
 
   lenis = new Lenis({
-    duration: 1.15,
+    duration: 0.65,
     easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
     smoothWheel: true,
     touchMultiplier: 1.1,

@@ -6,7 +6,7 @@ keeps session state, or decides when a session stops.
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Collection, Sequence
 from dataclasses import dataclass
 
 import numpy as np
@@ -20,8 +20,6 @@ from .model import Item, Params, validate_hypotheses
 EIG_DECIMALS = 9
 # Float noise may push EIG slightly below zero; more than this is a defect.
 NEGATIVE_EIG_TOLERANCE = 1e-12
-# Separation threshold used to choose the pair named in the reason (spec 3.6).
-DEFAULT_DELTA = 0.05
 # The reason names a pair among this many most probable hypotheses.
 LEADER_COUNT = 3
 
@@ -133,13 +131,40 @@ def _reason(
     )
 
 
+def eligible_items(items: Sequence[Item], asked_ids: Collection[str]) -> tuple[Item, ...]:
+    """Return the unasked items without twin partners, preserving pack order.
+
+    ``items`` is the full ordered unit pack, including previously asked items;
+    otherwise the asked items' twin groups cannot be found. The run loop owns
+    the history and must call this before selection and stopping checks.
+    """
+
+    if isinstance(asked_ids, str):
+        raise ValueError("asked_ids must be a collection of item IDs")
+    if any(not isinstance(item, Item) for item in items):
+        raise TypeError("items must contain Item values")
+    by_id = {item.item_id: item for item in items}
+    if len(by_id) != len(items):
+        raise ValueError("unit item IDs must be unique")
+    asked = set(asked_ids)
+    if any(not isinstance(item_id, str) for item_id in asked):
+        raise ValueError("asked_ids must contain item IDs")
+    unknown = asked - set(by_id)
+    if unknown:
+        raise ValueError(f"asked item IDs are not in the unit pack: {sorted(unknown)}")
+    blocked_groups = {by_id[item_id].twin_group for item_id in asked}
+    blocked_groups.discard(None)
+    return tuple(item for item in items
+                 if item.item_id not in asked and item.twin_group not in blocked_groups)
+
+
 def select_next(
     p: NDArray[np.float64],
     items: Sequence[Item],
     hyps: tuple[str, ...],
     params: Params,
     *,
-    delta: float = DEFAULT_DELTA,
+    delta: float | None = None,
 ) -> Selection | None:
     """Pick the eligible item with the highest expected information gain.
 
@@ -151,7 +176,9 @@ def select_next(
     when there is nothing to select.
     """
 
-    validate_hypotheses(hyps)
+    if not isinstance(params, Params):
+        raise TypeError("params must be Params")
+    validate_hypotheses(hyps, params.k_max)
     _check_distribution(p)
     if p.size != len(hyps):
         raise ValueError("posterior size does not match the hypotheses")
@@ -171,5 +198,8 @@ def select_next(
         eig=gains[best],
         entropy_before=entropy_bits(p),
         ranking=ranking,
-        reason=_reason(p, hyps, items[best], matrices[best], ranking, delta),
+        reason=_reason(
+            p, hyps, items[best], matrices[best], ranking,
+            params.delta_sep if delta is None else delta,
+        ),
     )

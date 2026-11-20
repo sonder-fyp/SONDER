@@ -1,18 +1,12 @@
-import { notFound } from "next/navigation";
-import { getScenario } from "@/fixtures/scenarios";
-import { EvidencePanel } from "./EvidencePanel";
-
-export function generateStaticParams() {
-  return [{ scenario: "A" }, { scenario: "B" }, { scenario: "C" }];
-}
-
-export default async function EvidencePage({
-  params,
-}: {
-  params: Promise<{ scenario: string }>;
-}) {
-  const { scenario: id } = await params;
-  const scenario = getScenario(id);
-  if (!scenario) notFound();
-  return <EvidencePanel scenario={scenario} />;
+import { WorkspaceState } from "@/components/product/WorkspaceState";
+export default function Page() {
+  return (
+    <WorkspaceState
+      label="Teacher"
+      title="Student evidence"
+      description="Understand the work behind an answer."
+      detail="Student evidence is not available on this link. The review service will provide access to real attempts within your classes."
+      home="/teacher"
+    />
+  );
 }

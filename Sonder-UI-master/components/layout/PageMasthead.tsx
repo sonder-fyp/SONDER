@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
  * spans the full grid, which is what keeps every page off a centred axis.
  *
  * Compact density is for ChatFrame only: one h1 at item scale, no AccentBar,
- * no poster rule. Other routes keep the default poster opening.
+ * no poster rule. Working pages use a smaller title and tighter spacing by default.
  *
  * Renders the page's ONE <h1>. No other component may render one.
  */
@@ -18,7 +18,7 @@ export function PageMasthead({
   actions,
   tabs,
   scale = "page",
-  density = "poster",
+  density = "workspace",
   className,
 }: {
   /** Mono, uppercase, accent. Two to four words. Always present. */
@@ -33,7 +33,7 @@ export function PageMasthead({
   /** A RouteTabs strip. Renders below the rule. */
   tabs?: React.ReactNode;
   scale?: "hero" | "page";
-  density?: "poster" | "compact";
+  density?: "poster" | "compact" | "workspace";
   className?: string;
 }) {
   if (density === "compact") {
@@ -49,7 +49,9 @@ export function PageMasthead({
           </p>
         ) : null}
         {actions ? (
-          <div className="mt-6 flex flex-wrap items-center gap-8">{actions}</div>
+          <div className="mt-6 flex flex-wrap items-center gap-8">
+            {actions}
+          </div>
         ) : null}
         {tabs ? <div className="mt-6">{tabs}</div> : null}
       </header>
@@ -57,16 +59,24 @@ export function PageMasthead({
   }
 
   return (
-    <header className={cn("relative pt-12 md:pt-16", className)}>
+    <header className={cn("relative pt-8 md:pt-10", className)}>
       <div className="lg:grid lg:grid-cols-12 lg:gap-8">
         <div className="lg:col-span-8">
           <Label tone="accent">{label}</Label>
-          <Heading level={1} scale={scale} className="mt-6">
+          <Heading
+            level={1}
+            scale={scale}
+            className={
+              density === "workspace"
+                ? "mt-4 !text-3xl !leading-tight md:!text-4xl"
+                : "mt-6"
+            }
+          >
             {title}
           </Heading>
-          <AccentBar className="mt-8" />
+          <AccentBar className="mt-6" />
           {lede ? (
-            <p className="mt-8 max-w-2xl text-lg leading-relaxed text-muted-foreground">
+            <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground">
               {lede}
             </p>
           ) : null}
@@ -81,7 +91,7 @@ export function PageMasthead({
         <div className="mt-10 flex flex-wrap items-center gap-8">{actions}</div>
       ) : null}
 
-      <div className="mt-10 md:mt-12">
+      <div className="mt-8 md:mt-10">
         <SectionRule />
       </div>
 

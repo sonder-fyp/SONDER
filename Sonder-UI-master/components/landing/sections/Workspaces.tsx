@@ -1,90 +1,77 @@
 "use client";
-
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, BookOpen, ClipboardCheck } from "lucide-react";
 import { Container, Section } from "@/components/layout";
-import { Label, LayeredNumber } from "@/components/type";
-import { useSession, type Role } from "@/lib/session";
-import { ROLES, ROLE_ORDER } from "@/lib/roles";
+import { Label } from "@/components/type";
+import { buttonVariants } from "@/components/ui/button";
+import { useSession } from "@/lib/session";
 import { useReveal } from "../useReveal";
-
-/** The claim each workspace proves. Chrome copy, not fixture data. */
-const CLAIM: Record<Role, string> = {
-  student: "A question chosen to tell two ideas apart.",
-  teacher: "Every diagnosis arrives with its evidence.",
-  parent: "Nothing is shown before a teacher approves it.",
-  admin: "When the bank falls short, it writes new questions.",
-};
 
 export function Workspaces() {
   const ref = useReveal<HTMLElement>();
-  const { signIn } = useSession();
-
+  const { account, email } = useSession();
   return (
-    <Section ref={ref} id="workspaces" size="hero" bordered>
+    <Section ref={ref} id="educators" size="hero" bordered>
       <Container>
         <Label tone="accent" data-reveal>
-          Enter
+          Learning, together
         </Label>
         <h2
           data-reveal
-          className="mt-8 max-w-[18ch] text-4xl font-semibold leading-tight tracking-tighter sm:text-5xl lg:text-6xl"
+          className="mt-8 max-w-[20ch] text-4xl font-semibold leading-tight tracking-tighter sm:text-5xl lg:text-6xl"
         >
-          Four workspaces. One engine.
+          A clearer question.
+          <br />A more useful next step.
         </h2>
-
-        <div className="mt-20 border-t border-border">
-          {ROLE_ORDER.map((role, i) => {
-            const meta = ROLES[role];
-            return (
-              <Link
-                key={role}
-                href={meta.home}
-                onClick={() => signIn(role)}
-                data-reveal
-                className="group relative flex flex-col gap-6 border-b border-border py-10 transition-colors duration-150 ease-[var(--ease)] hover:border-border-hover lg:grid lg:grid-cols-12 lg:items-baseline lg:gap-12"
-              >
-                <LayeredNumber
-                  value={String(i + 1).padStart(2, "0")}
-                  className="-top-6 right-0 opacity-60"
-                />
-
-                <div className="lg:col-span-3">
-                  <Label tone="accent" as="span">
-                    {meta.label}
-                  </Label>
-                  <span className="mt-3 block text-sm text-muted-foreground">
-                    {meta.person}
-                  </span>
-                  <span className="block text-sm text-muted-foreground">
-                    {meta.context}
-                  </span>
-                </div>
-
-                <div className="lg:col-span-6">
-                  <span className="relative inline-block text-2xl font-semibold leading-snug tracking-tight sm:text-3xl">
-                    {CLAIM[role]}
-                    <span
-                      aria-hidden
-                      className="absolute inset-x-0 -bottom-2 h-0.5 origin-left scale-x-0 bg-accent transition-transform duration-150 ease-[var(--ease)] group-hover:scale-x-100"
-                    />
-                  </span>
-                  <span className="mt-4 block max-w-xl text-base text-muted-foreground">
-                    {meta.blurb}
-                  </span>
-                </div>
-
-                <span className="label flex items-center gap-3 text-accent lg:col-span-3 lg:justify-end">
-                  {meta.home}
-                  <ArrowRight
-                    className="size-4 shrink-0 transition-transform duration-150 ease-[var(--ease)] group-hover:translate-x-1"
-                    strokeWidth={1.5}
-                    aria-hidden
-                  />
-                </span>
-              </Link>
-            );
-          })}
+        <div className="mt-16 grid gap-12 border-t border-border pt-10 md:grid-cols-2 md:gap-20">
+          <div data-reveal>
+            <BookOpen
+              className="size-7 text-accent"
+              strokeWidth={1.25}
+              aria-hidden
+            />
+            <h3 className="mt-6 text-2xl font-semibold">Room to think.</h3>
+            <p className="mt-4 max-w-md text-lg leading-relaxed text-muted-foreground">
+              Students work through one question at a time. Answers are saved,
+              so a check can be continued later.
+            </p>
+          </div>
+          <div data-reveal>
+            <ClipboardCheck
+              className="size-7 text-accent"
+              strokeWidth={1.25}
+              aria-hidden
+            />
+            <h3 className="mt-6 text-2xl font-semibold">
+              Context for the teacher.
+            </h3>
+            <p className="mt-4 max-w-md text-lg leading-relaxed text-muted-foreground">
+              Sonder is being built to connect student answers with evidence for
+              teacher review. Class and review tools will become available as
+              they are completed.
+            </p>
+          </div>
+        </div>
+        <div
+          data-reveal
+          className="mt-16 border-y border-border py-10 md:flex md:items-center md:justify-between md:gap-12"
+        >
+          <div>
+            <h3 className="text-2xl font-semibold">
+              Begin with a little clarity.
+            </h3>
+            <p className="mt-3 max-w-xl text-muted-foreground">
+              Mathematics diagnostics are available to enrolled students.
+              Teacher and parent registrations require approval.
+            </p>
+          </div>
+          <Link
+            href={account || email ? "/auth/continue" : "/auth/sign-up"}
+            className={`${buttonVariants({ size: "lg" })} mt-8 shrink-0 md:mt-0`}
+          >
+            {account ? "Open dashboard" : email ? "Continue setup" : "Create account"}
+            <ArrowRight className="size-4" aria-hidden />
+          </Link>
         </div>
       </Container>
     </Section>

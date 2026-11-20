@@ -8,15 +8,20 @@
 **/build/
 **/dist/
 **/coverage/
+# This is a product route, not a test-coverage report.
+!/Sonder-UI-master/app/admin/coverage/
+!/Sonder-UI-master/app/admin/coverage/**
 **/*.tsbuildinfo
 **/next-env.d.ts
 **/__pycache__/
 **/*.pyc
 **/*.egg-info/
+/.engine-ui-local/
 
 # Local environments and secrets.
 **/.env
 **/.env.*
+!**/.env.example
 **/*.pem
 
 # Editor and operating-system files.
@@ -26,4 +31,10 @@ Thumbs.db
 .idea/
 
 #Harris specfic Files 
+setup.sql
 HarrisDOcs
+sonder_iteration1_tables.pdf
+sonder_iteration1.sql
+
+# Word lock files.
+~$*

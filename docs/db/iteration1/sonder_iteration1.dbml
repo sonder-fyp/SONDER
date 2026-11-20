@@ -3,7 +3,7 @@
 // Triggers (freeze, review, four-option, append-only and trace checks) are not expressible in DBML; see the plan.
 // The derived view sonder.step_support (support counts per step) is not drawn; see the plan.
 // Coverage: 41 tables, 245 columns, 66 foreign keys, 11 secondary indexes.
-// sonder_iteration1.sql SHA-256: 3a5fdf47f63dca53f9a82b1cb3713505819679f2c4b1d4d13275b137d78040c4
+// sonder_iteration1.sql SHA-256: 0a6294c23142ca1ac832e1112299caba459fb7363071d5c31095d2fe697825e4
 
 Project Sonder_Iteration_1 {
   database_type: 'PostgreSQL'
@@ -496,8 +496,8 @@ Table sonder.engine_params [headercolor: #F59E0B] {
     `(default_budget >= 1)`
     `((delta_sep >= (0)) AND (delta_sep < 0.5))`
     `(eig_floor >= (0))`
-    `((guess > (0)) AND (guess < 0.5))`
-    `(k_max >= 1)`
+    `((guess > (0)) AND (guess < (1)))`
+    `((k_max >= 1) AND (k_max <= 8))`
     `(min_support >= 1)`
     `(params_sha256 ~ '^[0-9a-f]{64}$')`
     `(length(btrim(params_version)) > 0)`

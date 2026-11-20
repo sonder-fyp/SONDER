@@ -1,0 +1,16 @@
+{
+  "migrations": [
+    {"name": "0001_iteration1_schema", "path": "docs/db/iteration1/sonder_iteration1.sql", "wraps_own_transaction": true},
+    {"name": "0002_auth_rbac", "path": "Sonder-UI-master/db/001-auth-rbac.sql", "wraps_own_transaction": true},
+    {"name": "0003_classes", "path": "db/migrations/0003_classes.sql"},
+    {"name": "0004_class_membership", "path": "db/migrations/0004_class_membership.sql"},
+    {"name": "0005_class_assignment", "path": "db/migrations/0005_class_assignment.sql"},
+    {"name": "0006_session_assignment", "path": "db/migrations/0006_session_assignment.sql"},
+    {"name": "0007_assignment_start", "path": "db/migrations/0007_assignment_start.sql"},
+    {"name": "0008_app_user_role_change", "path": "db/migrations/0008_app_user_role_change.sql", "wraps_own_transaction": true},
+    {"name": "0009_session_review", "path": "db/migrations/0009_session_review.sql"},
+    {"name": "0010_class_activity", "path": "db/migrations/0010_class_activity.sql"},
+    {"name": "0011_student_dashboard", "path": "db/migrations/0011_student_dashboard.sql"},
+    {"name": "0012_student_history", "path": "db/migrations/0012_student_history.sql"}
+  ]
+}

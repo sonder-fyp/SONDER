@@ -15,10 +15,8 @@
  *  Below ~0.7 the entry feels rushed; above ~1.4 it feels like the page is stuck. */
 export const HERO_PIN_VH = 1.0;
 
-/** ScrollTrigger scrub for the hero timeline, in seconds of catch-up.
- *  Slightly tighter than the vine's 0.95 because the brain is a heavy object and
- *  too much lag reads as lag, not weight. */
-export const HERO_SCRUB = 0.9;
+/** ScrollTrigger catch-up in seconds, keeping the brain responsive to scrolling. */
+export const HERO_SCRUB = 0.3;
 
 /* ------------------------------------------------------- timeline staging */
 /* All values are positions on a timeline whose total duration is exactly 1.0. */

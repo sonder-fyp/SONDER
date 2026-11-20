@@ -5,7 +5,9 @@ import {
   ShieldCheck,
   type LucideIcon,
 } from "lucide-react";
-import type { Role } from "@/lib/session";
+import type { AppRole } from "@/lib/auth/types";
+
+export type Role = AppRole;
 
 export type RoleMeta = {
   role: Role;

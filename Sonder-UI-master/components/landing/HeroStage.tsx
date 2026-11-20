@@ -1,5 +1,8 @@
 "use client";
 
+import Link from "next/link";
+import { useSession } from "@/lib/session";
+import { buttonVariants } from "@/components/ui/button";
 import { useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -32,6 +35,7 @@ gsap.registerPlugin(ScrollTrigger);
  * The Aether Flow backdrop lives at the App level (fixed, full page).
  */
 export default function HeroStage() {
+  const { account, email } = useSession();
   const sectionRef = useRef<HTMLElement>(null);
   const veilRef = useRef<HTMLDivElement>(null);
   const wordmarkRef = useRef<HTMLDivElement>(null);
@@ -158,7 +162,10 @@ export default function HeroStage() {
         className="hero-veil pointer-events-none absolute inset-0 z-[5]"
       />
 
-      <div ref={wordmarkRef} className="hero-wordmark pointer-events-none absolute inset-0 z-[7]">
+      <div
+        ref={wordmarkRef}
+        className="hero-wordmark pointer-events-none absolute inset-0 z-[7]"
+      >
         <SonderWordmark />
       </div>
 
@@ -170,15 +177,23 @@ export default function HeroStage() {
           <div className="min-w-0 max-w-[min(100%,28rem)]">
             <p className="label text-accent">{HERO_KICKER}</p>
             <h1 className="mt-5 text-[clamp(1.75rem,4vw,3.25rem)] font-semibold leading-[1.08] tracking-tighter">
-              <span className="block">{HERO_HEADLINE_LEAD}{" "}</span>
-              <span className="mt-1 block text-accent">{HERO_HEADLINE_ACCENT}</span>
+              <span className="block">{HERO_HEADLINE_LEAD} </span>
+              <span className="mt-1 block text-accent">
+                {HERO_HEADLINE_ACCENT}
+              </span>
             </h1>
           </div>
 
           <div className="pointer-events-auto shrink-0 lg:pb-2 lg:text-right">
-            <p className="label text-muted-foreground">Scripted prototype</p>
-            <p className="label mt-3 text-muted-foreground">No backend</p>
-            <p className="label mt-3 text-muted-foreground">No live model</p>
+            <p className="max-w-[28ch] text-sm leading-relaxed text-muted-foreground">
+              One question at a time. Find the thinking behind your answer.
+            </p>
+            <Link
+              href={account || email ? "/auth/continue" : "/auth/sign-up"}
+              className={`${buttonVariants()} mt-6`}
+            >
+              {account ? "Open dashboard" : email ? "Continue setup" : "Create account"}
+            </Link>
             <a
               href="#narrative"
               className="label group relative mt-8 inline-flex min-h-11 items-center text-accent"

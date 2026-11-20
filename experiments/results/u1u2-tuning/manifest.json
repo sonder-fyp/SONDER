@@ -1,0 +1,91 @@
+{
+  "command": "python -m experiments.evaluate --config experiments/configs/u1u2-tuning.json",
+  "config": {
+    "cases": [
+      {
+        "apply_rates": [
+          0.5,
+          0.7,
+          0.9
+        ],
+        "policy": "intermittent",
+        "slip": 0.08
+      },
+      {
+        "policy": "none-with-slip",
+        "slip": 0.08
+      },
+      {
+        "policy": "always-A"
+      },
+      {
+        "policy": "random-uniform"
+      },
+      {
+        "policy": "off-catalogue"
+      },
+      {
+        "companion": "MATH-1965",
+        "policy": "partial-holder",
+        "target": "MATH-2039",
+        "units": [
+          "U2"
+        ]
+      }
+    ],
+    "methods": [
+      "adaptive",
+      "fixed",
+      "random"
+    ],
+    "name": "u1u2-tuning",
+    "protocol_version": 1,
+    "seeds": {
+      "count": 300,
+      "first": 1000
+    },
+    "split": "tuning",
+    "units": [
+      "U1",
+      "U2"
+    ]
+  },
+  "config_sha256": "4d1efaa2a9461def62a054aa2ac4c8d6f697c1a8e9bf61c4b57cd0e7531cf199",
+  "content_version": "Maths_v2",
+  "engine_version": "0.1.0",
+  "experiment": "u1u2-tuning",
+  "git_commit": "272cdfe445479e21c2aab6c30d832619b50aa833",
+  "git_tracked_changes": false,
+  "note": "Synthetic students under assumed parameters; not accuracy on real students. Labels for cases without a named truth are adverse-response labels, never correct or wrong diagnoses.",
+  "numpy": "2.4.4",
+  "params": {
+    "default_budget": 8,
+    "delta_sep": 0.05,
+    "eig_floor": 0.01,
+    "guess": 0.3,
+    "k_max": 8,
+    "min_support": 2,
+    "min_support_none": 3,
+    "prior_none": 0.25,
+    "prior_unmodelled": 0.05,
+    "slip": 0.1,
+    "theta": 0.8,
+    "theta_unmodelled": 0.5,
+    "w_sound": 1.0,
+    "w_stretch": 0.5
+  },
+  "protocol_version": 1,
+  "python": "3.14.0",
+  "row_count": 30606,
+  "source_sha256": {
+    "bank/items.csv": "502895a90823dedf6c15b3ddbd95e874371583bb0a2127b8ad1e0018cf9f9cd4",
+    "maths_v2_units.json": "4e7102a34cc195801faae6b6b416e3ad64c443e3ae7e8ee6d99819da628fef21",
+    "topics.csv": "f1a4dfe8ea0e035b03b84b5bb03809aabbfd2fbabceec10681ecd1c78482044d"
+  },
+  "split": "tuning",
+  "tasks": [
+    "I2-A07",
+    "I2-A08",
+    "I2-A09"
+  ]
+}

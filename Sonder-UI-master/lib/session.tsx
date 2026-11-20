@@ -1,93 +1,83 @@
 "use client";
 
-/**
- * Fake auth. There is no real login in this PoC — a "session" is just which of
- * the four roles you picked on the landing screen, kept in localStorage so a
- * refresh doesn't drop you back to the picker.
- *
- * Role is read through useSyncExternalStore so SSR sees "signed out", the client
- * sees the stored value after hydration, and there is no effect calling setState.
- */
-
-import { createContext, useCallback, useContext, useSyncExternalStore } from "react";
-
-export type Role = "student" | "teacher" | "parent" | "admin";
-
-const STORAGE_KEY = "sonder.role";
-
-function isRole(v: unknown): v is Role {
-  return v === "student" || v === "teacher" || v === "parent" || v === "admin";
-}
-
-function readStoredRole(): Role | null {
-  if (typeof window === "undefined") return null;
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    return isRole(saved) ? saved : null;
-  } catch {
-    return null;
-  }
-}
-
-const listeners = new Set<() => void>();
-function emit() {
-  listeners.forEach((l) => l());
-}
-function subscribeRole(cb: () => void) {
-  listeners.add(cb);
-  if (typeof window !== "undefined") window.addEventListener("storage", cb);
-  return () => {
-    listeners.delete(cb);
-    if (typeof window !== "undefined") window.removeEventListener("storage", cb);
-  };
-}
-const noopSubscribe = () => () => {};
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import { useRouter } from "next/navigation";
+import { authClient } from "@/lib/auth/client";
+import type { AppAccount } from "@/lib/auth/types";
 
 type SessionValue = {
-  role: Role | null;
-  /** false while the client is still hydrating; true once mounted. */
-  ready: boolean;
-  signIn: (role: Role) => void;
-  signOut: () => void;
+  account: AppAccount | null;
+  email: string | null;
+  loading: boolean;
+  error: string | null;
+  signOut: () => Promise<void>;
 };
 
 const SessionContext = createContext<SessionValue | null>(null);
 
 export function SessionProvider({ children }: { children: React.ReactNode }) {
-  const role = useSyncExternalStore(subscribeRole, readStoredRole, () => null);
-  const ready = useSyncExternalStore(
-    noopSubscribe,
-    () => true,
-    () => false,
-  );
+  const { data: session, isPending } = authClient.useSession();
+  const router = useRouter();
+  const [account, setAccount] = useState<AppAccount | null>(null);
+  const [loadedForUser, setLoadedForUser] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const userId = session?.user.id;
 
-  const signIn = useCallback((next: Role) => {
-    try {
-      localStorage.setItem(STORAGE_KEY, next);
-    } catch {
-      /* ignore */
-    }
-    emit();
-  }, []);
+  useEffect(() => {
+    if (isPending || !userId) return;
 
-  const signOut = useCallback(() => {
-    try {
-      localStorage.removeItem(STORAGE_KEY);
-    } catch {
-      /* ignore */
-    }
-    emit();
-  }, []);
+    const controller = new AbortController();
+    void fetch("/api/account/profile", { cache: "no-store", signal: controller.signal })
+      .then(async (response) => {
+        if (!response.ok) throw new Error("Unable to load account details.");
+        const result: { account: AppAccount | null } = await response.json();
+        setAccount(result.account);
+        setError(null);
+      })
+      .catch((cause: unknown) => {
+        if (controller.signal.aborted) return;
+        setAccount(null);
+        setError(cause instanceof Error ? cause.message : "Unable to load account details.");
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoadedForUser(userId);
+      });
 
-  return (
-    <SessionContext.Provider value={{ role, ready, signIn, signOut }}>
-      {children}
-    </SessionContext.Provider>
-  );
+    return () => controller.abort();
+  }, [isPending, userId]);
+
+  const signOut = useCallback(async () => {
+    const { error: signOutError } = await authClient.signOut();
+    if (signOutError) throw new Error("Unable to sign out. Please try again.");
+    setAccount(null);
+    setLoadedForUser(null);
+    router.replace("/");
+    router.refresh();
+  }, [router]);
+
+  const accountForUser = userId && loadedForUser === userId ? account : null;
+  const accountLoading = isPending || (!!userId && loadedForUser !== userId);
+
+  const value = useMemo<SessionValue>(() => ({
+    account: accountForUser,
+    email: session?.user.email ?? null,
+    loading: isPending || accountLoading,
+    error,
+    signOut,
+  }), [accountForUser, accountLoading, error, isPending, session?.user.email, signOut]);
+
+  return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
 }
 
 export function useSession(): SessionValue {
-  const ctx = useContext(SessionContext);
-  if (!ctx) throw new Error("useSession must be used inside <SessionProvider>");
-  return ctx;
+  const context = useContext(SessionContext);
+  if (!context) throw new Error("useSession must be used inside <SessionProvider>");
+  return context;
 }

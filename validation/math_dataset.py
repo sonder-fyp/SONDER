@@ -8,8 +8,8 @@ from __future__ import annotations
 
 import argparse
 import csv
-import re
 from dataclasses import dataclass
+from math import isfinite
 from pathlib import Path
 
 
@@ -74,8 +74,14 @@ def _links(row: dict[str, str], location: str, findings: list[Finding]) -> list[
     return links
 
 
-def validate_dataset(root: Path) -> list[Finding]:
-    """Return all detected findings; never change the supplied dataset."""
+def validate_dataset(root: Path, *, guess: float = 0.30) -> list[Finding]:
+    """Return structural and spec-v2 P1 findings without changing the dataset.
+
+    The validator does not construct diagnostic units. The pack loader must
+    check each item's links against its unit hypothesis set separately.
+    """
+    if not isinstance(guess, (int, float)) or isinstance(guess, bool) or not isfinite(guess) or not 0 < guess < 1:
+        raise ValueError("guess must be finite and strictly between zero and one")
     findings: list[Finding] = []
     bank_path = root / "bank" / "items.csv"
     topics = _read_csv(root / "topics.csv", TOPIC_COLUMNS, findings)
@@ -89,7 +95,6 @@ def validate_dataset(root: Path) -> list[Finding]:
 
     known_ids: set[str] = set()
     topic_names: set[str] = set()
-    ids_by_topic_code: dict[str, set[str]] = {}
     for row in topics:
         misconception_id = row["MisconceptionId"].strip()
         topic = row["topic"].strip()
@@ -99,9 +104,6 @@ def validate_dataset(root: Path) -> list[Finding]:
             findings.append(Finding("error", "DUPLICATE_MISCONCEPTION", "topics.csv", misconception_id))
         known_ids.add(misconception_id)
         topic_names.add(topic)
-        match = re.match(r"^(T\d+)\b", topic)
-        if match:
-            ids_by_topic_code.setdefault(match.group(1), set()).add(misconception_id)
 
     items: dict[str, list[dict[str, str]]] = {}
     bank_keys: set[tuple[str, str]] = set()
@@ -130,7 +132,6 @@ def validate_dataset(root: Path) -> list[Finding]:
             findings.append(Finding("error", "CORRECT_OPTION_LINKED", location, "Correct option has misconception links."))
         bank_batches.add(row["batch"].strip())
 
-    linked_by_label: dict[str, set[str]] = {}
     for item_id, rows in sorted(items.items()):
         location = f"bank/items.csv:{item_id}"
         if len(rows) != 4:
@@ -148,30 +149,17 @@ def validate_dataset(root: Path) -> list[Finding]:
             for misconception_id in {part.strip() for part in row["misconceptions"].split("|") if part.strip()}:
                 linked_option_counts[misconception_id] = linked_option_counts.get(misconception_id, 0) + 1
         for misconception_id, count in sorted(linked_option_counts.items()):
-            if count > 2:
+            if count > 3:
                 findings.append(Finding(
-                    "contract", "DRAFT_PACK_V11", location,
-                    f"{misconception_id} links {count} options; engine draft V11 allows at most 2.",
+                    "error", "V11_LINK_CAP", location,
+                    f"{misconception_id} links {count} options; V11 allows at most 3.",
                 ))
-        label = rows[0]["topic"]
-        linked_by_label.setdefault(label, set()).update(linked_option_counts)
-        match = re.match(r"^(T\d+)\b", label)
-        if match and match.group(1) in ids_by_topic_code:
-            foreign = (set(linked_option_counts) | {rows[0]["target"]}) - ids_by_topic_code[match.group(1)]
-            if foreign:
+            elif guess >= (4 - count) / 4:
                 findings.append(Finding(
-                    "contract", "DRAFT_PACK_V5", location,
-                    f"IDs outside {match.group(1)} in topics.csv: {', '.join(sorted(foreign))}. "
-                    "An explicit pack/topic grouping is needed before V5 can be checked.",
+                    "contract", "P1_GUESS", location,
+                    f"{misconception_id} links {count} options; guess={guess:g} "
+                    f"must be < {(4 - count) / 4:g} for this item.",
                 ))
-
-    for label, linked_ids in sorted(linked_by_label.items()):
-        if len(linked_ids) > 6:
-            findings.append(Finding(
-                "contract", "DRAFT_PACK_V7", "bank/items.csv",
-                f"'{label}' links {len(linked_ids)} misconceptions; draft K_MAX is 6 "
-                "if this label becomes one pack.",
-            ))
 
     for label in sorted({row["topic"] for row in bank} - topic_names):
         findings.append(Finding(
@@ -229,14 +217,19 @@ def main() -> int:
     )
     parser.add_argument(
         "--strict-contract", action="store_true",
-        help="Also fail if the dataset conflicts with Ahmed's draft pack rule V11.",
+        help="Also fail if the chosen guess violates spec v2 P1 on a bank item.",
     )
+    parser.add_argument("--guess", type=float, default=0.30,
+                        help="Assumed guess for P1 checks; default 0.30 (not a calibration).")
     args = parser.parse_args()
-    findings = validate_dataset(args.root)
+    try:
+        findings = validate_dataset(args.root, guess=args.guess)
+    except ValueError as exc:
+        parser.error(str(exc))
     for finding in findings:
         print(f"{finding.kind.upper():8} {finding.code:26} {finding.location}: {finding.detail}")
     counts = {kind: sum(finding.kind == kind for finding in findings) for kind in ("error", "contract", "warning")}
-    print(f"Structural errors: {counts['error']}; draft-contract conflicts: {counts['contract']}; warnings: {counts['warning']}.")
+    print(f"Structural errors: {counts['error']}; P1 conflicts: {counts['contract']}; warnings: {counts['warning']}.")
     return int(counts["error"] > 0 or (args.strict_contract and counts["contract"] > 0))
 
 

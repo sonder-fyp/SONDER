@@ -1,14 +1,16 @@
 """Throwaway import probe: load data/Maths_v2 into the Iteration 1 schema and report what fits.
 
 It prints SQL that runs inside ONE transaction and ends with ROLLBACK, so nothing is kept.
-It also declares the seven diagnostic units of spec v2 (docs/ENGINE_SPEC_DRAFT.md sections 1.2 and
-2.1), freezes the pack, and tries to freeze response models built with the spec's likelihood
-(section 3.1) at two guess rates, to show where rule P1 bites.
+It also declares the seven diagnostic units exactly as the engine builds them (sonder_pack/maths_v2.py
+and the unit table sonder_pack/maths_v2_units.json: decision D-2 skips T6-011B/014B/016B for U6 and
+drops MATH-1416 from U6; D-4 leaves T6-019B/020B/021B unplaced), freezes the pack, and tries to freeze
+response models built with the spec's likelihood (section 3.1) at two guess rates, to show where rule
+P1 bites. Skipped items still load (they stay approved in the pack); they are only absent from units.
 Each item is loaded in its own sub-block; a rejected item is recorded with the database's
 reason and the load continues. This is NOT the real importer (task T05.07): accounts are
 synthetic placeholders and review attribution is not resolved (see the plan, section 12).
 
-Usage (from the repository root):
+Usage (from the repository root; run_schema_tests.py does this against the Docker database):
     python docs/db/iteration1/tests/import_probe.py data/Maths_v2 | psql -X -q -d <scratch_db>
 """
 import collections
@@ -16,6 +18,11 @@ import csv
 import hashlib
 import os
 import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[4]))  # repository root, for the engine's loader
+from sonder_engine.pack import derive_twin_groups  # noqa: E402
+from sonder_pack.maths_v2 import load_maths_v2  # noqa: E402
 
 root = sys.argv[1]
 items_path = os.path.join(root, "bank", "items.csv")
@@ -37,24 +44,9 @@ for t in topics:
     pre = t["topic"].split(" ")[0]           # T1..T7
     topic_names[pre] = t["topic"]
     home[t["MisconceptionId"]] = pre
-stems = collections.defaultdict(list)
-for iid, opts in items.items():
-    stems[opts[0]["stem"].strip()].append(iid)
-family = {i: min(ids) for ids in stems.values() if len(ids) > 1 for i in ids}
-
-UNITS = [  # (code, name, items.csv labels, companion misconceptions)
-    ("U1", "Rounding", ["T1 Rounding"], []),
-    ("U2", "Conversion", ["T2 Fractions, decimals and percentage conversion"], []),
-    ("U3", "Percentage of an amount", ["T3 Percentage of an amount"], ["MATH-1074", "MATH-1651", "MATH-2359"]),
-    ("U4", "Choosing the operation", ["T4 Choosing the operation", "T5 cross-concept (operation version)"], ["MATH-2093"]),
-    ("U5", "Powers and roots", ["T5 Powers and roots"], []),
-    ("U6", "Time and unit conversion", ["T6 Time and unit conversion (seconds and hours)", "T6 x multiplication/division (operation version)",
-                                        "T6 x percentage / more / less than (time version)"], ["MATH-1416", "MATH-2359"]),
-    ("U7", "Negatives, inverse operations, fraction bar", ["T7 Negatives, inverse operations, fraction bar"], ["MATH-1514", "MATH-1773", "MATH-1715"]),
-]
-own = collections.defaultdict(list)
-for t in topics:
-    own[t["topic"].split(" ")[0]].append(t["MisconceptionId"])
+# Twin groups and units come from the engine's own loader, so the database and the engine agree.
+family = derive_twin_groups(rows)
+pack = load_maths_v2(Path(root))
 
 out = []
 w = out.append
@@ -115,16 +107,16 @@ for iid, opts in items.items():
 
 w("INSERT INTO hypothesis (content_version_id,kind,misconception_revision_id) SELECT '00000000-0000-0000-0000-00000000bb02','misconception',id FROM misconception_revision;")
 w("INSERT INTO hypothesis (content_version_id,kind) VALUES ('00000000-0000-0000-0000-00000000bb02','none'),('00000000-0000-0000-0000-00000000bb02','unmodelled');")
-for code, name, labels, companions in UNITS:
-    pre = labels[0].split(" ")[0]
-    hyps = own[pre] + companions
+for unit in pack.units:
+    code, name = unit.unit_id, unit.name
+    hyps = [h.misconception_id for h in unit.hypotheses]
     w(f"INSERT INTO diagnostic_unit (content_version_id,unit_code,name) VALUES ('00000000-0000-0000-0000-00000000bb02',{lit(code)},{lit(name)});")
     for slot, mid in enumerate(hyps):
         w(f"INSERT INTO unit_hypothesis (unit_id,hypothesis_id,slot) SELECT u.id, h.id, {slot} FROM diagnostic_unit u, hypothesis h "
           f"JOIN misconception_revision mr ON mr.id = h.misconception_revision_id JOIN misconception m ON m.id = mr.misconception_id "
           f"WHERE u.unit_code = {lit(code)} AND m.external_id = {lit(mid)};")
     # Pack order = the order of items.csv (positions 0..n-1); the engine breaks exact EIG ties by it.
-    members = [x for x, o in items.items() if o[0]["topic"] in labels]
+    members = [p.item.item_id for p in unit.items]
     values = ",".join(f"({lit(x)},{pos})" for pos, x in enumerate(members))
     w(f"INSERT INTO unit_item (unit_id,item_id,position) SELECT u.id, i.id, v.pos FROM diagnostic_unit u "
       f"JOIN (VALUES {values}) v(ext, pos) ON true JOIN item i ON i.external_id = v.ext WHERE u.unit_code = {lit(code)};")
@@ -170,6 +162,11 @@ w("SELECT u.unit_code, (SELECT count(*) FROM unit_hypothesis WHERE unit_id = u.i
   "FROM diagnostic_unit u ORDER BY u.unit_code;")
 w("\\echo '== items in no unit'")
 w("SELECT external_id FROM item i WHERE NOT EXISTS (SELECT 1 FROM unit_item ui WHERE ui.item_id = i.id) ORDER BY external_id;")
+w("\\echo '== engine unit-table exclusions (decisions D-2 and D-4)'")
+w("SELECT * FROM (VALUES " + ",".join(
+    f"({lit(x.code)},{lit(x.unit_id or '-')},{lit(x.subject)},{lit(x.decision or '')})"
+    for x in pack.warnings if x.code in ("SKIPPED_ITEM", "DROPPED_HYPOTHESIS", "UNPLACED_ITEM"))
+  + ") v(code, unit, subject, decision);")
 w("\\echo '== rejected items and reasons'")
 w("SELECT item_id, label, reason FROM probe_reject ORDER BY item_id;")
 w("ROLLBACK;")

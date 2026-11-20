@@ -1,18 +1,12 @@
-import { notFound } from "next/navigation";
-import { getScenario } from "@/fixtures/scenarios";
-import { ReviewPanel } from "./ReviewPanel";
-
-export function generateStaticParams() {
-  return [{ scenario: "A" }, { scenario: "B" }, { scenario: "C" }];
-}
-
-export default async function ReviewPage({
-  params,
-}: {
-  params: Promise<{ scenario: string }>;
-}) {
-  const { scenario: id } = await params;
-  const scenario = getScenario(id);
-  if (!scenario) notFound();
-  return <ReviewPanel scenario={scenario} />;
+import { WorkspaceState } from "@/components/product/WorkspaceState";
+export default function Page() {
+  return (
+    <WorkspaceState
+      label="Teacher"
+      title="Review"
+      description="Record a thoughtful next step."
+      detail="Persistent student review is not available yet. No review decision can be submitted from this page."
+      home="/teacher"
+    />
+  );
 }
