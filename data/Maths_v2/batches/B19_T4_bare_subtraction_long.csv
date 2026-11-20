@@ -1,0 +1,9 @@
+﻿item_id,topic,target,stem,option_id,option_text,is_correct,misconceptions,status
+T4-011,T4 Choosing the operation,MATH-1514,What is 42 − 17?,A,25,True,,draft
+T4-011,T4 Choosing the operation,MATH-1514,What is 42 − 17?,B,35,False,,draft
+T4-011,T4 Choosing the operation,MATH-1514,What is 42 − 17?,C,59,False,MATH-1514,draft
+T4-011,T4 Choosing the operation,MATH-1514,What is 42 − 17?,D,15,False,,draft
+T4-012,T4 Choosing the operation,MATH-1514,Find the value of 83 − 28.,A,65,False,,draft
+T4-012,T4 Choosing the operation,MATH-1514,Find the value of 83 − 28.,B,45,False,,draft
+T4-012,T4 Choosing the operation,MATH-1514,Find the value of 83 − 28.,C,55,True,,draft
+T4-012,T4 Choosing the operation,MATH-1514,Find the value of 83 − 28.,D,111,False,MATH-1514,draft

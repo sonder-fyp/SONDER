@@ -393,7 +393,7 @@ T3-002,T3 Percentage of an amount,MATH-2138,A phone shop gives a 20% discount on
 T3-002,T3 Percentage of an amount,MATH-2138,A phone shop gives a 20% discount on a charger that costs Rs 500. How much is the discount?,D,Rs 25,False,,approved,B13
 T3-003,T3 Percentage of an amount,MATH-2359,Which calculation gives 25% of 200?,A,4 ÷ 200,False,MATH-2359,approved,B13
 T3-003,T3 Percentage of an amount,MATH-2359,Which calculation gives 25% of 200?,B,200 + 25,False,MATH-2206,approved,B13
-T3-003,T3 Percentage of an amount,MATH-2359,Which calculation gives 25% of 200?,C,200 × 4,False,MATH-1651|MATH-1074,approved,B13
+T3-003,T3 Percentage of an amount,MATH-2359,Which calculation gives 25% of 200?,C,200 × 4,False,MATH-1074,approved,B13
 T3-003,T3 Percentage of an amount,MATH-2359,Which calculation gives 25% of 200?,D,200 ÷ 4,True,,approved,B13
 T3-004,T3 Percentage of an amount,MATH-2138,A class has 60 students. 50% of them are girls. How many girls are in the class?,A,110,False,MATH-2206,approved,B13
 T3-004,T3 Percentage of an amount,MATH-2138,A class has 60 students. 50% of them are girls. How many girls are in the class?,B,30,True,,approved,B13
@@ -401,12 +401,12 @@ T3-004,T3 Percentage of an amount,MATH-2138,A class has 60 students. 50% of them
 T3-004,T3 Percentage of an amount,MATH-2138,A class has 60 students. 50% of them are girls. How many girls are in the class?,D,1.2,False,,approved,B13
 T3-005,T3 Percentage of an amount,MATH-2206,What is 20% of 250?,A,270,False,MATH-2206,approved,B13
 T3-005,T3 Percentage of an amount,MATH-2206,What is 20% of 250?,B,20,False,MATH-2138,approved,B13
-T3-005,T3 Percentage of an amount,MATH-2206,What is 20% of 250?,C,"1,250",False,MATH-1651|MATH-1074,approved,B13
+T3-005,T3 Percentage of an amount,MATH-2206,What is 20% of 250?,C,"1,250",False,,approved,B13
 T3-005,T3 Percentage of an amount,MATH-2206,What is 20% of 250?,D,50,True,,approved,B13
-T3-006,T3 Percentage of an amount,MATH-1651,Which calculation gives 20% of 150?,A,5 ÷ 150,False,MATH-2359,approved,B13
-T3-006,T3 Percentage of an amount,MATH-1651,Which calculation gives 20% of 150?,B,150 ÷ 5,True,,approved,B13
-T3-006,T3 Percentage of an amount,MATH-1651,Which calculation gives 20% of 150?,C,150 + 20,False,MATH-2206,approved,B13
-T3-006,T3 Percentage of an amount,MATH-1651,Which calculation gives 20% of 150?,D,150 × 5,False,MATH-1651|MATH-1074,approved,B13
+T3-006,T3 Percentage of an amount,MATH-1074,Which calculation gives 20% of 150?,A,5 ÷ 150,False,MATH-2359,approved,B13
+T3-006,T3 Percentage of an amount,MATH-1074,Which calculation gives 20% of 150?,B,150 ÷ 5,True,,approved,B13
+T3-006,T3 Percentage of an amount,MATH-1074,Which calculation gives 20% of 150?,C,150 + 20,False,MATH-2206,approved,B13
+T3-006,T3 Percentage of an amount,MATH-1074,Which calculation gives 20% of 150?,D,150 × 5,False,MATH-1074,approved,B13
 T3-007,T3 Percentage of an amount,MATH-2206,A shop has 200 phones. 5% of them are faulty. How many phones are faulty?,A,10,True,,approved,B13
 T3-007,T3 Percentage of an amount,MATH-2206,A shop has 200 phones. 5% of them are faulty. How many phones are faulty?,B,205,False,MATH-2206,approved,B13
 T3-007,T3 Percentage of an amount,MATH-2206,A shop has 200 phones. 5% of them are faulty. How many phones are faulty?,C,5,False,MATH-2138,approved,B13
@@ -414,15 +414,15 @@ T3-007,T3 Percentage of an amount,MATH-2206,A shop has 200 phones. 5% of them ar
 T3-008,T3 Percentage of an amount,MATH-2359,Hira wants to find 10% of 400. Which calculation should she do?,A,10 ÷ 400,False,MATH-2359,approved,B13
 T3-008,T3 Percentage of an amount,MATH-2359,Hira wants to find 10% of 400. Which calculation should she do?,B,400 + 10,False,MATH-2206,approved,B13
 T3-008,T3 Percentage of an amount,MATH-2359,Hira wants to find 10% of 400. Which calculation should she do?,C,400 ÷ 10,True,,approved,B13
-T3-008,T3 Percentage of an amount,MATH-2359,Hira wants to find 10% of 400. Which calculation should she do?,D,400 × 10,False,MATH-1651|MATH-1074,approved,B13
+T3-008,T3 Percentage of an amount,MATH-2359,Hira wants to find 10% of 400. Which calculation should she do?,D,400 × 10,False,MATH-1074,approved,B13
 T3-009,T3 Percentage of an amount,MATH-2138,What is 50% of 200?,A,250,False,MATH-2206,approved,B13
 T3-009,T3 Percentage of an amount,MATH-2138,What is 50% of 200?,B,50,False,MATH-2138,approved,B13
 T3-009,T3 Percentage of an amount,MATH-2138,What is 50% of 200?,C,0.01,False,MATH-2359,approved,B13
 T3-009,T3 Percentage of an amount,MATH-2138,What is 50% of 200?,D,100,True,,approved,B13
-T3-010,T3 Percentage of an amount,MATH-1074,What is 25% of 80?,A,25,False,MATH-2138,approved,B13
-T3-010,T3 Percentage of an amount,MATH-1074,What is 25% of 80?,B,20,True,,approved,B13
-T3-010,T3 Percentage of an amount,MATH-1074,What is 25% of 80?,C,0.05,False,MATH-2359,approved,B13
-T3-010,T3 Percentage of an amount,MATH-1074,What is 25% of 80?,D,320,False,MATH-1651|MATH-1074,approved,B13
+T3-010,T3 Percentage of an amount,MATH-2138,What is 25% of 80?,A,25,False,MATH-2138,approved,B13
+T3-010,T3 Percentage of an amount,MATH-2138,What is 25% of 80?,B,20,True,,approved,B13
+T3-010,T3 Percentage of an amount,MATH-2138,What is 25% of 80?,C,0.05,False,MATH-2359,approved,B13
+T3-010,T3 Percentage of an amount,MATH-2138,What is 25% of 80?,D,320,False,,approved,B13
 T6-011B,T6 x multiplication/division (operation version),MATH-1416,How many minutes are there in 2 hours?,A,60 minutes,False,,approved,B14
 T6-011B,T6 x multiplication/division (operation version),MATH-1416,How many minutes are there in 2 hours?,B,120 minutes,True,,approved,B14
 T6-011B,T6 x multiplication/division (operation version),MATH-1416,How many minutes are there in 2 hours?,C,62 minutes,False,MATH-1416,approved,B14
@@ -499,3 +499,35 @@ T5-022,T5 cross-concept (operation version),MATH-2093,A fraction has 8³ on the 
 T5-022,T5 cross-concept (operation version),MATH-2093,A fraction has 8³ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,B,8³ / √16,True,,approved,B18
 T5-022,T5 cross-concept (operation version),MATH-2093,A fraction has 8³ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,C,8³ - √16,False,MATH-2093,approved,B18
 T5-022,T5 cross-concept (operation version),MATH-2093,A fraction has 8³ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,D,8³ + √16,False,,approved,B18
+T4-011,T4 Choosing the operation,MATH-1514,What is 42 − 17?,A,25,True,,approved,B19
+T4-011,T4 Choosing the operation,MATH-1514,What is 42 − 17?,B,35,False,,approved,B19
+T4-011,T4 Choosing the operation,MATH-1514,What is 42 − 17?,C,59,False,MATH-1514,approved,B19
+T4-011,T4 Choosing the operation,MATH-1514,What is 42 − 17?,D,15,False,,approved,B19
+T4-012,T4 Choosing the operation,MATH-1514,Find the value of 83 − 28.,A,65,False,,approved,B19
+T4-012,T4 Choosing the operation,MATH-1514,Find the value of 83 − 28.,B,45,False,,approved,B19
+T4-012,T4 Choosing the operation,MATH-1514,Find the value of 83 − 28.,C,55,True,,approved,B19
+T4-012,T4 Choosing the operation,MATH-1514,Find the value of 83 − 28.,D,111,False,MATH-1514,approved,B19
+T6-022,T6 x multiplication/division (operation version),MATH-1074,A 120-minute film is split into 4 equal parts. How long is each part?,A,116 minutes,False,,approved,B20
+T6-022,T6 x multiplication/division (operation version),MATH-1074,A 120-minute film is split into 4 equal parts. How long is each part?,B,30 minutes,True,,approved,B20
+T6-022,T6 x multiplication/division (operation version),MATH-1074,A 120-minute film is split into 4 equal parts. How long is each part?,C,480 minutes,False,MATH-1074,approved,B20
+T6-022,T6 x multiplication/division (operation version),MATH-1074,A 120-minute film is split into 4 equal parts. How long is each part?,D,124 minutes,False,,approved,B20
+T6-023,T6 x multiplication/division (operation version),MATH-1074,"Aisha practises the piano for 90 minutes each week, shared equally over 3 days. How many minutes does she practise each day?",A,87 minutes,False,,approved,B20
+T6-023,T6 x multiplication/division (operation version),MATH-1074,"Aisha practises the piano for 90 minutes each week, shared equally over 3 days. How many minutes does she practise each day?",B,45 minutes,False,,approved,B20
+T6-023,T6 x multiplication/division (operation version),MATH-1074,"Aisha practises the piano for 90 minutes each week, shared equally over 3 days. How many minutes does she practise each day?",C,30 minutes,True,,approved,B20
+T6-023,T6 x multiplication/division (operation version),MATH-1074,"Aisha practises the piano for 90 minutes each week, shared equally over 3 days. How many minutes does she practise each day?",D,270 minutes,False,MATH-1074,approved,B20
+T7-017,"T7 Negatives, inverse operations, fraction bar",MATH-1514,Work out 4 − 9.,A,−13,False,,approved,B21
+T7-017,"T7 Negatives, inverse operations, fraction bar",MATH-1514,Work out 4 − 9.,B,13,False,MATH-1514,approved,B21
+T7-017,"T7 Negatives, inverse operations, fraction bar",MATH-1514,Work out 4 − 9.,C,5,False,,approved,B21
+T7-017,"T7 Negatives, inverse operations, fraction bar",MATH-1514,Work out 4 − 9.,D,−5,True,,approved,B21
+T7-018,"T7 Negatives, inverse operations, fraction bar",MATH-1514,What is 5 − 12?,A,−7,True,,approved,B21
+T7-018,"T7 Negatives, inverse operations, fraction bar",MATH-1514,What is 5 − 12?,B,7,False,,approved,B21
+T7-018,"T7 Negatives, inverse operations, fraction bar",MATH-1514,What is 5 − 12?,C,17,False,MATH-1514,approved,B21
+T7-018,"T7 Negatives, inverse operations, fraction bar",MATH-1514,What is 5 − 12?,D,−17,False,,approved,B21
+T7-019,"T7 Negatives, inverse operations, fraction bar",MATH-1773,The temperature at dawn is 4°C. It falls by 9°C by midday. What is the temperature at midday?,A,−5°C,True,,approved,B21
+T7-019,"T7 Negatives, inverse operations, fraction bar",MATH-1773,The temperature at dawn is 4°C. It falls by 9°C by midday. What is the temperature at midday?,B,5°C,False,,approved,B21
+T7-019,"T7 Negatives, inverse operations, fraction bar",MATH-1773,The temperature at dawn is 4°C. It falls by 9°C by midday. What is the temperature at midday?,C,13°C,False,MATH-1514|MATH-1773,approved,B21
+T7-019,"T7 Negatives, inverse operations, fraction bar",MATH-1773,The temperature at dawn is 4°C. It falls by 9°C by midday. What is the temperature at midday?,D,−13°C,False,,approved,B21
+T7-020,"T7 Negatives, inverse operations, fraction bar",MATH-1773,The temperature at noon is 6°C. It falls by 15°C by night. What is the temperature at night?,A,21°C,False,MATH-1514|MATH-1773,approved,B21
+T7-020,"T7 Negatives, inverse operations, fraction bar",MATH-1773,The temperature at noon is 6°C. It falls by 15°C by night. What is the temperature at night?,B,−21°C,False,,approved,B21
+T7-020,"T7 Negatives, inverse operations, fraction bar",MATH-1773,The temperature at noon is 6°C. It falls by 15°C by night. What is the temperature at night?,C,−9°C,True,,approved,B21
+T7-020,"T7 Negatives, inverse operations, fraction bar",MATH-1773,The temperature at noon is 6°C. It falls by 15°C by night. What is the temperature at night?,D,9°C,False,,approved,B21
