@@ -35,7 +35,7 @@ T5-009,T5 Powers and roots,MATH-414,Zara's score is 2⁴. Ali's score is √64 m
 T5-009,T5 Powers and roots,MATH-414,Zara's score is 2⁴. Ali's score is √64 more than Zara's score. Which calculation correctly gives Ali's score?,B,(2 + 4) + 8,False,MATH-952,draft
 T5-009,T5 Powers and roots,MATH-414,Zara's score is 2⁴. Ali's score is √64 more than Zara's score. Which calculation correctly gives Ali's score?,C,(2 x 4) + 8,False,MATH-1072,draft
 T5-009,T5 Powers and roots,MATH-414,Zara's score is 2⁴. Ali's score is √64 more than Zara's score. Which calculation correctly gives Ali's score?,D,16 + (64 / 2),False,MATH-414|MATH-734,draft
-T5-010,T5 Powers and roots,MATH-734,Ali thinks of the number 3⁴. Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,A,9,False,MATH-1072,draft
-T5-010,T5 Powers and roots,MATH-734,Ali thinks of the number 3⁴. Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,B,72,False,MATH-414,draft
-T5-010,T5 Powers and roots,MATH-734,Ali thinks of the number 3⁴. Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,C,78,True,,draft
-T5-010,T5 Powers and roots,MATH-734,Ali thinks of the number 3⁴. Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,D,67.5,False,MATH-734,draft
+T5-010,T5 Powers and roots,MATH-734,Ali thinks of the number 12². Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,A,21,False,MATH-1072,draft
+T5-010,T5 Powers and roots,MATH-734,Ali thinks of the number 12². Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,B,135,False,MATH-414,draft
+T5-010,T5 Powers and roots,MATH-734,Ali thinks of the number 12². Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,C,141,True,,draft
+T5-010,T5 Powers and roots,MATH-734,Ali thinks of the number 12². Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,D,130.5,False,MATH-734,draft

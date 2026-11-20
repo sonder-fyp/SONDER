@@ -19,7 +19,7 @@ T5-015,T5 cross-concept (operation version),MATH-126,Zara's score is 2⁴. Ali's
 T5-015,T5 cross-concept (operation version),MATH-126,Zara's score is 2⁴. Ali's score is √64 more than Zara's score. Which calculation correctly gives Ali's score?,B,√64,False,,draft
 T5-015,T5 cross-concept (operation version),MATH-126,Zara's score is 2⁴. Ali's score is √64 more than Zara's score. Which calculation correctly gives Ali's score?,C,(2 x 2 x 2 x 2) + 8,True,,draft
 T5-015,T5 cross-concept (operation version),MATH-126,Zara's score is 2⁴. Ali's score is √64 more than Zara's score. Which calculation correctly gives Ali's score?,D,2 + 8,False,,draft
-T5-016,T5 cross-concept (operation version),MATH-228,Ali thinks of the number 3⁴. Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,A,78,True,,draft
-T5-016,T5 cross-concept (operation version),MATH-228,Ali thinks of the number 3⁴. Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,B,27,False,MATH-228,draft
-T5-016,T5 cross-concept (operation version),MATH-228,Ali thinks of the number 3⁴. Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,C,84,False,MATH-1514|MATH-1773,draft
-T5-016,T5 cross-concept (operation version),MATH-228,Ali thinks of the number 3⁴. Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,D,243,False,,draft
+T5-016,T5 cross-concept (operation version),MATH-228,Ali thinks of the number 12². Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,A,141,True,,draft
+T5-016,T5 cross-concept (operation version),MATH-228,Ali thinks of the number 12². Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,B,48,False,MATH-228,draft
+T5-016,T5 cross-concept (operation version),MATH-228,Ali thinks of the number 12². Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,C,147,False,MATH-1514|MATH-1773,draft
+T5-016,T5 cross-concept (operation version),MATH-228,Ali thinks of the number 12². Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,D,432,False,,draft

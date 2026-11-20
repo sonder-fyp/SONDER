@@ -187,10 +187,10 @@ T4-002,T4 Choosing the operation,MATH-1416,A school fair stall prepares 4 trays 
 T4-002,T4 Choosing the operation,MATH-1416,A school fair stall prepares 4 trays with 9 mini cakes on each tray. Another stall prepares 3 fewer cakes. How many cakes does the other stall prepare?,B,12,False,MATH-228,approved,B06
 T4-002,T4 Choosing the operation,MATH-1416,A school fair stall prepares 4 trays with 9 mini cakes on each tray. Another stall prepares 3 fewer cakes. How many cakes does the other stall prepare?,C,39,False,MATH-1514|MATH-1773,approved,B06
 T4-002,T4 Choosing the operation,MATH-1416,A school fair stall prepares 4 trays with 9 mini cakes on each tray. Another stall prepares 3 fewer cakes. How many cakes does the other stall prepare?,D,33,True,,approved,B06
-T4-003,T4 Choosing the operation,MATH-1416,The Blue team wins 3 rounds worth 12 points each. The Red team finishes with 4 points less than the Blue team. How many points does the Red team have?,A,32,True,,approved,B06
-T4-003,T4 Choosing the operation,MATH-1416,The Blue team wins 3 rounds worth 12 points each. The Red team finishes with 4 points less than the Blue team. How many points does the Red team have?,B,11,False,MATH-1416,approved,B06
-T4-003,T4 Choosing the operation,MATH-1416,The Blue team wins 3 rounds worth 12 points each. The Red team finishes with 4 points less than the Blue team. How many points does the Red team have?,C,9,False,MATH-228,approved,B06
-T4-003,T4 Choosing the operation,MATH-1416,The Blue team wins 3 rounds worth 12 points each. The Red team finishes with 4 points less than the Blue team. How many points does the Red team have?,D,40,False,MATH-1514|MATH-1773,approved,B06
+T4-003,T4 Choosing the operation,MATH-1416,The Blue team wins 3 rounds worth 12 points each. The Red team finishes with 4 fewer points than the Blue team. How many points does the Red team have?,A,32,True,,approved,B06
+T4-003,T4 Choosing the operation,MATH-1416,The Blue team wins 3 rounds worth 12 points each. The Red team finishes with 4 fewer points than the Blue team. How many points does the Red team have?,B,11,False,MATH-1416,approved,B06
+T4-003,T4 Choosing the operation,MATH-1416,The Blue team wins 3 rounds worth 12 points each. The Red team finishes with 4 fewer points than the Blue team. How many points does the Red team have?,C,9,False,MATH-228,approved,B06
+T4-003,T4 Choosing the operation,MATH-1416,The Blue team wins 3 rounds worth 12 points each. The Red team finishes with 4 fewer points than the Blue team. How many points does the Red team have?,D,40,False,MATH-1514|MATH-1773,approved,B06
 T4-004,T4 Choosing the operation,MATH-1416,A cinema has 6 rows with 4 seats in each row. A smaller screening room has 3 fewer seats than the cinema. How many seats are in the smaller room?,A,7,False,MATH-1416,approved,B06
 T4-004,T4 Choosing the operation,MATH-1416,A cinema has 6 rows with 4 seats in each row. A smaller screening room has 3 fewer seats than the cinema. How many seats are in the smaller room?,B,8,False,MATH-228,approved,B06
 T4-004,T4 Choosing the operation,MATH-1416,A cinema has 6 rows with 4 seats in each row. A smaller screening room has 3 fewer seats than the cinema. How many seats are in the smaller room?,C,21,True,,approved,B06
@@ -211,14 +211,14 @@ T4-008,T4 Choosing the operation,MATH-126,A shop sells 6 kg of rice on Monday. O
 T4-008,T4 Choosing the operation,MATH-126,A shop sells 6 kg of rice on Monday. On Tuesday it sells 9 kg more than on Monday. On Wednesday it sells 5 kg less than on Tuesday. How many kg does it sell on Wednesday?,B,10,True,,approved,B06
 T4-008,T4 Choosing the operation,MATH-126,A shop sells 6 kg of rice on Monday. On Tuesday it sells 9 kg more than on Monday. On Wednesday it sells 5 kg less than on Tuesday. How many kg does it sell on Wednesday?,C,3,False,MATH-228,approved,B06
 T4-008,T4 Choosing the operation,MATH-126,A shop sells 6 kg of rice on Monday. On Tuesday it sells 9 kg more than on Monday. On Wednesday it sells 5 kg less than on Tuesday. How many kg does it sell on Wednesday?,D,20,False,MATH-1514|MATH-1773,approved,B06
-T4-009,T4 Choosing the operation,MATH-126,A bus has 12 passengers at the first stop. At the second stop it has 6 more than at the first stop. At the third stop it has 9 less than at the second stop. How many passengers are on the bus at the third stop?,A,63,False,MATH-126,approved,B06
-T4-009,T4 Choosing the operation,MATH-126,A bus has 12 passengers at the first stop. At the second stop it has 6 more than at the first stop. At the third stop it has 9 less than at the second stop. How many passengers are on the bus at the third stop?,B,2,False,MATH-228,approved,B06
-T4-009,T4 Choosing the operation,MATH-126,A bus has 12 passengers at the first stop. At the second stop it has 6 more than at the first stop. At the third stop it has 9 less than at the second stop. How many passengers are on the bus at the third stop?,C,27,False,MATH-1514|MATH-1773,approved,B06
-T4-009,T4 Choosing the operation,MATH-126,A bus has 12 passengers at the first stop. At the second stop it has 6 more than at the first stop. At the third stop it has 9 less than at the second stop. How many passengers are on the bus at the third stop?,D,9,True,,approved,B06
-T4-010,T4 Choosing the operation,MATH-126,Usman scores 7 goals in a season. Faizan scores 5 more than Usman. Danish scores 4 less than Faizan. How many goals does Danish score?,A,8,True,,approved,B06
-T4-010,T4 Choosing the operation,MATH-126,Usman scores 7 goals in a season. Faizan scores 5 more than Usman. Danish scores 4 less than Faizan. How many goals does Danish score?,B,31,False,MATH-126,approved,B06
-T4-010,T4 Choosing the operation,MATH-126,Usman scores 7 goals in a season. Faizan scores 5 more than Usman. Danish scores 4 less than Faizan. How many goals does Danish score?,C,3,False,MATH-228,approved,B06
-T4-010,T4 Choosing the operation,MATH-126,Usman scores 7 goals in a season. Faizan scores 5 more than Usman. Danish scores 4 less than Faizan. How many goals does Danish score?,D,16,False,MATH-1514|MATH-1773,approved,B06
+T4-009,T4 Choosing the operation,MATH-126,A bus has 12 passengers at the first stop. At the second stop it has 6 more than at the first stop. At the third stop it has 9 fewer passengers than at the second stop. How many passengers are on the bus at the third stop?,A,63,False,MATH-126,approved,B06
+T4-009,T4 Choosing the operation,MATH-126,A bus has 12 passengers at the first stop. At the second stop it has 6 more than at the first stop. At the third stop it has 9 fewer passengers than at the second stop. How many passengers are on the bus at the third stop?,B,2,False,MATH-228,approved,B06
+T4-009,T4 Choosing the operation,MATH-126,A bus has 12 passengers at the first stop. At the second stop it has 6 more than at the first stop. At the third stop it has 9 fewer passengers than at the second stop. How many passengers are on the bus at the third stop?,C,27,False,MATH-1514|MATH-1773,approved,B06
+T4-009,T4 Choosing the operation,MATH-126,A bus has 12 passengers at the first stop. At the second stop it has 6 more than at the first stop. At the third stop it has 9 fewer passengers than at the second stop. How many passengers are on the bus at the third stop?,D,9,True,,approved,B06
+T4-010,T4 Choosing the operation,MATH-126,Usman scores 7 goals in a season. Faizan scores 5 more than Usman. Danish scores 4 fewer goals than Faizan. How many goals does Danish score?,A,8,True,,approved,B06
+T4-010,T4 Choosing the operation,MATH-126,Usman scores 7 goals in a season. Faizan scores 5 more than Usman. Danish scores 4 fewer goals than Faizan. How many goals does Danish score?,B,31,False,MATH-126,approved,B06
+T4-010,T4 Choosing the operation,MATH-126,Usman scores 7 goals in a season. Faizan scores 5 more than Usman. Danish scores 4 fewer goals than Faizan. How many goals does Danish score?,C,3,False,MATH-228,approved,B06
+T4-010,T4 Choosing the operation,MATH-126,Usman scores 7 goals in a season. Faizan scores 5 more than Usman. Danish scores 4 fewer goals than Faizan. How many goals does Danish score?,D,16,False,MATH-1514|MATH-1773,approved,B06
 T5-001,T5 Powers and roots,MATH-952,What is the value of 5³?,A,8,False,MATH-952,approved,B07
 T5-001,T5 Powers and roots,MATH-952,What is the value of 5³?,B,125,True,,approved,B07
 T5-001,T5 Powers and roots,MATH-952,What is the value of 5³?,C,15,False,MATH-1072,approved,B07
@@ -255,10 +255,10 @@ T5-009,T5 Powers and roots,MATH-414,Zara's score is 2⁴. Ali's score is √64 m
 T5-009,T5 Powers and roots,MATH-414,Zara's score is 2⁴. Ali's score is √64 more than Zara's score. Which calculation correctly gives Ali's score?,B,(2 + 4) + 8,False,MATH-952,approved,B07
 T5-009,T5 Powers and roots,MATH-414,Zara's score is 2⁴. Ali's score is √64 more than Zara's score. Which calculation correctly gives Ali's score?,C,(2 x 4) + 8,False,MATH-1072,approved,B07
 T5-009,T5 Powers and roots,MATH-414,Zara's score is 2⁴. Ali's score is √64 more than Zara's score. Which calculation correctly gives Ali's score?,D,16 + (64 / 2),False,MATH-414|MATH-734,approved,B07
-T5-010,T5 Powers and roots,MATH-734,Ali thinks of the number 3⁴. Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,A,9,False,MATH-1072,approved,B07
-T5-010,T5 Powers and roots,MATH-734,Ali thinks of the number 3⁴. Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,B,72,False,MATH-414,approved,B07
-T5-010,T5 Powers and roots,MATH-734,Ali thinks of the number 3⁴. Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,C,78,True,,approved,B07
-T5-010,T5 Powers and roots,MATH-734,Ali thinks of the number 3⁴. Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,D,67.5,False,MATH-734,approved,B07
+T5-010,T5 Powers and roots,MATH-734,Ali thinks of the number 12². Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,A,21,False,MATH-1072,approved,B07
+T5-010,T5 Powers and roots,MATH-734,Ali thinks of the number 12². Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,B,135,False,MATH-414,approved,B07
+T5-010,T5 Powers and roots,MATH-734,Ali thinks of the number 12². Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,C,141,True,,approved,B07
+T5-010,T5 Powers and roots,MATH-734,Ali thinks of the number 12². Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,D,130.5,False,MATH-734,approved,B07
 T5-011,T5 cross-concept (operation version),MATH-1514,"In a game, Zara's score is 6². Ali's score is √16 less than Zara's score. What is Ali's score?",A,40,False,MATH-1514|MATH-1773,approved,B08
 T5-011,T5 cross-concept (operation version),MATH-1514,"In a game, Zara's score is 6². Ali's score is √16 less than Zara's score. What is Ali's score?",B,12,False,,approved,B08
 T5-011,T5 cross-concept (operation version),MATH-1514,"In a game, Zara's score is 6². Ali's score is √16 less than Zara's score. What is Ali's score?",C,32,True,,approved,B08
@@ -279,10 +279,10 @@ T5-015,T5 cross-concept (operation version),MATH-126,Zara's score is 2⁴. Ali's
 T5-015,T5 cross-concept (operation version),MATH-126,Zara's score is 2⁴. Ali's score is √64 more than Zara's score. Which calculation correctly gives Ali's score?,B,√64,False,,approved,B08
 T5-015,T5 cross-concept (operation version),MATH-126,Zara's score is 2⁴. Ali's score is √64 more than Zara's score. Which calculation correctly gives Ali's score?,C,(2 x 2 x 2 x 2) + 8,True,,approved,B08
 T5-015,T5 cross-concept (operation version),MATH-126,Zara's score is 2⁴. Ali's score is √64 more than Zara's score. Which calculation correctly gives Ali's score?,D,2 + 8,False,,approved,B08
-T5-016,T5 cross-concept (operation version),MATH-228,Ali thinks of the number 3⁴. Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,A,78,True,,approved,B08
-T5-016,T5 cross-concept (operation version),MATH-228,Ali thinks of the number 3⁴. Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,B,27,False,MATH-228,approved,B08
-T5-016,T5 cross-concept (operation version),MATH-228,Ali thinks of the number 3⁴. Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,C,84,False,MATH-1514|MATH-1773,approved,B08
-T5-016,T5 cross-concept (operation version),MATH-228,Ali thinks of the number 3⁴. Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,D,243,False,,approved,B08
+T5-016,T5 cross-concept (operation version),MATH-228,Ali thinks of the number 12². Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,A,141,True,,approved,B08
+T5-016,T5 cross-concept (operation version),MATH-228,Ali thinks of the number 12². Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,B,48,False,MATH-228,approved,B08
+T5-016,T5 cross-concept (operation version),MATH-228,Ali thinks of the number 12². Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,C,147,False,MATH-1514|MATH-1773,approved,B08
+T5-016,T5 cross-concept (operation version),MATH-228,Ali thinks of the number 12². Bilal's number is ∛27 less than Ali's number. What is Bilal's number?,D,432,False,,approved,B08
 T6-010,T6 Time and unit conversion (seconds and hours),MATH-767,"Fill the gap: 7,200 seconds = ___ hours.",A,1.2 hours,False,MATH-161,approved,B10
 T6-010,T6 Time and unit conversion (seconds and hours),MATH-767,"Fill the gap: 7,200 seconds = ___ hours.",B,2 hours,True,,approved,B10
 T6-010,T6 Time and unit conversion (seconds and hours),MATH-767,"Fill the gap: 7,200 seconds = ___ hours.",C,12 hours,False,MATH-767,approved,B10
@@ -323,10 +323,10 @@ T7-001,"T7 Negatives, inverse operations, fraction bar",MATH-1639,Work out −2 
 T7-001,"T7 Negatives, inverse operations, fraction bar",MATH-1639,Work out −2 + (−3 + −4).,B,5,False,MATH-1639,approved,B11
 T7-001,"T7 Negatives, inverse operations, fraction bar",MATH-1639,Work out −2 + (−3 + −4).,C,−9,True,,approved,B11
 T7-001,"T7 Negatives, inverse operations, fraction bar",MATH-1639,Work out −2 + (−3 + −4).,D,−7,False,,approved,B11
-T7-002,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 1 / 4 as a decimal.,A,0.25,True,,approved,B11
-T7-002,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 1 / 4 as a decimal.,B,3,False,MATH-2093,approved,B11
-T7-002,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 1 / 4 as a decimal.,C,4,False,MATH-2359,approved,B11
-T7-002,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 1 / 4 as a decimal.,D,0.1,False,MATH-1715,approved,B11
+T7-002,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 2 / 5 as a decimal.,A,0.4,True,,approved,B11
+T7-002,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 2 / 5 as a decimal.,B,3,False,MATH-2093,approved,B11
+T7-002,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 2 / 5 as a decimal.,C,2.5,False,MATH-2359,approved,B11
+T7-002,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 2 / 5 as a decimal.,D,0.2,False,MATH-1715,approved,B11
 T7-003,"T7 Negatives, inverse operations, fraction bar",MATH-2271,I add 9 to a number and get 15. What is my number?,A,24,False,MATH-2271|MATH-1514|MATH-1773,approved,B11
 T7-003,"T7 Negatives, inverse operations, fraction bar",MATH-2271,I add 9 to a number and get 15. What is my number?,B,15,False,,approved,B11
 T7-003,"T7 Negatives, inverse operations, fraction bar",MATH-2271,I add 9 to a number and get 15. What is my number?,C,9,False,,approved,B11
@@ -351,10 +351,10 @@ T7-008,"T7 Negatives, inverse operations, fraction bar",MATH-2271,I subtract 6 f
 T7-008,"T7 Negatives, inverse operations, fraction bar",MATH-2271,I subtract 6 from a number and get 9. What is my number?,B,6,False,,approved,B11
 T7-008,"T7 Negatives, inverse operations, fraction bar",MATH-2271,I subtract 6 from a number and get 9. What is my number?,C,9,False,,approved,B11
 T7-008,"T7 Negatives, inverse operations, fraction bar",MATH-2271,I subtract 6 from a number and get 9. What is my number?,D,15,True,,approved,B11
-T7-009,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 1 over 8 as a decimal.,A,0.125,True,,approved,B11
-T7-009,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 1 over 8 as a decimal.,B,7,False,MATH-2093,approved,B11
-T7-009,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 1 over 8 as a decimal.,C,8,False,MATH-2359,approved,B11
-T7-009,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 1 over 8 as a decimal.,D,0.1,False,MATH-1715,approved,B11
+T7-009,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 4 over 5 as a decimal.,A,0.8,True,,approved,B11
+T7-009,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 4 over 5 as a decimal.,B,1,False,MATH-2093,approved,B11
+T7-009,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 4 over 5 as a decimal.,C,1.25,False,MATH-2359,approved,B11
+T7-009,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 4 over 5 as a decimal.,D,0.4,False,MATH-1715,approved,B11
 T7-010,"T7 Negatives, inverse operations, fraction bar",MATH-1639,"In the first hour the temperature changes by −5°C, in the second hour by −2°C and in the third hour by −4°C. What is the total change in temperature?",A,11°C,False,MATH-1639,approved,B12
 T7-010,"T7 Negatives, inverse operations, fraction bar",MATH-1639,"In the first hour the temperature changes by −5°C, in the second hour by −2°C and in the third hour by −4°C. What is the total change in temperature?",B,−11°C,True,,approved,B12
 T7-010,"T7 Negatives, inverse operations, fraction bar",MATH-1639,"In the first hour the temperature changes by −5°C, in the second hour by −2°C and in the third hour by −4°C. What is the total change in temperature?",C,3°C,False,MATH-1639,approved,B12
@@ -379,10 +379,10 @@ T7-015,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Which number i
 T7-015,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Which number is the same as the fraction 16 over 4?,B,4,True,,approved,B12
 T7-015,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Which number is the same as the fraction 16 over 4?,C,0.25,False,MATH-2359,approved,B12
 T7-015,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Which number is the same as the fraction 16 over 4?,D,20,False,,approved,B12
-T7-016,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 1 over 2 as a decimal.,A,1,False,MATH-2093,approved,B12
-T7-016,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 1 over 2 as a decimal.,B,2,False,MATH-2359,approved,B12
-T7-016,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 1 over 2 as a decimal.,C,0.5,True,,approved,B12
-T7-016,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 1 over 2 as a decimal.,D,0.1,False,MATH-1715,approved,B12
+T7-016,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 5 over 8 as a decimal.,A,3,False,MATH-2093,approved,B12
+T7-016,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 5 over 8 as a decimal.,B,1.6,False,MATH-2359,approved,B12
+T7-016,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 5 over 8 as a decimal.,C,0.625,True,,approved,B12
+T7-016,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 5 over 8 as a decimal.,D,0.5,False,MATH-1715,approved,B12
 T3-001,T3 Percentage of an amount,MATH-2206,A jug holds 8 litres of juice. Ali drinks 10% of it. How many litres does Ali drink?,A,18 litres,False,MATH-2206,approved,B13
 T3-001,T3 Percentage of an amount,MATH-2206,A jug holds 8 litres of juice. Ali drinks 10% of it. How many litres does Ali drink?,B,10 litres,False,MATH-2138,approved,B13
 T3-001,T3 Percentage of an amount,MATH-2206,A jug holds 8 litres of juice. Ali drinks 10% of it. How many litres does Ali drink?,C,0.8 litres,True,,approved,B13

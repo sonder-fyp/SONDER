@@ -23,7 +23,7 @@ T7-015,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Which number i
 T7-015,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Which number is the same as the fraction 16 over 4?,B,4,True,,draft
 T7-015,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Which number is the same as the fraction 16 over 4?,C,0.25,False,MATH-2359,draft
 T7-015,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Which number is the same as the fraction 16 over 4?,D,20,False,,draft
-T7-016,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 1 over 2 as a decimal.,A,1,False,MATH-2093,draft
-T7-016,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 1 over 2 as a decimal.,B,2,False,MATH-2359,draft
-T7-016,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 1 over 2 as a decimal.,C,0.5,True,,draft
-T7-016,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 1 over 2 as a decimal.,D,0.1,False,MATH-1715,draft
+T7-016,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 5 over 8 as a decimal.,A,3,False,MATH-2093,draft
+T7-016,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 5 over 8 as a decimal.,B,1.6,False,MATH-2359,draft
+T7-016,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 5 over 8 as a decimal.,C,0.625,True,,draft
+T7-016,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 5 over 8 as a decimal.,D,0.5,False,MATH-1715,draft

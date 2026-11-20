@@ -3,10 +3,10 @@ T7-001,"T7 Negatives, inverse operations, fraction bar",MATH-1639,Work out −2 
 T7-001,"T7 Negatives, inverse operations, fraction bar",MATH-1639,Work out −2 + (−3 + −4).,B,5,False,MATH-1639,draft
 T7-001,"T7 Negatives, inverse operations, fraction bar",MATH-1639,Work out −2 + (−3 + −4).,C,−9,True,,draft
 T7-001,"T7 Negatives, inverse operations, fraction bar",MATH-1639,Work out −2 + (−3 + −4).,D,−7,False,,draft
-T7-002,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 1 / 4 as a decimal.,A,0.25,True,,draft
-T7-002,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 1 / 4 as a decimal.,B,3,False,MATH-2093,draft
-T7-002,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 1 / 4 as a decimal.,C,4,False,MATH-2359,draft
-T7-002,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 1 / 4 as a decimal.,D,0.1,False,MATH-1715,draft
+T7-002,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 2 / 5 as a decimal.,A,0.4,True,,draft
+T7-002,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 2 / 5 as a decimal.,B,3,False,MATH-2093,draft
+T7-002,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 2 / 5 as a decimal.,C,2.5,False,MATH-2359,draft
+T7-002,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 2 / 5 as a decimal.,D,0.2,False,MATH-1715,draft
 T7-003,"T7 Negatives, inverse operations, fraction bar",MATH-2271,I add 9 to a number and get 15. What is my number?,A,24,False,MATH-2271|MATH-1514|MATH-1773,draft
 T7-003,"T7 Negatives, inverse operations, fraction bar",MATH-2271,I add 9 to a number and get 15. What is my number?,B,15,False,,draft
 T7-003,"T7 Negatives, inverse operations, fraction bar",MATH-2271,I add 9 to a number and get 15. What is my number?,C,9,False,,draft
@@ -31,7 +31,7 @@ T7-008,"T7 Negatives, inverse operations, fraction bar",MATH-2271,I subtract 6 f
 T7-008,"T7 Negatives, inverse operations, fraction bar",MATH-2271,I subtract 6 from a number and get 9. What is my number?,B,6,False,,draft
 T7-008,"T7 Negatives, inverse operations, fraction bar",MATH-2271,I subtract 6 from a number and get 9. What is my number?,C,9,False,,draft
 T7-008,"T7 Negatives, inverse operations, fraction bar",MATH-2271,I subtract 6 from a number and get 9. What is my number?,D,15,True,,draft
-T7-009,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 1 over 8 as a decimal.,A,0.125,True,,draft
-T7-009,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 1 over 8 as a decimal.,B,7,False,MATH-2093,draft
-T7-009,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 1 over 8 as a decimal.,C,8,False,MATH-2359,draft
-T7-009,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 1 over 8 as a decimal.,D,0.1,False,MATH-1715,draft
+T7-009,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 4 over 5 as a decimal.,A,0.8,True,,draft
+T7-009,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 4 over 5 as a decimal.,B,1,False,MATH-2093,draft
+T7-009,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 4 over 5 as a decimal.,C,1.25,False,MATH-2359,draft
+T7-009,"T7 Negatives, inverse operations, fraction bar",MATH-2093,Write 4 over 5 as a decimal.,D,0.4,False,MATH-1715,draft
