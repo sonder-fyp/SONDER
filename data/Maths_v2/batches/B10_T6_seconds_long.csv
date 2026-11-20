@@ -27,10 +27,10 @@ T6-016,T6 Time and unit conversion (seconds and hours),MATH-161,A film lasts 3 h
 T6-016,T6 Time and unit conversion (seconds and hours),MATH-161,A film lasts 3 hours. How long is that in seconds?,B,"1,800 seconds",False,MATH-767,draft
 T6-016,T6 Time and unit conversion (seconds and hours),MATH-161,A film lasts 3 hours. How long is that in seconds?,C,"10,800 seconds",True,,draft
 T6-016,T6 Time and unit conversion (seconds and hours),MATH-161,A film lasts 3 hours. How long is that in seconds?,D,180 seconds,False,,draft
-T6-017,T6 Time and unit conversion (seconds and hours),MATH-1651,"Sana says 3,600 seconds is 1 hour. Bilal says 6 hours. Ali says 0.6 hours. Hira says 12,960,000 hours. Who is correct?",A,Sana,True,,draft
-T6-017,T6 Time and unit conversion (seconds and hours),MATH-1651,"Sana says 3,600 seconds is 1 hour. Bilal says 6 hours. Ali says 0.6 hours. Hira says 12,960,000 hours. Who is correct?",B,Ali,False,MATH-161,draft
-T6-017,T6 Time and unit conversion (seconds and hours),MATH-1651,"Sana says 3,600 seconds is 1 hour. Bilal says 6 hours. Ali says 0.6 hours. Hira says 12,960,000 hours. Who is correct?",C,Bilal,False,MATH-767,draft
-T6-017,T6 Time and unit conversion (seconds and hours),MATH-1651,"Sana says 3,600 seconds is 1 hour. Bilal says 6 hours. Ali says 0.6 hours. Hira says 12,960,000 hours. Who is correct?",D,Hira,False,MATH-1651|MATH-1074,draft
+T6-017,T6 Time and unit conversion (seconds and hours),MATH-1651,"How many hours is 3,600 seconds? Sana says 1 hour. Bilal says 6 hours. Ali says 0.6 hours. Hira says 12,960,000 hours. Who is correct?",A,Sana,True,,draft
+T6-017,T6 Time and unit conversion (seconds and hours),MATH-1651,"How many hours is 3,600 seconds? Sana says 1 hour. Bilal says 6 hours. Ali says 0.6 hours. Hira says 12,960,000 hours. Who is correct?",B,Ali,False,MATH-161,draft
+T6-017,T6 Time and unit conversion (seconds and hours),MATH-1651,"How many hours is 3,600 seconds? Sana says 1 hour. Bilal says 6 hours. Ali says 0.6 hours. Hira says 12,960,000 hours. Who is correct?",C,Bilal,False,MATH-767,draft
+T6-017,T6 Time and unit conversion (seconds and hours),MATH-1651,"How many hours is 3,600 seconds? Sana says 1 hour. Bilal says 6 hours. Ali says 0.6 hours. Hira says 12,960,000 hours. Who is correct?",D,Hira,False,MATH-1651|MATH-1074,draft
 T6-018,T6 Time and unit conversion (seconds and hours),MATH-767,Which of these is the same as 1 hour and 30 seconds?,A,"6,030 seconds",False,MATH-161,draft
 T6-018,T6 Time and unit conversion (seconds and hours),MATH-767,Which of these is the same as 1 hour and 30 seconds?,B,"3,630 seconds",True,,draft
 T6-018,T6 Time and unit conversion (seconds and hours),MATH-767,Which of these is the same as 1 hour and 30 seconds?,C,630 seconds,False,MATH-767,draft

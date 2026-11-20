@@ -249,8 +249,8 @@ T5-007,T5 Powers and roots,MATH-1072,Sam thinks of the number 2⁵. Hira's numbe
 T5-007,T5 Powers and roots,MATH-1072,Sam thinks of the number 2⁵. Hira's number is √16 less than Sam's number. What is Hira's number?,D,24,False,MATH-414|MATH-734,approved,B07
 T5-008,T5 Powers and roots,MATH-952,A fraction has 2⁶ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,A,(2 + 6) / √16,False,MATH-952,approved,B07
 T5-008,T5 Powers and roots,MATH-952,A fraction has 2⁶ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,B,(2 x 6) / √16,False,MATH-1072,approved,B07
-T5-008,T5 Powers and roots,MATH-952,A fraction has 2⁶ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,C,2⁶ / (16 / 2),False,MATH-414|MATH-734,approved,B07
-T5-008,T5 Powers and roots,MATH-952,A fraction has 2⁶ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,D,2⁶ / √16,True,,approved,B07
+T5-008,T5 Powers and roots,MATH-952,A fraction has 2⁶ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,C,(2⁶) / (16 / 2),False,MATH-414|MATH-734,approved,B07
+T5-008,T5 Powers and roots,MATH-952,A fraction has 2⁶ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,D,(2⁶) / √16,True,,approved,B07
 T5-009,T5 Powers and roots,MATH-414,Zara's score is 2⁴. Ali's score is √64 more than Zara's score. Which calculation correctly gives Ali's score?,A,(2 x 2 x 2 x 2) + 8,True,,approved,B07
 T5-009,T5 Powers and roots,MATH-414,Zara's score is 2⁴. Ali's score is √64 more than Zara's score. Which calculation correctly gives Ali's score?,B,(2 + 4) + 8,False,MATH-952,approved,B07
 T5-009,T5 Powers and roots,MATH-414,Zara's score is 2⁴. Ali's score is √64 more than Zara's score. Which calculation correctly gives Ali's score?,C,(2 x 4) + 8,False,MATH-1072,approved,B07
@@ -311,10 +311,10 @@ T6-016,T6 Time and unit conversion (seconds and hours),MATH-161,A film lasts 3 h
 T6-016,T6 Time and unit conversion (seconds and hours),MATH-161,A film lasts 3 hours. How long is that in seconds?,B,"1,800 seconds",False,MATH-767,approved,B10
 T6-016,T6 Time and unit conversion (seconds and hours),MATH-161,A film lasts 3 hours. How long is that in seconds?,C,"10,800 seconds",True,,approved,B10
 T6-016,T6 Time and unit conversion (seconds and hours),MATH-161,A film lasts 3 hours. How long is that in seconds?,D,180 seconds,False,,approved,B10
-T6-017,T6 Time and unit conversion (seconds and hours),MATH-1651,"Sana says 3,600 seconds is 1 hour. Bilal says 6 hours. Ali says 0.6 hours. Hira says 12,960,000 hours. Who is correct?",A,Sana,True,,approved,B10
-T6-017,T6 Time and unit conversion (seconds and hours),MATH-1651,"Sana says 3,600 seconds is 1 hour. Bilal says 6 hours. Ali says 0.6 hours. Hira says 12,960,000 hours. Who is correct?",B,Ali,False,MATH-161,approved,B10
-T6-017,T6 Time and unit conversion (seconds and hours),MATH-1651,"Sana says 3,600 seconds is 1 hour. Bilal says 6 hours. Ali says 0.6 hours. Hira says 12,960,000 hours. Who is correct?",C,Bilal,False,MATH-767,approved,B10
-T6-017,T6 Time and unit conversion (seconds and hours),MATH-1651,"Sana says 3,600 seconds is 1 hour. Bilal says 6 hours. Ali says 0.6 hours. Hira says 12,960,000 hours. Who is correct?",D,Hira,False,MATH-1651|MATH-1074,approved,B10
+T6-017,T6 Time and unit conversion (seconds and hours),MATH-1651,"How many hours is 3,600 seconds? Sana says 1 hour. Bilal says 6 hours. Ali says 0.6 hours. Hira says 12,960,000 hours. Who is correct?",A,Sana,True,,approved,B10
+T6-017,T6 Time and unit conversion (seconds and hours),MATH-1651,"How many hours is 3,600 seconds? Sana says 1 hour. Bilal says 6 hours. Ali says 0.6 hours. Hira says 12,960,000 hours. Who is correct?",B,Ali,False,MATH-161,approved,B10
+T6-017,T6 Time and unit conversion (seconds and hours),MATH-1651,"How many hours is 3,600 seconds? Sana says 1 hour. Bilal says 6 hours. Ali says 0.6 hours. Hira says 12,960,000 hours. Who is correct?",C,Bilal,False,MATH-767,approved,B10
+T6-017,T6 Time and unit conversion (seconds and hours),MATH-1651,"How many hours is 3,600 seconds? Sana says 1 hour. Bilal says 6 hours. Ali says 0.6 hours. Hira says 12,960,000 hours. Who is correct?",D,Hira,False,MATH-1651|MATH-1074,approved,B10
 T6-018,T6 Time and unit conversion (seconds and hours),MATH-767,Which of these is the same as 1 hour and 30 seconds?,A,"6,030 seconds",False,MATH-161,approved,B10
 T6-018,T6 Time and unit conversion (seconds and hours),MATH-767,Which of these is the same as 1 hour and 30 seconds?,B,"3,630 seconds",True,,approved,B10
 T6-018,T6 Time and unit conversion (seconds and hours),MATH-767,Which of these is the same as 1 hour and 30 seconds?,C,630 seconds,False,MATH-767,approved,B10
@@ -475,25 +475,25 @@ T6-013B,T6 x multiplication/division (operation version),MATH-2359,Which stateme
 T6-013B,T6 x multiplication/division (operation version),MATH-2359,Which statement is correct?,B,"18,000 seconds = 300 hours",False,,approved,B17
 T6-013B,T6 x multiplication/division (operation version),MATH-2359,Which statement is correct?,C,"18,000 seconds = 180 hours",False,,approved,B17
 T6-013B,T6 x multiplication/division (operation version),MATH-2359,Which statement is correct?,D,"18,000 seconds = 5 hours",True,,approved,B17
-T5-017,T5 Powers and roots,MATH-1072,A fraction has 10² on the top and √25 on the bottom. Which calculation gives the value of the fraction?,A,10² / (25 / 2),False,MATH-414|MATH-734,approved,B18
-T5-017,T5 Powers and roots,MATH-1072,A fraction has 10² on the top and √25 on the bottom. Which calculation gives the value of the fraction?,B,10² / √25,True,,approved,B18
+T5-017,T5 Powers and roots,MATH-1072,A fraction has 10² on the top and √25 on the bottom. Which calculation gives the value of the fraction?,A,(10²) / (25 / 2),False,MATH-414|MATH-734,approved,B18
+T5-017,T5 Powers and roots,MATH-1072,A fraction has 10² on the top and √25 on the bottom. Which calculation gives the value of the fraction?,B,(10²) / √25,True,,approved,B18
 T5-017,T5 Powers and roots,MATH-1072,A fraction has 10² on the top and √25 on the bottom. Which calculation gives the value of the fraction?,C,(10 x 2) / √25,False,MATH-1072,approved,B18
 T5-017,T5 Powers and roots,MATH-1072,A fraction has 10² on the top and √25 on the bottom. Which calculation gives the value of the fraction?,D,(10 + 2) / √25,False,MATH-952,approved,B18
 T5-020,T5 cross-concept (operation version),MATH-2093,A fraction has 10² on the top and √25 on the bottom. Which calculation gives the value of the fraction?,A,10² x √25,False,,approved,B18
 T5-020,T5 cross-concept (operation version),MATH-2093,A fraction has 10² on the top and √25 on the bottom. Which calculation gives the value of the fraction?,B,10² - √25,False,MATH-2093,approved,B18
 T5-020,T5 cross-concept (operation version),MATH-2093,A fraction has 10² on the top and √25 on the bottom. Which calculation gives the value of the fraction?,C,10² / √25,True,,approved,B18
 T5-020,T5 cross-concept (operation version),MATH-2093,A fraction has 10² on the top and √25 on the bottom. Which calculation gives the value of the fraction?,D,10² + √25,False,,approved,B18
-T5-018,T5 Powers and roots,MATH-952,A fraction has 6³ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,A,6³ / (16 / 2),False,MATH-414|MATH-734,approved,B18
+T5-018,T5 Powers and roots,MATH-952,A fraction has 6³ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,A,(6³) / (16 / 2),False,MATH-414|MATH-734,approved,B18
 T5-018,T5 Powers and roots,MATH-952,A fraction has 6³ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,B,(6 x 3) / √16,False,MATH-1072,approved,B18
 T5-018,T5 Powers and roots,MATH-952,A fraction has 6³ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,C,(6 + 3) / √16,False,MATH-952,approved,B18
-T5-018,T5 Powers and roots,MATH-952,A fraction has 6³ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,D,6³ / √16,True,,approved,B18
+T5-018,T5 Powers and roots,MATH-952,A fraction has 6³ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,D,(6³) / √16,True,,approved,B18
 T5-021,T5 cross-concept (operation version),MATH-2093,A fraction has 6³ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,A,6³ / √16,True,,approved,B18
 T5-021,T5 cross-concept (operation version),MATH-2093,A fraction has 6³ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,B,6³ x √16,False,,approved,B18
 T5-021,T5 cross-concept (operation version),MATH-2093,A fraction has 6³ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,C,6³ - √16,False,MATH-2093,approved,B18
 T5-021,T5 cross-concept (operation version),MATH-2093,A fraction has 6³ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,D,6³ + √16,False,,approved,B18
-T5-019,T5 Powers and roots,MATH-414,A fraction has 8³ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,A,8³ / √16,True,,approved,B18
+T5-019,T5 Powers and roots,MATH-414,A fraction has 8³ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,A,(8³) / √16,True,,approved,B18
 T5-019,T5 Powers and roots,MATH-414,A fraction has 8³ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,B,(8 x 3) / √16,False,MATH-1072,approved,B18
-T5-019,T5 Powers and roots,MATH-414,A fraction has 8³ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,C,8³ / (16 / 2),False,MATH-414|MATH-734,approved,B18
+T5-019,T5 Powers and roots,MATH-414,A fraction has 8³ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,C,(8³) / (16 / 2),False,MATH-414|MATH-734,approved,B18
 T5-019,T5 Powers and roots,MATH-414,A fraction has 8³ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,D,(8 + 3) / √16,False,MATH-952,approved,B18
 T5-022,T5 cross-concept (operation version),MATH-2093,A fraction has 8³ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,A,8³ x √16,False,,approved,B18
 T5-022,T5 cross-concept (operation version),MATH-2093,A fraction has 8³ on the top and √16 on the bottom. Which calculation gives the value of the fraction?,B,8³ / √16,True,,approved,B18
