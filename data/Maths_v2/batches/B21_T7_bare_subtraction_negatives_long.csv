@@ -1,0 +1,17 @@
+﻿item_id,topic,target,stem,option_id,option_text,is_correct,misconceptions,status
+T7-017,"T7 Negatives, inverse operations, fraction bar",MATH-1514,Work out 4 − 9.,A,−13,False,,draft
+T7-017,"T7 Negatives, inverse operations, fraction bar",MATH-1514,Work out 4 − 9.,B,13,False,MATH-1514,draft
+T7-017,"T7 Negatives, inverse operations, fraction bar",MATH-1514,Work out 4 − 9.,C,5,False,,draft
+T7-017,"T7 Negatives, inverse operations, fraction bar",MATH-1514,Work out 4 − 9.,D,−5,True,,draft
+T7-018,"T7 Negatives, inverse operations, fraction bar",MATH-1514,What is 5 − 12?,A,−7,True,,draft
+T7-018,"T7 Negatives, inverse operations, fraction bar",MATH-1514,What is 5 − 12?,B,7,False,,draft
+T7-018,"T7 Negatives, inverse operations, fraction bar",MATH-1514,What is 5 − 12?,C,17,False,MATH-1514,draft
+T7-018,"T7 Negatives, inverse operations, fraction bar",MATH-1514,What is 5 − 12?,D,−17,False,,draft
+T7-019,"T7 Negatives, inverse operations, fraction bar",MATH-1773,The temperature at dawn is 4°C. It falls by 9°C by midday. What is the temperature at midday?,A,−5°C,True,,draft
+T7-019,"T7 Negatives, inverse operations, fraction bar",MATH-1773,The temperature at dawn is 4°C. It falls by 9°C by midday. What is the temperature at midday?,B,5°C,False,,draft
+T7-019,"T7 Negatives, inverse operations, fraction bar",MATH-1773,The temperature at dawn is 4°C. It falls by 9°C by midday. What is the temperature at midday?,C,13°C,False,MATH-1514|MATH-1773,draft
+T7-019,"T7 Negatives, inverse operations, fraction bar",MATH-1773,The temperature at dawn is 4°C. It falls by 9°C by midday. What is the temperature at midday?,D,−13°C,False,,draft
+T7-020,"T7 Negatives, inverse operations, fraction bar",MATH-1773,The temperature at noon is 6°C. It falls by 15°C by night. What is the temperature at night?,A,21°C,False,MATH-1514|MATH-1773,draft
+T7-020,"T7 Negatives, inverse operations, fraction bar",MATH-1773,The temperature at noon is 6°C. It falls by 15°C by night. What is the temperature at night?,B,−21°C,False,,draft
+T7-020,"T7 Negatives, inverse operations, fraction bar",MATH-1773,The temperature at noon is 6°C. It falls by 15°C by night. What is the temperature at night?,C,−9°C,True,,draft
+T7-020,"T7 Negatives, inverse operations, fraction bar",MATH-1773,The temperature at noon is 6°C. It falls by 15°C by night. What is the temperature at night?,D,9°C,False,,draft
