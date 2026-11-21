@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth/client";
+import { devSkipEmailVerification } from "@/lib/auth/devVerification";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -25,13 +26,16 @@ export function VerifyEmailForm({
     setError(null);
     setBusy(true);
     try {
-      const result = await authClient.emailOtp.verifyEmail({
-        email: email,
-        otp: code.trim(),
-      });
-      if (result.error) {
-        setError("That code is invalid or has expired. Request a new code and try again.");
-        return;
+      // Development only (see lib/auth/devVerification.ts): any code is accepted and none is checked.
+      if (!devSkipEmailVerification()) {
+        const result = await authClient.emailOtp.verifyEmail({
+          email: email,
+          otp: code.trim(),
+        });
+        if (result.error) {
+          setError("That code is invalid or has expired. Request a new code and try again.");
+          return;
+        }
       }
       const next = `/auth/onboarding?requestedRole=${requestedRole}`;
       router.replace(`/auth/sign-in?verified=1&next=${encodeURIComponent(next)}`);
