@@ -9,6 +9,7 @@ import { classesClient, ClassesError } from "@/lib/classes/client";
 import type { RosterStudent, TeacherClass } from "@/lib/classes/types";
 import { ClassActivity } from "./ClassActivity";
 import { ClassAssignments } from "./ClassAssignments";
+import { OtherChecks } from "./OtherChecks";
 
 const code = (cause: unknown) => (cause instanceof ClassesError ? cause.code : "service_unavailable");
 const joinedOn = (iso: string) => new Date(iso).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
@@ -229,6 +230,7 @@ export function TeacherClassDetail({ classId }: { classId: string }) {
       />
       <div className="pt-10"><JoinCode room={room} onChange={setRoom} /></div>
       <ClassActivity room={room} />
+      <OtherChecks room={room} />
       <Roster room={room} />
       <ClassAssignments room={room} />
       <ClassStatusControl room={room} onChange={setRoom} />
