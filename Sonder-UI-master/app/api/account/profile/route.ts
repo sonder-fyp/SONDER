@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getAppAccount } from "@/lib/auth/access";
 import { database } from "@/lib/auth/database";
 import { isSameOrigin } from "@/lib/auth/origin";
+import { isEmailVerified } from "@/lib/auth/devVerification";
 import { getSignedInUser } from "@/lib/auth/server";
 import { normalizeEmail, validateOnboarding } from "@/lib/auth/validation";
 
@@ -11,7 +12,7 @@ export async function GET() {
   try {
     const user = await getSignedInUser();
     if (!user) return NextResponse.json({ error: "Authentication required." }, { status: 401, headers: responseHeaders });
-    if (!user.emailVerified) return NextResponse.json({ error: "Verify your email first." }, { status: 403, headers: responseHeaders });
+    if (!isEmailVerified(user)) return NextResponse.json({ error: "Verify your email first." }, { status: 403, headers: responseHeaders });
     const account = await getAppAccount(user.id);
     return NextResponse.json({ account }, { headers: responseHeaders });
   } catch (error) {
@@ -28,7 +29,7 @@ export async function POST(request: Request) {
   try {
     const user = await getSignedInUser();
     if (!user) return NextResponse.json({ error: "Authentication required." }, { status: 401, headers: responseHeaders });
-    if (!user.emailVerified) return NextResponse.json({ error: "Verify your email first." }, { status: 403, headers: responseHeaders });
+    if (!isEmailVerified(user)) return NextResponse.json({ error: "Verify your email first." }, { status: 403, headers: responseHeaders });
 
     const existing = await getAppAccount(user.id);
     if (existing?.status === "deactivated") {
