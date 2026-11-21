@@ -14,7 +14,8 @@ import { catalogue, sid, snapshot } from "./testFixtures";
 const origin = "http://localhost:3000";
 const nonce = "22222222-2222-4222-8222-222222222222";
 const account = "00000000-0000-4000-8000-000000000002";
-const payload = { unit_id: "U1", create_request_id: nonce };
+const assignment = "55555555-5555-4555-8555-555555555555";
+const payload = { unit_id: "U1", create_request_id: nonce, assignment_id: assignment };
 function request(body?: unknown, requestOrigin = origin) {
   return new Request(`${origin}/api/diagnostic/sessions`, { method: body ? "POST" : "GET", headers: { origin: requestOrigin }, body: body ? JSON.stringify(body) : undefined });
 }
@@ -55,11 +56,24 @@ describe("student BFF", () => {
     expect(fetchMock).not.toHaveBeenCalled(); vi.stubEnv("SONDER_ENGINE_TOKEN", "");
     expect((await beginRoute(request(payload))).status).toBe(503);
   });
-  it("forwards assignment only when supplied", async () => {
+  it("forwards the assignment to the service", async () => {
     fetchMock.mockImplementation(async () => upstream(snapshot()));
-    await beginRoute(request({ ...payload, assignment_id: account })); await beginRoute(request({ ...payload, assignment_id: null }));
-    expect(JSON.parse(fetchMock.mock.calls[0][1].body).assignment_id).toBe(account);
-    expect(JSON.parse(fetchMock.mock.calls[1][1].body).assignment_id).toBeUndefined();
+    await beginRoute(request(payload));
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body).assignment_id).toBe(assignment);
+  });
+  it("refuses a start without an assignment before calling the service", async () => {
+    const plain = { unit_id: "U1", create_request_id: nonce };
+    for (const body of [plain, { ...plain, assignment_id: null }]) {
+      const res = await beginRoute(request(body));
+      expect(res.status).toBe(422); expect(await res.json()).toEqual({ error: { code: "assignment_required" } });
+    }
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+  it("answers an anonymous start without an assignment with 401 first", async () => {
+    vi.mocked(requireAccess).mockRejectedValueOnce(new AccessError(401, "Sign in."));
+    const plain = { unit_id: "U1", create_request_id: nonce };
+    expect((await beginRoute(request(plain))).status).toBe(401);
+    expect(fetchMock).not.toHaveBeenCalled();
   });
   it("maps authentication and role errors", async () => {
     for (const [status, code] of [[401, "authentication_required"], [403, "role_required"]] as const) {

@@ -2,11 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import { diagnosticClient, DiagnosticError } from "./client";
-import type { AnswerRequest, BeginRequest, Catalogue, OptionId, SessionSummary, Snapshot } from "./types";
+import type { AnswerRequest, BeginRequest, Catalogue, OptionId, Snapshot } from "./types";
 import { UUID } from "./validation";
 
 type Phase = "loading_metadata" | "intro" | "starting" | "question" | "submitting" | "complete" | "recovering" | "unavailable";
-type View = { phase: Phase; catalogue?: Catalogue; snapshot?: Snapshot; error?: string; chosen?: OptionId; unfinished?: SessionSummary };
+type View = { phase: Phase; catalogue?: Catalogue; snapshot?: Snapshot; error?: string; chosen?: OptionId };
 
 export function useDiagnosticSession(unitId: string, initialSession?: string, assignmentId?: string) {
   const [view, setView] = useState<View>({ phase: "loading_metadata" });
@@ -28,15 +28,12 @@ export function useDiagnosticSession(unitId: string, initialSession?: string, as
   }
   async function load(generation: number) {
     try {
-      const [catalogue, snapshot, list] = await Promise.all([
+      const [catalogue, snapshot] = await Promise.all([
         diagnosticClient.catalogue(), locator.current ? diagnosticClient.current(locator.current) : Promise.resolve(undefined),
-        // A start from an assignment never offers another check's "Continue": an unfinished attempt at
-        // this assignment is resumed from the dashboard with ?session=, and the server refuses a second one.
-        locator.current || assignmentId ? Promise.resolve(undefined) : diagnosticClient.unfinished(unitId),
       ]);
       if (generation !== epoch.current) return;
       if (!catalogue.units.some(u => u.unit_id === unitId)) throw new DiagnosticError("unit_not_found");
-      update({ phase: "intro", catalogue, unfinished: list?.sessions.find(s => s.unit.unit_id === unitId) });
+      update({ phase: "intro", catalogue });
       if (snapshot) accept(snapshot, generation, locator.current);
     } catch (error) {
       if (generation === epoch.current) update({ ...current.current, phase: "unavailable", error: failure(error) });
@@ -64,24 +61,11 @@ export function useDiagnosticSession(unitId: string, initialSession?: string, as
     const suffix = query.toString();
     return `/student/diagnostic/${encodeURIComponent(unitId)}${suffix ? `?${suffix}` : ""}`;
   }
-  async function resume() {
-    const unfinished = current.current.unfinished;
-    if (busy.current || !unfinished) return;
-    busy.current = true;
-    const generation = epoch.current;
-    locator.current = unfinished.session_id;
-    window.history.replaceState(null, "", address(unfinished.session_id));
-    update({ ...current.current, phase: "recovering", error: undefined });
-    try { accept(await diagnosticClient.current(unfinished.session_id), generation, unfinished.session_id); }
-    catch (error) {
-      if (generation === epoch.current) update({ ...current.current, phase: "unavailable", error: failure(error) });
-    } finally { if (generation === epoch.current) busy.current = false; }
-  }
   async function begin() {
-    if (busy.current || !current.current.catalogue || current.current.snapshot || current.current.unfinished) return;
+    if (busy.current || !current.current.catalogue || current.current.snapshot || !assignmentId) return;
     busy.current = true;
     const generation = epoch.current;
-    beginRequest.current ??= { unit_id: unitId, create_request_id: crypto.randomUUID(), ...(assignmentId ? { assignment_id: assignmentId } : {}) };
+    beginRequest.current ??= { unit_id: unitId, create_request_id: crypto.randomUUID(), assignment_id: assignmentId };
     update({ ...current.current, phase: "starting", error: undefined });
     try {
       const snapshot = await diagnosticClient.begin(beginRequest.current);
@@ -137,5 +121,5 @@ export function useDiagnosticSession(unitId: string, initialSession?: string, as
     if (current.current.catalogue) update({ phase: "intro", catalogue: current.current.catalogue });
     else { busy.current = true; void load(epoch.current); }
   }
-  return { ...view, begin, resume, answer, retry, restart };
+  return { ...view, begin, answer, retry, restart };
 }

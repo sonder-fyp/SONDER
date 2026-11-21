@@ -1,11 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { FocusFrame } from "@/components/layout";
 import { Label, AccentBar } from "@/components/type";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { classesClient } from "@/lib/classes/client";
 import { answersSaved } from "@/lib/diagnostic/copy";
 import { useDiagnosticSession } from "@/lib/diagnostic/useDiagnosticSession";
+import type { StudentAssignmentCard } from "@/lib/student/dashboard";
 
 // What the student is told for each error, and whether Retry can help.
 function errorView(code: string): { message: string; retry: boolean } {
@@ -13,19 +16,19 @@ function errorView(code: string): { message: string; retry: boolean } {
     case "enrolment_required":
       return {
         message:
-          "You need to be in a Maths class to take this check. Join your class under Classes with the code from your teacher.",
+          "You are not in the class for this check. Go back to your assignments, or join your class under Classes with the code from your teacher.",
         retry: false,
       };
     case "enrolment_ambiguous":
+    case "assignment_required":
       return {
-        message:
-          "You are in more than one Maths class. Ask your teacher which class to use.",
+        message: "Open this check from your assignments on the home page.",
         retry: false,
       };
     case "assignment_not_found":
       return {
         message:
-          "This assignment is not available. Return to Diagnostics or ask your teacher.",
+          "This assignment is not available to you. Go back to your assignments to see what you can do.",
         retry: false,
       };
     case "assignment_closed":
@@ -43,7 +46,7 @@ function errorView(code: string): { message: string; retry: boolean } {
     case "attempt_in_progress":
       return {
         message:
-          "You already have this assignment in progress. Go back to it and choose Continue to pick up where you left off.",
+          "You already have this assignment in progress. Go back to your assignments and choose Resume.",
         retry: false,
       };
     case "attempt_limit_reached":
@@ -86,7 +89,8 @@ function errorView(code: string): { message: string; retry: boolean } {
     case "session_expired":
     case "unit_not_found":
       return {
-        message: "This check is unavailable. You can start a fresh check.",
+        message:
+          "This check is unavailable. Go back to your assignments to see what you can do next.",
         retry: false,
       };
     case "answer_conflict":
@@ -128,6 +132,20 @@ export function DiagnosticClient({
   assignmentId?: string;
 }) {
   const session = useDiagnosticSession(unitId, initialSession, assignmentId);
+  const [card, setCard] = useState<StudentAssignmentCard>();
+  useEffect(() => {
+    if (!assignmentId) return;
+    let active = true;
+    classesClient
+      .studentDashboard()
+      .then((cards) => {
+        if (active) setCard(cards.find((c) => c.assignment_id === assignmentId));
+      })
+      .catch(() => undefined); // the card only adds labels; the check works without it
+    return () => {
+      active = false;
+    };
+  }, [assignmentId]);
   const snapshot = session.snapshot;
   const unit = session.catalogue?.units.find((u) => u.unit_id === unitId);
   const budget =
@@ -138,25 +156,28 @@ export function DiagnosticClient({
   const question =
     snapshot?.status === "in_progress" ? snapshot.question : undefined;
   return (
-    <FocusFrame exitHref="/student/start" exitLabel="Back to diagnostics">
-      <Label tone="accent">Topic diagnostic</Label>
+    <FocusFrame exitHref="/student" exitLabel="Back to your assignments">
+      <Label tone="accent">{card ? card.class_name : "Topic diagnostic"}</Label>
       {session.phase === "complete" ? (
         <>
           <h1 className="mt-8 text-4xl font-semibold tracking-tight">
-            Session complete
+            Check submitted
           </h1>
-          <p className="mt-6 text-xl">{snapshot?.unit.name}</p>
+          <p className="mt-6 text-xl">{card?.title ?? snapshot?.unit.name}</p>
           <p className="mt-10 text-lg">
-            Your submitted answers are saved. You can return to your dashboard
-            when you are ready.
+            Your answers are saved. Your teacher will look at this check.
           </p>
           <div className="mt-12 flex flex-wrap gap-8">
             <Link href="/student" className={buttonVariants()}>
-              Back to home
+              Back to your assignments
             </Link>
-            <Button variant="ghost" onClick={session.restart}>
-              Run again
-            </Button>
+            {assignmentId &&
+            card?.attempt_rule === "repeat" &&
+            card.assignment_status === "open" ? (
+              <Button variant="ghost" onClick={session.restart}>
+                Start another attempt
+              </Button>
+            ) : null}
           </div>
         </>
       ) : (
@@ -168,8 +189,14 @@ export function DiagnosticClient({
                 : "mt-6 text-3xl font-semibold tracking-tight sm:text-4xl"
             }
           >
-            {snapshot?.unit.name ?? unit?.name ?? "Mathematics diagnostic"}
+            {card?.title ?? snapshot?.unit.name ?? unit?.name ?? "Mathematics diagnostic"}
           </h1>
+          {card && !question ? (
+            <p className="mt-3 text-muted-foreground">
+              {card.unit_name} ·{" "}
+              {card.attempt_rule === "single" ? "One attempt" : "Repeat attempts allowed"}
+            </p>
+          ) : null}
           <AccentBar className="mt-8" />
           {session.phase === "intro" || session.phase === "starting" ? (
             <>
@@ -177,31 +204,14 @@ export function DiagnosticClient({
                 You will get one question at a time, up to {budget}. Answer as
                 best you can. There is no time limit and no score at the end.
               </p>
-              {session.unfinished ? (
-                <>
-                  <p className="mt-6">
-                    You have an unfinished check on this topic (
-                    {answersSaved(session.unfinished.answered_count)}).
-                  </p>
-                  <Button
-                    size="lg"
-                    className="mt-12 w-full"
-                    disabled={working}
-                    onClick={session.resume}
-                  >
-                    Continue
-                  </Button>
-                </>
-              ) : (
-                <Button
-                  size="lg"
-                  className="mt-12 w-full"
-                  disabled={working}
-                  onClick={session.begin}
-                >
-                  Begin
-                </Button>
-              )}
+              <Button
+                size="lg"
+                className="mt-12 w-full"
+                disabled={working}
+                onClick={session.begin}
+              >
+                Begin
+              </Button>
             </>
           ) : null}
           {question ? (
@@ -258,14 +268,11 @@ export function DiagnosticClient({
                 {errorView(session.error).retry ? (
                   <Button onClick={session.retry}>Retry</Button>
                 ) : null}
-                <Button variant="ghost" onClick={session.restart}>
-                  Start a fresh check
-                </Button>
                 <Link
-                  href="/student/start"
+                  href="/student"
                   className={buttonVariants({ variant: "ghost" })}
                 >
-                  Back to topics
+                  Back to your assignments
                 </Link>
               </div>
             </div>
