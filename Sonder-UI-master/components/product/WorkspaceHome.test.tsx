@@ -15,17 +15,26 @@ const base: AppAccount = {
 };
 afterEach(cleanup);
 describe("account workspace homes", () => {
-  it("welcomes the actual student and points to resumable topics", () => {
+  it("welcomes the actual student, with no topic picker and no self-start link", () => {
     render(<WorkspaceHome account={base} />);
     expect(screen.getByRole("heading", { level: 1 }).textContent).toContain(
       "Example",
     );
-    expect(
-      screen
-        .getByRole("link", { name: "Explore diagnostics" })
-        .getAttribute("href"),
-    ).toBe("/student/start");
+    expect(screen.queryByRole("link", { name: "Explore diagnostics" })).toBeNull();
+    expect(screen.queryByText("Start with a topic.")).toBeNull();
+    const links = screen.queryAllByRole("link").map((link) => link.getAttribute("href"));
+    expect(links).not.toContain("/student/start");
+    expect(screen.getByText("Before you begin")).toBeTruthy();
     expect(screen.queryByText("Follow-up check due")).toBeNull();
+  });
+  it("renders children for students and teachers", () => {
+    for (const role of ["student", "teacher"] as const) {
+      const view = render(<WorkspaceHome account={{ ...base, role }}><p>Child content</p></WorkspaceHome>);
+      expect(screen.getByText("Child content")).toBeTruthy();
+      view.unmount();
+    }
+    render(<WorkspaceHome account={{ ...base, role: "teacher" }} />);
+    expect(screen.getByRole("link", { name: "Manage classes" }).getAttribute("href")).toBe("/teacher/classes");
   });
   it("does not populate teaching and family workspaces with example records", () => {
     for (const role of ["teacher", "parent"] as const) {
@@ -54,8 +63,8 @@ describe("account workspace homes", () => {
         description="Your classwork"
         detail="Joining a class is not available yet."
         home="/student"
-        action="Explore diagnostics"
-        actionHref="/student/start"
+        action="Go to your assignments"
+        actionHref="/student"
       />,
     );
     expect(

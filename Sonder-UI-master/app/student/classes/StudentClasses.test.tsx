@@ -22,6 +22,13 @@ describe("student classes page", () => {
     expect(screen.getByText(/Ms Khan/)).toBeTruthy();
   });
 
+  it("links each class name to its class page", async () => {
+    vi.mocked(classesClient.studentClasses).mockResolvedValue([room]);
+    render(<StudentClasses />);
+    expect((await screen.findByRole("link", { name: "Grade 8 Blue" })).getAttribute("href"))
+      .toBe("/student/classes/11111111-1111-4111-8111-111111111111");
+  });
+
   it("joins with the typed code once and adds the class", async () => {
     vi.mocked(classesClient.studentClasses).mockResolvedValue([]);
     vi.mocked(classesClient.joinClass).mockResolvedValue({ class: room, joined: true });

@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState, type FormEvent } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SignInAgain } from "@/components/product/SignInAgain";
@@ -91,7 +92,9 @@ export function StudentClasses() {
           <ul className="mt-6 border-t border-border">
             {classes.map((room) => (
               <li key={room.class_id} className="border-b border-border px-2 py-6">
-                <h3 className="text-xl font-semibold tracking-tight">{room.name}</h3>
+                <h3 className="text-xl font-semibold tracking-tight">
+                  <Link href={`/student/classes/${room.class_id}`} className="hover:text-accent underline-offset-4 hover:underline">{room.name}</Link>
+                </h3>
                 <p className="mt-2 text-sm text-muted-foreground">
                   Mathematics · Grade {room.grade_level}{room.teacher_names ? ` · ${room.teacher_names}` : ""}
                 </p>

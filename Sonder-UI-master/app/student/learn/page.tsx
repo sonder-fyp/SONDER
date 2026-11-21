@@ -7,8 +7,8 @@ export default function Page() {
       description="Make time to understand the idea."
       detail="The learning library is not available yet. You can explore the available diagnostics in the meantime."
       home="/student"
-      action="Explore diagnostics"
-      actionHref="/student/start"
+      action="Go to your assignments"
+      actionHref="/student"
     />
   );
 }
