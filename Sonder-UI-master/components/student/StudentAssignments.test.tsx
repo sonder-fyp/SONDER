@@ -12,7 +12,7 @@ const sid = "77777777-7777-4777-8777-777777777777";
 const card = (n: number, extra: Record<string, unknown> = {}) => parseCard({
   assignment_id: `55555555-5555-4555-8555-55555555555${n}`, class_id: "11111111-1111-4111-8111-111111111111", class_name: "Grade 8",
   title: `Check ${n}`, unit_code: "U1", unit_name: "Rounding", attempt_rule: "single", created_at: "2026-11-18T09:00:00Z",
-  latest_session_id: null, latest_state: null, answered: 0, question_budget: null, attempts: 0, ...extra,
+  latest_session_id: null, latest_state: null, answered: 0, question_budget: null, attempts: 0, assignment_status: "open", ...extra,
 });
 afterEach(() => { cleanup(); vi.resetAllMocks(); });
 
@@ -34,6 +34,28 @@ describe("student assignments", () => {
     expect(screen.getByText("Done")).toBeTruthy();
     expect(screen.getByRole("link", { name: "Start again: Check 4" })).toBeTruthy();
     expect(screen.getByText(/Submitted · attempt 2/)).toBeTruthy();
+  });
+
+  it("with a class id shows only that class's assignments and its own empty text", async () => {
+    const other = "22222222-2222-4222-8222-222222222222";
+    vi.mocked(classesClient.studentDashboard).mockResolvedValue([card(1), card(2, { class_id: other, class_name: "Grade 9" })]);
+    const view = render(<StudentAssignments classId="11111111-1111-4111-8111-111111111111" title="Assignments in this class" />);
+    expect(await screen.findByText("Check 1")).toBeTruthy();
+    expect(screen.queryByText("Check 2")).toBeNull();
+    expect(screen.getByRole("heading", { name: "Assignments in this class" })).toBeTruthy();
+    view.unmount();
+    render(<StudentAssignments classId="33333333-3333-4333-8333-333333333333" />);
+    expect(await screen.findByText("Nothing is assigned in this class right now.")).toBeTruthy();
+    expect(screen.queryByRole("link", { name: "join your class" })).toBeNull();
+  });
+
+  it("keeps a closed assignment with an attempt in progress resumable and says it is closed", async () => {
+    vi.mocked(classesClient.studentDashboard).mockResolvedValue([
+      card(1, { assignment_status: "closed", latest_state: "in_progress", latest_session_id: sid, answered: 1, question_budget: 8, attempts: 1 }),
+    ]);
+    render(<StudentAssignments />);
+    expect(await screen.findByRole("link", { name: "Resume: Check 1" })).toBeTruthy();
+    expect(screen.getByText(/Closed by your teacher; you can still finish it/)).toBeTruthy();
   });
 
   it("shows nothing about results", async () => {
