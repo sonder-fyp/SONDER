@@ -28,6 +28,11 @@ The class and assignment checks are in [CLASS_ASSIGNMENT_FLOW_CHECKS.md](CLASS_A
 | A7 | Start / Resume / Done for single and repeat assignments | `lib/student/dashboard.test.ts`, `test_product_student_dashboard.py`, live harness |
 | A8 | Double start makes one attempt; Resume returns the same session | `test_product_assignment_concurrency.py`, `test_product_student_privacy.py`, live harness |
 | A9 | History shows only own attempts with attempt numbers; no forbidden fields | `test_product_history.py`, `test_product_student_privacy.py`, history route test |
+| A11 | Teacher home queue lists finished latest attempts (open and closed assignments, assignment-less checks); review removes, follow-up keeps | `test_product_flow_queue.py`, `lib/teacher/queue.test.ts`, `components/teacher/TeacherQueue.test.tsx`, queue route test |
+| A12 | "Other checks" lists a class's assignment-less sessions, read-only | `test_product_flow_other_checks.py`, `OtherChecks.test.tsx`, other-checks route test |
+| A13 | A teacher can open every attempt at a repeat assignment | `test_product_flow_attempts.py`, `AttemptList.test.tsx`, attempts route test |
+| A14 | A closed assignment stays resumable while an attempt is in progress | `test_product_student_dashboard.py`, `lib/student/dashboard.test.ts`, `StudentAssignments.test.tsx` |
+| A15 | A start without an assignment is refused (`assignment_required`); the page redirects to `/student` | `lib/diagnostic/routes.test.ts`, `app/student/diagnostic/[unitId]/page.test.tsx`, `app/student/start/page.test.tsx` |
 | A10 | Loading, empty and error states on every new screen | Component tests of each screen |
 
 ## Running the live harness

@@ -41,7 +41,7 @@ For a class, optionally one assignment. Each count has exactly one definition, s
 | **Needs review** | completed pairs whose latest session has no review |
 | **Follow-up required** | pairs whose latest session's latest review is `follow_up_required` |
 
-"Latest" means latest by `started_at`, then id. Counts are computed from the same rows the activity table lists, so a test can check that the counts equal the rows for every filter. Only sessions started from an assignment count; plain starts (no `assignment_id`) are listed separately as "other checks".
+"Latest" means latest by `started_at`, then id. Counts are computed from the same rows the activity table lists, so a test can check that the counts equal the rows for every filter. Only sessions started from an assignment count; plain starts (no `assignment_id`, the retired self-start path) are listed as "Other checks" on the class page (`sonder.class_other_checks`), read-only.
 
 ## 4. Evidence screen (I2-A12, I2-A13)
 
@@ -67,12 +67,15 @@ The evidence of one session, for its class teacher. Contents:
 - Only finished sessions can be reviewed; only by their class teacher.
 - Students do not see review status or notes. A neutral "Your teacher has looked at this" flag is allowed but **off by default** (decision D-7; switch on only with team agreement).
 
+**Teacher home queue** (`sonder.teacher_queue`, migration 0013): finished checks waiting for the teacher across all their active classes: the latest attempt of each (student, assignment), for open and closed assignments, plus checks started without an assignment, whose latest review is missing ("Needs review") or `follow_up_required` ("Follow-up required"). Only active classes and active enrolments count; in-progress work is not listed. An evidence page lists every attempt at the assignment (`sonder.session_attempts`).
+
 ## 6. Student dashboard, start and resume (I2-A16, I2-A17)
 
 - Lists the student's classes and each open assignment with one action:
   - **Start**: no attempt yet, or `repeat` and the last attempt is finished;
   - **Resume**: an attempt is in progress (goes to that session, never creates a new one);
   - **Done**: `single` and attempted (no action).
+- Start only from an assignment (a start without one is refused, `assignment_required`). A closed assignment with an in-progress attempt stays listed with Resume.
 - Start uses Ahmed's start contract with `assignment_id` and a fresh `create_request_id`; a double click cannot create two attempts (one request key per click, and the database lock).
 - Errors are explained without exposing teacher data: closed, no longer offered, already in progress, already done, service down.
 
