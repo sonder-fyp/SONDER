@@ -42,6 +42,7 @@ describe("diagnostic contract", () => {
   });
   it("accepts only known error/status pairs", () => {
     expect(parseError({ error: { code: "answer_conflict", detail: "secret" } }, 409)).toBe("answer_conflict");
+    expect(parseError({ error: { code: "assignment_required" } }, 422)).toBe("assignment_required");
     for (const code of ["assignment_closed", "assignment_unavailable", "attempt_in_progress", "attempt_limit_reached"]) {
       expect(parseError({ error: { code } }, 409)).toBe(code);
       expect(() => parseError({ error: { code } }, 404)).toThrow();

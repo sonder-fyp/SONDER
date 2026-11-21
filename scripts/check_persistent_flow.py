@@ -7,6 +7,7 @@ import socket
 import subprocess
 import sys
 import time
+import uuid
 from uuid import uuid4
 
 import httpx
@@ -25,7 +26,13 @@ def main(argv=None):
     parser.add_argument('--ui', default='http://localhost:3000')
     parser.add_argument('--api-port', type=int, default=8000)
     parser.add_argument('--release', required=True)
+    parser.add_argument('--assignment', required=True, help='Open REPEAT assignment of a class the harness student is in')
     args = parser.parse_args(argv)
+    try:
+        uuid.UUID(args.assignment)
+    except ValueError:
+        print('--assignment must be the UUID of an open repeat assignment.', file=sys.stderr)
+        return 2
     db_url = os.environ.get('SONDER_DATABASE_URL', '')
     token = os.environ.get('SONDER_ENGINE_TOKEN', '')
     cookie = os.environ.get('SONDER_HARNESS_COOKIE', '')
@@ -89,7 +96,7 @@ def main(argv=None):
         if previous:
             print('Unfinished session: ' + str(previous[0].get('session_id')) + '; finish or abandon it in the browser first.', file=sys.stderr)
             return 2
-        payload = {'unit_id': 'U1', 'create_request_id': str(uuid4())}
+        payload = {'unit_id': 'U1', 'create_request_id': str(uuid4()), 'assignment_id': args.assignment}
         first = snapshot(req('POST', '/api/diagnostic/sessions', body=payload), 'start')
         sid = first['session_id']; record['session_id'] = sid
         require(snapshot(req('POST', '/api/diagnostic/sessions', body=payload), 'start retry') == first, 'identical start retry')

@@ -35,7 +35,7 @@ A Neon development branch is needed for Neon Auth and the UI `DATABASE_URL`. Cop
 
 Run `python -m sonder_db.migrate status`. If the branch was already built by hand with the Iteration 1 schema and auth migration, run `python -m sonder_db.migrate adopt 0001_iteration1_schema 0002_auth_rbac` once; otherwise run `python -m sonder_db.migrate up` on an empty development database.
 
-Until Harris's content importer (I2-H14) is available, run `SONDER_ALLOW_DEV_SEED=true python -m sonder_api.devseed`. Its content is a **development candidate**. After the importer lands, use Harris's documented import command and release name. Provision demo accounts as described in [the access contract](api/ACCESS_CONTRACT.md#demo-accounts), then enrol the student with `SONDER_ALLOW_DEV_SEED=true python -m sonder_api.devseed --enrol-email <email>`.
+Until Harris's content importer (I2-H14) is available, run `SONDER_ALLOW_DEV_SEED=true python -m sonder_api.devseed`. Its content is a **development candidate**. After the importer lands, use Harris's documented import command and release name. To create the first administrator, sign up and onboard an account as a student, then from `Sonder-UI-master/` with `.env.local` loaded run `SONDER_ALLOW_ROLE_PROVISIONING=true node scripts/provision-role.mjs <email> admin --confirm` (Node 20 or newer); provisioning also withdraws the account's pending access request. Provision demo accounts as described in [the access contract](api/ACCESS_CONTRACT.md#demo-accounts), then enrol the student with `SONDER_ALLOW_DEV_SEED=true python -m sonder_api.devseed --enrol-email <email>`.
 
 ## 5. Run
 

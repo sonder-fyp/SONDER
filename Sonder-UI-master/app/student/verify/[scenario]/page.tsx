@@ -7,8 +7,8 @@ export default function Page() {
       description="Return to an idea when you are ready."
       detail="Follow-up checks are not available yet. Your overview links to the diagnostics you can use now."
       home="/student"
-      action="Explore diagnostics"
-      actionHref="/student/start"
+      action="Go to your assignments"
+      actionHref="/student"
     />
   );
 }

@@ -7,8 +7,8 @@ export default function Page() {
       description="A conversation with your teacher."
       detail="Messaging is not available yet. Please contact your teacher through your usual school channel."
       home="/student"
-      action="Explore diagnostics"
-      actionHref="/student/start"
+      action="Go to your assignments"
+      actionHref="/student"
     />
   );
 }

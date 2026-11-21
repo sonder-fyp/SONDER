@@ -7,8 +7,8 @@ export default function Page() {
       description="A little clarity goes a long way."
       detail="Learning resources are not available yet. Return to your overview to find an available diagnostic."
       home="/student"
-      action="Explore diagnostics"
-      actionHref="/student/start"
+      action="Go to your assignments"
+      actionHref="/student"
     />
   );
 }

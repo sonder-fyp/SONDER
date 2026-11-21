@@ -4,7 +4,7 @@ import { actionFor, parseCard } from "./dashboard";
 const card = (extra: Record<string, unknown> = {}) => parseCard({
   assignment_id: "55555555-5555-4555-8555-555555555555", class_id: "11111111-1111-4111-8111-111111111111", class_name: "Grade 8",
   title: "Rounding check", unit_code: "U1", unit_name: "Rounding", attempt_rule: "single", created_at: new Date("2026-11-18T09:00:00Z"),
-  latest_session_id: null, latest_state: null, answered: 0, question_budget: null, attempts: 0, ...extra,
+  latest_session_id: null, latest_state: null, answered: 0, question_budget: null, attempts: 0, assignment_status: "open", ...extra,
 });
 const sid = "77777777-7777-4777-8777-777777777777";
 
@@ -27,11 +27,26 @@ describe("assignment card actions", () => {
   });
 });
 
+describe("closed assignments", () => {
+  it("resumes a closed assignment while an attempt is in progress, otherwise shows Closed", () => {
+    expect(actionFor(card({ assignment_status: "closed", latest_state: "in_progress", latest_session_id: sid, answered: 1, attempts: 1 })))
+      .toMatchObject({ kind: "resume", label: "Resume" });
+    expect(actionFor(card({ assignment_status: "closed" }))).toEqual({ kind: "done", label: "Closed" });
+    expect(actionFor(card({ assignment_status: "closed", attempt_rule: "repeat", latest_state: "submitted", latest_session_id: sid, attempts: 1 })))
+      .toEqual({ kind: "done", label: "Closed" });
+  });
+
+  it("requires a known assignment_status", () => {
+    expect(() => card({ assignment_status: undefined })).toThrow();
+    expect(() => card({ assignment_status: "archived" })).toThrow();
+  });
+});
+
 describe("card parser", () => {
   it("keeps only the allowed fields and rejects result states", () => {
     const parsed = parseCard({ ...card(), outcome: "diagnosed", posterior: [1], latest_state: null });
     expect(Object.keys(parsed).sort()).toEqual(["answered", "assignment_id", "attempt_rule", "attempts", "class_id", "class_name",
-      "created_at", "latest_session_id", "latest_state", "question_budget", "title", "unit_code", "unit_name"]);
+      "created_at", "latest_session_id", "latest_state", "question_budget", "title", "unit_code", "unit_name"].concat("assignment_status").sort());
     expect(() => card({ latest_state: "diagnosed" })).toThrow();
   });
 });

@@ -14,17 +14,18 @@ export type StudentAssignmentCard = {
   answered: number;
   question_budget: number | null;
   attempts: number;
+  assignment_status: "open" | "closed";
 };
 
 export type CardAction =
   | { kind: "start"; label: string; href: string }
   | { kind: "resume"; label: string; href: string }
-  | { kind: "done"; label: string };
+  | { kind: "done"; label: "Done" | "Closed" };
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const UNIT = /^[A-Za-z0-9_-]{1,32}$/;
 const ALLOWED = ["assignment_id", "class_id", "class_name", "title", "unit_code", "unit_name", "attempt_rule", "created_at",
-  "latest_session_id", "latest_state", "answered", "question_budget", "attempts"] as const;
+  "latest_session_id", "latest_state", "answered", "question_budget", "attempts", "assignment_status"] as const;
 
 function time(value: unknown) {
   const date = value instanceof Date ? value : typeof value === "string" ? new Date(value) : null;
@@ -41,7 +42,8 @@ export function parseCard(value: unknown): StudentAssignmentCard {
     typeof r.unit_name === "string" && (r.attempt_rule === "single" || r.attempt_rule === "repeat") &&
     (r.latest_session_id === null || (typeof r.latest_session_id === "string" && UUID.test(r.latest_session_id))) &&
     (r.latest_state === null || r.latest_state === "in_progress" || r.latest_state === "submitted") &&
-    Number.isInteger(r.answered) && (r.question_budget === null || Number.isInteger(r.question_budget)) && Number.isInteger(r.attempts);
+    Number.isInteger(r.answered) && (r.question_budget === null || Number.isInteger(r.question_budget)) && Number.isInteger(r.attempts) &&
+    (r.assignment_status === "open" || r.assignment_status === "closed");
   if (!ok) throw new Error("Invalid assignment card.");
   const card = Object.fromEntries(ALLOWED.map((key) => [key, r[key]])) as StudentAssignmentCard;
   card.created_at = time(r.created_at);
@@ -66,6 +68,7 @@ export function actionFor(card: StudentAssignmentCard): CardAction {
     return { kind: "resume", label: "Resume",
       href: `/student/diagnostic/${unit}?session=${encodeURIComponent(card.latest_session_id)}&assignment=${assignment}` };
   }
+  if (card.assignment_status === "closed") return { kind: "done", label: "Closed" };
   if (card.latest_state === "submitted" && card.attempt_rule === "single") return { kind: "done", label: "Done" };
   return { kind: "start", label: card.latest_state === "submitted" ? "Start again" : "Start",
     href: `/student/diagnostic/${unit}?assignment=${assignment}` };

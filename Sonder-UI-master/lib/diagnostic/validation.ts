@@ -89,7 +89,7 @@ export function parseSessionList(value: unknown): SessionList {
 }
 
 export const ERROR_STATUS: Record<string, number> = {
-  assignment_not_found: 404, assignment_closed: 409, assignment_unavailable: 409, attempt_in_progress: 409,
+  assignment_required: 422, assignment_not_found: 404, assignment_closed: 409, assignment_unavailable: 409, attempt_in_progress: 409,
   attempt_limit_reached: 409, enrolment_required: 403, enrolment_ambiguous: 409, storage_unavailable: 503,
   storage_error: 500, replay_mismatch: 500, authentication_required: 401, role_required: 403,
   invalid_request: 422, session_unavailable: 404, session_not_found: 404, unit_not_found: 404, session_expired: 410,
