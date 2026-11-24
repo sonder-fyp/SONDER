@@ -157,11 +157,20 @@ class RealBankRowTests(unittest.TestCase):
                                         f"near rows (TV = {tv:.4f}) now exist; review R4 outcomes that rest "
                                         "on the reachable-share bound")
 
-    def test_the_d2_refusal_is_an_exact_row_case(self):
-        unit = self.pack.unit("U4")
-        state = replay(unit, Params(), ["D", "A"])
+    def test_a_real_bank_refusal_is_an_exact_row_case(self):
+        # On the 117-item bank the spec's D2 (U4 answers D, A) was refused naming 1514 and
+        # 1773; B19 now separates that pair, so D2 is diagnosed. The shortest refusal left
+        # in the 133-item candidate bank (all answer sequences of all units enumerated on
+        # 24 Nov 2026) is this U6 session: once T6-012B and T6-013B have been answered
+        # with unlinked options, MATH-2359 and NONE answer alike on every remaining item.
+        unit = self.pack.unit("U6")
+        state = replay(unit, Params(), ["B", "A", "C", "B"])
+        self.assertEqual([step.question.item_id for step in state.steps],
+                         ["T6-010", "T6-015B", "T6-012B", "T6-013B"])
         decision = state.decision
-        self.assertEqual((decision.rule, decision.tied), ("R4", ("MATH-1514", "MATH-1773")))
+        self.assertEqual((decision.rule, decision.tied), ("R4", ("MATH-2359", "NONE")))
+        self.assertAlmostEqual(decision.reachable_share, 0.7967, places=4)
+        self.assertEqual(decision.reachable_share, decision.leader_share)
         slots = [unit.hyps.index(h) for h in decision.tied]
         for item in remaining_items(unit, state):
             with self.subTest(item=item.item_id):
