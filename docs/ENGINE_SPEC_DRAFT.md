@@ -3,6 +3,7 @@
 **Scope:** the deterministic diagnostic core: posterior, question selection, stopping/refusal, run loop, trace, engine API. No LLM, retrieval, verification loop, calibration job or generation.
 **Status:** draft for team review. It replaces the earlier draft. That draft was written against an older snapshot of the bank (80 items) and is superseded wherever the two disagree.
 **Data this spec was measured on:** `Maths_v2/bank/items.csv`, 117 items, 468 rows, all `status=approved` (batches B01–B08, B10–B16).
+**Re-measured on the Maths_v2 candidate (24 November 2026, I2-A05):** §5 and §6.1–§6.2 now describe Harris's candidate of 20 November 2026 (133 items, 532 rows, 27 misconceptions, batches B01–B08 and B10–B21, PR #92; not externally reviewed). Each says what changed from the 117-item bank. §1, §6.3 and §6.4 are still the 117-item measurements; the seeded replacements for §6.3–§6.4 are `experiments/ADVERSE_CASES.md` and the I2-A05 tuning rerun, and the full rewrite is task I2-D05.
 **Reference code:** `engine_reference/spec_v2_reference.py` (engine), `spec_v2_report.py` (every measurement below), `spec_v2_tuning.py` (threshold trade-off). Raw outputs are saved next to them as `spec_v2_report_output.txt` and `spec_v2_tuning_output.txt`. **These scripts and outputs are not in this repository (checked 11 October 2026), so the measurements below cannot be re-run from the repository as it stands.**
 **Owners (carried over from the draft):** **[Ashher]** priors, likelihoods, posterior update · **[Harris]** EIG selection, Q-matrix content · **[Ahmed]** run loop, stopping/refusal, trace, API, pack loader.
 **Honesty rule:** the dataset is synthetic and no real-student response exists. Every probability and threshold is an **assumed** parameter. Simulated students test the machinery, not the truth about real students. Where I say "measured", it means measured on synthetic students.
@@ -220,22 +221,38 @@ Hypotheses (1248, 1379, 1988, 2392, NONE, UNMODELLED); prior `(.175, .175, .175,
 
 | Step | Item, EIG (bits) | Answer | Posterior after (1248, 1379, 1988, 2392, NONE, UNM) |
 |---|---|---|---|
-| 0 | T1-005, 0.7887 | D `49,000` (correct; the slip) | .0391, .0391, .3520, .0391, .5028, .0279 |
+| 0 | T1-001, 0.7887 | B `3,900` (correct; the slip) | .0391, .0391, .3520, .0391, .5028, .0279 |
 | 1 | T1-006, 0.6472 | B `23,000` (correct) | .0073, .0655, .0655, .0073, .8416, .0130 |
-| 2 | T1-007, 0.2232 | B `8,300` → 1379 | .0090, .5674, .0270, .0090, .3474, .0402 |
-| 3 | T1-009, 0.5546 | A `15,000` → 1379 | .0021, **.9423**, .0021, .0021, .0275, .0238 |
+| 2 | T1-005, 0.2232 | A `48,000` → 1379 | .0090, .5674, .0270, .0090, .3474, .0402 |
+| 3 | T1-007, 0.5546 | B `8,300` → 1379 | .0021, **.9423**, .0021, .0021, .0275, .0238 |
 
-After step 1, `p(NONE) = .8416 ≥ θ` but its support is 2 < 3, so R2 is blocked; with a support requirement of 2 the session would end at step 1 as `none_detected`, a false negative for a student who does hold 1379. After step 3, R1 fires (`p = .9423`, support 2). This table equals the earlier draft's D1 on the same items, which is a useful cross-check that the T1 model is unchanged.
+After step 1, `p(NONE) = .8416 ≥ θ` but its support is 2 < 3, so R2 is blocked; with a support requirement of 2 the session would end at step 1 as `none_detected`, a false negative for a student who does hold 1379. After step 3, R1 fires (`p = .9423`, support 2).
 
-### D2. U4: MATH-1514 student → `escalated_no_separator`
-U4 hypotheses (126, 228, 1416, 1514, 1773, 2093, NONE, UNM). The student always picks the option linked to 1514, which is also linked to 1773.
+*Change from the 117-item bank:* every EIG and posterior is identical; only the items differ (there: T1-005 D `49,000`, T1-006 B, T1-007 B, T1-009 A `15,000`). Harris's rewritten T1-001 has the same link pattern as T1-005 and comes first in pack order, so it wins the EIG tie. The earlier draft's D1 had the same numbers too, which is a useful cross-check that the T1 model is unchanged.
+
+### D2. U4: MATH-1514 student → `diagnosed` in 2 answers (was `escalated_no_separator`)
+U4 hypotheses (126, 228, 1416, 1514, 1773, 2093, NONE, UNM). The student always picks the option linked to 1514.
 
 | Step | Item, EIG | Answer | Posterior (126, 228, 1416, 1514, 1773, 2093, NONE, UNM) |
 |---|---|---|---|
-| 0 | T4-001, 0.7517 | D `Rs 27` | .0181, .0542, .0542, .3794, .3794, .0181, .0387, .0581 |
-| 1 | T5-011, 0.3668 | A `39` | .0011, .0033, .0033, **.4813**, **.4813**, .0011, .0023, .0263 |
+| 0 | T4-001, 0.7517 | D `Rs 28` → 1514, 1773 | .0181, .0542, .0542, .3794, .3794, .0181, .0387, .0581 |
+| 1 | T4-011, 0.5489 | C `59` → 1514 | .0020, .0060, .0060, **.8887**, .0423, .0020, .0043, .0486 |
 
-`C = {1514, 1773}` (identical rows on every remaining U4 item), `p(C) = .9626 ≥ .80`, `p(ℓ)/p(C) = .5`, which for identical rows is also the reachable share `ρ = .5 < .80`, support 2 → refusal naming both. The teacher gets both candidates. Note the same refusal occurs in U7, where `C` also contains NONE for 1514/1773 students because only one U7 item triggers them.
+The first answer is shared by 1514 and 1773, so they stay level. T4-011 ("What is 42 − 17?", B19) is a bare calculation: its "adds the two numbers" option is linked to 1514 alone, because a student who adds only in worded problems (1773) answers it correctly. R1 fires with `p = .8887` and support 2.
+
+*Change from the 117-item bank:* there the second question was T5-011 A `39`, linked to both, and every remaining U4 item gave 1514 and 1773 identical rows, so the session was refused naming both (`p(C) = .9626`, `ρ = .5`). The same student is now diagnosed. A 1773 student is diagnosed too, after 3 answers (§6.1).
+
+### D3. U6: a refusal that remains → `escalated_no_separator`
+U6 hypotheses (1074, 161, 767, 1651, 2359, NONE, UNM); MATH-1416 is dropped under D-2. Scripted answers, not a deterministic student:
+
+| Step | Item, EIG | Answer | Posterior (1074, 161, 767, 1651, 2359, NONE, UNM) |
+|---|---|---|---|
+| 0 | T6-010, 0.7799 | B `2 hours` (correct) | .0334, .0334, .0334, .0334, .3004, .5364, .0298 |
+| 1 | T6-015B, 0.5046 | A `0.25 hours` → 2359 | .0046, .0046, .0046, .0046, .8759, .0745, .0310 |
+| 2 | T6-012B, 0.2185 | C `3 hours` (correct) | .0233, .0233, .0233, .0233, .4892, .3744, .0433 |
+| 3 | T6-013B, 0.5572 | B `300 minutes = 240 hours` (unlinked) | .0103, .0103, .0103, .0103, **.6493**, **.1656**, .1438 |
+
+The items that separate 2359 from NONE, or their twins, have now been asked, so `C = {2359, NONE}` has identical rows on every remaining U6 item. `p(C) = .8150 ≥ .80`, `ρ = p(2359)/p(C) = .7967 < .80` and support 3 → refusal naming both. Enumerating every answer sequence of every unit on the candidate (24 November 2026) finds R4 refusals only of this kind: after the few separating items of a pair have been used (KF-08), never because a pair cannot be separated at all, and always with identical rows (`ρ` equals `p(ℓ)/p(C)`).
 
 ---
 
@@ -243,21 +260,24 @@ U4 hypotheses (126, 228, 1416, 1514, 1773, 2093, NONE, UNM). The student always 
 
 ### 6.1 Deterministic students (always apply the misconception when triggered, never slip)
 
-*Note (11 October 2026): the U6 figures in this section and in §6.2 were measured with T6-011B, T6-014B and T6-016B in the unit at `guess = 0.30`, a setting §3.6's P1 refuses for those items. Under decision D-2 they are skipped for U6, so the U6 results will change (the MATH-1416 student in particular has no trigger item). The U6 rows are to be recomputed by tests in the repository; until then treat them as measured on a different unit definition. The other six units are unaffected.*
-Across the 7 units there are 44 students (every unit hypothesis plus NONE).
+Measured on the candidate with the real run loop (`tests/test_engine_stopping.py`, `tests/test_engine_students.py`), U6 as decided under D-2. Across the 7 units there are 41 students (every unit hypothesis plus NONE): U3 no longer has MATH-1651 (unlinked there), U5 no longer has MATH-734 (removed from the catalogue) and U6 has no MATH-1416 (D-2).
 
 | Result | Count | Which |
 |---|---|---|
-| Diagnosed correctly | 27 | all misconceptions in U1, U2, U5; 2138, 2206, 2359 in U3; 126, 228, 1416 in U4; 161, 767, 1416 in U6; 1639, 2093, 2271, 2359, 1715 in U7 |
+| Diagnosed correctly | 34 | every misconception in every unit |
 | `none_detected` (NONE student) | 7 | every unit |
-| `escalated_no_separator` | 8 | 1074 and 1651 in U3 and U6; 1514 and 1773 in U4 and U7 |
-| `escalated_exhausted` | 2 | 2093 in U4 and 2359 in U6 (too few trigger items) |
+| `escalated_no_separator` | 0 | |
+| `escalated_exhausted` | 0 | |
 | Diagnosed as a different misconception | 0 | |
 
-Decisions take 2–5 answers; no deterministic student needs more than 5.
+Decisions take 2–4 answers; no deterministic student needs more than 4 (U4 2093; U7 1639, 2271, 1514, 1773 and NONE).
+
+*Change from the 117-item bank* (44 students in the spec, 43 after D-2): 26 diagnosed, 7 `none_detected`, 8 `escalated_no_separator` (1074 and 1651 in U3 and U6; 1514 and 1773 in U4 and U7) and 2 `escalated_exhausted` (2093 in U4 and 2359 in U6, too few trigger items), in 2–5 answers. The separating items of B19 (U4), B20 (U6) and B21 (U7), and the removal of MATH-1651 from U3, end the 8 refusals; the trigger items of B18 (U4, 2093) and B17 (U6, 2359) end the 2 exhaustions.
 
 ### 6.2 Sensitivity (each float parameter × 0.8 and × 1.2)
-16 variants × 44 students = 704 runs. **6 outcome changes**, all from `θ`: at θ = 0.64, 1416 in U6 moves from `diagnosed` to `none_detected`; at θ = 0.96, five students (NONE in U4, U6, U7; 2093 in U4; 2359 in U6) move to `escalated_no_separator`. No other parameter changed any outcome. The earlier draft's claim of "all variants pass" does not hold on the full bank. This is a finding about `θ`'s range, not about the others.
+On the candidate, 16 variants × 41 students = 656 runs: **no outcome changes**. This says only that the deterministic students are robust to these variations; noisy and adverse students still depend on `θ` and `min_support` (I2-A04), so D-6 stands.
+
+*Change from the 117-item bank:* 16 variants × 44 students = 704 runs gave **6 outcome changes**, all from `θ`: at θ = 0.64, 1416 in U6 moved from `diagnosed` to `none_detected`; at θ = 0.96, five students (NONE in U4, U6, U7; 2093 in U4; 2359 in U6) moved to `escalated_no_separator`. After D-2 the first of these no longer existed. No other parameter changed any outcome there either.
 
 ### 6.3 Noisy students (apply the misconception 50%, 70% or 90% of the time when triggered, 8% slip elsewhere; generation parameters differ from the engine's)
 Per-unit share of runs (720–1,260 runs each):
