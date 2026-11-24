@@ -77,7 +77,7 @@ def real_units():
         "U2": ({"T2 Fractions, decimals and percentage conversion"},
                t["T2 Fractions, decimals and percentage conversion"]),
         "U3": ({"T3 Percentage of an amount"},
-               t["T3 Percentage of an amount"] + ["MATH-1074", "MATH-1651", "MATH-2359"]),
+               t["T3 Percentage of an amount"] + ["MATH-1074", "MATH-2359"]),  # No U3 link to 1651.
         "U4": ({"T4 Choosing the operation", "T5 cross-concept (operation version)"},
                ["MATH-126", "MATH-228", "MATH-1416", "MATH-1514", "MATH-1773", "MATH-2093"]),
         "U5": ({"T5 Powers and roots"}, t["T5 Powers and roots"]),
@@ -403,8 +403,9 @@ class SpecWorkedExampleTests(unittest.TestCase):
 
     def test_d1_t1_rounding_choices_eigs_and_posteriors(self):
         hyps, items = load_unit({"T1 Rounding"}, ["MATH-1248", "MATH-1379", "MATH-1988", "MATH-2392"])
-        steps = replay(hyps, items, ["D", "B", "B", "A"])
-        self.assertEqual([s[0] for s in steps], ["T1-005", "T1-006", "T1-007", "T1-009"])
+        # T1-001 now wins the EIG tie with T1-005, preserving the posterior sequence.
+        steps = replay(hyps, items, ["B", "B", "A", "B"])
+        self.assertEqual([s[0] for s in steps], ["T1-001", "T1-006", "T1-005", "T1-007"])
         for (_, eig, _), expected in zip(steps, [0.7887, 0.6472, 0.2232, 0.5546]):
             self.assertAlmostEqual(eig, expected, places=4)
         np.testing.assert_allclose(steps[0][2], [.0391, .0391, .3520, .0391, .5028, .0279], atol=5e-5)
@@ -417,24 +418,25 @@ class SpecWorkedExampleTests(unittest.TestCase):
             {"T4 Choosing the operation", "T5 cross-concept (operation version)"},
             ["MATH-126", "MATH-228", "MATH-1416", "MATH-1514", "MATH-1773", "MATH-2093"],
         )
-        steps = replay(hyps, items, ["D", "A"])
-        self.assertEqual([s[0] for s in steps], ["T4-001", "T5-011"])
-        for (_, eig, _), expected in zip(steps, [0.7517, 0.3668]):
+        # T4-011 C now distinguishes MATH-1514 from MATH-1773 at the second step.
+        steps = replay(hyps, items, ["D", "C"])
+        self.assertEqual([s[0] for s in steps], ["T4-001", "T4-011"])
+        for (_, eig, _), expected in zip(steps, [0.7517, 0.5489]):
             self.assertAlmostEqual(eig, expected, places=4)
         np.testing.assert_allclose(steps[0][2], [.0181, .0542, .0542, .3794, .3794, .0181, .0387, .0581], atol=5e-5)
-        np.testing.assert_allclose(steps[1][2], [.0011, .0033, .0033, .4813, .4813, .0011, .0023, .0263], atol=5e-5)
+        np.testing.assert_allclose(steps[1][2], [.0020, .0060, .0060, .8887, .0423, .0020, .0043, .0486], atol=5e-5)
 
 
 class IndependentRealBankChecks(unittest.TestCase):
-    """Cross-checks on the 81 items of units U1-U5 against code that shares nothing with the module."""
+    """Cross-checks on the 89 items of units U1-U5 against code that shares nothing with the module."""
 
     @classmethod
     def setUpClass(cls):
         cls.units = real_units()
 
-    def test_the_five_units_cover_eighty_one_items(self):
+    def test_the_five_units_cover_eighty_nine_items(self):
         self.assertEqual({n: len(items) for n, (_, items) in self.units.items()},
-                         {"U1": 20, "U2": 25, "U3": 10, "U4": 16, "U5": 10})
+                         {"U1": 20, "U2": 25, "U3": 10, "U4": 21, "U5": 13})  # PR #92 adds five in U4 and three in U5.
 
     def test_eig_matches_exact_arithmetic_for_every_item_at_the_prior_and_after_every_answer(self):
         params = Params()
@@ -455,7 +457,7 @@ class IndependentRealBankChecks(unittest.TestCase):
                         np.array([float(x) for x in post]), likelihood_matrix(item, hyps, params))
                     self.assertAlmostEqual(actual, expected, places=11, msg=f"{name} {item.item_id}")
                     checked += 1
-        self.assertEqual(checked, 81 * 5)
+        self.assertEqual(checked, 89 * 5)  # Eight new U4/U5 items, five posteriors each.
 
     def test_choice_and_full_ranking_match_a_brute_force_reference_on_random_posteriors(self):
         params = Params()
