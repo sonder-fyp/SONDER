@@ -1,0 +1,76 @@
+{
+  "command": "python -m experiments.adverse_baseline --runs 200 --intermittent-runs 100 --out experiments/results/adverse-baseline-candidate-2026-11-20",
+  "content_version": "Maths_v2",
+  "engine_version": "0.1.0",
+  "experiment": "adverse-baseline",
+  "generation": {
+    "apply_rates": [
+      0.5,
+      0.7,
+      0.9
+    ],
+    "intermittent_units": [
+      "U1",
+      "U2"
+    ],
+    "slip": 0.08
+  },
+  "git_commit": "03e9ef2016b600f6de7402651cccb34d4bf6b8ce",
+  "git_tracked_changes": false,
+  "note": "Synthetic students under assumed parameters. Describes current engine behaviour; it is not diagnostic accuracy on real students. Policies without a named truth (always-A, random-uniform) produce adverse-response labels, not correct or wrong diagnoses.",
+  "numpy": "2.4.4",
+  "params": {
+    "default_budget": 8,
+    "delta_sep": 0.05,
+    "eig_floor": 0.01,
+    "guess": 0.3,
+    "k_max": 8,
+    "min_support": 2,
+    "min_support_none": 3,
+    "prior_none": 0.25,
+    "prior_unmodelled": 0.05,
+    "slip": 0.1,
+    "theta": 0.8,
+    "theta_unmodelled": 0.5,
+    "w_sound": 1.0,
+    "w_stretch": 0.5
+  },
+  "python": "3.14.0",
+  "question_budget": 8,
+  "row_count": 5549,
+  "seeds": {
+    "deterministic_cases": [
+      0
+    ],
+    "intermittent": [
+      0,
+      99
+    ],
+    "none_with_slip_and_random": [
+      0,
+      199
+    ],
+    "reserved_for_protocol": {
+      "held_out": [
+        2000,
+        2999
+      ],
+      "tuning": [
+        1000,
+        1999
+      ]
+    }
+  },
+  "source_sha256": {
+    "bank/items.csv": "b168a66441d33efbf3f1fd3797d96132b62c60c4fe38c222ed96b9fb6538ff73",
+    "maths_v2_units.json": "4e7102a34cc195801faae6b6b416e3ad64c443e3ae7e8ee6d99819da628fef21",
+    "topics.csv": "ebe0571bd3578926cf79d4715a1148ed4a3e4fb494c3a4d082a64048cb1420b0"
+  },
+  "source_sha256_as_loaded": {
+    "bank/items.csv": "45f5cc368f98ec282ef8c9f14953ba2dd26041d2631d9326e04b9ac17b060fac",
+    "maths_v2_units.json": "61cfff3884738a2fac2621a3443e64455d1104870b2c462c999bf684e4af3e62",
+    "topics.csv": "deb09302e4d50fdb255d004dbb8fee789a7d735e04e4a3db8b2614d01abb3ef0"
+  },
+  "source_sha256_note": "source_sha256 hashes each file with CRLF converted to LF, which equals the committed file on every platform. source_sha256_as_loaded is what the pack loader hashed on this machine and differs on a CRLF (Windows) checkout.",
+  "task": "I2-A01"
+}

@@ -19,6 +19,8 @@ Each session pins its `response_model_id`, which joins `response_model` to `cont
 
 ## D1 example
 
+*24 November 2026. Runs recorded before PR #92 used the 117-item bank (D1 = D, B, B, A on T1-005, T1-006, T1-007, T1-009). On the 133-item candidate D1 is B, B, A, B on T1-001, T1-006, T1-005, T1-007; the harness scripts were updated in PR #92.*
+
 Captured from the local development candidate release after answers D, B, B, A:
 
 ```json

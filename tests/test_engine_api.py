@@ -26,6 +26,9 @@ except ModuleNotFoundError as exc:
 ACTOR_A = "00000000-0000-4000-8000-00000000000a"
 ACTOR_B = "00000000-0000-4000-8000-00000000000b"
 
+# Spec section 5 D4: a U4 refusal on the 133-item candidate (T4-001 D, T4-011 B, T4-012 C, T5-013 B).
+D4 = {"T4-001": "D", "T4-011": "B", "T4-012": "C", "T5-013": "B"}
+
 
 @unittest.skipUnless(API_AVAILABLE, "install approved API/test extras to run HTTP integration tests")
 class ApiTests(unittest.TestCase):
@@ -78,8 +81,10 @@ class ApiTests(unittest.TestCase):
 
     def test_d1_and_d2(self):
         for unit, options, ids, outcome, rule in [
-            ("U1", "DBBA", ["T1-005", "T1-006", "T1-007", "T1-009"], "diagnosed", "R1"),
-            ("U4", "DA", ["T4-001", "T5-011"], "escalated_no_separator", "R4"),
+            # T1-001 wins the rounding tie; T4-011 separates D2 while D4 exhausts the separators.
+            ("U1", "BBAB", ["T1-001", "T1-006", "T1-005", "T1-007"], "diagnosed", "R1"),
+            ("U4", "DC", ["T4-001", "T4-011"], "diagnosed", "R1"),
+            ("U4", "DBCB", ["T4-001", "T4-011", "T4-012", "T5-013"], "escalated_no_separator", "R4"),
         ]:
             v = self.begin(unit)
             seen = []
@@ -93,13 +98,16 @@ class ApiTests(unittest.TestCase):
             self.assertEqual(trace["outcome"]["outcome"], outcome)
             self.assertEqual(trace["outcome"]["rule"], rule)
 
-    def test_78_policies_exact_http_trace_parity(self):
+    def test_77_policies_exact_http_trace_parity(self):
         cases, rules = 0, set()
         for unit in self.pack.units:
             policies = [(h, lambda item, h=h: deterministic_answer(item, h)) for h in unit.hyps[:-1]]
             policies += [(f"always-{i}", lambda item, i=i: i) for i in range(4)]
             policies += [("unlinked", lambda item: next((i for i, links in enumerate(item.links)
                            if i != item.correct_index and not links), item.correct_index))]
+            if unit.unit_id == "U4":
+                # No generated policy is refused on the candidate bank, so R4 is covered by D4.
+                policies.append(("d4-refusal", lambda item: item.option_ids.index(D4[item.item_id])))
             for name, policy in policies:
                 with self.subTest(unit=unit.unit_id, policy=name):
                     v = self.begin(unit.unit_id)
@@ -124,16 +132,16 @@ class ApiTests(unittest.TestCase):
                     self.safe_snapshot(v)
                     rules.add(direct.decision.rule)
                     cases += 1
-        self.assertEqual(cases, 78)
+        self.assertEqual(cases, 77)  # U3 lost 1651 and U5 lost 734; D4 adds one case.
         self.assertEqual(rules, {"R1", "R2", "R3", "R4", "R5"})
 
     def test_catalogue_and_loader_exclusions(self):
         response = self.client.get("/engine/units", headers=self.headers)
         v = response.json()
         self.assertEqual(response.headers["cache-control"], "no-store")
-        self.assertEqual([u["item_count"] for u in v["units"]], [20, 25, 10, 16, 10, 14, 16])
+        self.assertEqual([u["item_count"] for u in v["units"]], [20, 25, 10, 21, 13, 18, 20])  # New items in U4-U7.
         self.assertEqual(v["question_budget"], self.params.default_budget)
-        self.assertEqual(len(self.pack.warnings), 40)
+        self.assertEqual(len(self.pack.warnings), 50)  # Revised links and twins change the warning counts.
         self.assertFalse({"T6-011B", "T6-014B", "T6-016B"} & {i.item.item_id for i in self.pack.unit("U6").items})
         self.assertEqual(len(self.store.entries), 0)
 
@@ -195,7 +203,7 @@ class ApiTests(unittest.TestCase):
             response = self.client.post(path, headers=self.headers, json=body)
             self.assertEqual(response.status_code, 422)
             self.assertEqual(response.json(), {"error": {"code": "invalid_request"}})
-        for body in [{**valid, "step_index": 2}, {**valid, "item_id": "T1-001"}]:
+        for body in [{**valid, "step_index": 2}, {**valid, "item_id": "T1-005"}]:  # T1-001 is now pending.
             self.assertEqual(self.client.post(path, headers=self.headers, json=body).status_code, 409)
         for raw in ["{", " " * 4097]:
             self.assertEqual(self.client.post(path, headers=self.headers, content=raw).status_code, 422)
@@ -266,8 +274,9 @@ class ApiTests(unittest.TestCase):
                 v, _ = store.submit(v["session_id"], owner, AnswerRequest(
                     step_index=q["step_index"], item_id=q["item_id"], option_id=option))
             return v
-        first = run("U4", "DA")
-        second = run("U4", "DA")
+        # D2 now finishes when T4-011 C singles out MATH-1514.
+        first = run("U4", "DC")
+        second = run("U4", "DC")
         self.assertEqual((first["status"], second["status"]), ("complete", "complete"))
         active = run("U1", "")
         self.assertEqual(active["status"], "in_progress")

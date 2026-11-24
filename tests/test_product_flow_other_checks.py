@@ -19,18 +19,18 @@ class OtherChecksTests(FlowTestCase):
         self.answer(self.start(self.assign("A")), "DB")  # assignment session: not listed
         going = self.start()
         self.assertEqual(self.other(), [(going["session_id"], "in_progress", 0, None)])
-        done = self.answer(going, "DBBA")
+        done = self.answer(going, "BBAB")  # D1 opens on T1-001 after the link changes.
         self.assertEqual(self.other(), [(done["session_id"], "completed", 4, None)])
         self.review(done["session_id"], 0, "reviewed")
         self.assertEqual(self.other()[0][3], "reviewed")
 
     def test_session_of_a_student_who_left_is_still_returned(self):
-        done = self.answer(self.start(), "DBBA")
+        done = self.answer(self.start(), "BBAB")  # D1 opens on T1-001 after the link changes.
         self.call("SELECT sonder.remove_student(%s, %s, %s)", (self.teacher, self.class_id, self.student))
         self.assertEqual([r[0] for r in self.other()], [done["session_id"]])
 
     def test_other_teacher_or_other_class_gets_nothing(self):
-        self.answer(self.start(), "DBBA")
+        self.answer(self.start(), "BBAB")  # D1 opens on T1-001 after the link changes.
         other_teacher = self.user("teacher")
         self.assertEqual(self.other(other_teacher), [])
         other_class = self.call("SELECT class_id::text FROM sonder.create_class(%s, 'Other')", (self.teacher,))[0][0]

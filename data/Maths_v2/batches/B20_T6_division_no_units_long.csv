@@ -1,0 +1,9 @@
+﻿item_id,topic,target,stem,option_id,option_text,is_correct,misconceptions,status
+T6-022,T6 x multiplication/division (operation version),MATH-1074,A 120-minute film is split into 4 equal parts. How long is each part?,A,116 minutes,False,,draft
+T6-022,T6 x multiplication/division (operation version),MATH-1074,A 120-minute film is split into 4 equal parts. How long is each part?,B,30 minutes,True,,draft
+T6-022,T6 x multiplication/division (operation version),MATH-1074,A 120-minute film is split into 4 equal parts. How long is each part?,C,480 minutes,False,MATH-1074,draft
+T6-022,T6 x multiplication/division (operation version),MATH-1074,A 120-minute film is split into 4 equal parts. How long is each part?,D,124 minutes,False,,draft
+T6-023,T6 x multiplication/division (operation version),MATH-1074,"Aisha practises the piano for 90 minutes each week, shared equally over 3 days. How many minutes does she practise each day?",A,87 minutes,False,,draft
+T6-023,T6 x multiplication/division (operation version),MATH-1074,"Aisha practises the piano for 90 minutes each week, shared equally over 3 days. How many minutes does she practise each day?",B,45 minutes,False,,draft
+T6-023,T6 x multiplication/division (operation version),MATH-1074,"Aisha practises the piano for 90 minutes each week, shared equally over 3 days. How many minutes does she practise each day?",C,30 minutes,True,,draft
+T6-023,T6 x multiplication/division (operation version),MATH-1074,"Aisha practises the piano for 90 minutes each week, shared equally over 3 days. How many minutes does she practise each day?",D,270 minutes,False,MATH-1074,draft

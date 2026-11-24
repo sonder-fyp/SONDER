@@ -48,7 +48,7 @@ class StoreTests(DatabaseTestCase):
         q = value['question']
         return (store or self.store).submit(value['session_id'], actor, AnswerRequest(step_index=q['step_index'], item_id=q['item_id'], option_id=option))
 
-    def finish(self, actor, options='DBBA', store=None):
+    def finish(self, actor, options='BBAB', store=None):  # D1 opens on T1-001 after the link changes.
         value = self.begin(actor, store=store)
         seen = []
         for option in options:
@@ -63,7 +63,7 @@ class StoreTests(DatabaseTestCase):
 
     def test_d1_worked_example(self):
         value, seen = self.finish(self.students[10])
-        self.assertEqual(seen, ['T1-005', 'T1-006', 'T1-007', 'T1-009'])
+        self.assertEqual(seen, ['T1-001', 'T1-006', 'T1-005', 'T1-007'])  # T1-001 now wins the opening EIG tie.
         self.assertEqual(value['status'], 'complete')
         outcome = self.store.inspect(value['session_id'])['trace']['outcome']
         self.assertEqual((outcome['outcome'], outcome['rule']), ('diagnosed', 'R1'))
@@ -191,7 +191,7 @@ class StoreTests(DatabaseTestCase):
         sid, q = value['session_id'], value['question']
         self.assert_service_error(409, 'step_conflict', lambda: self.store.submit(sid, actor, AnswerRequest(step_index=5, item_id=q['item_id'], option_id='A')))
         self.assert_service_error(409, 'item_conflict', lambda: self.store.submit(sid, actor, AnswerRequest(step_index=0, item_id='T0-000', option_id='A')))
-        for option in 'DBBA':
+        for option in 'BBAB':  # D1 opens on T1-001 after the link changes.
             value, _ = self.submit(actor, value, option)
         self.assert_service_error(409, 'session_finished', lambda: self.store.submit(sid, actor, AnswerRequest(step_index=value['answered_count'], item_id=q['item_id'], option_id='A')))
 

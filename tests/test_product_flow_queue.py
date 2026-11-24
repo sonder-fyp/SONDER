@@ -15,13 +15,13 @@ class TeacherQueueTests(FlowTestCase):
 
     def test_queue_lists_finished_unreviewed_latest_attempts(self):
         done, going = self.assign("Done"), self.assign("Going")
-        finished = self.answer(self.start(done), "DBBA")
+        finished = self.answer(self.start(done), "BBAB")  # D1 opens on T1-001 after the link changes.
         self.answer(self.start(going), "DB")
         rows = self.queue()
         self.assertEqual(rows, [(finished["session_id"], "Mine", "Test student", done, "Done", "U1", None)])
 
     def test_review_removes_and_follow_up_keeps(self):
-        finished = self.answer(self.start(self.assign("A")), "DBBA")
+        finished = self.answer(self.start(self.assign("A")), "BBAB")  # D1 opens on T1-001 after the link changes.
         sid = finished["session_id"]
         self.review(sid, 0, "reviewed")
         self.assertEqual(self.queue(), [])
@@ -33,8 +33,8 @@ class TeacherQueueTests(FlowTestCase):
 
     def test_only_latest_attempt_of_repeat(self):
         a = self.assign("Rep", "repeat")
-        first = self.answer(self.start(a), "DBBA")
-        second = self.answer(self.start(a), "DBBA")
+        first = self.answer(self.start(a), "BBAB")  # D1 opens on T1-001 after the link changes.
+        second = self.answer(self.start(a), "BBAB")  # D1 opens on T1-001 after the link changes.
         self.assertEqual([r[0] for r in self.queue()], [second["session_id"]])
         self.assertNotEqual(first["session_id"], second["session_id"])
         self.start(a)
@@ -42,12 +42,12 @@ class TeacherQueueTests(FlowTestCase):
 
     def test_closed_assignment_still_queued(self):
         a = self.assign("A")
-        self.answer(self.start(a), "DBBA")
+        self.answer(self.start(a), "BBAB")  # D1 opens on T1-001 after the link changes.
         self.call("SELECT sonder.set_assignment_status(%s, %s, 'closed')", (self.teacher, a))
         self.assertEqual(len(self.queue()), 1)
 
     def test_archived_class_and_left_student_excluded(self):
-        self.answer(self.start(self.assign("A")), "DBBA")
+        self.answer(self.start(self.assign("A")), "BBAB")  # D1 opens on T1-001 after the link changes.
         self.assertEqual(len(self.queue()), 1)
         self.call("SELECT sonder.remove_student(%s, %s, %s)", (self.teacher, self.class_id, self.student))
         self.assertEqual(self.queue(), [])
@@ -57,12 +57,12 @@ class TeacherQueueTests(FlowTestCase):
         self.assertEqual(self.queue(), [])
 
     def test_assignment_less_check_is_queued(self):
-        finished = self.answer(self.start(), "DBBA")
+        finished = self.answer(self.start(), "BBAB")  # D1 opens on T1-001 after the link changes.
         rows = self.queue()
         self.assertEqual(rows, [(finished["session_id"], "Mine", "Test student", None, None, "U1", None)])
 
     def test_other_teacher_sees_nothing(self):
-        self.answer(self.start(self.assign("A")), "DBBA")
+        self.answer(self.start(self.assign("A")), "BBAB")  # D1 opens on T1-001 after the link changes.
         self.assertEqual(self.queue(self.user("teacher")), [])
 
 

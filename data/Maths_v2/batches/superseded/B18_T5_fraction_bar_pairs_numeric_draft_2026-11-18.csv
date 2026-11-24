@@ -1,0 +1,25 @@
+﻿item_id,topic,target,stem,option_id,option_text,is_correct,misconceptions,status
+T5-017,T5 Powers and roots,MATH-1072,A fraction has 10² on the top and √25 on the bottom. What is the value of the fraction?,A,8,False,MATH-414|MATH-734,draft
+T5-017,T5 Powers and roots,MATH-1072,A fraction has 10² on the top and √25 on the bottom. What is the value of the fraction?,B,20,True,,draft
+T5-017,T5 Powers and roots,MATH-1072,A fraction has 10² on the top and √25 on the bottom. What is the value of the fraction?,C,4,False,MATH-1072,draft
+T5-017,T5 Powers and roots,MATH-1072,A fraction has 10² on the top and √25 on the bottom. What is the value of the fraction?,D,2.4,False,MATH-952,draft
+T5-020,T5 cross-concept (operation version),MATH-2093,A fraction has 10² on the top and √25 on the bottom. What is the value of the fraction?,A,500,False,,draft
+T5-020,T5 cross-concept (operation version),MATH-2093,A fraction has 10² on the top and √25 on the bottom. What is the value of the fraction?,B,95,False,MATH-2093,draft
+T5-020,T5 cross-concept (operation version),MATH-2093,A fraction has 10² on the top and √25 on the bottom. What is the value of the fraction?,C,20,True,,draft
+T5-020,T5 cross-concept (operation version),MATH-2093,A fraction has 10² on the top and √25 on the bottom. What is the value of the fraction?,D,105,False,,draft
+T5-018,T5 Powers and roots,MATH-952,A fraction has 6³ on the top and √16 on the bottom. What is the value of the fraction?,A,27,False,MATH-414|MATH-734,draft
+T5-018,T5 Powers and roots,MATH-952,A fraction has 6³ on the top and √16 on the bottom. What is the value of the fraction?,B,4.5,False,MATH-1072,draft
+T5-018,T5 Powers and roots,MATH-952,A fraction has 6³ on the top and √16 on the bottom. What is the value of the fraction?,C,2.25,False,MATH-952,draft
+T5-018,T5 Powers and roots,MATH-952,A fraction has 6³ on the top and √16 on the bottom. What is the value of the fraction?,D,54,True,,draft
+T5-021,T5 cross-concept (operation version),MATH-2093,A fraction has 6³ on the top and √16 on the bottom. What is the value of the fraction?,A,54,True,,draft
+T5-021,T5 cross-concept (operation version),MATH-2093,A fraction has 6³ on the top and √16 on the bottom. What is the value of the fraction?,B,864,False,,draft
+T5-021,T5 cross-concept (operation version),MATH-2093,A fraction has 6³ on the top and √16 on the bottom. What is the value of the fraction?,C,212,False,MATH-2093,draft
+T5-021,T5 cross-concept (operation version),MATH-2093,A fraction has 6³ on the top and √16 on the bottom. What is the value of the fraction?,D,220,False,,draft
+T5-019,T5 Powers and roots,MATH-414,A fraction has 8³ on the top and √16 on the bottom. What is the value of the fraction?,A,128,True,,draft
+T5-019,T5 Powers and roots,MATH-414,A fraction has 8³ on the top and √16 on the bottom. What is the value of the fraction?,B,6,False,MATH-1072,draft
+T5-019,T5 Powers and roots,MATH-414,A fraction has 8³ on the top and √16 on the bottom. What is the value of the fraction?,C,64,False,MATH-414|MATH-734,draft
+T5-019,T5 Powers and roots,MATH-414,A fraction has 8³ on the top and √16 on the bottom. What is the value of the fraction?,D,2.75,False,MATH-952,draft
+T5-022,T5 cross-concept (operation version),MATH-2093,A fraction has 8³ on the top and √16 on the bottom. What is the value of the fraction?,A,"2,048",False,,draft
+T5-022,T5 cross-concept (operation version),MATH-2093,A fraction has 8³ on the top and √16 on the bottom. What is the value of the fraction?,B,128,True,,draft
+T5-022,T5 cross-concept (operation version),MATH-2093,A fraction has 8³ on the top and √16 on the bottom. What is the value of the fraction?,C,508,False,MATH-2093,draft
+T5-022,T5 cross-concept (operation version),MATH-2093,A fraction has 8³ on the top and √16 on the bottom. What is the value of the fraction?,D,516,False,,draft

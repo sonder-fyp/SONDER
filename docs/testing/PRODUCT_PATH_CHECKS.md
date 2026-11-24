@@ -59,6 +59,8 @@ It creates a class named "Browser check <time>", archives it at the end and prin
 
 ## Results
 
+*24 November 2026. Runs recorded before PR #92 used the 117-item bank (D1 = D, B, B, A on T1-005, T1-006, T1-007, T1-009). On the 133-item candidate D1 is B, B, A, B on T1-001, T1-006, T1-005, T1-007; the harness scripts were updated in PR #92.*
+
 | Date | Commit | Tester | Automated | Live harness | Notes |
 | --- | --- | --- | --- | --- | --- |
 | 2026-11-18 | branch `ashher/i2-product-path-checks` (on `dev` after #86) | Ashher (run with Claude Code) | Pass: all `tests/test_product_*.py` on PostgreSQL 16 and `npm test` | **Pass: 35 checks, 0 failures** | See the record below. No second teacher or student cookie, so the optional cross-account checks did not run; cross-account denial is covered by the automated tests. |

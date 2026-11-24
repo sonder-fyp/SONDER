@@ -1,0 +1,41 @@
+item_id,topic,target,stem,option_id,option_text,is_correct,misconceptions,status
+T2-001,"T2 Fractions, decimals and percentage conversion",MATH-61,A phone battery is 0.45 charged. What percentage of the battery is charged?,A,4.5%,False,MATH-61,draft
+T2-001,"T2 Fractions, decimals and percentage conversion",MATH-61,A phone battery is 0.45 charged. What percentage of the battery is charged?,B,45%,True,,draft
+T2-001,"T2 Fractions, decimals and percentage conversion",MATH-61,A phone battery is 0.45 charged. What percentage of the battery is charged?,C,0.45%,False,MATH-1965|MATH-2039,draft
+T2-001,"T2 Fractions, decimals and percentage conversion",MATH-61,A phone battery is 0.45 charged. What percentage of the battery is charged?,D,54%,False,,draft
+T2-002,"T2 Fractions, decimals and percentage conversion",MATH-61,Hira answered 0.6 of the questions correctly. Write 0.6 as a percentage.,A,60%,True,,draft
+T2-002,"T2 Fractions, decimals and percentage conversion",MATH-61,Hira answered 0.6 of the questions correctly. Write 0.6 as a percentage.,B,6%,False,MATH-61,draft
+T2-002,"T2 Fractions, decimals and percentage conversion",MATH-61,Hira answered 0.6 of the questions correctly. Write 0.6 as a percentage.,C,0.6%,False,MATH-1965|MATH-2039,draft
+T2-002,"T2 Fractions, decimals and percentage conversion",MATH-61,Hira answered 0.6 of the questions correctly. Write 0.6 as a percentage.,D,600%,False,,draft
+T2-003,"T2 Fractions, decimals and percentage conversion",MATH-1965,A cricketer hit 0.85 of his shots to the boundary. What is 0.85 as a percentage?,A,8.5%,False,MATH-61,draft
+T2-003,"T2 Fractions, decimals and percentage conversion",MATH-1965,A cricketer hit 0.85 of his shots to the boundary. What is 0.85 as a percentage?,B,0.85%,False,MATH-1965|MATH-2039,draft
+T2-003,"T2 Fractions, decimals and percentage conversion",MATH-1965,A cricketer hit 0.85 of his shots to the boundary. What is 0.85 as a percentage?,C,85%,True,,draft
+T2-003,"T2 Fractions, decimals and percentage conversion",MATH-1965,A cricketer hit 0.85 of his shots to the boundary. What is 0.85 as a percentage?,D,58%,False,,draft
+T2-004,"T2 Fractions, decimals and percentage conversion",MATH-1965,Write 0.05 as a percentage.,A,0.5%,False,MATH-61,draft
+T2-004,"T2 Fractions, decimals and percentage conversion",MATH-1965,Write 0.05 as a percentage.,B,5%,True,,draft
+T2-004,"T2 Fractions, decimals and percentage conversion",MATH-1965,Write 0.05 as a percentage.,C,0.05%,False,MATH-1965|MATH-2039,draft
+T2-004,"T2 Fractions, decimals and percentage conversion",MATH-1965,Write 0.05 as a percentage.,D,50%,False,,draft
+T2-005,"T2 Fractions, decimals and percentage conversion",MATH-2039,Which of these conversions is correct?,A,1/4 = 25%,True,,draft
+T2-005,"T2 Fractions, decimals and percentage conversion",MATH-2039,Which of these conversions is correct?,B,3/5 = 6%,False,MATH-658,draft
+T2-005,"T2 Fractions, decimals and percentage conversion",MATH-2039,Which of these conversions is correct?,C,Scoring 7 marks out of 20 means scoring 7%.,False,MATH-2039,draft
+T2-005,"T2 Fractions, decimals and percentage conversion",MATH-2039,Which of these conversions is correct?,D,2/5 = 0.2,False,MATH-1715,draft
+T2-006,"T2 Fractions, decimals and percentage conversion",MATH-2039,Which of these conversions is correct?,A,4/5 = 8%,False,MATH-658,draft
+T2-006,"T2 Fractions, decimals and percentage conversion",MATH-2039,Which of these conversions is correct?,B,Scoring 9 marks out of 20 means scoring 9%.,False,MATH-2039,draft
+T2-006,"T2 Fractions, decimals and percentage conversion",MATH-2039,Which of these conversions is correct?,C,3/4 = 0.3,False,MATH-1715,draft
+T2-006,"T2 Fractions, decimals and percentage conversion",MATH-2039,Which of these conversions is correct?,D,3/5 = 60%,True,,draft
+T2-007,"T2 Fractions, decimals and percentage conversion",MATH-658,Which of these conversions is correct?,A,7/20 = 14%,False,MATH-658,draft
+T2-007,"T2 Fractions, decimals and percentage conversion",MATH-658,Which of these conversions is correct?,B,Scoring 6 marks out of 25 means scoring 6%.,False,MATH-2039,draft
+T2-007,"T2 Fractions, decimals and percentage conversion",MATH-658,Which of these conversions is correct?,C,3/4 = 75%,True,,draft
+T2-007,"T2 Fractions, decimals and percentage conversion",MATH-658,Which of these conversions is correct?,D,4/5 = 0.4,False,MATH-1715,draft
+T2-008,"T2 Fractions, decimals and percentage conversion",MATH-658,Which of these conversions is correct?,A,9/25 = 18%,False,MATH-658,draft
+T2-008,"T2 Fractions, decimals and percentage conversion",MATH-658,Which of these conversions is correct?,B,2/5 = 40%,True,,draft
+T2-008,"T2 Fractions, decimals and percentage conversion",MATH-658,Which of these conversions is correct?,C,Scoring 8 marks out of 20 means scoring 8%.,False,MATH-2039,draft
+T2-008,"T2 Fractions, decimals and percentage conversion",MATH-658,Which of these conversions is correct?,D,3/5 = 0.3,False,MATH-1715,draft
+T2-009,"T2 Fractions, decimals and percentage conversion",MATH-1715,Which of these conversions is correct?,A,6/25 = 12%,False,MATH-658,draft
+T2-009,"T2 Fractions, decimals and percentage conversion",MATH-1715,Which of these conversions is correct?,B,Scoring 4 marks out of 20 means scoring 4%.,False,MATH-2039,draft
+T2-009,"T2 Fractions, decimals and percentage conversion",MATH-1715,Which of these conversions is correct?,C,7/20 = 0.7,False,MATH-1715,draft
+T2-009,"T2 Fractions, decimals and percentage conversion",MATH-1715,Which of these conversions is correct?,D,3/5 = 0.6,True,,draft
+T2-010,"T2 Fractions, decimals and percentage conversion",MATH-1715,Which of these conversions is correct?,A,4/5 = 0.8,True,,draft
+T2-010,"T2 Fractions, decimals and percentage conversion",MATH-1715,Which of these conversions is correct?,B,8/25 = 16%,False,MATH-658,draft
+T2-010,"T2 Fractions, decimals and percentage conversion",MATH-1715,Which of these conversions is correct?,C,Scoring 3 marks out of 20 means scoring 3%.,False,MATH-2039,draft
+T2-010,"T2 Fractions, decimals and percentage conversion",MATH-1715,Which of these conversions is correct?,D,6/25 = 0.6,False,MATH-1715,draft

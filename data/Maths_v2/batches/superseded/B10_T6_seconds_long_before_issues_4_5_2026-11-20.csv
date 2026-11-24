@@ -1,0 +1,37 @@
+﻿item_id,topic,target,stem,option_id,option_text,is_correct,misconceptions,status
+T6-010,T6 Time and unit conversion (seconds and hours),MATH-767,"Fill the gap: 7,200 seconds = ___ hours.",A,1.2 hours,False,MATH-161,draft
+T6-010,T6 Time and unit conversion (seconds and hours),MATH-767,"Fill the gap: 7,200 seconds = ___ hours.",B,2 hours,True,,draft
+T6-010,T6 Time and unit conversion (seconds and hours),MATH-767,"Fill the gap: 7,200 seconds = ___ hours.",C,12 hours,False,MATH-767,draft
+T6-010,T6 Time and unit conversion (seconds and hours),MATH-767,"Fill the gap: 7,200 seconds = ___ hours.",D,"25,920,000 hours",False,MATH-1651|MATH-1074,draft
+T6-011,T6 Time and unit conversion (seconds and hours),MATH-161,How many seconds are there in 2 hours?,A,"12,000 seconds",False,MATH-161,draft
+T6-011,T6 Time and unit conversion (seconds and hours),MATH-161,How many seconds are there in 2 hours?,B,"1,200 seconds",False,MATH-767,draft
+T6-011,T6 Time and unit conversion (seconds and hours),MATH-161,How many seconds are there in 2 hours?,C,120 seconds,False,,draft
+T6-011,T6 Time and unit conversion (seconds and hours),MATH-161,How many seconds are there in 2 hours?,D,"7,200 seconds",True,,draft
+T6-012,T6 Time and unit conversion (seconds and hours),MATH-161,"A marathon runner finishes in 10,800 seconds. How many hours is that?",A,3 hours,True,,draft
+T6-012,T6 Time and unit conversion (seconds and hours),MATH-161,"A marathon runner finishes in 10,800 seconds. How many hours is that?",B,1.8 hours,False,MATH-161,draft
+T6-012,T6 Time and unit conversion (seconds and hours),MATH-161,"A marathon runner finishes in 10,800 seconds. How many hours is that?",C,18 hours,False,MATH-767,draft
+T6-012,T6 Time and unit conversion (seconds and hours),MATH-161,"A marathon runner finishes in 10,800 seconds. How many hours is that?",D,"38,880,000 hours",False,MATH-1651|MATH-1074,draft
+T6-013,T6 Time and unit conversion (seconds and hours),MATH-1651,Which statement is correct?,A,"18,000 seconds = 3 hours",False,MATH-161,draft
+T6-013,T6 Time and unit conversion (seconds and hours),MATH-1651,Which statement is correct?,B,"18,000 seconds = 30 hours",False,MATH-767,draft
+T6-013,T6 Time and unit conversion (seconds and hours),MATH-1651,Which statement is correct?,C,"18,000 seconds = 5 hours",True,,draft
+T6-013,T6 Time and unit conversion (seconds and hours),MATH-1651,Which statement is correct?,D,"18,000 seconds = 64,800,000 hours",False,MATH-1651|MATH-1074,draft
+T6-014,T6 Time and unit conversion (seconds and hours),MATH-767,Fill the gap: 1.5 hours = ___ seconds.,A,"9,000 seconds",False,MATH-161,draft
+T6-014,T6 Time and unit conversion (seconds and hours),MATH-767,Fill the gap: 1.5 hours = ___ seconds.,B,900 seconds,False,MATH-767,draft
+T6-014,T6 Time and unit conversion (seconds and hours),MATH-767,Fill the gap: 1.5 hours = ___ seconds.,C,90 seconds,False,,draft
+T6-014,T6 Time and unit conversion (seconds and hours),MATH-767,Fill the gap: 1.5 hours = ___ seconds.,D,"5,400 seconds",True,,draft
+T6-015,T6 Time and unit conversion (seconds and hours),MATH-1074,"Which of these is the same as 14,400 seconds?",A,2.4 hours,False,MATH-161,draft
+T6-015,T6 Time and unit conversion (seconds and hours),MATH-1074,"Which of these is the same as 14,400 seconds?",B,4 hours,True,,draft
+T6-015,T6 Time and unit conversion (seconds and hours),MATH-1074,"Which of these is the same as 14,400 seconds?",C,24 hours,False,MATH-767,draft
+T6-015,T6 Time and unit conversion (seconds and hours),MATH-1074,"Which of these is the same as 14,400 seconds?",D,"51,840,000 hours",False,MATH-1651|MATH-1074,draft
+T6-016,T6 Time and unit conversion (seconds and hours),MATH-161,A film lasts 3 hours. How long is that in seconds?,A,"18,000 seconds",False,MATH-161,draft
+T6-016,T6 Time and unit conversion (seconds and hours),MATH-161,A film lasts 3 hours. How long is that in seconds?,B,"1,800 seconds",False,MATH-767,draft
+T6-016,T6 Time and unit conversion (seconds and hours),MATH-161,A film lasts 3 hours. How long is that in seconds?,C,"10,800 seconds",True,,draft
+T6-016,T6 Time and unit conversion (seconds and hours),MATH-161,A film lasts 3 hours. How long is that in seconds?,D,180 seconds,False,,draft
+T6-017,T6 Time and unit conversion (seconds and hours),MATH-1651,"Sana says 3,600 seconds is 1 hour. Bilal says 6 hours. Ali says 0.6 hours. Hira says 12,960,000 hours. Who is correct?",A,Sana,True,,draft
+T6-017,T6 Time and unit conversion (seconds and hours),MATH-1651,"Sana says 3,600 seconds is 1 hour. Bilal says 6 hours. Ali says 0.6 hours. Hira says 12,960,000 hours. Who is correct?",B,Ali,False,MATH-161,draft
+T6-017,T6 Time and unit conversion (seconds and hours),MATH-1651,"Sana says 3,600 seconds is 1 hour. Bilal says 6 hours. Ali says 0.6 hours. Hira says 12,960,000 hours. Who is correct?",C,Bilal,False,MATH-767,draft
+T6-017,T6 Time and unit conversion (seconds and hours),MATH-1651,"Sana says 3,600 seconds is 1 hour. Bilal says 6 hours. Ali says 0.6 hours. Hira says 12,960,000 hours. Who is correct?",D,Hira,False,MATH-1651|MATH-1074,draft
+T6-018,T6 Time and unit conversion (seconds and hours),MATH-767,Which of these is the same as 1 hour and 30 seconds?,A,"6,030 seconds",False,MATH-161,draft
+T6-018,T6 Time and unit conversion (seconds and hours),MATH-767,Which of these is the same as 1 hour and 30 seconds?,B,"3,630 seconds",True,,draft
+T6-018,T6 Time and unit conversion (seconds and hours),MATH-767,Which of these is the same as 1 hour and 30 seconds?,C,630 seconds,False,MATH-767,draft
+T6-018,T6 Time and unit conversion (seconds and hours),MATH-767,Which of these is the same as 1 hour and 30 seconds?,D,90 seconds,False,,draft

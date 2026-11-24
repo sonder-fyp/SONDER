@@ -1,0 +1,21 @@
+﻿item_id,topic,target,stem,option_id,option_text,is_correct,misconceptions,status
+T6-022,T6 x multiplication/division (operation version),MATH-1074,A 120-minute film is split into 4 equal parts. How long is each part?,A,116 minutes,False,,draft
+T6-022,T6 x multiplication/division (operation version),MATH-1074,A 120-minute film is split into 4 equal parts. How long is each part?,B,30 minutes,True,,draft
+T6-022,T6 x multiplication/division (operation version),MATH-1074,A 120-minute film is split into 4 equal parts. How long is each part?,C,480 minutes,False,MATH-1074,draft
+T6-022,T6 x multiplication/division (operation version),MATH-1074,A 120-minute film is split into 4 equal parts. How long is each part?,D,124 minutes,False,,draft
+T6-023,T6 x multiplication/division (operation version),MATH-1074,A school day has 360 minutes of lessons shared equally across 6 lessons. How long is each lesson?,A,60 minutes,True,,draft
+T6-023,T6 x multiplication/division (operation version),MATH-1074,A school day has 360 minutes of lessons shared equally across 6 lessons. How long is each lesson?,B,"2,160 minutes",False,MATH-1074,draft
+T6-023,T6 x multiplication/division (operation version),MATH-1074,A school day has 360 minutes of lessons shared equally across 6 lessons. How long is each lesson?,C,180 minutes,False,,draft
+T6-023,T6 x multiplication/division (operation version),MATH-1074,A school day has 360 minutes of lessons shared equally across 6 lessons. How long is each lesson?,D,354 minutes,False,,draft
+T6-024,T6 x multiplication/division (operation version),MATH-1074,"Aisha practises the piano for 90 minutes each week, shared equally over 3 days. How many minutes does she practise each day?",A,87 minutes,False,,draft
+T6-024,T6 x multiplication/division (operation version),MATH-1074,"Aisha practises the piano for 90 minutes each week, shared equally over 3 days. How many minutes does she practise each day?",B,45 minutes,False,,draft
+T6-024,T6 x multiplication/division (operation version),MATH-1074,"Aisha practises the piano for 90 minutes each week, shared equally over 3 days. How many minutes does she practise each day?",C,30 minutes,True,,draft
+T6-024,T6 x multiplication/division (operation version),MATH-1074,"Aisha practises the piano for 90 minutes each week, shared equally over 3 days. How many minutes does she practise each day?",D,270 minutes,False,MATH-1074,draft
+T6-025,T6 x multiplication/division (operation version),MATH-1074,A 48-hour coding competition is split into 6 equal sessions. How many hours is each session?,A,288 hours,False,MATH-1074,draft
+T6-025,T6 x multiplication/division (operation version),MATH-1074,A 48-hour coding competition is split into 6 equal sessions. How many hours is each session?,B,8 hours,True,,draft
+T6-025,T6 x multiplication/division (operation version),MATH-1074,A 48-hour coding competition is split into 6 equal sessions. How many hours is each session?,C,42 hours,False,,draft
+T6-025,T6 x multiplication/division (operation version),MATH-1074,A 48-hour coding competition is split into 6 equal sessions. How many hours is each session?,D,54 hours,False,,draft
+T6-026,T6 x multiplication/division (operation version),MATH-1074,A 180-minute coach trip is divided into 4 equal parts. Which calculation gives the length of each part?,A,180 − 4,False,,draft
+T6-026,T6 x multiplication/division (operation version),MATH-1074,A 180-minute coach trip is divided into 4 equal parts. Which calculation gives the length of each part?,B,180 × 4,False,MATH-1074,draft
+T6-026,T6 x multiplication/division (operation version),MATH-1074,A 180-minute coach trip is divided into 4 equal parts. Which calculation gives the length of each part?,C,180 + 4,False,,draft
+T6-026,T6 x multiplication/division (operation version),MATH-1074,A 180-minute coach trip is divided into 4 equal parts. Which calculation gives the length of each part?,D,180 ÷ 4,True,,draft

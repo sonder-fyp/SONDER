@@ -78,27 +78,29 @@ def scripted(letters):
     return lambda item: item.option_ids.index(letters[item.item_id])
 
 
-# Spec 6.1 outcomes for U1-U5 and U7; U6 recomputed after D-2 (engine plan section 6.2).
-# Each entry: hypothesis -> (outcome, leader or tied set, answers taken).
+# Spec 6.1 outcomes on the 133-item candidate bank (Harris, 20 Nov 2026); U6 is the unit
+# after decision D-2. Each entry: hypothesis -> (outcome, answers taken). On the
+# 117-item bank 8 of these students were refused (1074/1651 in U3 and U6, 1514/1773 in
+# U4 and U7) and 2 exhausted (2093 in U4, 2359 in U6); the separating items in B17-B21
+# and the removal of MATH-1651 from U3 and of MATH-734 from U5 resolve all ten.
 D, N, S, X = "diagnosed", "none_detected", "escalated_no_separator", "escalated_exhausted"
 EXPECTED = {
     "U1": {"MATH-1248": (D, 2), "MATH-1379": (D, 3), "MATH-1988": (D, 3), "MATH-2392": (D, 2),
            "NONE": (N, 3)},
     "U2": {"MATH-61": (D, 3), "MATH-658": (D, 2), "MATH-1715": (D, 2), "MATH-1965": (D, 3),
            "MATH-2039": (D, 2), "NONE": (N, 3)},
-    "U3": {"MATH-2138": (D, 3), "MATH-2206": (D, 3), "MATH-1074": (S, 3), "MATH-1651": (S, 3),
-           "MATH-2359": (D, 3), "NONE": (N, 3)},
-    "U4": {"MATH-126": (D, 3), "MATH-228": (D, 2), "MATH-1416": (D, 3), "MATH-1514": (S, 2),
-           "MATH-1773": (S, 2), "MATH-2093": (X, 5), "NONE": (N, 3)},
-    "U5": {"MATH-414": (D, 2), "MATH-734": (D, 2), "MATH-952": (D, 3), "MATH-1072": (D, 2),
+    "U3": {"MATH-2138": (D, 3), "MATH-2206": (D, 2), "MATH-1074": (D, 3), "MATH-2359": (D, 2),
            "NONE": (N, 3)},
-    "U6": {"MATH-1074": (S, 3), "MATH-161": (D, 2), "MATH-767": (D, 2), "MATH-1651": (S, 3),
-           "MATH-2359": (X, 4), "NONE": (N, 3)},
-    "U7": {"MATH-2359": (D, 2), "MATH-1639": (D, 4), "MATH-2093": (D, 2), "MATH-2271": (D, 3),
-           "MATH-1514": (S, 3), "MATH-1715": (D, 2), "MATH-1773": (S, 3), "NONE": (N, 4)},
+    "U4": {"MATH-126": (D, 3), "MATH-228": (D, 2), "MATH-1416": (D, 3), "MATH-1514": (D, 2),
+           "MATH-1773": (D, 3), "MATH-2093": (D, 4), "NONE": (N, 3)},
+    "U5": {"MATH-414": (D, 3), "MATH-952": (D, 3), "MATH-1072": (D, 2), "NONE": (N, 3)},
+    "U6": {"MATH-1074": (D, 2), "MATH-161": (D, 2), "MATH-767": (D, 2), "MATH-1651": (D, 3),
+           "MATH-2359": (D, 3), "NONE": (N, 3)},
+    "U7": {"MATH-2359": (D, 2), "MATH-1639": (D, 4), "MATH-2093": (D, 2), "MATH-2271": (D, 4),
+           "MATH-1514": (D, 4), "MATH-1715": (D, 2), "MATH-1773": (D, 4), "NONE": (N, 4)},
 }
-TIED = {"U3": ("MATH-1074", "MATH-1651"), "U4": ("MATH-1514", "MATH-1773"),
-        "U6": ("MATH-1074", "MATH-1651"), "U7": ("MATH-1514", "MATH-1773", "NONE")}
+# No deterministic student is refused on this bank, so no unit has an expected tied set.
+TIED: dict[str, tuple[str, ...]] = {}
 
 
 # --------------------------------------------------------------------------- support and separation
@@ -249,27 +251,36 @@ class RealBankTests(unittest.TestCase):
 
     def test_d1_none_blocked_by_support_then_1379_diagnosed(self):
         unit = self.pack.unit("U1")
-        letters = {"T1-005": "D", "T1-006": "B", "T1-007": "B", "T1-009": "A"}
+        # Same student and same posteriors as on the 117-item bank; Harris's rewritten
+        # T1-001 has T1-005's link pattern and comes first in pack order, so the items
+        # are T1-001, T1-006, T1-005, T1-007 instead of T1-005, T1-006, T1-007, T1-009.
+        letters = {"T1-001": "B", "T1-006": "B", "T1-005": "A", "T1-007": "B"}
         decision, history, posteriors = run(unit, scripted(letters))
-        self.assertEqual([item.item_id for item, _ in history], ["T1-005", "T1-006", "T1-007", "T1-009"])
+        self.assertEqual([item.item_id for item, _ in history], ["T1-001", "T1-006", "T1-005", "T1-007"])
         self.assertEqual((decision.outcome, decision.leader, decision.support),
                          (Outcome.DIAGNOSED, "MATH-1379", 2))
         self.assertAlmostEqual(float(posteriors[-1][1]), 0.9423, places=4)
         # After step 1, p(NONE) = .8416 but only 2 correct answers back it (min_support_none = 3).
         self.assertAlmostEqual(float(posteriors[1][4]), 0.8416, places=4)
-        R = eligible_items(unit.engine_items, ["T1-005", "T1-006"])
+        R = eligible_items(unit.engine_items, ["T1-001", "T1-006"])
         at_step_1 = check_stop(posteriors[1], history[:2], R, 0.5, 8, unit.hyps, Params())
         self.assertIs(at_step_1.outcome, Outcome.IN_PROGRESS)
         relaxed = check_stop(posteriors[1], history[:2], R, 0.5, 8, unit.hyps, Params(min_support_none=2))
         self.assertIs(relaxed.outcome, Outcome.NONE_DETECTED)
 
-    def test_d2_1514_refused_naming_both(self):
-        decision, history, posteriors = run(self.pack.unit("U4"), scripted({"T4-001": "D", "T5-011": "A"}))
-        self.assertEqual([item.item_id for item, _ in history], ["T4-001", "T5-011"])
+    def test_d2_1514_separated_from_1773_and_diagnosed(self):
+        # On the 117-item bank this student was refused naming 1514 and 1773 after
+        # T4-001 D and T5-011 A. B19's bare subtraction T4-011 (42 - 17) links its
+        # "adds" option C (59) to MATH-1514 alone, so the second answer separates them.
+        decision, history, posteriors = run(self.pack.unit("U4"), scripted({"T4-001": "D", "T4-011": "C"}))
+        self.assertEqual([item.item_id for item, _ in history], ["T4-001", "T4-011"])
+        # Step 1 is unchanged: 1514 and 1773 share the option, so they stay level.
+        self.assertAlmostEqual(float(posteriors[0][3]), 0.3794, places=4)
+        self.assertEqual(posteriors[0][3], posteriors[0][4])
         self.assertEqual((decision.outcome, decision.leader, decision.tied, decision.support),
-                         (Outcome.ESCALATED_NO_SEPARATOR, "MATH-1514", ("MATH-1514", "MATH-1773"), 2))
-        self.assertAlmostEqual(float(posteriors[-1][3] + posteriors[-1][4]), 0.9626, places=4)
-        self.assertAlmostEqual(decision.leader_share, 0.5, places=12)
+                         (Outcome.DIAGNOSED, "MATH-1514", (), 2))
+        self.assertAlmostEqual(float(posteriors[-1][3]), 0.8887, places=4)
+        self.assertAlmostEqual(float(posteriors[-1][4]), 0.0423, places=4)
 
     def test_deterministic_students_spec_6_1(self):
         counts = {}
@@ -286,8 +297,9 @@ class RealBankTests(unittest.TestCase):
                     if outcome == S:
                         self.assertEqual(decision.tied, TIED[unit.unit_id])
                     counts[outcome] = counts.get(outcome, 0) + 1
-        # 43 students: spec 6.1's 44 less the U6 MATH-1416 student (engine plan section 6.3).
-        self.assertEqual(counts, {D: 26, N: 7, S: 8, X: 2})
+        # 41 students: spec 6.1's 44 less the U6 MATH-1416 student (decision D-2), MATH-1651
+        # in U3 (unlinked there) and MATH-734 in U5 (removed from the catalogue).
+        self.assertEqual(counts, {D: 34, N: 7})
 
     def test_sensitivity_of_deterministic_outcomes_spec_6_2(self):
         base = Params()
@@ -304,13 +316,10 @@ class RealBankTests(unittest.TestCase):
                     outcome = run(unit, deterministic(h), params)[0].outcome
                     if outcome is not baseline[(unit.unit_id, h)]:
                         changes.add((name, factor, unit.unit_id, h, outcome.value))
-        # Spec 6.2 found 6 changes, all from theta; the theta 0.64 change (1416 in U6) no
-        # longer exists because MATH-1416 is not a U6 hypothesis after decision D-2.
-        self.assertEqual(changes, {
-            ("theta", 1.2, "U4", "NONE", S), ("theta", 1.2, "U4", "MATH-2093", S),
-            ("theta", 1.2, "U6", "NONE", S), ("theta", 1.2, "U6", "MATH-2359", S),
-            ("theta", 1.2, "U7", "NONE", S),
-        })
+        # Spec 6.2 found 6 changes on the 117-item bank, all from theta, and 5 remained after
+        # decision D-2 (theta 0.96 refusing NONE in U4, U6, U7, 2093 in U4 and 2359 in U6).
+        # On the 133-item candidate bank no variant changes any deterministic outcome.
+        self.assertEqual(changes, set())
 
 
 if __name__ == "__main__":

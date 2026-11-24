@@ -20,7 +20,7 @@ from pathlib import Path
 
 import numpy as np
 
-from experiments.adverse_baseline import cases, write_baseline
+from experiments.adverse_baseline import DEFAULT_OUT, _command, cases, write_baseline
 from experiments.content import canonical_source_sha256, lf_sha256
 from experiments.harness import item_rng, predicted_label, result_row, run_session, RESULT_FIELDS
 from experiments.policies import (
@@ -46,8 +46,11 @@ RNG = np.random.default_rng(0)  # never used by deterministic policies
 # files (line-ending independent), so they agree on Windows and Linux checkouts.
 PINNED_CONTENT = {
     "content_version": "Maths_v2",
-    "bank/items.csv": "502895a90823dedf6c15b3ddbd95e874371583bb0a2127b8ad1e0018cf9f9cd4",
-    "topics.csv": "f1a4dfe8ea0e035b03b84b5bb03809aabbfd2fbabceec10681ecd1c78482044d",
+    # Maths_v2 candidate of 24 Nov 2026 (133 items, 27 misconceptions; distinct stems for
+    # T2-005..T2-010 and T2-019; PR #92). Earlier: the 20 Nov candidate b168a664..., and the
+    # 117-item bank of the first baseline, items.csv 502895a9..., topics.csv f1a4dfe8...
+    "bank/items.csv": "1124496b37e17f4042ca681bd4931aa2a6ca4158a79ce184d25b13aa14cd9858",
+    "topics.csv": "ebe0571bd3578926cf79d4715a1148ed4a3e4fb494c3a4d082a64048cb1420b0",
     "maths_v2_units.json": "4e7102a34cc195801faae6b6b416e3ad64c443e3ae7e8ee6d99819da628fef21",
 }
 PINNED_PARAMS = {
@@ -63,11 +66,13 @@ REBASELINE = ("Content or default parameters changed. Rerun `python -m experimen
 # Retained adverse outcomes (supervisor action 2). Always-A has no named truth: its
 # diagnoses are adverse-response labels. The partial MATH-2039 holder's MATH-1965
 # label is a wrong diagnosis (KF-07). (outcome, predicted label, questions used)
+# Reviewed against the 133-item candidate: the same labels in the same six units; U1
+# takes 6 answers instead of 5 and U7 4 instead of 3. The partial holder is unchanged.
 ALWAYS_A = {
-    "U1": ("diagnosed", "MATH-2392", 5), "U2": ("diagnosed", "MATH-61", 4),
+    "U1": ("diagnosed", "MATH-2392", 6), "U2": ("diagnosed", "MATH-61", 4),
     "U3": ("escalated_exhausted", "", 8), "U4": ("diagnosed", "MATH-1416", 4),
     "U5": ("diagnosed", "MATH-952", 4), "U6": ("diagnosed", "MATH-161", 2),
-    "U7": ("diagnosed", "MATH-2271", 3),
+    "U7": ("diagnosed", "MATH-2271", 4),
 }
 PARTIAL_2039_IN_U2 = ("diagnosed", "MATH-1965", 3)
 
@@ -285,7 +290,9 @@ class AdverseBaselineCommandTests(unittest.TestCase):
 
     def test_every_case_is_present(self):
         per_policy = Counter(row["policy"] for row in self.rows)
-        self.assertEqual(per_policy["deterministic"], 43)  # spec v2 6.1
+        # Spec v2 6.1 had 44; 41 remain: D-2 drops MATH-1416 from U6, MATH-1651 is no longer
+        # linked in U3 and MATH-734 left the catalogue.
+        self.assertEqual(per_policy["deterministic"], 41)
         self.assertEqual(per_policy["always-A"], 7)
         self.assertEqual(per_policy["partial-holder"], 1)
         self.assertEqual(per_policy["none-with-slip"], 7 * 2)
@@ -317,6 +324,16 @@ class AdverseBaselineCommandTests(unittest.TestCase):
         self.assertEqual(manifest["seeds"]["reserved_for_protocol"],
                          {"tuning": [1000, 1999], "held_out": [2000, 2999]})
         self.assertIn("not diagnostic accuracy", manifest["note"])
+
+    def test_manifest_command_names_a_non_default_output_folder(self):
+        # A run frozen next to an older one must say where it was written, or its
+        # recorded command would point at (and overwrite) the default folder.
+        manifest = json.loads((self.first / "manifest.json").read_text(encoding="utf-8"))
+        self.assertTrue(manifest["command"].startswith(
+            "python -m experiments.adverse_baseline --runs 2 --intermittent-runs 1 --out "))
+        self.assertTrue(manifest["command"].endswith("first"))
+        self.assertEqual(_command(200, 100, DEFAULT_OUT),
+                         "python -m experiments.adverse_baseline --runs 200 --intermittent-runs 100")
 
     def test_seed_counts_are_bounded_below_the_reserved_ranges(self):
         for runs, intermittent_runs in ((0, 1), (1, 0), (1001, 1), (1, 1001), (True, 1)):

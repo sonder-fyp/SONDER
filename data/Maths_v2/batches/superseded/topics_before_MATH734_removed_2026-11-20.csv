@@ -1,0 +1,29 @@
+﻿topic,MisconceptionId,MisconceptionName,old_topic_label,target_questions,verified_Yes_Move_Remove,comments
+T1 Rounding,MATH-1248,Rounds to the wrong degree of accuracy (rounds too little),Rounding,5,Yes,locked 2026-10-05
+T1 Rounding,MATH-1379,Rounds down instead of up,Rounding,5,Yes,locked 2026-10-05
+T1 Rounding,MATH-1988,Rounds up instead of down,Rounding,5,Yes,locked 2026-10-05
+T1 Rounding,MATH-2392,Rounds to the wrong degree of accuracy (rounds too much),Rounding,5,Yes,locked 2026-10-05
+"T2 Fractions, decimals and percentage conversion",MATH-61,Multiplies by 10 instead of 100 when converting decimal to percentage,Decimals and percentages,5,Yes,locked 2026-10-05
+"T2 Fractions, decimals and percentage conversion",MATH-658,Thinks they double the numerator to turn a fraction into a percentage,Powers and roots,5,Yes,locked 2026-10-05
+"T2 Fractions, decimals and percentage conversion",MATH-1715,Converts a fraction to a decimal by using only the numerator after the decimal point,Decimals and percentages,5,Yes,locked 2026-10-05
+"T2 Fractions, decimals and percentage conversion",MATH-1965,Thinks you need to just add a % sign to a decimal to convert to a percentage,Decimals and percentages,5,Yes,locked 2026-10-05
+"T2 Fractions, decimals and percentage conversion",MATH-2039,Thinks you need to just add a % sign to a number to make it a percentage,Negative numbers,5,Yes,locked 2026-10-05
+T3 Percentage of an amount,MATH-2138,Does not understand a percentage can be applied to something not out of 100,Percentage of an amount,5,Yes,locked 2026-10-05
+T3 Percentage of an amount,MATH-2206,Added the values together instead of finding the percentage,Percentage of an amount,5,Yes,locked 2026-10-05
+T4 Choosing the operation (worded problems),MATH-126,Multiplies rather than adds when given the command word 'more',Choosing the operation,5,Yes,locked 2026-10-05
+T4 Choosing the operation (worded problems),MATH-228,Divides rather than subtracts when given the command 'less than',Choosing the operation,5,Yes,locked 2026-10-05
+T4 Choosing the operation (worded problems),MATH-1416,Adds instead of multiplies,Choosing the operation,5,Yes,locked 2026-10-05
+T4 Choosing the operation (worded problems),MATH-1514,Adds instead of subtracts,Choosing the operation,5,Yes,locked 2026-10-05
+T4 Choosing the operation (worded problems),MATH-1773,Adds rather than subtracts when answering worded problems,Negative numbers,5,Yes,locked 2026-10-05
+T5 Powers and roots,MATH-414,Divides by the order of the root,Units of time,5,Yes,locked 2026-10-05
+T5 Powers and roots,MATH-734,Confuses square rooting and halving the number,Powers and roots,5,Yes,locked 2026-10-05
+T5 Powers and roots,MATH-952,Adds the index to the number,Powers and roots,5,Yes,locked 2026-10-05
+T5 Powers and roots,MATH-1072,Multiplies by the index,Powers and roots,5,Yes,locked 2026-10-05
+T6 Time and unit conversion,MATH-1074,Multiplies rather than divides,Decimals and percentages,5,Yes,"moved from T2 on 2026-10-05: read as unit conversion (multiplies instead of divides, e.g. g to kg)"
+T6 Time and unit conversion,MATH-161,Answers as if there are 100 minutes in an hour when changing from hours to minutes,Units of time,5,Yes,locked 2026-10-05
+T6 Time and unit conversion,MATH-767,Thinks there are 10 minutes in an hour,Units of time,5,Yes,locked 2026-10-05
+T6 Time and unit conversion,MATH-1651,Multiplies when converting to a larger unit,Percentage of an amount,5,Yes,locked 2026-10-05
+"T7 Negatives, inverse operations, fraction bar",MATH-2359,Believes division is commutative ,Percentage of an amount,5,Yes,"moved from T3 on 2026-10-05: Eedi tagged it on Mental Multiplication and Division (a/b vs b/a), not percentages"
+"T7 Negatives, inverse operations, fraction bar",MATH-1639,Believes adding two negatives gives a positive answer,Negative numbers,5,Yes,locked 2026-10-05
+"T7 Negatives, inverse operations, fraction bar",MATH-2093,Thinks the fraction bar means subtract rather than divide,Units of time,5,Yes,locked 2026-10-05
+"T7 Negatives, inverse operations, fraction bar",MATH-2271,"When solving a problem that requires an inverse operation (e.g. missing number problems), does the original operation",Negative numbers,5,Yes,locked 2026-10-05
