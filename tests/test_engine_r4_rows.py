@@ -161,8 +161,10 @@ class RealBankRowTests(unittest.TestCase):
         # On the 117-item bank the spec's D2 (U4 answers D, A) was refused naming 1514 and
         # 1773; B19 now separates that pair, so D2 is diagnosed. The shortest refusal left
         # in the 133-item candidate bank (all answer sequences of all units enumerated on
-        # 24 Nov 2026) is this U6 session: once T6-012B and T6-013B have been answered
-        # with unlinked options, MATH-2359 and NONE answer alike on every remaining item.
+        # 24 Nov 2026) is this U6 session: T6-010 B (correct), T6-015B A (MATH-2359),
+        # T6-012B C (correct), T6-013B B (unlinked). Once the items that separate
+        # MATH-2359 from NONE (or their twins) have been asked, the two answer alike on
+        # every remaining item: p(C) = .815 >= theta but the reachable share is .7967.
         unit = self.pack.unit("U6")
         state = replay(unit, Params(), ["B", "A", "C", "B"])
         self.assertEqual([step.question.item_id for step in state.steps],
