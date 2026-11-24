@@ -14,6 +14,7 @@ api = ["fastapi==0.120.0", "uvicorn==0.38.0"]
 api-test = ["httpx==0.28.1"]
 eval = ["matplotlib==3.10.9"]
 db = ["psycopg[binary]==3.3.9", "psycopg-pool==3.3.3"]
+browser-test = ["playwright==1.63.0"]
 
 [tool.setuptools.packages.find]
 include = ["sonder_engine*", "sonder_api*", "sonder_pack*", "sonder_db*"]
