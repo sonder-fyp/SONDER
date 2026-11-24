@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { getAppAccount } from "@/lib/auth/access";
+import { isEmailVerified } from "@/lib/auth/devVerification";
 import { getSignedInUser } from "@/lib/auth/server";
 import { ROLE_HOME } from "@/lib/auth/types";
 
@@ -10,7 +11,7 @@ type Props = { searchParams: Promise<{ requestedRole?: string | string[] }> };
 export default async function ContinuePage({ searchParams }: Props) {
   const user = await getSignedInUser();
   if (!user) redirect("/auth/sign-in");
-  if (!user.emailVerified) redirect(`/auth/verify-email?email=${encodeURIComponent(user.email)}`);
+  if (!isEmailVerified(user)) redirect(`/auth/verify-email?email=${encodeURIComponent(user.email)}`);
 
   const account = await getAppAccount(user.id);
   if (!account?.onboarding_complete) {

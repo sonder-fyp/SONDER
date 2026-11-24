@@ -36,6 +36,44 @@ Exit code 0 = fine, 1 = refused, mismatch or database error, 2 = usage.
 * **Units and twins come from the engine's own loader** (`sonder_pack.maths_v2`), so the database and the engine agree on unit
   membership, hypothesis slots, item order and twin groups.
 
+## Before anything uses an imported version
+
+The database accepts direct edits to the rows of a **draft** version (draft content is meant to be editable), so nothing in
+the database itself stops the stored version from drifting away from the files. `verify` is the guard. **Run both of these
+before a release is made from an imported version, or any session uses it:**
+
+```
+python -m sonder_db.content_import verify                  # the importer's own comparison with the files
+python -m validation.import_compare --version-code <code>  # Ashher's independent comparison (its own SQL, no shared code)
+```
+
+Both exit with code 1 and name the item and option on any difference (checked by Ashher on 24 November 2026 by changing one option's
+text and deleting one link, see `validation/reviews/I2_IMPORTER_2026-11-24_ashher.md`). Re-run them after any manual change to the database and after the content files change. The
+independent comparison of the **expert-accepted** version, which cannot be done before the external Maths expert has accepted
+one (I2-H07), uses the same command with the accepted version's code.
+
+## From an imported version to a release (not built yet)
+
+The importer produces a **draft content version, not a runnable release**. The live app currently serves the development
+release created by `sonder_api/devseed.py`, which is a placeholder (synthetic accounts, one unit, review rows that stand in for
+a real review). Turning an imported version into something the app can serve needs these steps, in order. Steps 2 to 5 are not
+implemented by this tool; the dev seed shows their shape, and the real interface is to be agreed with Ahmed.
+
+1. **Expert acceptance (I2-H07).** The external Maths expert accepts a specific version of the content. Record which version
+   (its `pack_sha256`) was accepted. Without this the content stays a candidate.
+2. **Item reviews.** A reviewer who is not the item's author records an `item_review` decision for each accepted item (the
+   database allows approval only this way). The importer deliberately writes none.
+3. **Freeze the content version.** `content_version.status` moves from `draft` to `frozen`. A frozen version cannot be
+   re-imported; later changes go in a new `--version-code`.
+4. **Engine parameters and response model.** Record the engine parameters (`engine_params`, identified by their hash) and build
+   a response model: the likelihood of each option under each hypothesis, computed by the engine from the frozen content, then
+   freeze it. Until it is calibrated on real student answers its source is `prior`, and that must stay visible.
+5. **Release.** The version plus its response model is what sessions are started against. Re-run both comparisons above on the
+   frozen version first.
+
+Each step needs the previous one. The two comparison commands are the check that the version in the database is the version the
+expert saw.
+
 ## What it checks before writing
 
 Four options labelled A to D, exactly one correct, no link on the correct option, at most three links per wrong option, no

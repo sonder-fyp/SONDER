@@ -6,13 +6,14 @@ import { useDiagnosticSession } from "./useDiagnosticSession";
 import { catalogue, sid, snapshot } from "./testFixtures";
 import { parseCatalogue, parseSnapshot } from "./validation";
 vi.mock("./client", async importOriginal => ({ ...await importOriginal<typeof import("./client")>(),
-  diagnosticClient: { catalogue: vi.fn(), unfinished: vi.fn(), begin: vi.fn(), current: vi.fn(), answer: vi.fn() } }));
+  diagnosticClient: { catalogue: vi.fn(), begin: vi.fn(), current: vi.fn(), answer: vi.fn() } }));
 const client = vi.mocked(diagnosticClient);
 function deferred<T>() {
   let resolve!: (value: T) => void;
   const promise = new Promise<T>(r => { resolve = r; });
   return { promise, resolve };
 }
+const ASSIGNMENT = "00000000-0000-4000-8000-000000000002";
 async function mount(initialSession?: string, assignmentId?: string) {
   const hook = renderHook(() => useDiagnosticSession("U1", initialSession, assignmentId), { wrapper: StrictMode });
   await waitFor(() => expect(hook.result.current.phase).not.toBe("loading_metadata"));
@@ -26,28 +27,18 @@ describe("live diagnostic controller", () => {
     vi.resetAllMocks();
     window.history.replaceState(null, "", "/student/diagnostic/U1");
     client.catalogue.mockResolvedValue(parseCatalogue(catalogue));
-    client.unfinished.mockResolvedValue({ contract_version: 2, sessions: [] });
     client.begin.mockResolvedValue(parseSnapshot(snapshot()));
     client.answer.mockResolvedValue(parseSnapshot(snapshot(1)));
     client.current.mockResolvedValue(parseSnapshot(snapshot()));
   });
   afterEach(cleanup);
-  it("offers an unfinished run and resumes without starting another", async () => {
-    client.unfinished.mockResolvedValue({ contract_version: 2, sessions: [{ session_id: sid, unit: { unit_id: "U1", name: "Rounding" }, status: "in_progress", answered_count: 1, question_budget: 8, started_at: null, ended_at: null }] });
-    client.current.mockResolvedValue(parseSnapshot(snapshot(1)));
-    const hook = await mount();
-    expect(hook.result.current.unfinished?.session_id).toBe(sid);
-    await act(async () => { await hook.result.current.begin(); await hook.result.current.resume(); });
+  it("does nothing on Begin without an assignment", async () => {
+    const hook = await mount(); await begin(hook);
     expect(client.begin).not.toHaveBeenCalled();
-    expect(client.current).toHaveBeenCalledWith(sid);
-    expect(hook.result.current.snapshot?.answered_count).toBe(1);
-  });
-  it("does not offer another unfinished check when starting from an assignment", async () => {
-    await mount(undefined, "00000000-0000-4000-8000-000000000002");
-    expect(client.unfinished).not.toHaveBeenCalled();
+    expect(hook.result.current.phase).toBe("intro");
   });
   it("sends and preserves assignment context", async () => {
-    const assignment = "00000000-0000-4000-8000-000000000002";
+    const assignment = ASSIGNMENT;
     const hook = await mount(undefined, assignment); await begin(hook);
     expect(client.begin.mock.calls[0][0].assignment_id).toBe(assignment);
     expect(new URLSearchParams(window.location.search).get("assignment")).toBe(assignment);
@@ -55,7 +46,7 @@ describe("live diagnostic controller", () => {
     expect(new URLSearchParams(window.location.search).get("assignment")).toBe(assignment);
   });
   it("retries the same pending answer after a storage outage", async () => {
-    const hook = await mount(); await begin(hook);
+    const hook = await mount(undefined, ASSIGNMENT); await begin(hook);
     client.answer.mockRejectedValueOnce(new DiagnosticError("storage_unavailable"));
     await act(async () => { hook.result.current.answer("D"); });
     client.current.mockResolvedValue(parseSnapshot(snapshot()));
@@ -64,7 +55,7 @@ describe("live diagnostic controller", () => {
     expect(hook.result.current.snapshot?.answered_count).toBe(1);
   });
   it("Strict Mode metadata mounts never create a run; Begin rapid clicks create once", async () => {
-    const hook = await mount();
+    const hook = await mount(undefined, ASSIGNMENT);
     expect(hook.result.current.phase).toBe("intro");
     expect(client.begin).not.toHaveBeenCalled();
     const pending = deferred<ReturnType<typeof parseSnapshot>>();
@@ -74,10 +65,10 @@ describe("live diagnostic controller", () => {
     expect(hook.result.current.phase).toBe("starting");
     await act(async () => { pending.resolve(parseSnapshot(snapshot())); });
     expect(hook.result.current.phase).toBe("question");
-    expect(window.location.search).toBe(`?session=${sid}`);
+    expect(window.location.search).toBe(`?session=${sid}&assignment=${ASSIGNMENT}`);
   });
   it("sends the selected stable option ID, guards rapid clicks and waits for real response", async () => {
-    const hook = await mount(); await begin(hook);
+    const hook = await mount(undefined, ASSIGNMENT); await begin(hook);
     const pending = deferred<ReturnType<typeof parseSnapshot>>();
     client.answer.mockReturnValue(pending.promise);
     act(() => { hook.result.current.answer("D"); hook.result.current.answer("A"); });
@@ -89,8 +80,8 @@ describe("live diagnostic controller", () => {
     expect(client.answer.mock.calls[1][1].option_id).toBe("B");
     await act(async () => {});
   });
-  it("early completion and Run again return to intro and use a fresh nonce", async () => {
-    const hook = await mount(); await begin(hook);
+  it("early completion and Start another attempt return to intro and use a fresh nonce", async () => {
+    const hook = await mount(undefined, ASSIGNMENT); await begin(hook);
     const first = client.begin.mock.calls[0][0].create_request_id;
     client.answer.mockResolvedValue(parseSnapshot(snapshot(1, true)));
     await act(async () => { hook.result.current.answer("C"); });
@@ -98,13 +89,13 @@ describe("live diagnostic controller", () => {
     expect(hook.result.current.snapshot?.answered_count).toBe(1);
     act(() => hook.result.current.restart());
     expect(hook.result.current.phase).toBe("intro");
-    expect(window.location.search).toBe("");
+    expect(window.location.search).toBe(`?assignment=${ASSIGNMENT}`);
     expect(client.begin).toHaveBeenCalledTimes(1);
     await begin(hook);
     expect(client.begin.mock.calls[1][0].create_request_id).not.toBe(first);
   });
   it("lost Begin response retries exactly the original nonce", async () => {
-    const hook = await mount();
+    const hook = await mount(undefined, ASSIGNMENT);
     client.begin.mockRejectedValueOnce(new DiagnosticError("engine_timeout"));
     await begin(hook);
     expect(hook.result.current.phase).toBe("unavailable");
@@ -135,7 +126,7 @@ describe("live diagnostic controller", () => {
     expect(ignored.result.current.phase).toBe("intro");
   });
   it("uncertain accepted answer reconciles current state without resubmitting", async () => {
-    const hook = await mount(); await begin(hook);
+    const hook = await mount(undefined, ASSIGNMENT); await begin(hook);
     client.answer.mockRejectedValue(new DiagnosticError("engine_timeout"));
     await act(async () => { hook.result.current.answer("D"); });
     expect(hook.result.current.phase).toBe("recovering");
@@ -147,7 +138,7 @@ describe("live diagnostic controller", () => {
     expect(client.answer).toHaveBeenCalledTimes(1);
   });
   it("uncertain unaccepted answer retries identical payload after reconciliation", async () => {
-    const hook = await mount(); await begin(hook);
+    const hook = await mount(undefined, ASSIGNMENT); await begin(hook);
     client.answer.mockRejectedValueOnce(new DiagnosticError("engine_unavailable"));
     await act(async () => { hook.result.current.answer("B"); });
     await act(async () => { await hook.result.current.retry(); });
@@ -164,12 +155,11 @@ describe("live diagnostic controller", () => {
     const hook = await mount();
     expect(hook.result.current.phase).toBe("unavailable");
     client.catalogue.mockResolvedValue(parseCatalogue(catalogue));
-    client.unfinished.mockResolvedValue({ contract_version: 2, sessions: [] });
     await act(async () => { await hook.result.current.retry(); });
     expect(hook.result.current.phase).toBe("intro");
   });
   it("late answer after restart or navigation cannot replace active state", async () => {
-    const hook = await mount(); await begin(hook);
+    const hook = await mount(undefined, ASSIGNMENT); await begin(hook);
     const pending = deferred<ReturnType<typeof parseSnapshot>>();
     client.answer.mockReturnValue(pending.promise);
     act(() => hook.result.current.answer("D"));
@@ -182,6 +172,6 @@ describe("live diagnostic controller", () => {
     act(() => { void hook.result.current.begin(); });
     hook.unmount();
     await act(async () => { pendingBegin.resolve(parseSnapshot(snapshot())); });
-    expect(window.location.search).toBe("");
+    expect(window.location.search).toBe(`?assignment=${ASSIGNMENT}`);
   });
 });

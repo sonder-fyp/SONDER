@@ -59,12 +59,14 @@ class CurrentMathCandidateTests(unittest.TestCase):
             for row in csv.DictReader(source):
                 if row["topic"] in labels and row["status"] == "approved":
                     rows[row["item_id"]].append(row)
-        self.assertEqual(len(rows), 17)
+        # 17 items before the 20 Nov 2026 candidate; B17 added T6-012B and
+        # T6-013B, and B20 added the non-unit division items T6-022, T6-023.
+        self.assertEqual(len(rows), 21)
         stems = defaultdict(list)
         for item_id, options in rows.items():
             stems[options[0]["stem"]].append(item_id)
         group = {item_id: min(ids) for ids in stems.values() if len(ids) > 1 for item_id in ids}
-        self.assertEqual(len(group), 10)  # Five A/B twin pairs in this unit.
+        self.assertEqual(len(group), 14)  # Seven A/B twin pairs in this unit.
         ids = tuple(sorted({m for options in rows.values() for row in options
                             for m in row["misconceptions"].split("|") if m}))
         hyps = ids + ("NONE", "UNMODELLED")
@@ -78,11 +80,13 @@ class CurrentMathCandidateTests(unittest.TestCase):
                 tuple(tuple(filter(None, row["misconceptions"].split("|"))) for row in option_rows),
                 twin_group=group.get(item_id),
             ))
-        with self.assertRaisesRegex(ValueError, "P1: T6-011B.*MATH-1416"):
-            check_p1(items, hyps, Params())
-        # .24 is a valid arithmetic probe, not a decision to use it in production.
-        params = Params(guess=0.24)
+        # Harris removed one MATH-1416 link from each of T6-011B, T6-014B and
+        # T6-016B (18 and 20 Nov 2026), so no item links a misconception on
+        # three options and P1 now passes at the default guess rate.
+        params = Params()
         check_p1(items, hyps, params)
+        # The twin rule still guards the real twins: once T6-011 is asked,
+        # its B version is no longer eligible.
         remaining = eligible_items(items, ("T6-011",))
         self.assertNotIn("T6-011B", [item.item_id for item in remaining])
         choice = select_next(prior(hyps, params), remaining, hyps, params)
@@ -106,7 +110,7 @@ class CurrentMathCandidateTests(unittest.TestCase):
                 next(i for i, row in enumerate(option_rows) if row["is_correct"] == "True"),
                 tuple(tuple(filter(None, row["misconceptions"].split("|"))) for row in option_rows),
             ))
-        self.assertEqual(len(items), 16)
+        self.assertEqual(len(items), 20)  # B21 added T7-017 to T7-020.
         params = Params()
         check_p1(items, hyps, params)
         p = prior(hyps, params)
@@ -170,13 +174,15 @@ class CurrentMathCandidateTests(unittest.TestCase):
 
     def test_every_current_bank_item_matches_exact_arithmetic_under_a_valid_rate(self):
         # This is a per-item calculation audit, not an approved unit-pack
-        # simulation. The three 3-link items use .24 only for this arithmetic
-        # check; it is not a team decision to use .24 in live sessions.
+        # simulation. A 3-link item would use .24 only for this arithmetic
+        # check; it is not a team decision to use .24 in live sessions. The
+        # 20 Nov 2026 candidate has no 3-link item, so every item is checked
+        # at the default rate.
         rows = defaultdict(list)
         with (DATA / "bank" / "items.csv").open(newline="", encoding="utf-8-sig") as source:
             for row in csv.DictReader(source):
                 rows[row["item_id"]].append(row)
-        self.assertEqual(len(rows), 117)
+        self.assertEqual(len(rows), 133)
         needs_d2 = set()
         checked_paths = 0
         for item_id, option_rows in rows.items():
@@ -226,8 +232,8 @@ class CurrentMathCandidateTests(unittest.TestCase):
                         [float(x / evidence) for x in joint], rtol=0, atol=3e-16,
                     )
                 checked_paths += 1
-        self.assertEqual(needs_d2, {"T6-011B", "T6-014B", "T6-016B"})
-        self.assertEqual(checked_paths, 468)
+        self.assertEqual(needs_d2, set())
+        self.assertEqual(checked_paths, 532)
 
 
 if __name__ == "__main__":

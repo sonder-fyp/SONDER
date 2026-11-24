@@ -7,8 +7,8 @@ export default function Page() {
       description="Help for the question in front of you."
       detail="The learning assistant is not available yet. Ask your teacher if you need help with a topic."
       home="/student"
-      action="Explore diagnostics"
-      actionHref="/student/start"
+      action="Go to your assignments"
+      actionHref="/student"
     />
   );
 }

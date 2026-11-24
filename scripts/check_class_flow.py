@@ -104,7 +104,7 @@ def main(argv=None) -> int:
         value = first.json()
         sid = record["session_id"] = value["session_id"]
         require(student("POST", "/api/diagnostic/sessions", start).json() == value, "identical start retry")
-        for index, option in enumerate("DBBA"):
+        for index, option in enumerate("BBAB"):  # D1 now opens on T1-001.
             question = value["question"]
             record["items"].append(question["item_id"])
             reply = student("POST", f"/api/diagnostic/sessions/{sid}/answers",

@@ -54,6 +54,8 @@ Record the date, commit, tester and result. Do not record credentials or cookies
 
 ## Results
 
+*24 November 2026. Runs recorded before PR #92 used the 117-item bank (D1 = D, B, B, A on T1-005, T1-006, T1-007, T1-009). On the 133-item candidate D1 is B, B, A, B on T1-001, T1-006, T1-005, T1-007; the harness scripts were updated in PR #92.*
+
 | Date | Commit | Tester | Automated checks | Live harness | Browser checklist | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
 | 2026-11-18 | `e5440c3` (branch `ashher/i2-class-slice-checks`) | Ashher (run with Claude Code) | Pass: 60 product tests on PostgreSQL 16 with the U1 development release; Ahmed's 68 `test_persist_*` and 24 `test_engine_api` tests also pass | Not run yet | Not run yet | This machine has no Neon development branch or signed-in accounts configured (`Sonder-UI-master/.env.local` has no `DATABASE_URL`), so sections 2 and 3 are pending. Add a row when they are run. |

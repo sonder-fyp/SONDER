@@ -47,6 +47,16 @@ describe("VerifyEmailForm", () => {
     expect(mocks.replace).toHaveBeenCalledWith(`/auth/sign-in?verified=1&next=${next}`);
   });
 
+  it("accepts any code without checking it while the development bypass is on", async () => {
+    vi.stubEnv("NEXT_PUBLIC_SONDER_DEV_SKIP_EMAIL_OTP", "true");
+    setup();
+    fireEvent.change(screen.getByLabelText("One-time code"), { target: { value: "000000" } });
+    fireEvent.click(screen.getByRole("button", { name: "Verify email" }));
+    await waitFor(() => expect(mocks.replace).toHaveBeenCalled());
+    expect(mocks.emailOtp.verifyEmail).not.toHaveBeenCalled();
+    vi.unstubAllEnvs();
+  });
+
   it("sends a new code to the fixed address", async () => {
     mocks.emailOtp.sendVerificationOtp.mockResolvedValue({ error: null });
     setup();

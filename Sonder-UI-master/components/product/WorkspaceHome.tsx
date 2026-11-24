@@ -1,7 +1,6 @@
 import Link from "next/link";
 import {
   ArrowRight,
-  Compass,
   Users,
   ClipboardCheck,
   BookOpen,
@@ -11,7 +10,7 @@ import { Container, PageMasthead } from "@/components/layout";
 import { buttonVariants } from "@/components/ui/button";
 import type { AppAccount } from "@/lib/auth/types";
 
-/** children (students only) appear right under the heading, before the general guidance. */
+/** children appear right under the heading, before the general guidance. */
 export function WorkspaceHome({ account, children }: { account: AppAccount; children?: React.ReactNode }) {
   const role = account.role;
   const firstName = account.display_name.trim().split(/\s+/)[0];
@@ -25,7 +24,7 @@ export function WorkspaceHome({ account, children }: { account: AppAccount; chil
         ? "Your teaching workspace"
         : "Your family workspace";
   const description = student
-    ? "Take a little time to understand how you think. Pick a topic and work through one question at a time."
+    ? "Your teachers' assignments are below. Work through one question at a time; your answers are saved as you go."
     : admin
       ? "Manage account access and keep Sonder ready for the people who use it."
       : role === "teacher"
@@ -38,52 +37,20 @@ export function WorkspaceHome({ account, children }: { account: AppAccount; chil
         title={title}
         lede={description}
         actions={
-          student || admin || role === "teacher" ? (
+          admin || role === "teacher" ? (
             <Link
-              href={
-                student
-                  ? "/student/start"
-                  : admin
-                    ? "/admin/access"
-                    : "/teacher/classes"
-              }
+              href={admin ? "/admin/access" : "/teacher/classes"}
               className={buttonVariants({ size: "lg" })}
             >
-              {student
-                ? "Explore diagnostics"
-                : admin
-                  ? "Review access requests"
-                  : "Manage classes"}
+              {admin ? "Review access requests" : "Manage classes"}
               <ArrowRight className="size-4" aria-hidden />
             </Link>
           ) : undefined
         }
       />
-      {student ? children : null}
+      {children}
       {student ? (
-        <section className="grid gap-8 py-10 lg:grid-cols-[1.2fr_1fr] lg:gap-16 lg:py-14">
-          <div className="border border-border bg-background/70 p-6 md:p-8">
-            <Compass
-              className="size-7 text-accent"
-              strokeWidth={1.25}
-              aria-hidden
-            />
-            <p className="label mt-8 text-accent">Your next step</p>
-            <h2 className="mt-4 text-2xl font-semibold tracking-tight">
-              Start with a topic.
-            </h2>
-            <p className="mt-4 max-w-md leading-relaxed text-muted-foreground">
-              Choose an available Mathematics topic. If you already have a check
-              in progress, you can continue it from the same topic.
-            </p>
-            <Link
-              href="/student/start"
-              className="mt-6 inline-flex min-h-11 items-center gap-3 text-sm font-medium hover:text-accent"
-            >
-              Find a diagnostic
-              <ArrowRight className="size-4" aria-hidden />
-            </Link>
-          </div>
+        <section className="py-10 lg:py-14">
           <div className="py-3">
             <p className="label text-muted-foreground">Before you begin</p>
             <ol className="mt-5 divide-y divide-border">

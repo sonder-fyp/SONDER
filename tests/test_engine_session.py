@@ -1,7 +1,7 @@
 """Checks for the run loop: worked examples, twins, budget, errors and replay.
 
-Expected numbers come from docs/ENGINE_SPEC_DRAFT.md section 5 (D1, D2). U6 is
-the unit after decision D-2.
+Expected numbers come from docs/ENGINE_SPEC_DRAFT.md section 5 (D1, D2) and the D4 refusal,
+re-measured on the 133-item candidate. U6 is the unit after decision D-2.
 """
 
 from __future__ import annotations
@@ -30,10 +30,12 @@ class WorkedExampleTests(unittest.TestCase):
         cls.pack = load_maths_v2()
 
     def test_d1_u1_rounding(self):
+        # T1-001 has T1-005's link pattern and wins the EIG tie in pack order.
+        # The same student therefore gives the same EIGs and posteriors.
         state = run_policy(self.pack.unit("U1"), Params(),
-                           by_letters({"T1-005": "D", "T1-006": "B", "T1-007": "B", "T1-009": "A"}))
+                           by_letters({"T1-001": "B", "T1-006": "B", "T1-005": "A", "T1-007": "B"}))
         steps = state.steps
-        self.assertEqual([s.question.item_id for s in steps], ["T1-005", "T1-006", "T1-007", "T1-009"])
+        self.assertEqual([s.question.item_id for s in steps], ["T1-001", "T1-006", "T1-005", "T1-007"])
         for step, eig in zip(steps, [0.7887, 0.6472, 0.2232, 0.5546]):
             self.assertAlmostEqual(step.question.expected_ig, eig, places=4)
         expected = [[.0391, .0391, .3520, .0391, .5028, .0279], [.0073, .0655, .0655, .0073, .8416, .0130],
@@ -45,26 +47,49 @@ class WorkedExampleTests(unittest.TestCase):
         self.assertEqual((state.decision.outcome, state.decision.leader, state.decision.support),
                          (Outcome.DIAGNOSED, "MATH-1379", 2))
 
-    def test_d2_u4_refusal(self):
-        state = run_policy(self.pack.unit("U4"), Params(), by_letters({"T4-001": "D", "T5-011": "A"}))
-        self.assertEqual([s.question.item_id for s in state.steps], ["T4-001", "T5-011"])
-        for step, eig in zip(state.steps, [0.7517, 0.3668]):
+    def test_d2_u4_diagnosed(self):
+        # On the 117-item bank D2 (T4-001 D, T5-011 A) was refused naming 1514 and 1773. B19's T4-011
+        # links its "adds" option C to MATH-1514 alone, so the second answer separates them.
+        state = run_policy(self.pack.unit("U4"), Params(), by_letters({"T4-001": "D", "T4-011": "C"}))
+        self.assertEqual([s.question.item_id for s in state.steps], ["T4-001", "T4-011"])
+        for step, eig in zip(state.steps, [0.7517, 0.5489]):
             self.assertAlmostEqual(step.question.expected_ig, eig, places=4)
         np.testing.assert_allclose(state.steps[0].posterior,
                                    [.0181, .0542, .0542, .3794, .3794, .0181, .0387, .0581], atol=5e-5)
         np.testing.assert_allclose(state.steps[1].posterior,
-                                   [.0011, .0033, .0033, .4813, .4813, .0011, .0023, .0263], atol=5e-5)
+                                   [.0020, .0060, .0060, .8887, .0423, .0020, .0043, .0486], atol=5e-5)
         d = state.decision
-        self.assertEqual((d.outcome, d.tied, d.support), (Outcome.ESCALATED_NO_SEPARATOR,
-                                                          ("MATH-1514", "MATH-1773"), 2))
-        self.assertAlmostEqual(d.leader_share, 0.5, places=12)
+        self.assertEqual((d.outcome, d.leader, d.tied, d.support), (Outcome.DIAGNOSED, "MATH-1514", (), 2))
+
+    def test_d4_u4_refusal(self):
+        # A refusal that remains (spec section 5 D4): the two items separating 1514 from 1773 were answered
+        # without the separating option, so every remaining U4 item gives them identical rows.
+        letters = {"T4-001": "D", "T4-011": "B", "T4-012": "C", "T5-013": "B"}
+        state = run_policy(self.pack.unit("U4"), Params(), by_letters(letters))
+        self.assertEqual([s.question.item_id for s in state.steps], ["T4-001", "T4-011", "T4-012", "T5-013"])
+        for step, eig in zip(state.steps, [0.7517, 0.5489, 0.4674, 0.4354]):
+            self.assertAlmostEqual(step.question.expected_ig, eig, places=4)
+        expected = [[.0181, .0542, .0542, .3794, .3794, .0181, .0387, .0581],
+                    [.0085, .0254, .0254, .5328, .1776, .0085, .0181, .2039],
+                    [.0223, .0669, .0669, .1561, .4683, .0223, .0478, .1493],
+                    [.0015, .0138, .0046, .2246, .6739, .0015, .0033, .0768]]
+        for step, posterior in zip(state.steps, expected):
+            np.testing.assert_allclose(step.posterior, posterior, atol=5e-5)
+        d = state.decision
+        self.assertEqual((d.outcome, d.rule, d.leader, d.tied, d.support),
+                         (Outcome.ESCALATED_NO_SEPARATOR, "R4", "MATH-1773", ("MATH-1514", "MATH-1773"), 2))
+        self.assertAlmostEqual(d.leader_share, 0.75, places=4)
+        self.assertEqual(d.reachable_share, d.leader_share)  # identical rows (KF-15)
 
     def test_answer_notes_quote_the_option_text(self):
-        state = replay(self.pack.unit("U1"), Params(), ["D", "B", "B"])
-        self.assertEqual(state.steps[0].answer_note, "Chose D (49,000), the correct option.")
-        self.assertEqual(state.steps[2].answer_note, "Chose B (8,300), linked to MATH-1379.")
-        u4 = replay(self.pack.unit("U4"), Params(), ["D", "A"])
-        self.assertEqual(u4.steps[1].answer_note, "Chose A (39), linked to MATH-1514 and MATH-1773.")
+        # D1 starts at T1-001 and D4 visits the new separator T4-011.
+        state = replay(self.pack.unit("U1"), Params(), ["B", "B", "A"])
+        self.assertEqual(state.steps[0].answer_note, "Chose B (3,900), the correct option.")
+        self.assertEqual(state.steps[2].answer_note, "Chose A (48,000), linked to MATH-1379.")
+        u4 = replay(self.pack.unit("U4"), Params(), ["D", "B"])
+        self.assertEqual(u4.steps[0].answer_note, "Chose D (Rs 28), linked to MATH-1514 and MATH-1773.")
+        self.assertEqual(u4.steps[1].answer_note,
+                         "Chose B (35), a wrong option linked to no misconception: evidence for UNMODELLED.")
 
 
 class TwinAndBudgetTests(unittest.TestCase):
@@ -120,24 +145,25 @@ class ErrorTests(unittest.TestCase):
         self.assertEqual(trace_to_dict(trace_of(state)), before)  # nothing changed
 
     def test_each_rejected_answer_leaves_the_state_unchanged(self):
+        # T1-001 now wins the opening EIG tie, changing the option text and the D1 replay.
         fresh = start(self.unit, Params())
-        self.assertRejected("no_pending_question", fresh, "T1-005", "D")
+        self.assertRejected("no_pending_question", fresh, "T1-001", "D")
         pending = next_question(fresh)
         self.assertRejected("not_pending_item", pending, "T1-006", "B")
-        self.assertRejected("invalid_option", pending, "T1-005", "E")
-        self.assertRejected("invalid_option", pending, "T1-005", "49,000")  # text is not an option ID
-        finished = replay(self.unit, Params(), ["D", "B", "B", "A"])
+        self.assertRejected("invalid_option", pending, "T1-001", "E")
+        self.assertRejected("invalid_option", pending, "T1-001", "3,900")  # text is not an option ID
+        finished = replay(self.unit, Params(), ["B", "B", "A", "B"])
         self.assertTrue(finished.finished)
         self.assertRejected("session_finished", finished, "T1-010", "A")
         with self.assertRaises(EngineError):
-            replay(self.unit, Params(), ["D", "B", "B", "A", "A"])
+            replay(self.unit, Params(), ["B", "B", "A", "B", "A"])
 
     def test_zero_evidence_is_an_error_not_an_outcome(self):
         pending = next_question(start(self.unit, Params()))
         impossible = np.zeros((len(self.unit.hyps), 4))
         impossible[:, 0] = 1.0  # every hypothesis puts all mass on A; the student answers B
         with mock.patch("sonder_engine.session.likelihood_matrix", return_value=impossible):
-            self.assertRejected("zero_evidence", pending, "T1-005", "B")
+            self.assertRejected("zero_evidence", pending, "T1-001", "B")  # T1-001 now wins the opening tie.
 
     def test_invalid_budget_and_mismatched_parameters(self):
         for budget in (0, -1, True, 2.0):

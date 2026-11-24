@@ -7,8 +7,8 @@ export default function Page() {
       description="Your next steps, in context."
       detail="Personal study notes are not available yet. Any future recommendations will be linked to your own permitted records."
       home="/student"
-      action="Explore diagnostics"
-      actionHref="/student/start"
+      action="Go to your assignments"
+      actionHref="/student"
     />
   );
 }

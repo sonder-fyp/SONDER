@@ -157,11 +157,23 @@ class RealBankRowTests(unittest.TestCase):
                                         f"near rows (TV = {tv:.4f}) now exist; review R4 outcomes that rest "
                                         "on the reachable-share bound")
 
-    def test_the_d2_refusal_is_an_exact_row_case(self):
-        unit = self.pack.unit("U4")
-        state = replay(unit, Params(), ["D", "A"])
+    def test_a_real_bank_refusal_is_an_exact_row_case(self):
+        # On the 117-item bank the spec's D2 (U4 answers D, A) was refused naming 1514 and
+        # 1773; B19 now separates that pair, so D2 is diagnosed. Enumerating all answer
+        # sequences of all units of the 133-item candidate (24 Nov 2026) gives 1,285 R4
+        # refusals, every one exact-row; the shortest take 4 answers (U4 and U6). This is
+        # the U6 one: T6-010 B (correct), T6-015B A (MATH-2359),
+        # T6-012B C (correct), T6-013B B (unlinked). Once the items that separate
+        # MATH-2359 from NONE (or their twins) have been asked, the two answer alike on
+        # every remaining item: p(C) = .815 >= theta but the reachable share is .7967.
+        unit = self.pack.unit("U6")
+        state = replay(unit, Params(), ["B", "A", "C", "B"])
+        self.assertEqual([step.question.item_id for step in state.steps],
+                         ["T6-010", "T6-015B", "T6-012B", "T6-013B"])
         decision = state.decision
-        self.assertEqual((decision.rule, decision.tied), ("R4", ("MATH-1514", "MATH-1773")))
+        self.assertEqual((decision.rule, decision.tied), ("R4", ("MATH-2359", "NONE")))
+        self.assertAlmostEqual(decision.reachable_share, 0.7967, places=4)
+        self.assertEqual(decision.reachable_share, decision.leader_share)
         slots = [unit.hyps.index(h) for h in decision.tied]
         for item in remaining_items(unit, state):
             with self.subTest(item=item.item_id):

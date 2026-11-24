@@ -1,6 +1,9 @@
 import { parseErrorCode } from "@/lib/classes/validation";
 import { parseActivity } from "./activity";
+import { parseAttempts } from "./attempts";
 import { parseEvidence } from "./evidence";
+import { parseOtherChecks } from "./otherChecks";
+import { parseQueue } from "./queue";
 import { parseReviewList } from "./reviews";
 import type { AddReviewRequest } from "./reviews";
 
@@ -43,4 +46,7 @@ export const teacherClient = {
   activity: (classId: string, assignmentId?: string) =>
     request(`classes/${encodeURIComponent(classId)}/activity${assignmentId ? `?assignment=${encodeURIComponent(assignmentId)}` : ""}`,
       parseActivity),
+  queue: () => request("queue", parseQueue),
+  otherChecks: (classId: string) => request(`classes/${encodeURIComponent(classId)}/other-checks`, parseOtherChecks),
+  attempts: (sessionId: string) => request(`sessions/${encodeURIComponent(sessionId)}/attempts`, parseAttempts),
 };

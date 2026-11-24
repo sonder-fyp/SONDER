@@ -44,7 +44,7 @@ class StudentPrivacyTests(ProductDatabaseTestCase):
 
     def finish(self, student):
         value = self.store.create(student, StartRequest(unit_id="U1", create_request_id=str(uuid4()), assignment_id=self.assignment))
-        for option in "DBBA":
+        for option in "BBAB":  # D1 opens on T1-001 after the link changes.
             q = value["question"]
             value, _ = self.store.submit(value["session_id"], student, AnswerRequest(
                 step_index=q["step_index"], item_id=q["item_id"], option_id=option))

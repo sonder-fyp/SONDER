@@ -8,7 +8,7 @@ Sonder now has separate public, account-entry and working experiences. The publi
 | --- | --- |
 | Public website | How it works, For educators, login and registration. Returning accounts get Open dashboard. No role entrances or internal route names. |
 | Accounts | Email registration, verification, onboarding, login and recovery. Teacher/parent requests require existing administrator approval. Admin is not a registration option. |
-| Student | Personal welcome, service-provided Mathematics topic list, persistent diagnostic start/resume, saved-answer feedback and neutral completion. |
+| Student | Personal welcome; the home lists the student's assignments (Start / Resume / Done), with no topic picker. Persistent diagnostic start/resume, saved-answer feedback and neutral completion. |
 | Administrator | Account overview and real access-request list. Decisions require an inline confirmation and acknowledge the persisted outcome. |
 | Preferences | Light/dark appearance and optional music, saved on this browser. Account identity is read-only. Motion respects device preferences. |
 | Other workspaces | Teacher and parent overviews describe availability without example identities, counts or records. |
@@ -19,14 +19,15 @@ Email is the displayed sign-in method. The previous unconditional Google, Apple 
 
 ## Live class features
 
-Classes, join codes, rosters and assignments are connected to real records (I2-H09–H13, taken over by Ashher from Harris; [contract](../api/CLASS_ASSIGNMENT_CONTRACT.md)): `/teacher/classes`, `/teacher/classes/[classId]` (join code, students, assignments, archive) and `/student/classes` (class list and join). "Classes" is in both navigations. Starting a diagnostic from an assignment works through `/student/diagnostic/[unitId]?assignment=<id>`; the student dashboard that lists assignments is I2-A16.
+Classes, join codes, rosters and assignments are connected to real records (I2-H09–H13, taken over by Ashher from Harris; [contract](../api/CLASS_ASSIGNMENT_CONTRACT.md)): `/teacher/classes`, `/teacher/classes/[classId]` (join code, students, assignments, archive) `/student/classes` (class list and join) and `/student/classes/[classId]` (that class's assignments). "Classes" is in both navigations. Starting a diagnostic from an assignment works through `/student/diagnostic/[unitId]?assignment=<id>`; the student dashboard that lists assignments is I2-A16.
 
 ## Live teacher and student features
 
 Connected to stored records (I2-A11–A19, Ashher; [requirements](I2_TEACHER_STUDENT_REQUIREMENTS.md), [checks](../testing/PRODUCT_PATH_CHECKS.md)):
 - **Teacher:**
   - the class Activity dashboard on `/teacher/classes/[classId]` (counts, filters, table)
-  - the evidence page `/teacher/sessions/[sessionId]`, with question-by-question evidence and the review panel
+  - the evidence page `/teacher/sessions/[sessionId]`, with question-by-question evidence, the review panel and the list of attempts at the assignment
+  - the home queue "Waiting for you" (needs review, follow-up required) and, on the class page, "Other checks" (old assignment-less sessions)
 - **Student:**
   - "Your assignments" with Start / Resume / Done on `/student`
   - "Past checks" on `/student/history`, which is in the student navigation
@@ -37,13 +38,12 @@ The following URLs retain clear unavailable states and a route back to the works
 
 | Area | Routes | Integration dependency |
 | --- | --- | --- |
-| Student class detail | `/student/classes/[classId]` | Assignments with Start/Resume are on the student home (I2-A16–A17); the class list and joining are live. |
 | Older teacher and student pages | Student insights; teacher escalations, the scenario evidence route `/teacher/session/[scenario]` and per-student insights | Replaced on the live path by the routes below; kept as design references. |
 | Learning | Student library, concept, study-note and follow-up routes | Real resources, permitted record associations and follow-up workflow. |
 | Parent | Child summaries and messages | Authorised child linkage and permitted summary publication. |
 | Communication | Student, teacher and parent messages; consultants | Real delivery/assistant service with account-scoped records. |
 | Content administration | Catalogue, coverage, performance, provenance and teacher content-review routes | Persisted content, review and report services with source/version identity. |
-| Legacy diagnostics | `/student/session/[scenario]/[mode]` | Replaced in normal navigation by `/student/diagnostic/[unitId]`. The old link explains recovery without substituting a different attempt. |
+| Legacy diagnostics | `/student/session/[scenario]/[mode]` | Replaced in normal navigation by `/student/diagnostic/[unitId]`; `/student/start` now redirects to `/student`. The old link explains recovery without substituting a different attempt. |
 
 To activate an area, its feature owner replaces the relevant unavailable page with the real implementation, handles loading/empty/error/access states, then adds its destination to `lib/nav.tsx`. Do not re-enable fixture imports or browser-local mutations as fallbacks. Do not equate teacher review with approval to release a diagnosis. Do not derive grades or learning improvement from diagnostic confidence.
 

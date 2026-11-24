@@ -41,7 +41,7 @@ For a class, optionally one assignment. Each count has exactly one definition, s
 | **Needs review** | completed pairs whose latest session has no review |
 | **Follow-up required** | pairs whose latest session's latest review is `follow_up_required` |
 
-"Latest" means latest by `started_at`, then id. Counts are computed from the same rows the activity table lists, so a test can check that the counts equal the rows for every filter. Only sessions started from an assignment count; plain starts (no `assignment_id`) are listed separately as "other checks".
+"Latest" means latest by `started_at`, then id. Counts are computed from the same rows the activity table lists, so a test can check that the counts equal the rows for every filter. Only sessions started from an assignment count; plain starts (no `assignment_id`, the retired self-start path) are listed as "Other checks" on the class page (`sonder.class_other_checks`), read-only.
 
 ## 4. Evidence screen (I2-A12, I2-A13)
 
@@ -67,12 +67,15 @@ The evidence of one session, for its class teacher. Contents:
 - Only finished sessions can be reviewed; only by their class teacher.
 - Students do not see review status or notes. A neutral "Your teacher has looked at this" flag is allowed but **off by default** (decision D-7; switch on only with team agreement).
 
+**Teacher home queue** (`sonder.teacher_queue`, migration 0013): finished checks waiting for the teacher across all their active classes: the latest attempt of each (student, assignment), for open and closed assignments, plus checks started without an assignment, whose latest review is missing ("Needs review") or `follow_up_required` ("Follow-up required"). Only active classes and active enrolments count; in-progress work is not listed. An evidence page lists every attempt at the assignment (`sonder.session_attempts`).
+
 ## 6. Student dashboard, start and resume (I2-A16, I2-A17)
 
 - Lists the student's classes and each open assignment with one action:
   - **Start**: no attempt yet, or `repeat` and the last attempt is finished;
   - **Resume**: an attempt is in progress (goes to that session, never creates a new one);
   - **Done**: `single` and attempted (no action).
+- Start only from an assignment (a start without one is refused, `assignment_required`). A closed assignment with an in-progress attempt stays listed with Resume.
 - Start uses Ahmed's start contract with `assignment_id` and a fresh `create_request_id`; a double click cannot create two attempts (one request key per click, and the database lock).
 - Errors are explained without exposing teacher data: closed, no longer offered, already in progress, already done, service down.
 
@@ -96,3 +99,20 @@ The evidence of one session, for its class teacher. Contents:
 | A8 | Double start makes one attempt; Resume returns the same session | A17, A19 |
 | A9 | History lists only the student's own attempts with correct attempt numbers; no forbidden fields | A18, A19 |
 | A10 | Loading, empty and error states exist on every new screen | all |
+
+## 9. Screens from the real build
+
+Taken on 24 November 2026 from the running app (`dev` at `7ff9978` plus the evidence headline fix of #96), against the Neon development branch with migrations 0001–0013, release `Maths_v2-U1-dev/spec-v2-prior` and the test teacher and student accounts. A scripted browser walked the whole path: the teacher created a class and a single-attempt U1 assignment; the student joined, answered D, B, B, A (worked example D1 of the content this release pins); the teacher opened the evidence and recorded a review. The class was archived afterwards. On every student page the walk checked that no `MATH-` code, probability or review text appears. The flow these screens follow is drawn in [I2_PRODUCT_FLOW.md](I2_PRODUCT_FLOW.md).
+
+| Screen | Shows | Requirement |
+| --- | --- | --- |
+| [Teacher class page](i2-screens/01-teacher-class-with-assignment.png) | Join code, roster, the new assignment and the assign form | Class contract; §3 |
+| [Student dashboard: Start](i2-screens/02-student-dashboard-start.png) | The assignment with **Start**, "One attempt · Not started" | §6 (A7) |
+| [Question](i2-screens/03-student-question.png) | One question at a time, answers saved, no score | §2 |
+| [Check submitted](i2-screens/04-student-check-submitted.png) | Neutral completion, no result | §2, §6 |
+| [Student history](i2-screens/05-student-history.png) | Attempt 1, submitted, no diagnosis | §7 (A9) |
+| [Teacher home queue](i2-screens/06-teacher-home-queue.png) | "Needs review (1)" with a link to the evidence | §5, teacher queue |
+| [Class dashboard](i2-screens/07-teacher-class-dashboard.png) | Defined counts and the activity table from the same rows | §3 (A1) |
+| [Evidence](i2-screens/08-teacher-evidence.png) | Outcome in plain words, hypotheses and priors, each question with its options, links, choice, reason and probabilities, the confidence sentence, release and parameter hash | §4 (A3, A4) |
+| [Evidence with a review](i2-screens/09-teacher-evidence-with-review.png) | Status "Follow-up required", revision 1 with the teacher's note, "Reviewed is not approval for release" | §5 (A5, A6) |
+| [Student dashboard: Done](i2-screens/10-student-dashboard-done.png) | The single-attempt assignment as **Done**; no review status or note | §2, §6 (A6, A7) |

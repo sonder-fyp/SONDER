@@ -12,8 +12,6 @@ const named = (name: string) => ({
 });
 const route = (url: string) => {
   if (url === "/api/diagnostic/units") return json(catalogue);
-  if (url === "/api/diagnostic/sessions?unit_id=U1")
-    return json({ contract_version: 2, sessions: [] });
   if (url === `/api/diagnostic/sessions/${sid}`) return json(snapshot(1));
   return Promise.reject(new Error(`unexpected ${url}`));
 };
@@ -32,13 +30,18 @@ describe("diagnostic screen network behaviour", () => {
     vi.unstubAllGlobals();
   });
 
-  it("intro: units once and sessions list once outside StrictMode", async () => {
+  it("intro: units once, and no unfinished-check lookup, outside StrictMode", async () => {
     render(<DiagnosticClient unitId="U1" />);
     await screen.findByRole("button", { name: "Begin" });
-    expect(urls()).toEqual([
-      "/api/diagnostic/sessions?unit_id=U1",
-      "/api/diagnostic/units",
-    ]);
+    expect(urls()).toEqual(["/api/diagnostic/units"]);
+  });
+
+  it("intro from an assignment also reads the assignment list once for its labels", async () => {
+    fetchMock.mockImplementation((url: string) =>
+      url === "/api/student/dashboard" ? json({ assignments: [] }) : route(url));
+    render(<DiagnosticClient unitId="U1" assignmentId="55555555-5555-4555-8555-555555555555" />);
+    await screen.findByRole("button", { name: "Begin" });
+    expect(urls()).toEqual(["/api/diagnostic/units", "/api/student/dashboard"]);
   });
 
   it("resume: units once and the session once outside StrictMode", async () => {

@@ -5,12 +5,12 @@ The harness uses the real Next.js BFF and FastAPI over HTTP. It is not browser a
 ## Prerequisites and command
 
 1. Configure a Neon development branch for both the UI's `DATABASE_URL` and the Python service's `SONDER_DATABASE_URL`. Apply migrations with `python -m sonder_db.migrate up`, or adopt the existing Iteration 1 and auth migrations first as described in `db/migrations/README.md`.
-2. Enable and run the development seed, then enrol the existing onboarded student with `SONDER_ALLOW_DEV_SEED=true python -m sonder_api.devseed --enrol-email <student-email>`. Configure the UI in its ignored `.env.local` and start it on `http://localhost:3000` (the origin Neon Auth trusts by default).
+2. Enable and run the development seed, then enrol the existing onboarded student with `SONDER_ALLOW_DEV_SEED=true python -m sonder_api.devseed --enrol-email <student-email>`. The student must be in a class with an open **repeat** U1 assignment (a teacher creates it on the class page); the harness starts from it. Its id is in the teacher's network response to `POST …/assignments`, or in the student's `GET /api/student/dashboard`. Configure the UI in its ignored `.env.local` and start it on `http://localhost:3000` (the origin Neon Auth trusts by default).
 3. Sign in as that student. Copy the complete `Cookie` request-header value from browser developer tools into `SONDER_HARNESS_COOKIE` in a private terminal. Optionally set `SONDER_HARNESS_OTHER_COOKIE` to a second signed-in student's full cookie to check cross-student access. Never commit or paste these cookies in a PR.
 4. Stop any Python API process on port 8000. With `SONDER_DATABASE_URL`, `SONDER_ENGINE_TOKEN`, and `SONDER_HARNESS_COOKIE` set, run from the repository root:
 
    ```sh
-   python scripts/check_persistent_flow.py --release Maths_v2-U1-dev/spec-v2-prior
+   python scripts/check_persistent_flow.py --release Maths_v2-U1-dev/spec-v2-prior --assignment <assignment-id>
    ```
 
 The harness starts and owns the API process, checks start and answer retries, refresh, SIGKILL and restart, D1 completion, row evidence, replay, student-safe responses and the development candidate source hash. It requires no unfinished U1 run for the student; finish or abandon an existing one first. It prints a JSON record and exits 0 on success. The optional second cookie adds cross-student denial. It never prints cookies.
@@ -19,9 +19,9 @@ The harness starts and owns the API process, checks start and answer retries, re
 
 Record date, commit, tester and result for each run; do not record credentials or cookies.
 
-1. Sign in as an enrolled student; open `/student/diagnostic/U1`, Begin and answer two questions.
+1. Sign in as an enrolled student; on `/student`, under **Your assignments**, choose Start for the U1 assignment, Begin and answer two questions.
 2. Refresh: the same pending question appears.
-3. Navigate to `/student`, return to `/student/diagnostic/U1` without `?session=`, and select Continue: the same question appears.
+3. Navigate to `/student`, and choose Resume on the same assignment: the same question appears.
 4. Stop the Python service, select an option, and check the save error and Retry. Restart the service and Retry: the answer is accepted once. Check the step count with `python -m sonder_api.stored_evidence --session <id>`.
 5. Double-click an option quickly: one step is stored.
 6. Finish: completion is neutral; page source and network responses contain no `MATH-`, outcome or probabilities.
@@ -34,6 +34,8 @@ Record date, commit, tester and result for each run; do not record credentials o
 | 2026-11-18 | `1ad6348` (`dev`, includes #52–#89) | Ashher (independent reproduction, run with Claude Code) | Pass: 34 checks, 0 failures, including kill and restart | Manual click-through by Ashher, reported normal | Neon development branch, release `Maths_v2-U1-dev/spec-v2-prior`, engine `0.1.0+fbe0204a623d`, his own test student (enrolled in `DEVSEED01` with `devseed --enrol-email`). Also checked a conflicting answer is `409 answer_conflict`. Review: `validation/reviews/I2_PERSISTENCE_2026-11-18_ashher.md` |
 
 ## Recorded run: 17 November 2026
+
+*24 November 2026. Runs recorded before PR #92 used the 117-item bank (D1 = D, B, B, A on T1-005, T1-006, T1-007, T1-009). On the 133-item candidate D1 is B, B, A, B on T1-001, T1-006, T1-005, T1-007; the harness scripts were updated in PR #92.*
 
 Environment: Neon development branch (about 0.4 s round trip from the test machine), Python service with `--store postgres`, Next.js dev server on `http://localhost:3000`, Chrome. The service and UI ran from commit `fb7d044`, so this run does **not** include the follow-up fixes in #63 to #69. Two students were enrolled in the development class with `devseed --enrol-email`. No credentials or cookies are recorded here.
 

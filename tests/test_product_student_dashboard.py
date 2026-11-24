@@ -12,7 +12,7 @@ if HAVE_PSYCOPG:
     from sonder_api.pgstore import PostgresStore
 
 FIELDS = {"assignment_id", "class_id", "class_name", "title", "unit_code", "unit_name", "attempt_rule", "created_at",
-          "latest_session_id", "latest_state", "answered", "question_budget", "attempts"}
+          "latest_session_id", "latest_state", "answered", "question_budget", "attempts", "assignment_status"}
 
 
 class StudentDashboardTests(ProductDatabaseTestCase):
@@ -57,7 +57,7 @@ class StudentDashboardTests(ProductDatabaseTestCase):
     def test_states_follow_the_students_own_latest_attempt(self):
         fresh, going, done = self.assign("Fresh"), self.assign("Going"), self.assign("Done", "repeat")
         going_value = self.answer(self.start(going), "DB")
-        done_value = self.answer(self.start(done), "DBBA")
+        done_value = self.answer(self.start(done), "BBAB")  # D1 opens on T1-001 after the link changes.
         rows = self.rows()
         self.assertEqual(rows["Fresh"], (None, 0, None, 0, None))
         self.assertEqual(rows["Going"], ("in_progress", 2, 8, 1, going_value["session_id"]))
@@ -74,6 +74,16 @@ class StudentDashboardTests(ProductDatabaseTestCase):
         self.assertEqual(self.rows(), {"Shown": (None, 0, None, 0, None)})  # the classmate's attempt is not mine
         self.assertEqual(self.rows(classmate)["Shown"][0], "in_progress")
         self.call("SELECT sonder.set_class_status(%s, %s, 'archived')", (self.teacher, self.class_id))
+        self.assertEqual(self.rows(), {})
+
+    def test_closed_assignment_stays_while_attempt_in_progress(self):
+        going, never = self.assign("Going"), self.assign("Never")
+        value = self.answer(self.start(going), "BB")  # First half of D1 now starts at T1-001.
+        for a in (going, never):
+            self.call("SELECT sonder.set_assignment_status(%s, %s, 'closed')", (self.teacher, a))
+        rows = self.call("SELECT title, latest_state, assignment_status FROM sonder.student_dashboard(%s)", (self.student,))
+        self.assertEqual(rows, [("Going", "in_progress", "closed")])
+        self.answer(value, "AB")  # Finish the revised D1 after its opening BB.
         self.assertEqual(self.rows(), {})
 
     def test_rows_carry_no_result_fields(self):

@@ -7,6 +7,7 @@ import socket
 import subprocess
 import sys
 import time
+import uuid
 from uuid import uuid4
 
 import httpx
@@ -25,7 +26,13 @@ def main(argv=None):
     parser.add_argument('--ui', default='http://localhost:3000')
     parser.add_argument('--api-port', type=int, default=8000)
     parser.add_argument('--release', required=True)
+    parser.add_argument('--assignment', required=True, help='Open REPEAT assignment of a class the harness student is in')
     args = parser.parse_args(argv)
+    try:
+        uuid.UUID(args.assignment)
+    except ValueError:
+        print('--assignment must be the UUID of an open repeat assignment.', file=sys.stderr)
+        return 2
     db_url = os.environ.get('SONDER_DATABASE_URL', '')
     token = os.environ.get('SONDER_ENGINE_TOKEN', '')
     cookie = os.environ.get('SONDER_HARNESS_COOKIE', '')
@@ -89,13 +96,13 @@ def main(argv=None):
         if previous:
             print('Unfinished session: ' + str(previous[0].get('session_id')) + '; finish or abandon it in the browser first.', file=sys.stderr)
             return 2
-        payload = {'unit_id': 'U1', 'create_request_id': str(uuid4())}
+        payload = {'unit_id': 'U1', 'create_request_id': str(uuid4()), 'assignment_id': args.assignment}
         first = snapshot(req('POST', '/api/diagnostic/sessions', body=payload), 'start')
         sid = first['session_id']; record['session_id'] = sid
         require(snapshot(req('POST', '/api/diagnostic/sessions', body=payload), 'start retry') == first, 'identical start retry')
         path = f'/api/diagnostic/sessions/{sid}'
         value = first
-        for index, option in enumerate('DBBA'):
+        for index, option in enumerate('BBAB'):  # D1 now opens on T1-001.
             q = value['question']; record['items'].append(q['item_id'])
             answer = {'step_index': q['step_index'], 'item_id': q['item_id'], 'option_id': option}
             value = snapshot(req('POST', path + '/answers', body=answer), f'answer {index}')
@@ -105,7 +112,7 @@ def main(argv=None):
                 stop(); start()
                 require(snapshot(req('GET', path), 'restart read') == value, 'restart preserves state')
                 record['restart'] = 'passed'
-        require(record['items'] == ['T1-005', 'T1-006', 'T1-007', 'T1-009'], 'D1 item sequence')
+        require(record['items'] == ['T1-001', 'T1-006', 'T1-005', 'T1-007'], 'D1 item sequence')  # T1-001 now wins the opening tie.
         require(value['status'] == 'complete', 'neutral completion')
         require(snapshot(req('POST', path + '/answers', body=answer), 'final retry') == value, 'final retry')
         listing = req('GET', '/api/diagnostic/sessions?unit_id=U1')

@@ -63,7 +63,7 @@ Body is always `{"error":{"code":"<code>"}}`; no detail text.
 | `replay_mismatch` | 500 | stored evidence disagrees with replay | cannot continue; report |
 | `engine_numeric_error` | 500 | unexpected exception | retry once; report |
 
-BFF-only codes (browser ↔ BFF): `authentication_required` 401, `role_required` 403, `invalid_origin` 403, `engine_unavailable` 503, `engine_timeout` 504.
+BFF-only codes (browser ↔ BFF): `assignment_required` 422 (a start without an assignment), `authentication_required` 401, `role_required` 403, `invalid_origin` 403, `engine_unavailable` 503, `engine_timeout` 504.
 
 ### 5.4 Idempotency and lifecycle
 
@@ -92,6 +92,8 @@ Run `SONDER_ENGINE_TOKEN=… python -m sonder_api.contract_check --base-url http
 The application account `X-Sonder-Actor` replaces the owner HMAC and per-run cookie. Version 2 adds a session list, new error codes and the optional `assignment_id` request field, which PostgreSQL mode accepts since I2-H12 (§5.5).
 
 ## Examples
+
+*The examples were recorded on the 117-item bank; item IDs and text differ on the candidate.*
 
 See [health](examples/health.json), [units](examples/units.json), [start request](examples/start.request.json), [start response](examples/start.response.json), [answer request](examples/answer.request.json), [answer response](examples/answer.response.json), [completion](examples/complete.response.json), [sessions](examples/sessions.response.json), and [answer conflict](examples/error.answer_conflict.json).
 

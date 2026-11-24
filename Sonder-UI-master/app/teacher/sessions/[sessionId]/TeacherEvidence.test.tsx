@@ -2,7 +2,7 @@ import { cleanup, fireEvent, render, screen, within } from "@testing-library/rea
 import { afterEach, describe, expect, it, vi } from "vitest";
 vi.mock("@/lib/teacher/client", async (original) => ({
   ...(await original<typeof import("@/lib/teacher/client")>()),
-  teacherClient: { evidence: vi.fn(), reviews: vi.fn().mockResolvedValue([]), addReview: vi.fn() },
+  teacherClient: { evidence: vi.fn(), reviews: vi.fn().mockResolvedValue([]), addReview: vi.fn(), attempts: vi.fn().mockResolvedValue([]) },
 }));
 import { teacherClient, TeacherError } from "@/lib/teacher/client";
 import { parseEvidence } from "@/lib/teacher/evidence";
@@ -68,6 +68,13 @@ describe("teacher evidence page", () => {
     render(<TeacherEvidence sessionId={sessionId} />);
     fireEvent.click(await screen.findByRole("button", { name: "Retry" }));
     expect((await screen.findByRole("heading", { level: 1 })).textContent).toBe("Ali");
+  });
+
+  it("does not look for attempts when the check has no assignment", async () => {
+    load({ assignment: null });
+    render(<TeacherEvidence sessionId={sessionId} />);
+    expect((await screen.findByRole("heading", { level: 1 })).textContent).toBe("Ali");
+    expect(teacherClient.attempts).not.toHaveBeenCalled();
   });
 
   it("asks to sign in again when the session ended", async () => {

@@ -8,9 +8,11 @@ const withOutcome = (outcome: Record<string, unknown>) =>
     escalation_candidates: [], ...outcome } }));
 
 describe("outcome wording", () => {
-  it("names diagnosed hypotheses in rank order", () => {
+  it("names only the rank-1 diagnosis; the runner-up is described as next most likely", () => {
     const summary = describeOutcome(withOutcome({ outcome: "diagnosed", diagnosis_candidates: [[2, 1], [1, 0]] }));
-    expect(summary.label).toBe("Diagnosed: Rounds too little and No misconception");
+    expect(summary.label).toBe("Diagnosed: Rounds too little");
+    expect(summary.label).not.toContain("No misconception");
+    expect(summary.detail).toContain("Next most likely: No misconception");
     expect(summary.tone).toBe("result");
   });
 

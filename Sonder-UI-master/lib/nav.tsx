@@ -1,6 +1,5 @@
 import {
   Home,
-  Compass,
   ShieldCheck,
   Settings,
   Users,
@@ -24,12 +23,6 @@ export const NAV: Record<Role, NavGroup[]> = {
     {
       items: [
         { label: "Home", href: "/student", icon: Home },
-        {
-          label: "Diagnostics",
-          href: "/student/start",
-          icon: Compass,
-          match: ["/student/diagnostic"],
-        },
         { label: "Classes", href: "/student/classes", icon: Users },
         { label: "History", href: "/student/history", icon: History },
       ],

@@ -49,6 +49,7 @@ Every mutation checks same origin and validates JSON bodies. Diagnostic mutation
 
 ## Demo accounts
 
+0. First administrator: sign up and onboard an account as a student, then from `Sonder-UI-master/` with `.env.local` loaded run `SONDER_ALLOW_ROLE_PROVISIONING=true node scripts/provision-role.mjs <email> admin --confirm` (Node 20 or newer). Provisioning also withdraws the account's pending access request. (A request already `denied` is not changed.)
 1. Sign up through `/auth/sign-up` using an address you control, verify it and complete student onboarding.
 2. For a teacher, request teacher access at signup and approve it as an admin at `/admin/access`, or load `.env.local` and run `SONDER_ALLOW_ROLE_PROVISIONING=true node scripts/provision-role.mjs <email> teacher --confirm` from `Sonder-UI-master/`.
 3. Enrol a student in the development class with `SONDER_ALLOW_DEV_SEED=true python -m sonder_api.devseed --enrol-email <email>`.

@@ -112,15 +112,27 @@ def _git(*args: str) -> str | None:
     return done.stdout.strip()
 
 
+def _command(runs: int, intermittent_runs: int, out: Path | None) -> str:
+    """The command that reproduces this run, naming ``--out`` when it is not the default."""
+
+    command = f"python -m experiments.adverse_baseline --runs {runs} --intermittent-runs {intermittent_runs}"
+    if out is None or out.resolve() == DEFAULT_OUT.resolve():
+        return command
+    try:
+        shown = out.resolve().relative_to(ROOT).as_posix()
+    except ValueError:
+        shown = out.as_posix()
+    return f"{command} --out {shown}"
+
+
 def manifest(pack: Pack, params: Params, runs: int, intermittent_runs: int,
-             row_count: int, commit: str | None, dirty: bool | None) -> dict:
+             row_count: int, commit: str | None, dirty: bool | None, out: Path | None = None) -> dict:
     """Run record. ``source_sha256`` is line-ending independent (see experiments.content)."""
 
     return {
         "experiment": "adverse-baseline",
         "task": "I2-A01",
-        "command": ("python -m experiments.adverse_baseline "
-                    f"--runs {runs} --intermittent-runs {intermittent_runs}"),
+        "command": _command(runs, intermittent_runs, out),
         "git_commit": commit or "unknown",
         "git_tracked_changes": dirty,
         "engine_version": __version__,
@@ -166,7 +178,7 @@ def write_baseline(out: Path, runs: int, intermittent_runs: int) -> dict:
     out.mkdir(parents=True, exist_ok=True)
     _write_csv(out / "runs.csv", RESULT_FIELDS, rows)
     _write_csv(out / "summary.csv", SUMMARY_FIELDS, summarise(rows))
-    record = manifest(pack, params, runs, intermittent_runs, len(rows), commit, dirty)
+    record = manifest(pack, params, runs, intermittent_runs, len(rows), commit, dirty, out)
     (out / "manifest.json").write_text(json.dumps(record, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return record
 

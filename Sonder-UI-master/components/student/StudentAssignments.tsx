@@ -13,8 +13,8 @@ function progress(card: StudentAssignmentCard) {
   return "Not started";
 }
 
-/** The student's open assignments with one action each: Start, Resume or Done (I2-A16, I2-A17). */
-export function StudentAssignments() {
+/** The student's assignments with one action each: Start, Resume or Done (I2-A16, I2-A17). With classId, one class only. */
+export function StudentAssignments({ classId, title = "Your assignments" }: { classId?: string; title?: string }) {
   const [cards, setCards] = useState<StudentAssignmentCard[]>();
   const [error, setError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
@@ -26,11 +26,13 @@ export function StudentAssignments() {
     return () => { active = false; };
   }, [attempt]);
 
-  if (error === "authentication_required") return <SignInAgain returnTo="/student" />;
+  if (error === "authentication_required") return <SignInAgain returnTo={classId ? `/student/classes/${classId}` : "/student"} />;
+  const shown = cards && classId ? cards.filter((c) => c.class_id === classId) : cards;
+  const headingId = classId ? "class-assignments" : "your-assignments";
   return (
-    <section aria-labelledby="your-assignments" className="py-10">
+    <section aria-labelledby={headingId} className="py-10">
       <div className="mb-6 flex flex-wrap items-baseline justify-between gap-4">
-        <h2 id="your-assignments" className="text-2xl font-semibold tracking-tight">Your assignments</h2>
+        <h2 id={headingId} className="text-2xl font-semibold tracking-tight">{title}</h2>
         <Link href="/student/history" className="text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground">
           Past checks
         </Link>
@@ -40,16 +42,20 @@ export function StudentAssignments() {
           <p className="text-muted-foreground">We could not load your assignments. Your saved answers are safe.</p>
           <Button className="mt-4" onClick={() => setAttempt((n) => n + 1)}>Retry</Button>
         </div>
-      ) : !cards ? (
+      ) : !shown ? (
         <p role="status" className="text-muted-foreground">Loading your assignments…</p>
-      ) : !cards.length ? (
-        <p className="max-w-xl text-muted-foreground">
-          Nothing is assigned right now. If your teacher gave you a class code,{" "}
-          <Link href="/student/classes" className="text-foreground underline underline-offset-4 hover:text-accent">join your class</Link>.
-        </p>
+      ) : !shown.length ? (
+        classId ? (
+          <p className="max-w-xl text-muted-foreground">Nothing is assigned in this class right now.</p>
+        ) : (
+          <p className="max-w-xl text-muted-foreground">
+            Nothing is assigned right now. If your teacher gave you a class code,{" "}
+            <Link href="/student/classes" className="text-foreground underline underline-offset-4 hover:text-accent">join your class</Link>.
+          </p>
+        )
       ) : (
         <ul className="border-t border-border">
-          {cards.map((card) => {
+          {shown.map((card) => {
             const action = actionFor(card);
             return (
               <li key={card.assignment_id} className="flex flex-wrap items-center justify-between gap-6 border-b border-border px-2 py-6">
@@ -58,10 +64,11 @@ export function StudentAssignments() {
                   <h3 className="mt-2 text-xl font-semibold tracking-tight">{card.title}</h3>
                   <p className="mt-1 text-sm text-muted-foreground">
                     {card.unit_name} · {card.attempt_rule === "single" ? "One attempt" : "Repeat attempts allowed"} · {progress(card)}
+                    {card.assignment_status === "closed" ? " · Closed by your teacher; you can still finish it" : ""}
                   </p>
                 </div>
                 {action.kind === "done" ? (
-                  <span className="inline-flex items-center gap-2 text-sm text-muted-foreground"><Check className="size-4" aria-hidden />Done</span>
+                  <span className="inline-flex items-center gap-2 text-sm text-muted-foreground"><Check className="size-4" aria-hidden />{action.label}</span>
                 ) : (
                   <Link href={action.href} className={buttonVariants({ variant: action.kind === "resume" ? "primary" : "outline" })}
                     aria-label={`${action.label}: ${card.title}`}>

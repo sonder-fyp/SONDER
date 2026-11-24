@@ -210,7 +210,7 @@ export default function ComponentGallery() {
           onSelect={() => setSelected("2")}
         />
         <LinkRow
-          href="/student/start"
+          href="/student"
           title="New diagnostic"
           description="Pick a subject and a topic."
         />
