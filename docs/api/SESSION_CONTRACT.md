@@ -93,6 +93,8 @@ The application account `X-Sonder-Actor` replaces the owner HMAC and per-run coo
 
 ## Examples
 
+*The examples were recorded on the 117-item bank; item IDs and text differ on the candidate.*
+
 See [health](examples/health.json), [units](examples/units.json), [start request](examples/start.request.json), [start response](examples/start.response.json), [answer request](examples/answer.request.json), [answer response](examples/answer.response.json), [completion](examples/complete.response.json), [sessions](examples/sessions.response.json), and [answer conflict](examples/error.answer_conflict.json).
 
 ## Persisted evidence

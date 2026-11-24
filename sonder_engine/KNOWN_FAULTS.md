@@ -19,7 +19,7 @@ Each entry has these fields: what is wrong, what it affects, what the user sees,
 - **Evidence:** spec §1.1, §3.1, §3.6 (P1).
 - **Fix and owner:** the content fix is done (Harris). What remains is to delete the three `skip_items` entries from `sonder_pack/maths_v2_units.json` and re-pin the U6 tests (Ahmed, owner of D-2 and the unit table).
 - **Decision:** D-2. Excluded at load time with a warning; to be revisited now that the content has changed.
-- **Backed by:** `SKIPPED_ITEM` warning (three, on every load). `tests/test_engine_pack.py`: unit counts; removing the skip at the default `guess` is refused under V11; removing it with `guess = 0.24` restores the 17-item U6.
+- **Backed by:** `SKIPPED_ITEM` warning (three, on every load). `tests/test_engine_pack.py`: unit counts; removing the skip now loads a 21-item U6 with MATH-1416 at the default `guess` and at 0.24.
 
 ## KF-02. MATH-1416 is not a U6 hypothesis (D-2 side effect)
 
