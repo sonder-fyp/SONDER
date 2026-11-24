@@ -77,7 +77,7 @@ def real_units():
         "U2": ({"T2 Fractions, decimals and percentage conversion"},
                t["T2 Fractions, decimals and percentage conversion"]),
         "U3": ({"T3 Percentage of an amount"},
-               t["T3 Percentage of an amount"] + ["MATH-1074", "MATH-2359"]),  # No U3 link to 1651.
+               t["T3 Percentage of an amount"] + ["MATH-1074", "MATH-1651", "MATH-2359"]),
         "U4": ({"T4 Choosing the operation", "T5 cross-concept (operation version)"},
                ["MATH-126", "MATH-228", "MATH-1416", "MATH-1514", "MATH-1773", "MATH-2093"]),
         "U5": ({"T5 Powers and roots"}, t["T5 Powers and roots"]),
@@ -403,7 +403,6 @@ class SpecWorkedExampleTests(unittest.TestCase):
 
     def test_d1_t1_rounding_choices_eigs_and_posteriors(self):
         hyps, items = load_unit({"T1 Rounding"}, ["MATH-1248", "MATH-1379", "MATH-1988", "MATH-2392"])
-        # T1-001 now wins the EIG tie with T1-005, preserving the posterior sequence.
         steps = replay(hyps, items, ["B", "B", "A", "B"])
         self.assertEqual([s[0] for s in steps], ["T1-001", "T1-006", "T1-005", "T1-007"])
         for (_, eig, _), expected in zip(steps, [0.7887, 0.6472, 0.2232, 0.5546]):
@@ -418,7 +417,6 @@ class SpecWorkedExampleTests(unittest.TestCase):
             {"T4 Choosing the operation", "T5 cross-concept (operation version)"},
             ["MATH-126", "MATH-228", "MATH-1416", "MATH-1514", "MATH-1773", "MATH-2093"],
         )
-        # T4-011 C now distinguishes MATH-1514 from MATH-1773 at the second step.
         steps = replay(hyps, items, ["D", "C"])
         self.assertEqual([s[0] for s in steps], ["T4-001", "T4-011"])
         for (_, eig, _), expected in zip(steps, [0.7517, 0.5489]):
@@ -436,7 +434,7 @@ class IndependentRealBankChecks(unittest.TestCase):
 
     def test_the_five_units_cover_eighty_nine_items(self):
         self.assertEqual({n: len(items) for n, (_, items) in self.units.items()},
-                         {"U1": 20, "U2": 25, "U3": 10, "U4": 21, "U5": 13})  # PR #92 adds five in U4 and three in U5.
+                         {"U1": 20, "U2": 25, "U3": 10, "U4": 21, "U5": 13})
 
     def test_eig_matches_exact_arithmetic_for_every_item_at_the_prior_and_after_every_answer(self):
         params = Params()
@@ -457,7 +455,7 @@ class IndependentRealBankChecks(unittest.TestCase):
                         np.array([float(x) for x in post]), likelihood_matrix(item, hyps, params))
                     self.assertAlmostEqual(actual, expected, places=11, msg=f"{name} {item.item_id}")
                     checked += 1
-        self.assertEqual(checked, 89 * 5)  # Eight new U4/U5 items, five posteriors each.
+        self.assertEqual(checked, 89 * 5)
 
     def test_choice_and_full_ranking_match_a_brute_force_reference_on_random_posteriors(self):
         params = Params()
