@@ -20,7 +20,7 @@ from pathlib import Path
 
 import numpy as np
 
-from experiments.adverse_baseline import cases, write_baseline
+from experiments.adverse_baseline import DEFAULT_OUT, _command, cases, write_baseline
 from experiments.content import canonical_source_sha256, lf_sha256
 from experiments.harness import item_rng, predicted_label, result_row, run_session, RESULT_FIELDS
 from experiments.policies import (
@@ -323,6 +323,16 @@ class AdverseBaselineCommandTests(unittest.TestCase):
         self.assertEqual(manifest["seeds"]["reserved_for_protocol"],
                          {"tuning": [1000, 1999], "held_out": [2000, 2999]})
         self.assertIn("not diagnostic accuracy", manifest["note"])
+
+    def test_manifest_command_names_a_non_default_output_folder(self):
+        # A run frozen next to an older one must say where it was written, or its
+        # recorded command would point at (and overwrite) the default folder.
+        manifest = json.loads((self.first / "manifest.json").read_text(encoding="utf-8"))
+        self.assertTrue(manifest["command"].startswith(
+            "python -m experiments.adverse_baseline --runs 2 --intermittent-runs 1 --out "))
+        self.assertTrue(manifest["command"].endswith("first"))
+        self.assertEqual(_command(200, 100, DEFAULT_OUT),
+                         "python -m experiments.adverse_baseline --runs 200 --intermittent-runs 100")
 
     def test_seed_counts_are_bounded_below_the_reserved_ranges(self):
         for runs, intermittent_runs in ((0, 1), (1, 0), (1001, 1), (1, 1001), (True, 1)):
