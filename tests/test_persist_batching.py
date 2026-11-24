@@ -66,7 +66,7 @@ class BatchingTests(DatabaseTestCase):
         actor = self.students[0]
         value = self.begin(actor)
         sid = value['session_id']
-        for option in 'DBBA':
+        for option in 'BBAB':  # D1 opens on T1-001 after the link changes.
             value, accepted = self.store.submit(sid, actor, self.request(value, option))
             self.assertTrue(accepted)
         self.assertEqual(value['status'], 'complete')
