@@ -15,10 +15,10 @@ Computed from `bank/items.csv` (133 items, 532 option rows) and `topics.csv` (27
 | Rounds up instead of down (MATH-1988) | T1 Rounding | 5 | 9 | 9 | 9 |
 | Rounds to the wrong degree of accuracy (rounds too much) (MATH-2392) | T1 Rounding | 5 | 20 | 20 | 20 |
 | Multiplies by 10 instead of 100 when converting decimal to percentage (MATH-61) | T2 Fractions, decimals and percentage conversion | 5 | 10 | 10 | 10 |
-| Thinks they double the numerator to turn a fraction into a percentage (MATH-658) | T2 Fractions, decimals and percentage conversion | 6 | 15 | 9 | 15 |
-| Converts a fraction to a decimal by using only the numerator after the decimal point (MATH-1715) | T2 Fractions, decimals and percentage conversion | 3 | 15 | 9 | 15 |
+| Thinks they double the numerator to turn a fraction into a percentage (MATH-658) | T2 Fractions, decimals and percentage conversion | 6 | 15 | 15 | 15 |
+| Converts a fraction to a decimal by using only the numerator after the decimal point (MATH-1715) | T2 Fractions, decimals and percentage conversion | 3 | 15 | 15 | 15 |
 | Thinks you need to just add a % sign to a decimal to convert to a percentage (MATH-1965) | T2 Fractions, decimals and percentage conversion | 5 | 10 | 10 | 10 |
-| Thinks you need to just add a % sign to a number to make it a percentage (MATH-2039) | T2 Fractions, decimals and percentage conversion | 6 | 25 | 19 | 25 |
+| Thinks you need to just add a % sign to a number to make it a percentage (MATH-2039) | T2 Fractions, decimals and percentage conversion | 6 | 25 | 25 | 25 |
 | Does not understand a percentage can be applied to something not out of 100 (MATH-2138) | T3 Percentage of an amount | 4 | 8 | 8 | 8 |
 | Added the values together instead of finding the percentage (MATH-2206) | T3 Percentage of an amount | 4 | 10 | 10 | 10 |
 | Multiplies rather than adds when given the command word 'more' (MATH-126) | T4 Choosing the operation (worded problems) | 7 | 7 | 7 | 7 |
@@ -41,12 +41,12 @@ Computed from `bank/items.csv` (133 items, 532 option rows) and `topics.csv` (27
 The earlier goal was 5 targeting questions per misconception. Below 5 now: Converts a fraction to a decimal by using only the numerator after the decimal point (MATH-1715) 3, Does not understand a percentage can be applied to something not out of 100 (MATH-2138) 4, Added the values together instead of finding the percentage (MATH-2206) 4, Divides rather than subtracts when given the command 'less than' (MATH-228) 3, Adds rather than subtracts when answering worded problems (MATH-1773) 2, Divides by the order of the root (MATH-414) 4, Adds the index to the number (MATH-952) 4, Thinks there are 10 minutes in an hour (MATH-767) 4, Multiplies rather than divides (MATH-1074) 4, Multiplies when converting to a larger unit (MATH-1651) 2. Across the whole bank every misconception is linked in at least 5 independent groups. **The engine does not count across the bank, it counts within a unit**, so see the per-unit table below for what one session can use.
 
 ## Per-unit trigger groups (what a session can use)
-Independent groups (twins counted once) on which the misconception links at least one option, **within the unit** where it is a hypothesis. Computed on 24 November 2026 from `bank/items.csv` with `sonder_engine.pack.trigger_groups` and the current unit table (`sonder_pack/maths_v2_units.json`). The loader's minimum is 3. Counts of 3 or 4 are in bold.
+Independent groups (twins counted once) on which the misconception links at least one option, **within the unit** where it is a hypothesis. Computed on 24 November 2026 (after the T2 stem change, see the MANIFEST approval log) from `bank/items.csv` with `sonder_engine.pack.trigger_groups` and the current unit table (`sonder_pack/maths_v2_units.json`). The loader's minimum is 3. Counts of 3 or 4 are in bold.
 
 | Unit | Items | Trigger groups per misconception |
 |---|---|---|
 | U1 Rounding | 20 | 1248: 20, 1379: 11, 1988: 9, 2392: 20 |
-| U2 Conversion | 25 | 61: 10, 658: 9, 1715: 5, 1965: 10, 2039: 19 |
+| U2 Conversion | 25 | 61: 10, 658: 15, 1715: 11, 1965: 10, 2039: 25 |
 | U3 Percentage of an amount | 10 | 2138: 7, 2206: 9, 2359: 6, **1074: 3** |
 | U4 Choosing the operation | 21 | 126: 6, 228: 12, 1416: 6, 1514: 15, 1773: 13, **2093: 4** |
 | U5 Powers and roots | 13 | 414: 11, 952: 10, 1072: 11 |
