@@ -61,8 +61,9 @@ class NoAiTests(unittest.TestCase):
         self.assertEqual([d.split(">")[0].split("=")[0].strip() for d in project["dependencies"]], ["numpy"])
 
     def test_the_same_answers_give_the_same_trace_from_a_fresh_load(self):
-        first = trace_to_dict(trace_of(replay(load_maths_v2().unit("U3"), Params(), ["A", "B", "C"])))
-        second = trace_to_dict(trace_of(replay(load_maths_v2().unit("U3"), Params(), ["A", "B", "C"])))
+        # The revised U3 links diagnose this student after two answers.
+        first = trace_to_dict(trace_of(replay(load_maths_v2().unit("U3"), Params(), ["A", "B"])))
+        second = trace_to_dict(trace_of(replay(load_maths_v2().unit("U3"), Params(), ["A", "B"])))
         self.assertEqual(first, second)
 
     def test_the_session_accepts_only_option_ids(self):

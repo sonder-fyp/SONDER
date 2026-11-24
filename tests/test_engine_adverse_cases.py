@@ -46,9 +46,10 @@ RNG = np.random.default_rng(0)  # never used by deterministic policies
 # files (line-ending independent), so they agree on Windows and Linux checkouts.
 PINNED_CONTENT = {
     "content_version": "Maths_v2",
-    # Maths_v2 candidate of 20 Nov 2026 (133 items, 27 misconceptions; PR #92). The
-    # 117-item bank of the first baseline was items.csv 502895a9..., topics.csv f1a4dfe8...
-    "bank/items.csv": "b168a66441d33efbf3f1fd3797d96132b62c60c4fe38c222ed96b9fb6538ff73",
+    # Maths_v2 candidate of 24 Nov 2026 (133 items, 27 misconceptions; distinct stems for
+    # T2-005..T2-010 and T2-019; PR #92). Earlier: the 20 Nov candidate b168a664..., and the
+    # 117-item bank of the first baseline, items.csv 502895a9..., topics.csv f1a4dfe8...
+    "bank/items.csv": "1124496b37e17f4042ca681bd4931aa2a6ca4158a79ce184d25b13aa14cd9858",
     "topics.csv": "ebe0571bd3578926cf79d4715a1148ed4a3e4fb494c3a4d082a64048cb1420b0",
     "maths_v2_units.json": "4e7102a34cc195801faae6b6b416e3ad64c443e3ae7e8ee6d99819da628fef21",
 }

@@ -1,5 +1,7 @@
 # Link-soundness audit of all Maths batches (2026-10-09)
 
+> **HISTORICAL: this is the audit as it stood on 9 October 2026, on the 117-item bank. It is not the current state.** Since then the five FORCED links were fixed (10 October), many STRETCH links were reworked or unlinked by explicit decision, MATH-734 was removed, and the bank grew to 133 items. Statements below such as "the bank (117 items) is untouched", the inseparable pairs and the STRETCH counts are therefore out of date. For the current state see `MANIFEST.md` (approval log and known limitations) and `coverage.md`.
+
 Six independent auditor agents rated every LINKED wrong option SOUND / STRETCH / FORCED. These are agent ratings, not the owner's decisions.
 B11, B12, B14 were audited earlier (see mapping_audit_B11_B12_B14.txt). Per-batch reports: linkaudit_*.txt in this folder.
 

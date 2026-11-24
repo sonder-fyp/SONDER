@@ -99,3 +99,20 @@ The evidence of one session, for its class teacher. Contents:
 | A8 | Double start makes one attempt; Resume returns the same session | A17, A19 |
 | A9 | History lists only the student's own attempts with correct attempt numbers; no forbidden fields | A18, A19 |
 | A10 | Loading, empty and error states exist on every new screen | all |
+
+## 9. Screens from the real build
+
+Taken on 24 November 2026 from the running app (`dev` at `7ff9978` plus the evidence headline fix of #96), against the Neon development branch with migrations 0001–0013, release `Maths_v2-U1-dev/spec-v2-prior` and the test teacher and student accounts. A scripted browser walked the whole path: the teacher created a class and a single-attempt U1 assignment; the student joined, answered D, B, B, A (worked example D1 of the content this release pins); the teacher opened the evidence and recorded a review. The class was archived afterwards. On every student page the walk checked that no `MATH-` code, probability or review text appears. The flow these screens follow is drawn in [I2_PRODUCT_FLOW.md](I2_PRODUCT_FLOW.md).
+
+| Screen | Shows | Requirement |
+| --- | --- | --- |
+| [Teacher class page](i2-screens/01-teacher-class-with-assignment.png) | Join code, roster, the new assignment and the assign form | Class contract; §3 |
+| [Student dashboard: Start](i2-screens/02-student-dashboard-start.png) | The assignment with **Start**, "One attempt · Not started" | §6 (A7) |
+| [Question](i2-screens/03-student-question.png) | One question at a time, answers saved, no score | §2 |
+| [Check submitted](i2-screens/04-student-check-submitted.png) | Neutral completion, no result | §2, §6 |
+| [Student history](i2-screens/05-student-history.png) | Attempt 1, submitted, no diagnosis | §7 (A9) |
+| [Teacher home queue](i2-screens/06-teacher-home-queue.png) | "Needs review (1)" with a link to the evidence | §5, teacher queue |
+| [Class dashboard](i2-screens/07-teacher-class-dashboard.png) | Defined counts and the activity table from the same rows | §3 (A1) |
+| [Evidence](i2-screens/08-teacher-evidence.png) | Outcome in plain words, hypotheses and priors, each question with its options, links, choice, reason and probabilities, the confidence sentence, release and parameter hash | §4 (A3, A4) |
+| [Evidence with a review](i2-screens/09-teacher-evidence-with-review.png) | Status "Follow-up required", revision 1 with the teacher's note, "Reviewed is not approval for release" | §5 (A5, A6) |
+| [Student dashboard: Done](i2-screens/10-student-dashboard-done.png) | The single-attempt assignment as **Done**; no review status or note | §2, §6 (A6, A7) |

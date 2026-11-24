@@ -36,7 +36,7 @@ class ReviewTestCase(ProductDatabaseTestCase):
 
     def session(self, finish=True):
         value = self.store.create(self.student, StartRequest(unit_id="U1", create_request_id=str(uuid4())))
-        for option in ("DBBA" if finish else "D"):
+        for option in ("BBAB" if finish else "D"):  # D1 opens on T1-001 after the link changes.
             q = value["question"]
             value, _ = self.store.submit(value["session_id"], self.student, AnswerRequest(
                 step_index=q["step_index"], item_id=q["item_id"], option_id=option))

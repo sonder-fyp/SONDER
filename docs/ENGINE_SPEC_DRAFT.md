@@ -233,6 +233,22 @@ U6 hypotheses (1074, 161, 767, 1651, 2359, NONE, UNM); MATH-1416 is dropped unde
 
 The items that separate 2359 from NONE, or their twins, have now been asked, so `C = {2359, NONE}` has identical rows on every remaining U6 item. `p(C) = .8150 ≥ .80`, `ρ = p(2359)/p(C) = .7967 < .80` and support 3 → refusal naming both. Enumerating every answer sequence of every unit on the candidate (24 November 2026) finds R4 refusals only of this kind: after the few separating items of a pair have been used (KF-08), never because a pair cannot be separated at all, and always with identical rows (`ρ` equals `p(ℓ)/p(C)`).
 
+### D4. U4: a refusal that remains → `escalated_no_separator`
+U4 hypotheses (126, 228, 1416, 1514, 1773, 2093, NONE, UNM). Scripted answers:
+
+| Step | Item, EIG | Answer | Posterior (126, 228, 1416, 1514, 1773, 2093, NONE, UNM) |
+|---|---|---|---|
+| 0 | T4-001, 0.7517 | D `Rs 28` → 1514, 1773 | .0181, .0542, .0542, .3794, .3794, .0181, .0387, .0581 |
+| 1 | T4-011, 0.5489 | B `35` (unlinked) | .0085, .0254, .0254, .5328, .1776, .0085, .0181, .2039 |
+| 2 | T4-012, 0.4674 | C `55` (correct) | .0223, .0669, .0669, .1561, .4683, .0223, .0478, .1493 |
+| 3 | T5-013, 0.4354 | B `36` → 1514, 1773 | .0015, .0138, .0046, .2246, .6739, .0015, .0033, .0768 |
+
+T4-011 and T4-012 are the only U4 items that separate 1514 from 1773 (KF-08) and both were answered
+without the separating option, so `C = {1514, 1773}` has identical rows on every remaining item.
+`p(C) = .8985 ≥ .80`, `ρ = p(1773)/p(C) = .75 < .80`, support 2 → refusal naming both. It is the
+tests' refusal example (`test_engine_session.py`, `test_engine_trace.py`, `test_engine_api.py`)
+because U4 does not depend on the U6 unit-table decision D-2, while D3 does.
+
 ---
 
 ## 6. Measured behaviour (synthetic students, default parameters)

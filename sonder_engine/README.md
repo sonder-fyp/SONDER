@@ -34,7 +34,7 @@ An unlinked item still has positive EIG while `UNMODELLED` has probability mass,
 **Evidence.** `tests/test_selection.py` also checks twin exclusion and that `params.delta_sep` controls the reason. Its exact tie-order test was already present before the v2 alignment:
 
 - hand-derived entropy and EIG values, and an independent route through `update_posterior`;
-- exact-fraction checks of EIG for all 81 items of units U1 to U5 at the prior and after each possible first answer (405 values, 60-digit decimal logarithms);
+- exact-fraction checks of EIG for all 89 items of units U1 to U5 at the prior and after each possible first answer (445 values, 60-digit decimal logarithms);
 - 300 random posteriors where the whole ranking is compared with a brute-force reference that shares no code with the module;
 - bounds on EIG, shuffled pack order, and scripted sessions for every misconception in U1 to U5 (deterministic, no repeated item, valid trace);
 - a replay of the spec's worked examples D1 (T1 Rounding) and D2 (operation unit), where every item choice, EIG and posterior matches the spec tables to four decimals.

@@ -9,16 +9,17 @@ Everything here is a **synthetic student under assumed parameters**. It records 
 
 ```powershell
 python -m pip install -e .
-# current record, Maths_v2 candidate of 20 November 2026 (about 2.5 minutes; 5,549 runs)
-python -m experiments.adverse_baseline --runs 200 --intermittent-runs 100 --out experiments/results/adverse-baseline-candidate-2026-11-20
+# current record, Maths_v2 candidate of 24 November 2026 (about 2.5 minutes; 5,549 runs)
+python -m experiments.adverse_baseline --runs 200 --intermittent-runs 100 --out experiments/results/adverse-baseline-candidate-2026-11-24
 python -m unittest discover -s tests -p "test_engine_adverse_cases.py" -v
 ```
 
-Two frozen runs are kept, one per content version; neither is overwritten:
+Three frozen runs are kept, one per content version; none is overwritten:
 
 | Folder | Content | Runs |
 | --- | --- | --- |
-| `experiments/results/adverse-baseline-candidate-2026-11-20/` | Maths_v2 candidate, 133 items, 27 misconceptions (Harris, PR #92). **Current record.** | 5,549 |
+| `experiments/results/adverse-baseline-candidate-2026-11-24/` | Maths_v2 candidate of 24 November 2026: as below, with distinct stems for the seven T2 conversion checks (Harris, PR #92). **Current record.** | 5,549 |
+| `experiments/results/adverse-baseline-candidate-2026-11-20/` | Maths_v2 candidate of 20 November 2026, 133 items, 27 misconceptions. Kept for comparison. | 5,549 |
 | `experiments/results/adverse-baseline/` | Maths_v2 as of 12 October 2026, 117 items, 28 misconceptions. First baseline, kept for comparison; it can only be regenerated from a checkout of that content. | 5,551 |
 
 Each folder holds:
@@ -33,14 +34,14 @@ The same command produces byte-identical `runs.csv` and `summary.csv` (checked b
 
 ## Versions of the frozen runs
 
-| | Candidate rerun (current) | First baseline |
-| --- | --- | --- |
-| Generating commit | `03e9ef2016b600f6de7402651cccb34d4bf6b8ce` (no tracked changes). A second run produced byte-identical `runs.csv` and `summary.csv`. | `21265e658e677ea48e270b3ba5fd357ef265176d` (no tracked changes). The first generation at `1a16df0` produced byte-identical files. |
-| Engine | `0.1.0` | `0.1.0` |
-| Content | `Maths_v2` candidate: `items.csv` `b168a664…ff73`, `topics.csv` `ebe0571b…20b0`, unit table `4e7102a3…ef21` | `Maths_v2`: `items.csv` `502895a9…9cd4`, `topics.csv` `f1a4dfe8…044d`, unit table `4e7102a3…ef21` |
-| Parameters | defaults, the same in both: slip 0.10, guess 0.30, prior NONE 0.25, prior UNMODELLED 0.05, θ 0.80, θ_U 0.50, min_support 2, min_support_none 3, δ 0.05, EIG floor 0.01, budget 8, link weights 1.0 / 0.5 | same |
-| Python / NumPy | 3.14.0 / 2.4.4 | 3.14.0 / 2.4.4 |
-| Seeds | 0–199 (slip and random students), 0–99 (intermittent), 0 (deterministic cases) | same |
+| | Candidate, 24 Nov (current) | Candidate, 20 Nov | First baseline |
+| --- | --- | --- | --- |
+| Generating commit | `2e05db7` (Harris's commit; no tracked changes) | `03e9ef2016b600f6de7402651cccb34d4bf6b8ce` (no tracked changes). A second run produced byte-identical `runs.csv` and `summary.csv`. | `21265e658e677ea48e270b3ba5fd357ef265176d` (no tracked changes). The first generation at `1a16df0` produced byte-identical files. |
+| Engine | `0.1.0` | `0.1.0` | `0.1.0` |
+| Content | `items.csv` `1124496b…9858`, `topics.csv` `ebe0571b…20b0`, unit table `4e7102a3…ef21` | `items.csv` `b168a664…ff73`, `topics.csv` `ebe0571b…20b0`, unit table `4e7102a3…ef21` | `items.csv` `502895a9…9cd4`, `topics.csv` `f1a4dfe8…044d`, unit table `4e7102a3…ef21` |
+| Parameters | defaults, the same in all three: slip 0.10, guess 0.30, prior NONE 0.25, prior UNMODELLED 0.05, θ 0.80, θ_U 0.50, min_support 2, min_support_none 3, δ 0.05, EIG floor 0.01, budget 8, link weights 1.0 / 0.5 | same | same |
+| Python / NumPy | 3.14.0 / 2.4.4 | 3.14.0 / 2.4.4 | 3.14.0 / 2.4.4 |
+| Seeds | 0–199 (slip and random students), 0–99 (intermittent), 0 (deterministic cases) | same | same |
 
 Full hashes are in each `manifest.json`. Seeds 1000–1999 and 2000–2999 are reserved for the evaluation protocol's tuning and held-out runs, so neither baseline can leak into them. The only code change between the two runs is that the manifest's `command` now names a non-default `--out`.
 
@@ -59,9 +60,17 @@ Full hashes are in each `manifest.json`. Seeds 1000–1999 and 2000–2999 are r
 
 The generation slip (0.08) deliberately differs from the engine's assumed slip (0.10): the engine is not evaluated only on students built from its own assumptions.
 
+## Change on 24 November 2026: distinct stems for the T2 conversion checks
+
+Harris gave T2-005 to T2-010 and T2-019, which shared the stem "Which of these conversions is correct?", distinct stems. Options, links, targets and correct letters are unchanged. The seven items were one twin group, of which a session could ask only one; they are now seven independent items (U2: 25 groups instead of 19). Run by run against the 20 November record, with the same seeds:
+
+- **Only U2 changed.** 1,010 of 5,549 runs asked different items, all in U2 (706 intermittent, 189 no-misconception, 113 random, 2 deterministic). 220 of them ended differently (151 intermittent, 67 random, 2 no-misconception). No run in U1 or U3–U7 changed.
+- **No pooled figure changed:** random answering is labelled 626 / 1,400, no-misconception students are recognised 1,355 / 1,400 and wrongly labelled 12, always-A is labelled in the same six units after the same number of answers, and the partial MATH-2039 holder is still labelled MATH-1965 after T2-005 A, T2-001 C, T2-002 C. The two U2 deterministic students that took another path reach the same outcomes.
+- **U2 intermittent holders** move within noise: correct labels 280 / 380 / 470 of 500 at apply rates 0.5 / 0.7 / 0.9 (272 / 387 / 472 before). MATH-2039 holders labelled MATH-1965: **21, 17 and 4** of 100 (22, 16 and 4 before). KF-07 is unchanged.
+
 ## Outcomes on the Maths_v2 candidate (current record)
 
-Counts are from `adverse-baseline-candidate-2026-11-20/runs.csv`. With 200 runs per unit, a share near 50% has a 95% interval of roughly ±7 percentage points.
+Counts are from `adverse-baseline-candidate-2026-11-24/runs.csv`; where they differ from the 20 November run, it is only in U2, as listed above. With 200 runs per unit, a share near 50% has a 95% interval of roughly ±7 percentage points.
 
 | Case | Candidate | First baseline | What changed |
 | --- | --- | --- | --- |
@@ -71,7 +80,7 @@ Counts are from `adverse-baseline-candidate-2026-11-20/runs.csv`. With 200 runs 
 | Random answering, labelled | **626 / 1,400 (44.7%)** | 531 / 1,400 (37.9%) | **Worse.** See below. |
 | No misconception, none detected | 1,355 / 1,400 (96.8%) | 1,315 (93.9%) | Fewer refusals and exhaustions (33, from 71). |
 | No misconception, wrongly labelled | 12 (0.9%) | 14 (1.0%) | About the same. |
-| Intermittent MATH-2039 holders labelled MATH-1965 | 22, 16, 4 of 100 at rates 0.5, 0.7, 0.9 | 22, 17, 4 | **Not fixed** (KF-07). |
+| Intermittent MATH-2039 holders labelled MATH-1965 | 21, 17, 4 of 100 at rates 0.5, 0.7, 0.9 | 22, 17, 4 | **Not fixed** (KF-07). |
 
 **Why random answering is labelled more often.** The candidate has fewer linked wrong options (296 of 399, 74.2%, against 286 of 351, 81.5%), but its separating items remove the ties in which random sessions used to end: refusals with no separator fall from 123 to 19 of the 1,400 random sessions. A session that would have been refused now continues and, after more linked answers, is labelled. The new labels go to the hypotheses that the new items separate (U4: MATH-1514 25 and MATH-1773 14; U6: MATH-1074 29). The content change therefore makes the supervisor's adverse case (item 2) worse at the default `min_support = 2`. I2-A04 measured on the first content that `min_support = 3` roughly halves random-answer labels; the tuning rerun on this candidate (I2-A05) measures it again.
 
@@ -92,7 +101,7 @@ Counts are from `adverse-baseline-candidate-2026-11-20/runs.csv`. With 200 runs 
 | Unit | Labelled with a misconception | None detected | Refused or exhausted | Most frequent labels |
 | --- | --- | --- | --- | --- |
 | U1 | 99 / 200 (49.5%) | 17 (8.5%) | 84 (42.0%) | MATH-1248 41, MATH-2392 35 |
-| U2 | 98 / 200 (49.0%) | 8 (4.0%) | 94 (47.0%) | MATH-2039 35, MATH-658 22 |
+| U2 | 98 / 200 (49.0%) | 4 (2.0%) | 98 (49.0%) | MATH-2039 32, MATH-658 24 |
 | U3 | 72 / 200 (36.0%) | 18 (9.0%) | 110 (55.0%) | MATH-2206 37, MATH-2359 22 |
 | U4 | 78 / 200 (39.0%) | 10 (5.0%) | 112 (56.0%) | MATH-1514 25, MATH-228 21 |
 | U5 | 96 / 200 (48.0%) | 15 (7.5%) | 89 (44.5%) | MATH-1072 51, MATH-952 23 |
@@ -122,11 +131,11 @@ U7 is the exception: 16 of its 19 are exhaustions (4 before), so a U7 student wi
 | U1, 0.5 | 216 / 400 (54.0%) | 1 (0.2%) | 164 (41.0%) | 19 (4.8%) |
 | U1, 0.7 | 339 / 400 (84.8%) | 0 | 56 (14.0%) | 5 (1.2%) |
 | U1, 0.9 | 390 / 400 (97.5%) | 0 | 10 (2.5%) | 0 |
-| U2, 0.5 | 272 / 500 (54.4%) | 22 (4.4%) | 191 (38.2%) | 15 (3.0%) |
-| U2, 0.7 | 387 / 500 (77.4%) | 16 (3.2%) | 94 (18.8%) | 3 (0.6%) |
-| U2, 0.9 | 472 / 500 (94.4%) | 4 (0.8%) | 24 (4.8%) | 0 |
+| U2, 0.5 | 280 / 500 (56.0%) | 21 (4.2%) | 187 (37.4%) | 12 (2.4%) |
+| U2, 0.7 | 380 / 500 (76.0%) | 17 (3.4%) | 97 (19.4%) | 6 (1.2%) |
+| U2, 0.9 | 470 / 500 (94.0%) | 4 (0.8%) | 24 (4.8%) | 2 (0.4%) |
 
-Every U2 wrong label is a MATH-2039 holder labelled MATH-1965. U1 has one wrong label, a MATH-1379 holder at rate 0.5 labelled MATH-2392 (none before). At rate 0.5, 24–56% of holders end as none detected, depending on the misconception (KF-12).
+Every U2 wrong label is a MATH-2039 holder labelled MATH-1965. U1 has one wrong label, a MATH-1379 holder at rate 0.5 labelled MATH-2392 (none before). At rate 0.5, 18–56% of holders end as none detected, depending on the misconception (KF-12).
 
 ## First baseline outcomes (117-item bank, kept for comparison)
 

@@ -19,7 +19,7 @@ Each entry has these fields: what is wrong, what it affects, what the user sees,
 - **Evidence:** spec §1.1, §3.1, §3.6 (P1).
 - **Fix and owner:** the content fix is done (Harris). What remains is to delete the three `skip_items` entries from `sonder_pack/maths_v2_units.json` and re-pin the U6 tests (Ahmed, owner of D-2 and the unit table).
 - **Decision:** D-2. Excluded at load time with a warning; to be revisited now that the content has changed.
-- **Backed by:** `SKIPPED_ITEM` warning (three, on every load). `tests/test_engine_pack.py`: unit counts; removing the skip at the default `guess` is refused under V11; removing it with `guess = 0.24` restores the 17-item U6.
+- **Backed by:** `SKIPPED_ITEM` warning (three, on every load). `tests/test_engine_pack.py`: unit counts; removing the skip now loads a 21-item U6 with MATH-1416 at the default `guess` and at 0.24.
 
 ## KF-02. MATH-1416 is not a U6 hypothesis (D-2 side effect)
 
@@ -78,7 +78,7 @@ Each entry has these fields: what is wrong, what it affects, what the user sees,
 
 - **What is wrong:** every option linked to MATH-1965 is also linked to MATH-2039. The two are told apart only through correct answers, on the items where 2039 is linked and 1965 is not.
 - **Affects:** U2.
-- **What the user sees:** a 2039 holder who answers the 2039-only items correctly is diagnosed MATH-1965, a wrong diagnosis. A deterministic student of this kind is diagnosed 1965 after 3 answers (T2-005 A, T2-001 C, T2-002 C), on the candidate as before. The spec measured 3.7% wrong diagnoses for noisy U2 students, 29 of 33 of them this case; the seeded adverse baseline on the candidate labels 22, 16 and 4 of 100 intermittent 2039 holders MATH-1965 at apply rates 0.5, 0.7 and 0.9 (22, 17 and 4 before). The candidate content does not change this fault.
+- **What the user sees:** a 2039 holder who answers the 2039-only items correctly is diagnosed MATH-1965, a wrong diagnosis. A deterministic student of this kind is diagnosed 1965 after 3 answers (T2-005 A, T2-001 C, T2-002 C), on the candidate as before. The spec measured 3.7% wrong diagnoses for noisy U2 students, 29 of 33 of them this case; the seeded adverse baseline on the 24 November candidate labels 21, 17 and 4 of 100 intermittent 2039 holders MATH-1965 at apply rates 0.5, 0.7 and 0.9 (22, 16 and 4 on the 20 November candidate; 22, 17 and 4 on the 117-item bank). Giving the seven T2 conversion checks distinct stems (24 November) does not change this fault.
 - **Evidence:** spec §1.4, §6.3; the deterministic case above.
 - **Fix and owner:** redefine MATH-1965 so it has an option that 2039 does not take, or merge the two (spec D-1), Harris, with team approval.
 - **Decision:** D-1.

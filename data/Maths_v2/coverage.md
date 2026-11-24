@@ -15,10 +15,10 @@ Computed from `bank/items.csv` (133 items, 532 option rows) and `topics.csv` (27
 | Rounds up instead of down (MATH-1988) | T1 Rounding | 5 | 9 | 9 | 9 |
 | Rounds to the wrong degree of accuracy (rounds too much) (MATH-2392) | T1 Rounding | 5 | 20 | 20 | 20 |
 | Multiplies by 10 instead of 100 when converting decimal to percentage (MATH-61) | T2 Fractions, decimals and percentage conversion | 5 | 10 | 10 | 10 |
-| Thinks they double the numerator to turn a fraction into a percentage (MATH-658) | T2 Fractions, decimals and percentage conversion | 6 | 15 | 9 | 15 |
-| Converts a fraction to a decimal by using only the numerator after the decimal point (MATH-1715) | T2 Fractions, decimals and percentage conversion | 3 | 15 | 9 | 15 |
+| Thinks they double the numerator to turn a fraction into a percentage (MATH-658) | T2 Fractions, decimals and percentage conversion | 6 | 15 | 15 | 15 |
+| Converts a fraction to a decimal by using only the numerator after the decimal point (MATH-1715) | T2 Fractions, decimals and percentage conversion | 3 | 15 | 15 | 15 |
 | Thinks you need to just add a % sign to a decimal to convert to a percentage (MATH-1965) | T2 Fractions, decimals and percentage conversion | 5 | 10 | 10 | 10 |
-| Thinks you need to just add a % sign to a number to make it a percentage (MATH-2039) | T2 Fractions, decimals and percentage conversion | 6 | 25 | 19 | 25 |
+| Thinks you need to just add a % sign to a number to make it a percentage (MATH-2039) | T2 Fractions, decimals and percentage conversion | 6 | 25 | 25 | 25 |
 | Does not understand a percentage can be applied to something not out of 100 (MATH-2138) | T3 Percentage of an amount | 4 | 8 | 8 | 8 |
 | Added the values together instead of finding the percentage (MATH-2206) | T3 Percentage of an amount | 4 | 10 | 10 | 10 |
 | Multiplies rather than adds when given the command word 'more' (MATH-126) | T4 Choosing the operation (worded problems) | 7 | 7 | 7 | 7 |
@@ -38,17 +38,34 @@ Computed from `bank/items.csv` (133 items, 532 option rows) and `topics.csv` (27
 | When solving a problem that requires an inverse operation (e.g. missing number problems), does the original operation (MATH-2271) | T7 Negatives, inverse operations, fraction bar | 5 | 5 | 5 | 5 |
 | Believes division is commutative (MATH-2359) | T7 Negatives, inverse operations, fraction bar | 6 | 17 | 17 | 17 |
 
-The earlier goal was 5 targeting questions per misconception. Below 5 now: Converts a fraction to a decimal by using only the numerator after the decimal point (MATH-1715) 3, Does not understand a percentage can be applied to something not out of 100 (MATH-2138) 4, Added the values together instead of finding the percentage (MATH-2206) 4, Divides rather than subtracts when given the command 'less than' (MATH-228) 3, Adds rather than subtracts when answering worded problems (MATH-1773) 2, Divides by the order of the root (MATH-414) 4, Adds the index to the number (MATH-952) 4, Thinks there are 10 minutes in an hour (MATH-767) 4, Multiplies rather than divides (MATH-1074) 4, Multiplies when converting to a larger unit (MATH-1651) 2. Every misconception is linked in at least 5 independent groups, which is what the engine uses.
+The earlier goal was 5 targeting questions per misconception. Below 5 now: Converts a fraction to a decimal by using only the numerator after the decimal point (MATH-1715) 3, Does not understand a percentage can be applied to something not out of 100 (MATH-2138) 4, Added the values together instead of finding the percentage (MATH-2206) 4, Divides rather than subtracts when given the command 'less than' (MATH-228) 3, Adds rather than subtracts when answering worded problems (MATH-1773) 2, Divides by the order of the root (MATH-414) 4, Adds the index to the number (MATH-952) 4, Thinks there are 10 minutes in an hour (MATH-767) 4, Multiplies rather than divides (MATH-1074) 4, Multiplies when converting to a larger unit (MATH-1651) 2. Across the whole bank every misconception is linked in at least 5 independent groups. **The engine does not count across the bank, it counts within a unit**, so see the per-unit table below for what one session can use.
+
+## Per-unit trigger groups (what a session can use)
+Independent groups (twins counted once) on which the misconception links at least one option, **within the unit** where it is a hypothesis. Computed on 24 November 2026 (after the T2 stem change, see the MANIFEST approval log) from `bank/items.csv` with `sonder_engine.pack.trigger_groups` and the current unit table (`sonder_pack/maths_v2_units.json`). The loader's minimum is 3. Counts of 3 or 4 are in bold.
+
+| Unit | Items | Trigger groups per misconception |
+|---|---|---|
+| U1 Rounding | 20 | 1248: 20, 1379: 11, 1988: 9, 2392: 20 |
+| U2 Conversion | 25 | 61: 10, 658: 15, 1715: 11, 1965: 10, 2039: 25 |
+| U3 Percentage of an amount | 10 | 2138: 7, 2206: 9, 2359: 6, **1074: 3** |
+| U4 Choosing the operation | 21 | 126: 6, 228: 12, 1416: 6, 1514: 15, 1773: 13, **2093: 4** |
+| U5 Powers and roots | 13 | 414: 11, 952: 10, 1072: 11 |
+| U6 Time and unit conversion | 18 | 1074: 7, 161: 12, 767: 12, 1651: 5, **2359: 4** (MATH-1416 is not a hypothesis in U6: the unit table drops it) |
+| U7 Negatives, inverse operations, fraction bar | 20 | 2359: 7, 1639: 5, 2093: 6, 2271: 5, 1514: 5, **1715: 4**, **1773: 3** |
+
+Five unit hypotheses have only 3 or 4 trigger groups: U3 MATH-1074 (3), U4 MATH-2093 (4), U6 MATH-2359 (4), U7 MATH-1715 (4) and U7 MATH-1773 (3). They pass the loader's minimum of 3 but have the least evidence for a session. When describing coverage, quote these per-unit counts rather than the bank-wide ones.
 
 ## Misconception pairs
 - **MATH-1514 / MATH-1773** and **MATH-1651 / MATH-1074** always gave the same wrong answer. They are separated by two separating questions in each unit where both appear (B19 T4-011, T4-012 in U4; B21 T7-017 to T7-020 in U7; B20 T6-022, T6-023 in U6); MATH-1651 was unlinked on the five T3 percentage options and is no longer used in U3. The loader still reports them as weakly separable (it warns at four or fewer separating questions).
-- **MATH-1965** is only linked together with MATH-2039 (10 options) while MATH-2039 has 15 options of its own, so the pair is separable.
+- **MATH-1965** is only linked together with MATH-2039 (10 options) while MATH-2039 has 15 options of its own, so the pair is separable **structurally**. It is not reliably separable in practice (known fault KF-07, `sonder_engine/KNOWN_FAULTS.md`): the two are told apart only through correct answers on the 2039-only items, so a MATH-2039 holder who answers those items correctly is labelled MATH-1965. In the seeded adverse baseline on this content, 21, 17 and 4 of 100 intermittent 2039 holders were labelled MATH-1965 at apply rates 0.5, 0.7 and 0.9. Fix (redefine or merge, spec D-1) is open and needs team approval.
 - **MATH-734** was removed on 20 November 2026 (it could not be separated from MATH-414); `topics.csv` has 27 misconceptions.
 
 ## Known limitations (do not present as solved)
 - T4-001 to T4-005: the MATH-1416 option is a wrong first step followed by a correct second step (two-step design).
 - T2-020, T2-023, T2-024, T2-025 and the T2 conversion items keep the MATH-658 (doubling) and MATH-2039 (% sign) links as approved; T2-015 to T2-018 still have the mixed decimal/percentage format questioned.
 - Link grades (S/T) are not in this version (next iteration). 13 flagged options remain unresolved by decision: the eight T2 MATH-658/2039 links and the five T4 options.
+- MATH-1965 / MATH-2039: a 2039 holder who answers the 2039-only items correctly can still be mislabelled 1965 (KF-07, see Misconception pairs above).
+- Five unit hypotheses have only 3 or 4 trigger groups (see the per-unit table).
 - No external expert review has been done.
 
 ## Batches in the bank

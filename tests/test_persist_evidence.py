@@ -43,7 +43,7 @@ class EvidenceTests(DatabaseTestCase):
 
     def d1(self, actor):
         value = self.begin(actor)
-        for option in 'DBBA':
+        for option in 'BBAB':  # D1 opens on T1-001 after the link changes.
             value = self.submit(actor, value, option)
         return value
 
@@ -120,7 +120,7 @@ class EvidenceTests(DatabaseTestCase):
     def test_tampered_answer_makes_service_refuse(self):
         actor = self.students[16]
         value = self.begin(actor)
-        for option in 'DBB':
+        for option in 'BBA':  # On the revised D1 path, tampering with A changes the questions.
             value = self.submit(actor, value, option)
         with psycopg.connect(self.url) as conn:
             with conn.transaction():
@@ -151,7 +151,7 @@ class EvidenceCliTests(DatabaseTestCase):
         store = PostgresStore(self.url, self.label)
         self.addCleanup(store.close)
         value = store.create(actor, StartRequest(unit_id='U1', create_request_id=str(uuid4())))
-        for option in 'DBBA':
+        for option in 'BBAB':  # D1 opens on T1-001 after the link changes.
             q = value['question']
             value, _ = store.submit(value['session_id'], actor, AnswerRequest(step_index=q['step_index'], item_id=q['item_id'], option_id=option))
         return value
