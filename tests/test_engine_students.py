@@ -44,8 +44,7 @@ class DeterministicStudentTests(unittest.TestCase):
                         self.assertEqual(state.decision.tied, TIED[unit.unit_id])
                     counts[outcome] = counts.get(outcome, 0) + 1
                     longest = max(longest, len(state.steps))
-        self.assertEqual(counts, {"diagnosed": 26, "none_detected": 7,
-                                  "escalated_no_separator": 8, "escalated_exhausted": 2})
+        self.assertEqual(counts, {"diagnosed": 34, "none_detected": 7})
         self.assertLessEqual(longest, 5)  # spec 6.1: no deterministic student needs more than 5
 
 
@@ -56,15 +55,17 @@ class KnownFaultEvidenceTests(unittest.TestCase):
 
     def test_kf03_a_student_who_always_picks_a_is_often_diagnosed(self):
         # Spec 6.4. Decision D-3 keeps min_support at 2; at 3 the U4 case is no longer diagnosed.
+        # The 133-item candidate bank keeps every label; only U1 (5 -> 6) and U7 (3 -> 4, and
+        # 4 -> 5 at min_support 3) take one more answer.
         expected = {
-            2: {"U1": ("diagnosed", "MATH-2392", 5), "U2": ("diagnosed", "MATH-61", 4),
+            2: {"U1": ("diagnosed", "MATH-2392", 6), "U2": ("diagnosed", "MATH-61", 4),
                 "U3": ("escalated_exhausted", None, 8), "U4": ("diagnosed", "MATH-1416", 4),
                 "U5": ("diagnosed", "MATH-952", 4), "U6": ("diagnosed", "MATH-161", 2),
-                "U7": ("diagnosed", "MATH-2271", 3)},
-            3: {"U1": ("diagnosed", "MATH-2392", 5), "U2": ("diagnosed", "MATH-61", 5),
+                "U7": ("diagnosed", "MATH-2271", 4)},
+            3: {"U1": ("diagnosed", "MATH-2392", 6), "U2": ("diagnosed", "MATH-61", 5),
                 "U3": ("escalated_exhausted", None, 8), "U4": ("escalated_exhausted", None, 8),
                 "U5": ("diagnosed", "MATH-952", 4), "U6": ("diagnosed", "MATH-161", 3),
-                "U7": ("diagnosed", "MATH-2271", 4)},
+                "U7": ("diagnosed", "MATH-2271", 5)},
         }
         for min_support, table in expected.items():
             params = Params(min_support=min_support)
@@ -96,20 +97,22 @@ class KnownFaultEvidenceTests(unittest.TestCase):
         for student in ("NONE", "MATH-1416"):
             with self.subTest(student=student):
                 state = run_student(unit, Params(), student)
+                # B17's T6-012B now separates MATH-2359, so it is no longer in the tied set;
+                # MATH-1416 still has no U6 trigger item and still answers like NONE.
                 self.assertEqual((state.decision.outcome, state.decision.tied),
-                                 (Outcome.ESCALATED_NO_SEPARATOR, ("MATH-1416", "MATH-2359", "NONE")))
+                                 (Outcome.ESCALATED_NO_SEPARATOR, ("MATH-1416", "NONE")))
         # With the drop (the decided unit table), the same NONE student is recognised.
         self.assertIs(run_student(self.pack.unit("U6"), Params(), "NONE").decision.outcome,
                       Outcome.NONE_DETECTED)
 
     def test_kf12_one_slip_would_hide_a_misconception_without_the_three_answer_rule(self):
-        # Spec D1: a MATH-1379 holder answers correctly on the first two items. With
-        # min_support_none = 2 the session would end there as none_detected (a miss);
-        # the default 3 keeps it open and it ends diagnosed.
+        # Spec D1: a MATH-1379 holder answers correctly on the first two items (T1-001 B,
+        # T1-006 B). With min_support_none = 2 the session would end there as none_detected
+        # (a miss); the default 3 keeps it open and it ends diagnosed.
         unit = self.pack.unit("U1")
-        relaxed = replay(unit, Params(min_support_none=2), ["D", "B"])
+        relaxed = replay(unit, Params(min_support_none=2), ["B", "B"])
         self.assertIs(relaxed.decision.outcome, Outcome.NONE_DETECTED)
-        default = replay(unit, Params(), ["D", "B", "B", "A"])
+        default = replay(unit, Params(), ["B", "B", "A", "B"])
         self.assertEqual((default.decision.outcome, default.decision.leader),
                          (Outcome.DIAGNOSED, "MATH-1379"))
 
