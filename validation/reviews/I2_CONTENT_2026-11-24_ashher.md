@@ -7,6 +7,8 @@
 
 Everything below was computed from the files, not taken from the manifest. All students are synthetic and every engine parameter is assumed (KF-10).
 
+**Rerun:** on the PR #92 branch, `python -m validation.content_recheck --base 7ff9978` prints §2 and the batch and unit counts of §1 and §4. `python -m experiments.enumerate_sequences` gives the R4 counts, and `python -m experiments.adverse_baseline` (command in `experiments/ADVERSE_CASES.md`) gives the adverse cases.
+
 ## 1. Checks I ran
 
 | Check | How | Result |
