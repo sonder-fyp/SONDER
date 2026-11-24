@@ -163,6 +163,16 @@ Each entry has these fields: what is wrong, what it affects, what the user sees,
 - **Owner:** Ashher (I2-A03). Ahmed, owner of `stopping.py` and the named session-integration checker, reviews the change; Harris is the logic reviewer.
 - **Backed by:** `tests/test_engine_r4_rows.py`: `EngineReachableShareTests`, `RealBankRowTests` (no near rows in the current bank; a real U6 refusal is exact), `ExactRowTests`, `NearRowTests` (w_stretch 0.95: no longer refused, ends by R5), `NearRowRefusalTests` (w_stretch 0.99: refused with reachable share 0.609; an exhaustive check of all 5,460 answer sequences stays within it), `NearRowLargerBudgetTests` (reaches the R1 diagnosis R4 used to block), `InteractionTests`; `tests/test_engine_stopping.py` (message and fields); `tests/test_engine_enumerate.py` (the enumeration counts every sequence once and reports a near-row refusal as not exact).
 
+## KF-16. The new separators make two more subset pairs: MATH-1773 ⊂ MATH-1514 and MATH-1651 ⊂ MATH-1074
+
+- **What is wrong:** to separate the former inseparable pairs (KF-06), the candidate's B19 and B21 link the "adds the two numbers" option of bare subtractions to MATH-1514 alone, and B20 links the "multiplies" option of non-unit divisions to MATH-1074 alone. Every other option of each pair links both. So every MATH-1773 option is also a MATH-1514 option (17 of 17; 4 options are MATH-1514 only), and every MATH-1651 option is also a MATH-1074 option (6 of 6; 5 are MATH-1074 only). This is the structure of KF-07: the pairs are told apart only when a holder of the broader misconception takes one of its few own options.
+- **Affects:** U4 and U7 (1514/1773) and U6 (1074/1651).
+- **What the user sees:** a holder of the broader misconception who answers the separating items correctly is labelled with the narrower one. In the U3–U7 tuning run under adaptive selection, MATH-1514 holders were labelled MATH-1773 160 times in U4 (of 214 wrong labels) and 136 times in U7 (of 184), and MATH-1074 holders were labelled MATH-1651 121 times in U6 (of 156). Deterministic holders are diagnosed correctly (§6.1 of the spec).
+- **Evidence:** `experiments/FINDINGS_U3_U7.md` §3; `experiments/results/u3u7-tuning/`.
+- **Fix and owner:** a content or catalogue decision (Harris, with the expert): give the narrower misconception options of its own, or merge the pair (spec D-1). Not an engine change.
+- **Decision:** none yet; the pairs were separated on purpose to end the KF-06 refusals, and this is the cost.
+- **Backed by:** the frozen U3–U7 tuning run (`experiments/results/u3u7-tuning/`). The subset relation is visible in `data/Maths_v2/bank/items.csv`: every option whose `misconceptions` cell names MATH-1773 also names MATH-1514, and every one naming MATH-1651 also names MATH-1074. No test pins it yet.
+
 ---
 
 ## What backs each entry
@@ -184,3 +194,4 @@ Each entry has these fields: what is wrong, what it affects, what the user sees,
 | KF-13 | W4 ×25 | `test_engine_pack.py`: `test_warning_lists` |
 | KF-14 | — | `test_engine_session.py`: `test_answer_notes_quote_the_option_text` |
 | KF-15 | — | `test_engine_r4_rows.py`: `EngineReachableShareTests`, `RealBankRowTests`, `ExactRowTests`, `NearRowTests`, `NearRowRefusalTests`, `NearRowLargerBudgetTests`, `InteractionTests` |
+| KF-16 | — | `experiments/results/u3u7-tuning/` (frozen run); `experiments/FINDINGS_U3_U7.md` |
