@@ -1,0 +1,79 @@
+{
+  "command": "python -m experiments.evaluate --config experiments/configs/u1u2-heldout-1124.json",
+  "config": {
+    "cases": [
+      {
+        "apply_rates": [
+          0.6,
+          0.8
+        ],
+        "policy": "intermittent",
+        "slip": 0.05
+      },
+      {
+        "policy": "none-with-slip",
+        "slip": 0.05
+      },
+      {
+        "policy": "random-uniform"
+      },
+      {
+        "policy": "off-catalogue"
+      }
+    ],
+    "methods": [
+      "adaptive",
+      "fixed",
+      "random"
+    ],
+    "name": "u1u2-heldout-1124",
+    "protocol_version": 1,
+    "seeds": {
+      "count": 300,
+      "first": 2600
+    },
+    "split": "held-out",
+    "units": [
+      "U1",
+      "U2"
+    ]
+  },
+  "config_sha256": "c9bd913326137f07a17133acd266cd00b5d9e207cdcfa435bf303d180d34b5a8",
+  "content_version": "Maths_v2",
+  "engine_version": "0.1.0",
+  "experiment": "u1u2-heldout-1124",
+  "git_commit": "9c20b62a543beda2e59f4451b1e7a33a6916d167",
+  "git_tracked_changes": false,
+  "note": "Synthetic students under assumed parameters; not accuracy on real students. Labels for cases without a named truth are adverse-response labels, never correct or wrong diagnoses.",
+  "numpy": "2.4.4",
+  "params": {
+    "default_budget": 8,
+    "delta_sep": 0.05,
+    "eig_floor": 0.01,
+    "guess": 0.3,
+    "k_max": 8,
+    "min_support": 2,
+    "min_support_none": 3,
+    "prior_none": 0.25,
+    "prior_unmodelled": 0.05,
+    "slip": 0.1,
+    "theta": 0.8,
+    "theta_unmodelled": 0.5,
+    "w_sound": 1.0,
+    "w_stretch": 0.5
+  },
+  "protocol_version": 1,
+  "python": "3.14.0",
+  "row_count": 21600,
+  "source_sha256": {
+    "bank/items.csv": "1124496b37e17f4042ca681bd4931aa2a6ca4158a79ce184d25b13aa14cd9858",
+    "maths_v2_units.json": "4e7102a34cc195801faae6b6b416e3ad64c443e3ae7e8ee6d99819da628fef21",
+    "topics.csv": "ebe0571bd3578926cf79d4715a1148ed4a3e4fb494c3a4d082a64048cb1420b0"
+  },
+  "split": "held-out",
+  "tasks": [
+    "I2-A07",
+    "I2-A08",
+    "I2-A09"
+  ]
+}
