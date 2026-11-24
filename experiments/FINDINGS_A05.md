@@ -13,6 +13,21 @@
 
 The first-content runs are kept unchanged. Every number below is read from a run's `metrics.csv`; `python -m experiments.compare <runs>` prints the adaptive-selection tables. All students are synthetic and every engine parameter is assumed (KF-10).
 
+## 0. Final content (24 November 2026): reruns `*-1124`
+
+After this write-up, Harris gave the seven U2 conversion checks distinct stems (content `1124496b…`). All four runs were repeated at clean commit `9c20b62` under names ending `-1124` (same seeds and cases); the sections below describe the 20 November content and stay as its record.
+
+| Unit, apply rate | Correct label: adaptive / fixed / random | Wrong ÷ labelled: A / F / R | Mean questions A / F / R |
+| --- | --- | --- | --- |
+| U1, 0.5 / 0.7 / 0.9 | unchanged from §2 (U1 items did not change) | | |
+| U2, 0.5 | 51.4% / 40.4% / 41.3% | 9.0% / 0.3% / 7.5% | 3.83 / 6.09 / 5.04 |
+| U2, 0.7 | **75.7% / 54.9%** / 70.2% | 4.9% / 0.2% / 3.3% | 3.36 / 5.15 / 4.70 |
+| U2, 0.9 | **93.0% / 59.8%** / 89.1% | 2.0% / 0.2% / 1.3% | 2.78 / 4.57 / 4.11 |
+
+- **With distinct stems the fixed order again never tests MATH-61 or MATH-1965**: its six top-ranked items are the conversion checks. It recognises 0 of 300 students without a misconception in U2. **Adaptive selection is clearly better in U2 on the final content**, as the held-out rerun confirms (`FINDINGS_HELDOUT.md`). §2's "fixed matches adaptive" held only while the seven checks were one twin group.
+- **Threshold settings (adaptive, U2):** random answering labelled 49.3% (default), 19.7% (`min_support` 3), 36.7% (θ 0.90), 12.7% (both); correct coverage at apply 0.7 is 75.7%, 75.1%, **85.3%** and 80.6%; mean questions at 0.7 are 3.36, 4.95, 4.05 and 5.50. The conclusion of §3 is unchanged.
+- **Team decision (24 November 2026):** θ 0.90 becomes the default with the next content release, together with that release's held-out confirmation run. Iteration 2 results are reported at θ 0.80.
+
 ## 1. What the new content changes (defaults, adaptive selection, paired students)
 
 | Measure | First content | Candidate |

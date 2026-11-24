@@ -4,6 +4,8 @@
 **Run:** `experiments/results/u3u7-tuning/`: configuration `configs/u3u7-tuning.json` (committed before the run), clean commit `daf45ae`, tuning seeds 1000–1299, default parameters (θ 0.80, `min_support` 2), 82,510 runs, Python 3.14.0 / NumPy 2.4.4.
 **Content:** the Maths_v2 candidate of 20 November 2026 (`items.csv` `b168a664…`), **not externally reviewed**. Under [REMAINING_UNITS_PLAN.md](REMAINING_UNITS_PLAN.md) §2 this is the "U3–U7 tuning" run on the corrected content. The U3–U7 held-out run (`configs/u3u7-heldout.json`, committed) waits for the expert-accepted version.
 
+**Final content (24 November 2026):** the rerun `results/u3u7-tuning-1124/` at commit `9c20b62` on content `1124496b…` produced byte-identical `runs.csv` and `metrics.csv`. Only U2 items changed, and U2 is not in this run, so every number below holds for the final content.
+
 Results are read by the rules the plan fixed in advance (§4): per unit, never pooled; known-cause refusals reported as such; correct coverage given twice; small-unit caution for U3 and U5. All students are synthetic under assumed parameters (KF-10). Every number below is from `metrics.csv` or `runs.csv`.
 
 ## 1. Misconception holders (careful-answer slip 0.08)

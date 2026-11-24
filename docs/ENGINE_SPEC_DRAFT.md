@@ -277,16 +277,16 @@ On the candidate, 16 variants × 41 students = 656 runs: **no outcome changes**.
 ### 6.3 Noisy students (seeded and reproducible)
 The earlier figures here came from uncommitted reference scripts. They are replaced by seeded runs in the repository, each generated at a clean commit with its manifest (`experiments/PROTOCOL.md`). A holder applies the misconception on a triggering item with probability 0.5, 0.7 or 0.9 and otherwise answers carefully (slip 0.08); generation parameters differ from the engine's.
 
-Adaptive selection, candidate content, tuning split (`experiments/results/u1u2-tuning-candidate/`, 1,200 runs per cell in U1 and 1,500 in U2):
+Adaptive selection, final candidate content, tuning split (`experiments/results/u1u2-tuning-1124/`, 1,200 runs per cell in U1 and 1,500 in U2):
 
 | Unit, apply rate | Correct label | Missed (`none_detected`) | Refused | Wrong label ÷ labelled |
 |---|---|---|---|---|
 | U1, 0.5 / 0.7 / 0.9 | 55.6% / 82.7% / 97.2% | 40.2% / 16.0% / 2.7% | 4.1% / 1.2% / 0.1% | 0.1% / 0.1% / 0.1% |
-| U2, 0.5 / 0.7 / 0.9 | 50.5% / 76.0% / 92.3% | 39.9% / 18.3% / 5.6% | 4.3% / 1.5% / 0.1% | 9.6% / 5.2% / 2.1% |
+| U2, 0.5 / 0.7 / 0.9 | 51.4% / 75.7% / 93.0% | see `metrics.csv` | see `metrics.csv` | 9.0% / 4.9% / 2.0% |
 
 - The missed share is expected: a holder who applies the misconception only part of the time looks like NONE on the items they answer correctly (KF-12). It is the price of the multi-answer evidence rule, not a bug.
-- **U2's wrong labels are almost all MATH-2039 holders labelled MATH-1965** (165 of 172), the subset problem of §1.4.
-- The selection comparison (adaptive, fixed, random with equal budgets) and the held-out result are in `experiments/FINDINGS_A05.md` and `experiments/FINDINGS_HELDOUT.md`. On this content the fixed order reaches the same correct coverage as adaptive selection in U2 with fewer wrong labels; adaptive selection asks 1.3–1.7 fewer questions.
+- **U2's wrong labels are almost all MATH-2039 holders labelled MATH-1965**, the subset problem of §1.4.
+- The selection comparison (adaptive, fixed, random with equal budgets) and the held-out result are in `experiments/FINDINGS_A05.md` and `experiments/FINDINGS_HELDOUT.md`. On the final content adaptive selection is clearly better in U2 (held-out: 85.7% against 58.7% correct at apply 0.8) because the fixed order never tests MATH-61 or MATH-1965, and the same holds in U4, U6 and U7; in U1, U3 and U5 the methods are equal within their intervals.
 - U3–U7 noisy holders are not yet measured with the protocol; the plan is `experiments/REMAINING_UNITS_PLAN.md`. The seven-unit adverse baseline (§6.4) covers them for adverse cases.
 
 ### 6.4 Students with no misconception, random answering and always-A (seeded)
@@ -305,16 +305,16 @@ All seven units, adverse baseline on the candidate (`experiments/results/adverse
 
 Random answers often land on linked options (296 of 399 wrong options carry a link), and two such answers satisfy R1 at `min_support = 2`. The candidate's separating items remove refusals that used to stop such sessions, which is why random-answer labelling rose overall even though fewer options are linked.
 
-Threshold trade-off (U1/U2, adaptive selection, tuning split, candidate content; `experiments/FINDINGS_A05.md` §3):
+Threshold trade-off (U1/U2, adaptive selection, tuning split, final candidate content; `experiments/FINDINGS_A05.md` §0):
 
 | Setting | Random answering labelled (U1, U2) | U2 holders correct at apply 0.5 / 0.7 / 0.9 | U2 wrong ÷ labelled at 0.5 | Mean questions, U2 holders at 0.7 |
 |---|---|---|---|---|
-| default (`min_support` 2, θ .80) | 51.0%, 46.3% | 50.5 / 76.0 / 92.3% | 9.6% | 3.39 |
-| `min_support` 3 | 33.7%, 17.3% | 44.3 / 74.4 / 92.1% | 5.3% | 4.95 |
-| θ 0.90 | 39.3%, 33.0% | 55.0 / 85.3 / 97.5% | 8.7% | 4.05 |
-| both | 25.0%, 12.0% | 46.7 / 80.6 / 95.9% | 6.8% | 5.47 |
+| default (`min_support` 2, θ .80) | 51.0%, 49.3% | 51.4 / 75.7 / 93.0% | 9.0% | 3.36 |
+| `min_support` 3 | 33.7%, 19.7% | 46.0 / 75.1 / 93.2% | 4.3% | 4.95 |
+| θ 0.90 | 39.3%, 36.7% | 56.0 / 85.3 / 98.6% | 7.6% | 4.05 |
+| both | 25.0%, 12.7% | 47.3 / 80.6 / 97.1% | 5.7% | 5.50 |
 
-`min_support = 3` gives the largest cut in random-answer labelling at the cost of more questions and refusals; θ 0.90 costs under one question and finds more U2 misconceptions. No setting stops always-A in U2 or the 1965/2039 confusion. The choice is D-3/D-6 (§7); nothing is changed by default.
+`min_support = 3` gives the largest cut in random-answer labelling at the cost of more questions and refusals; θ 0.90 costs under one question and finds more U2 misconceptions. No setting stops always-A in U2 or the 1965/2039 confusion. **Team decision (24 November 2026):** θ 0.90 becomes the default with the next content release and its held-out confirmation run; Iteration 2 results are reported at θ 0.80 (D-3/D-6, §7).
 
 ---
 
@@ -324,7 +324,7 @@ Threshold trade-off (U1/U2, adaptive selection, tuning split, candidate content;
 |---|---|---|
 | D-1 | Inseparable catalogue pairs 1514/1773 and 1074/1651; 1965/2039; 414/734 | **Resolved by content for the pairs** (candidate, 20 November 2026): separating items B19–B21, MATH-1651 unlinked in U3, MATH-734 removed. **Open: 1965/2039** (KF-07): redefine 1965 so it has an option 2039 does not take, or merge. Catalogue owner Harris, with team approval. |
 | D-2 | The 3 items with 3 options linked to MATH-1416 (T6-011B/014B/016B) | Decided 11 October 2026 (Ahmed): skip them for U6 and drop MATH-1416 there. **The content is now fixed** (each links MATH-1416 on one option and passes P1), so the skip and the drop can be removed; that is a unit-table change for Ahmed, after which U6 is re-measured (KF-01, KF-02). |
-| D-3 | `min_support` 2 or 3 | Decided 11 October 2026 (Ahmed): keep 2. Measured on both contents (§6.4, `FINDINGS_A04.md`, `FINDINGS_A05.md`). Ashher's recommendation for the team: θ 0.90 if one change is made; `min_support` 3 if random-answer labelling is judged the main risk. A change needs a held-out confirmation on new seeds (protocol change log). |
+| D-3 | `min_support` 2 or 3 | Decided 11 October 2026 (Ahmed): keep 2. Measured on both contents (§6.4, `FINDINGS_A04.md`, `FINDINGS_A05.md`). **Team decision (24 November 2026): θ 0.90 becomes the default with the next content release**, together with that release's held-out confirmation run on new seeds (protocol change log); `min_support` stays 2. Iteration 2 results are reported at θ 0.80. |
 | D-4 | The 3 unplaced items (T6-019B/020B/021B) | Decided (Ahmed): leave unplaced; documented as KF-05. Unchanged. |
 | D-5 | Companions with fewer than 3 trigger items | **Resolved by content:** no hypothesis has fewer than 3 trigger groups on the candidate (§1.5). |
 | D-6 | `θ` range | Keep θ at 0.80 until the team decides D-3; θ 0.90 is measured (§6.4). On the candidate no ×0.8/×1.2 parameter variation changes a deterministic student's outcome (§6.2). |
