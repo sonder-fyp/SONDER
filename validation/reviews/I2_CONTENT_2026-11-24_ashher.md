@@ -109,3 +109,26 @@ None of these blocks merging the candidate as **candidate** content. Issues 1–
 ## 7. Decision
 
 **Accepted as candidate content** for the Iteration 2 evaluation, labelled "candidate, not externally reviewed" wherever results are reported. The arithmetic of every changed and new item is correct. The disputed links are fixed or honestly recorded. The batches match the bank, and the engine loads it with no inseparable pair. Merge once CI is green. Harris corrects issues 1–3 in the PR text and manifest, and the team decides issues 6–8. G1 remains open until the external Maths-expert acceptance (I2-H07) is recorded against this exact version.
+
+## 8. Author's response and recheck (24 November 2026, evening)
+
+Harris answered on PR #92 (commits `d5added`, `3ff07ff`, `2e05db7`); I rechecked each point on the branch.
+
+| # | Response | Recheck | Status |
+| --- | --- | --- | --- |
+| 1 | PR text now gives the per-item counts (75 changed, 16 new) | PR description | **Closed** |
+| 2 | PR text cites the current validator (0 errors, 0 P1 conflicts, 6 warnings) | PR description; `python -m validation.math_dataset` | **Closed** |
+| 3 | Stale MANIFEST lines rewritten; `LINK_AUDIT_SUMMARY.md` marked historical | Files | **Closed** |
+| 4 | Separation claim limited to noise-free deterministic students, with KF-03/KF-07 named | MANIFEST and PR text | **Closed** |
+| 5 | Per-unit trigger-group table added to `coverage.md` | Matches `python -m validation.content_recheck` | **Closed** |
+| 6 | **Content fix:** T2-005 to T2-010 and T2-019 got distinct stems; options, links, targets and correct letters unchanged (team agreed) | U2 now 25 independent groups (was 19), 19 twin pairs; all engine-side tests pass except the two content pins, which flag the new hash by design. New frozen adverse baseline `adverse-baseline-candidate-2026-11-24`: only U2 runs change, no pooled figure changes, KF-07 21/17/4 (`ADVERSE_CASES.md`) | **Closed** |
+| 7 | U6 skip reason (Ahmed) | `maths_v2_units.json` still gives the old reason | Open, follow-up PR (not blocking) |
+| 8 | W4 warning | Kept; team decision outstanding | Open (not blocking) |
+| 9 | Presentation notes | For the external expert | Open (expert) |
+| 10 | The six targets chosen by Claude confirmed by Harris and recorded in the MANIFEST | MANIFEST approval log | **Closed** |
+| 11 | KF-07 limitation added next to the 1965/2039 pair in `coverage.md` | File (numbers updated to the 24 November run) | **Closed** |
+
+New since this review: **KF-16** (MATH-1773 ⊂ MATH-1514 and MATH-1651 ⊂ MATH-1074, created by the separators) is recorded in `sonder_engine/KNOWN_FAULTS.md` and `experiments/FINDINGS_U3_U7.md` for Harris and the expert.
+
+**Decision unchanged:** accepted as candidate content; G1 open until the external expert's acceptance.
+
