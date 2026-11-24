@@ -19,9 +19,15 @@ export function describeOutcome(evidence: Evidence): OutcomeSummary {
   const answered = evidence.steps.length;
   switch (o.outcome) {
     case "diagnosed": {
-      const found = names(evidence, ranked(o.diagnosis_candidates));
-      return { label: `Diagnosed: ${list(found)}`, tone: "result", reason: null,
-        detail: `The model's confidence reached its threshold after ${answered} answers.` };
+      // Rank 1 is the diagnosis; rank 2 is only the runner-up the engine stores beside it
+      // (sonder_engine/trace.py). Naming both in the label would read as two diagnoses.
+      const [diagnosis, runnerUp] = ranked(o.diagnosis_candidates);
+      const [name] = names(evidence, diagnosis === undefined ? [] : [diagnosis]);
+      const last = evidence.steps[evidence.steps.length - 1]?.posterior;
+      const next = runnerUp === undefined ? "" : ` Next most likely: ${names(evidence, [runnerUp])[0]}` +
+        (last && last[runnerUp] !== undefined ? ` (${percent(last[runnerUp])}).` : ".");
+      return { label: `Diagnosed: ${name ?? "unknown"}`, tone: "result", reason: null,
+        detail: `The model's confidence reached its threshold after ${answered} answers.${next}` };
     }
     case "none_detected":
       return { label: "No misconception detected", tone: "result", reason: null,

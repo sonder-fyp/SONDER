@@ -51,7 +51,7 @@ class HistoryTests(ProductDatabaseTestCase):
                          (student or self.student,))
 
     def test_attempts_are_numbered_per_assignment_and_plain_checks_have_none(self):
-        first = self.run_check(self.student, self.assignment, "DBBA")
+        first = self.run_check(self.student, self.assignment, "BBAB")  # D1 opens on T1-001 after the link changes.
         second = self.run_check(self.student, self.assignment, "D")
         plain = self.run_check(self.student, None, "")
         self.assertEqual(self.history(), [
@@ -61,7 +61,7 @@ class HistoryTests(ProductDatabaseTestCase):
         ])
 
     def test_only_the_students_own_checks_and_they_stay_after_leaving(self):
-        mine = self.run_check(self.student, self.assignment, "DBBA")
+        mine = self.run_check(self.student, self.assignment, "BBAB")  # D1 opens on T1-001 after the link changes.
         self.run_check(self.other, self.assignment, "D")
         self.assertEqual([r[0] for r in self.history()], [mine])
         self.call("SELECT sonder.remove_student(%s, %s, %s)", (self.teacher, self.class_id, self.student))

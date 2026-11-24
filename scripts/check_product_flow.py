@@ -80,7 +80,7 @@ def main(argv=None) -> int:
         require(student("POST", "/api/diagnostic/sessions", start).json()["session_id"] == sid, "double start makes one attempt")
         q = value["question"]
         value = student("POST", f"/api/diagnostic/sessions/{sid}/answers",
-                        {"step_index": q["step_index"], "item_id": q["item_id"], "option_id": "D"}).json()
+                        {"step_index": q["step_index"], "item_id": q["item_id"], "option_id": "B"}).json()  # D1 now starts on T1-001 B.
         require(card()["latest_state"] == "in_progress" and card()["latest_session_id"] == sid, "dashboard offers Resume of the same attempt")
         again = student("POST", "/api/diagnostic/sessions", {**start, "create_request_id": str(uuid4())})
         require(again.status_code == 409 and code_of(again) == "attempt_in_progress", "a second attempt is refused")
@@ -94,7 +94,7 @@ def main(argv=None) -> int:
                         {"expected_revision": 0, "status": "reviewed", "note": "", "request_key": str(uuid4())})
         require(early.status_code == 409 and code_of(early) == "session_unfinished", "unfinished check cannot be reviewed")
 
-        for option in "BBA":
+        for option in "BAB":  # Remaining D1 answers after T1-001 B.
             q = value["question"]
             value = student("POST", f"/api/diagnostic/sessions/{sid}/answers",
                             {"step_index": q["step_index"], "item_id": q["item_id"], "option_id": option}).json()
@@ -105,7 +105,7 @@ def main(argv=None) -> int:
 
         evidence = teacher("GET", f"/api/teacher/sessions/{sid}/evidence").json()["evidence"]
         require(evidence["outcome"]["outcome"] == "diagnosed" and [x["item_id"] for x in evidence["steps"]] ==
-                ["T1-005", "T1-006", "T1-007", "T1-009"], "evidence of the finished D1 check")
+                ["T1-001", "T1-006", "T1-005", "T1-007"], "evidence of the finished D1 check")  # T1-001 now wins the opening tie.
         rows = teacher("GET", f"/api/teacher/classes/{class_id}/activity").json()["rows"]
         require(rows[0]["state"] == "completed" and rows[0]["review_status"] is None, "activity: completed, needs review")
 

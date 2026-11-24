@@ -77,7 +77,7 @@ class ClassFlowTests(ProductDatabaseTestCase):
 
         # Answer the D1 worked example; refreshing mid-way shows the same pending question.
         value, items = first, []
-        for index, option in enumerate("DBBA"):
+        for index, option in enumerate("BBAB"):  # D1 opens on T1-001 after the link changes.
             question = value["question"]
             items.append(question["item_id"])
             value = self.safe(self.api("POST", f"/engine/sessions/{sid}/answers", student,
@@ -87,7 +87,7 @@ class ClassFlowTests(ProductDatabaseTestCase):
                 # A second start while unfinished is refused; the student resumes instead.
                 again = self.api("POST", "/engine/sessions", student, {**start, "create_request_id": str(uuid4())})
                 self.assertEqual((again.status_code, again.json()), (409, {"error": {"code": "attempt_in_progress"}}))
-        self.assertEqual(items, ["T1-005", "T1-006", "T1-007", "T1-009"])
+        self.assertEqual(items, ["T1-001", "T1-006", "T1-005", "T1-007"])  # T1-001 now wins the opening EIG tie.
         self.assertEqual(value["status"], "complete")
 
         # The stored session is linked to the assignment and its evidence replays exactly.

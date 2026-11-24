@@ -9,7 +9,7 @@ From the repository root:
 Each check gets a fresh database inside the container (never Neon):
 1. the schema script applies cleanly, and a second run of it succeeds (it claims to be re-runnable);
 2. behaviour_test.sql: 75 rejected writes ("NOTICE:  ok"), 9 passes, no FAIL and no ERROR;
-3. import_probe.py: all 117 items load, none is rejected, the pack freezes, response models
+3. import_probe.py: all 133 items load, none is rejected, the pack freezes, response models
    freeze at guess 0.30 and 0.24, and the database's units equal the engine's units
    (sonder_pack/maths_v2.py), including which items are in no unit.
 Exit status 0 only if every check passes.
@@ -97,7 +97,8 @@ def main() -> int:
     for model in ("spec-default-guess-0.30", "guess-0.24"):
         report.check(f"RESPONSE MODEL {model}: froze" in out, f"response model {model} freezes")
     loaded = re.search(r"items \| options .*\n-[-+]*\n\s*(\d+)\s*\|\s*(\d+)\s*\|", out)
-    report.check(bool(loaded) and loaded.groups() == ("117", "468"), "117 items and 468 options load",
+    # PR #92 adds 16 four-option items to the Maths bank.
+    report.check(bool(loaded) and loaded.groups() == ("133", "532"), "133 items and 532 options load",
                  loaded.groups() if loaded else "table not found")
     report.check("(0 rows)" in section(out, "rejected items and reasons"), "no item rejected")
 

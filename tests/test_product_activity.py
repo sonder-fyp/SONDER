@@ -61,7 +61,7 @@ class ActivityTests(ProductDatabaseTestCase):
         ana, ben, cai = self.student("Ana"), self.student("Ben"), self.student("Cai")
         rounding, conversion = self.assign("Rounding"), self.assign("Conversion")
         self.answer(ana, self.start(ana, rounding), "D")               # in progress, 1 answered
-        done = self.answer(ben, self.start(ben, rounding), "DBBA")     # completed
+        done = self.answer(ben, self.start(ben, rounding), "BBAB")     # completed on the new T1-001 D1 path.
         rows = self.rows()
         self.assertEqual(len(rows), 6)  # 3 students x 2 open assignments
         by = {(r[0], r[1]): r for r in rows}
@@ -75,7 +75,7 @@ class ActivityTests(ProductDatabaseTestCase):
     def test_the_latest_attempt_and_its_latest_review_count(self):
         ana = self.student("Ana")
         rounding = self.assign("Rounding", "repeat")
-        first = self.answer(ana, self.start(ana, rounding), "DBBA")
+        first = self.answer(ana, self.start(ana, rounding), "BBAB")  # D1 opens on T1-001 after the link changes.
         self.call("SELECT sonder.add_session_review(%s, %s, 0, 'follow_up_required', '', %s)",
                   (self.teacher, first["session_id"], str(uuid4())))
         self.assertEqual(self.rows()[0][2:6], ("completed", 4, 1, "follow_up_required"))

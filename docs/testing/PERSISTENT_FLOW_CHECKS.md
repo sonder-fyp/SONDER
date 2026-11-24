@@ -35,6 +35,8 @@ Record date, commit, tester and result for each run; do not record credentials o
 
 ## Recorded run: 17 November 2026
 
+*24 November 2026. Runs recorded before PR #92 used the 117-item bank (D1 = D, B, B, A on T1-005, T1-006, T1-007, T1-009). On the 133-item candidate D1 is B, B, A, B on T1-001, T1-006, T1-005, T1-007; the harness scripts were updated in PR #92.*
+
 Environment: Neon development branch (about 0.4 s round trip from the test machine), Python service with `--store postgres`, Next.js dev server on `http://localhost:3000`, Chrome. The service and UI ran from commit `fb7d044`, so this run does **not** include the follow-up fixes in #63 to #69. Two students were enrolled in the development class with `devseed --enrol-email`. No credentials or cookies are recorded here.
 
 | # | Checklist item | Result | Evidence |

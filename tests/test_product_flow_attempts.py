@@ -15,8 +15,8 @@ class SessionAttemptsTests(FlowTestCase):
 
     def test_three_attempts_in_order(self):
         a = self.assign("Rep", "repeat")
-        one = self.answer(self.start(a), "DBBA")
-        two = self.answer(self.start(a), "DBBA")
+        one = self.answer(self.start(a), "BBAB")  # D1 opens on T1-001 after the link changes.
+        two = self.answer(self.start(a), "BBAB")  # D1 opens on T1-001 after the link changes.
         three = self.answer(self.start(a), "DB")
         expected = [(one["session_id"], 1, "completed"), (two["session_id"], 2, "completed"),
                     (three["session_id"], 3, "in_progress")]

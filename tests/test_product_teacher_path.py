@@ -81,7 +81,7 @@ class TeacherPathTests(ProductDatabaseTestCase):
     def test_every_outcome_reads_correctly_and_replays(self):
         main = self.assign(self.release_version, "Rounding")
         short = self.assign(SHORT, "Short rounding")
-        d1 = self.play(self.store, self.student(), main, lambda _s, i: "DBBA"[i])
+        d1 = self.play(self.store, self.student(), main, lambda _s, i: "BBAB"[i])  # D1 opens on T1-001 after the link changes.
         none = self.play(self.store, self.student(), main, self.correct)
         refused = self.refusal(self.student(), short)
         expected = {d1: "diagnosed", none: "none_detected"}
@@ -100,7 +100,7 @@ class TeacherPathTests(ProductDatabaseTestCase):
     def test_dashboard_rows_match_the_stored_attempts(self):
         main = self.assign(self.release_version, "Rounding")
         done, going, idle = self.student(), self.student(), self.student()
-        finished = self.play(self.store, done, main, lambda _s, i: "DBBA"[i])
+        finished = self.play(self.store, done, main, lambda _s, i: "BBAB"[i])  # D1 opens on T1-001 after the link changes.
         value = self.store.create(going, StartRequest(unit_id="U1", create_request_id=str(uuid4()), assignment_id=main))
         rows = {r[0]: r[1:] for r in self.call(
             "SELECT student_id::text, state, session_id::text, review_status FROM sonder.class_activity(%s, %s, %s)",
@@ -114,7 +114,7 @@ class TeacherPathTests(ProductDatabaseTestCase):
 
     def test_reviews_persist_across_a_service_restart_and_never_touch_the_result(self):
         main = self.assign(self.release_version, "Rounding")
-        sid = self.play(self.store, self.student(), main, lambda _s, i: "DBBA"[i])
+        sid = self.play(self.store, self.student(), main, lambda _s, i: "BBAB"[i])  # D1 opens on T1-001 after the link changes.
         before = self.store.teacher_evidence(sid, self.teacher)["outcome"]
         self.call("SELECT sonder.add_session_review(%s, %s, 0, 'follow_up_required', 'Place value', %s)",
                   (self.teacher, sid, str(uuid4())))
@@ -128,7 +128,7 @@ class TeacherPathTests(ProductDatabaseTestCase):
 
     def test_other_teachers_and_malicious_ids_get_nothing(self):
         main = self.assign(self.release_version, "Rounding")
-        sid = self.play(self.store, self.student(), main, lambda _s, i: "DBBA"[i])
+        sid = self.play(self.store, self.student(), main, lambda _s, i: "BBAB"[i])  # D1 opens on T1-001 after the link changes.
         other = self.user("teacher")
         with self.assertRaises(ServiceError):
             self.store.teacher_evidence(sid, other)

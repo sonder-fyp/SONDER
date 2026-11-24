@@ -44,7 +44,7 @@ class AssignmentStoreTestCase(ProductDatabaseTestCase):
         return self.store.create(student, StartRequest(unit_id=unit, create_request_id=key or str(uuid4()),
                                                        assignment_id=assignment))
 
-    def finish(self, student, snapshot, options="DBBA"):
+    def finish(self, student, snapshot, options="BBAB"):  # D1 opens on T1-001 after the link changes.
         for option in options:
             question = snapshot["question"]
             snapshot, _ = self.store.submit(snapshot["session_id"], student, AnswerRequest(

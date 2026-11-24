@@ -49,7 +49,7 @@ class EvidenceTests(ProductDatabaseTestCase):
         return self.store.submit(value["session_id"], self.student, AnswerRequest(
             step_index=q["step_index"], item_id=q["item_id"], option_id=option))[0]
 
-    def finish(self, options="DBBA"):
+    def finish(self, options="BBAB"):  # D1 opens on T1-001 after the link changes.
         value = self.begin()
         for option in options:
             value = self.answer(value, option)
@@ -66,7 +66,7 @@ class EvidenceTests(ProductDatabaseTestCase):
         self.assertEqual(ev["class"], {"class_id": self.class_id, "name": "Evidence class"})
         self.assertEqual(ev["assignment"], {"assignment_id": self.assignment, "title": "Rounding check"})
         self.assertEqual(ev["outcome"]["outcome"], "diagnosed")
-        self.assertEqual([q["item_id"] for q in ev["questions"]], ["T1-005", "T1-006", "T1-007", "T1-009"])
+        self.assertEqual([q["item_id"] for q in ev["questions"]], ["T1-001", "T1-006", "T1-005", "T1-007"])  # T1-001 now wins the opening EIG tie.
         names = {h["slot"]: h["name"] for h in ev["hypotheses"]}
         self.assertIn("No misconception", names.values())
         self.assertIn("Something else", names.values())
