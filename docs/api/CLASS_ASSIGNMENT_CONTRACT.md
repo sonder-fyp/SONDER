@@ -47,13 +47,15 @@ All need a signed-in active student.
 | `POST /api/student/classes` | `{code}` | `{class, joined}`; `joined: false` when already a member |
 | `GET /api/student/assignments` | — | `{assignments: [{assignment_id, class_id, class_name, title, unit_code, unit_name, attempt_rule, created_at}]}`, open assignments of active classes only |
 
+The student dashboard (`GET /api/student/dashboard`) also returns `assignment_status` (`open` or `closed`). A closed assignment stays listed, with Resume, while the student's latest attempt at it is in progress (answering stays possible after closing; only starting is refused); otherwise only open assignments are listed (migration 0013).
+
 Student replies are rebuilt field by field. They never contain items, options, correct answers, posteriors, diagnoses or another student's data.
 
 **Join codes.** A code is 10 characters from `ABCDEFGHJKLMNPQRSTUVWXYZ23456789`. Case, spaces and hyphens are ignored when typed. An unknown code and an archived class's code both give `422 join_code_invalid`. There is no rate limit; a code has 32^10 possibilities.
 
 ## Starting an assignment
 
-The student page `/student/diagnostic/[unitId]?assignment=<assignment_id>` starts through Ahmed's client with `assignment_id`. In PostgreSQL mode the start:
+The student opens an assignment from **Your assignments** on `/student` or from the class page `/student/classes/[classId]`; both lead to `/student/diagnostic/[unitId]?assignment=<assignment_id>`, which starts through Ahmed's client with `assignment_id`. In PostgreSQL mode the start:
 
 1. resolves the student's active enrolment in the assignment's active class (`sonder.assignment_enrolment`); the unit must be the assignment's unit; otherwise `404 assignment_not_found`;
 2. answers an identical retry (same `create_request_id`) with its original reply, even if the assignment has closed since; the same key for another assignment, or without one, is `409 create_conflict`;
@@ -66,7 +68,7 @@ The student page `/student/diagnostic/[unitId]?assignment=<assignment_id>` start
 
 **Attempt rule.** `single` (default): one attempt per student; an unfinished one is resumed, never replaced. `repeat`: a new attempt may start once the last one is finished. A finished attempt is any status other than `in_progress`. A start without an assignment does not use up an assignment's attempt.
 
-A start without `assignment_id` behaves as before (SESSION_CONTRACT D9). For a student in two Maths classes it is `409 enrolment_ambiguous`; with an assignment it is not.
+A start without `assignment_id` is refused at the browser boundary with `422 assignment_required` (product decision, 18 Nov 2026: every check belongs to an assignment). The service still accepts one for its contract harness and internal tools, with the D9 behaviour (`409 enrolment_ambiguous` for a student in two Maths classes).
 
 ## Errors
 

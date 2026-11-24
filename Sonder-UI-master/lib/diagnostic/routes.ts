@@ -49,6 +49,9 @@ export function beginRoute(request: Request) {
     checkOrigin(request);
     const actor = await studentActor();
     const payload = await body(request, parseBegin);
+    // Every check belongs to an assignment (18 Nov 2026). The service still accepts assignment-less starts
+    // for its own harness; the browser cannot make one.
+    if (!payload.assignment_id) throw new BoundaryError(422, "assignment_required");
     const snapshot = await engine("/engine/sessions", parseSnapshot, actor, payload);
     if (snapshot.unit.unit_id !== payload.unit_id) throw new BoundaryError(503, "engine_unavailable");
     return json(snapshot);

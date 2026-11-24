@@ -15,7 +15,7 @@ const FORBIDDEN = ["MATH-", "posterior", "probability", "diagnos", "misconceptio
 const row = {
   assignment_id: "55555555-5555-4555-8555-555555555555", class_id: "11111111-1111-4111-8111-111111111111", class_name: "Grade 8",
   title: "Rounding check", unit_code: "U1", unit_name: "Rounding", attempt_rule: "single", created_at: new Date("2026-11-18T09:00:00Z"),
-  latest_session_id: "77777777-7777-4777-8777-777777777777", latest_state: "submitted", answered: 4, question_budget: 8, attempts: 1,
+  latest_session_id: "77777777-7777-4777-8777-777777777777", latest_state: "submitted", answered: 4, question_budget: 8, attempts: 1, assignment_status: "open",
 };
 
 describe("student dashboard route", () => {

@@ -63,7 +63,7 @@ Body is always `{"error":{"code":"<code>"}}`; no detail text.
 | `replay_mismatch` | 500 | stored evidence disagrees with replay | cannot continue; report |
 | `engine_numeric_error` | 500 | unexpected exception | retry once; report |
 
-BFF-only codes (browser ↔ BFF): `authentication_required` 401, `role_required` 403, `invalid_origin` 403, `engine_unavailable` 503, `engine_timeout` 504.
+BFF-only codes (browser ↔ BFF): `assignment_required` 422 (a start without an assignment), `authentication_required` 401, `role_required` 403, `invalid_origin` 403, `engine_unavailable` 503, `engine_timeout` 504.
 
 ### 5.4 Idempotency and lifecycle
 

@@ -1,6 +1,7 @@
 import { AccountStatusActions } from "@/components/auth/AccountStatusActions";
 import { redirect } from "next/navigation";
 import { getAppAccount } from "@/lib/auth/access";
+import { isEmailVerified } from "@/lib/auth/devVerification";
 import { getSignedInUser } from "@/lib/auth/server";
 import { ROLE_HOME } from "@/lib/auth/types";
 
@@ -9,7 +10,7 @@ export const dynamic = "force-dynamic";
 export default async function AccessPendingPage() {
   const user = await getSignedInUser();
   if (!user) redirect("/auth/sign-in");
-  if (!user.emailVerified)
+  if (!isEmailVerified(user))
     redirect(`/auth/verify-email?email=${encodeURIComponent(user.email)}`);
 
   const account = await getAppAccount(user.id);

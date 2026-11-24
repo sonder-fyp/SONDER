@@ -12,7 +12,7 @@ if HAVE_PSYCOPG:
     from sonder_api.pgstore import PostgresStore
 
 FIELDS = {"assignment_id", "class_id", "class_name", "title", "unit_code", "unit_name", "attempt_rule", "created_at",
-          "latest_session_id", "latest_state", "answered", "question_budget", "attempts"}
+          "latest_session_id", "latest_state", "answered", "question_budget", "attempts", "assignment_status"}
 
 
 class StudentDashboardTests(ProductDatabaseTestCase):
@@ -74,6 +74,16 @@ class StudentDashboardTests(ProductDatabaseTestCase):
         self.assertEqual(self.rows(), {"Shown": (None, 0, None, 0, None)})  # the classmate's attempt is not mine
         self.assertEqual(self.rows(classmate)["Shown"][0], "in_progress")
         self.call("SELECT sonder.set_class_status(%s, %s, 'archived')", (self.teacher, self.class_id))
+        self.assertEqual(self.rows(), {})
+
+    def test_closed_assignment_stays_while_attempt_in_progress(self):
+        going, never = self.assign("Going"), self.assign("Never")
+        value = self.answer(self.start(going), "DB")
+        for a in (going, never):
+            self.call("SELECT sonder.set_assignment_status(%s, %s, 'closed')", (self.teacher, a))
+        rows = self.call("SELECT title, latest_state, assignment_status FROM sonder.student_dashboard(%s)", (self.student,))
+        self.assertEqual(rows, [("Going", "in_progress", "closed")])
+        self.answer(value, "BA")
         self.assertEqual(self.rows(), {})
 
     def test_rows_carry_no_result_fields(self):

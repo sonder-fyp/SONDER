@@ -1,6 +1,9 @@
 import "server-only";
 import { database } from "@/lib/auth/database";
 import { parseActivityRow, type ActivityRow } from "./activity";
+import { parseAttempt, type Attempt } from "./attempts";
+import { parseOtherCheck, type OtherCheck } from "./otherChecks";
+import { parseQueueRow, type QueueRow } from "./queue";
 import { parseReview } from "./reviews";
 import type { AddReviewRequest, Review } from "./reviews";
 
@@ -44,3 +47,35 @@ export async function classActivity(teacherId: string, classId: string, assignme
   return rows.map(parseActivityRow);
 }
 
+
+/** Finished checks waiting for the teacher across all their active classes (sonder.teacher_queue). */
+export async function teacherQueue(teacherId: string): Promise<QueueRow[]> {
+  const rows = await database()`
+    SELECT session_id::text, class_id::text, class_name, student_name, assignment_id::text, assignment_title,
+           unit_code, ended_at, review_status
+    FROM sonder.teacher_queue(${teacherId}::uuid)
+    ORDER BY ended_at DESC NULLS LAST, session_id
+  `;
+  return rows.map(parseQueueRow);
+}
+
+/** A class's checks started without an assignment; callers check the class is the teacher's first. */
+export async function classOtherChecks(teacherId: string, classId: string): Promise<OtherCheck[]> {
+  const rows = await database()`
+    SELECT session_id::text, student_name, unit_code, unit_name, state, answered, question_budget, started_at,
+           ended_at, review_status
+    FROM sonder.class_other_checks(${teacherId}::uuid, ${classId}::uuid)
+    ORDER BY started_at DESC, session_id
+  `;
+  return rows.map(parseOtherCheck);
+}
+
+/** Every attempt of the same student at the same assignment as this session. */
+export async function sessionAttempts(teacherId: string, sessionId: string): Promise<Attempt[]> {
+  const rows = await database()`
+    SELECT session_id::text, attempt_number, state, answered, question_budget, started_at, ended_at, review_status
+    FROM sonder.session_attempts(${teacherId}::uuid, ${sessionId}::uuid)
+    ORDER BY attempt_number
+  `;
+  return rows.map(parseAttempt);
+}

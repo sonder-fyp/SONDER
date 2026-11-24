@@ -39,8 +39,18 @@ const rows = await sql`
     FROM changed
     WHERE previous_role <> new_role
     RETURNING id
+  ),
+  withdrawn AS (
+    -- An operator decision replaces any open sign-up request; otherwise the access gate keeps
+    -- showing "awaiting approval" (requireApiRole/requirePageRole block on a pending request).
+    UPDATE sonder.auth_role_request r
+    SET status = 'withdrawn'
+    FROM changed
+    WHERE r.app_user_id = changed.id AND r.status = 'pending'
+    RETURNING r.id
   )
-  SELECT id::text, new_role FROM changed
+  SELECT id::text, new_role, (SELECT count(*) FROM withdrawn)::int AS withdrawn FROM changed
 `;
 if (!rows.length) throw new Error("No active, already-onboarded account matched that email.");
-console.log(`Assigned ${rows[0].new_role} role to the requested account.`);
+console.log(`Assigned ${rows[0].new_role} role to the requested account.` +
+  (rows[0].withdrawn ? " Its pending access request was withdrawn." : ""));

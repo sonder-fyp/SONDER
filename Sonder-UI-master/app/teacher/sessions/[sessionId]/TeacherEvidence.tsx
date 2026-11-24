@@ -8,6 +8,7 @@ import { SignInAgain } from "@/components/product/SignInAgain";
 import { CONFIDENCE_NOTE, describeOutcome, percent } from "@/lib/teacher/describe";
 import { teacherClient, TeacherError } from "@/lib/teacher/client";
 import type { Evidence } from "@/lib/teacher/evidence";
+import { AttemptList } from "./AttemptList";
 import { QuestionCard } from "./QuestionCard";
 import { ReviewPanel } from "./ReviewPanel";
 
@@ -100,6 +101,7 @@ export function TeacherEvidence({ sessionId }: { sessionId: string }) {
         actions={<Link href={`/teacher/classes/${evidence.class.class_id}`} className={buttonVariants({ variant: "ghost" })}>
           <ArrowLeft className="size-4" aria-hidden />{evidence.class.name}</Link>}
       />
+      {evidence.assignment ? <AttemptList sessionId={sessionId} /> : null}
       <div className="pt-10"><OutcomeCard evidence={evidence} /></div>
       <Hypotheses evidence={evidence} />
       <section aria-labelledby="questions" className="pb-10">
