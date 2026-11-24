@@ -102,7 +102,7 @@ def main(argv=None):
         require(snapshot(req('POST', '/api/diagnostic/sessions', body=payload), 'start retry') == first, 'identical start retry')
         path = f'/api/diagnostic/sessions/{sid}'
         value = first
-        for index, option in enumerate('DBBA'):
+        for index, option in enumerate('BBAB'):  # D1 now opens on T1-001.
             q = value['question']; record['items'].append(q['item_id'])
             answer = {'step_index': q['step_index'], 'item_id': q['item_id'], 'option_id': option}
             value = snapshot(req('POST', path + '/answers', body=answer), f'answer {index}')
@@ -112,7 +112,7 @@ def main(argv=None):
                 stop(); start()
                 require(snapshot(req('GET', path), 'restart read') == value, 'restart preserves state')
                 record['restart'] = 'passed'
-        require(record['items'] == ['T1-005', 'T1-006', 'T1-007', 'T1-009'], 'D1 item sequence')
+        require(record['items'] == ['T1-001', 'T1-006', 'T1-005', 'T1-007'], 'D1 item sequence')  # T1-001 now wins the opening tie.
         require(value['status'] == 'complete', 'neutral completion')
         require(snapshot(req('POST', path + '/answers', body=answer), 'final retry') == value, 'final retry')
         listing = req('GET', '/api/diagnostic/sessions?unit_id=U1')
