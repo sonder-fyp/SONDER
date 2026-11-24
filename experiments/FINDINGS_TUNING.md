@@ -6,6 +6,8 @@
 
 ## 1. Adaptive versus fixed versus random selection (misconception holders)
 
+> **Update, 24 November 2026:** this section describes the first content. On the Maths_v2 candidate the fixed order matches adaptive selection's correct coverage in U2 and makes fewer wrong labels; adaptive selection asks fewer questions. See `FINDINGS_A05.md` §2.
+
 Correct coverage = correct label ÷ holder runs (U1 1,200 runs per bar, U2 1,500).
 
 | Unit, apply rate | Adaptive | Fixed order | Random item | Mean questions (A / F / R) |

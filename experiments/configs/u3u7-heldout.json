@@ -1,0 +1,41 @@
+{
+  "name": "u3u7-heldout",
+  "protocol_version": 1,
+  "split": "held-out",
+  "units": [
+    "U3",
+    "U4",
+    "U5",
+    "U6",
+    "U7"
+  ],
+  "methods": [
+    "adaptive",
+    "fixed",
+    "random"
+  ],
+  "seeds": {
+    "first": 2000,
+    "count": 300
+  },
+  "cases": [
+    {
+      "policy": "intermittent",
+      "apply_rates": [
+        0.6,
+        0.8
+      ],
+      "slip": 0.05
+    },
+    {
+      "policy": "none-with-slip",
+      "slip": 0.05
+    },
+    {
+      "policy": "random-uniform"
+    },
+    {
+      "policy": "off-catalogue"
+    }
+  ]
+}

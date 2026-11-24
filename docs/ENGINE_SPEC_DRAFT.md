@@ -1,10 +1,9 @@
-# Sonder diagnostic engine: specification v2 (corrected, measured on the current Maths_v2 bank)
+# Sonder diagnostic engine: specification v2 (corrected; measured on the Maths_v2 candidate)
 
 **Scope:** the deterministic diagnostic core: posterior, question selection, stopping/refusal, run loop, trace, engine API. No LLM, retrieval, verification loop, calibration job or generation.
 **Status:** draft for team review. It replaces the earlier draft. That draft was written against an older snapshot of the bank (80 items) and is superseded wherever the two disagree.
-**Data this spec was measured on:** `Maths_v2/bank/items.csv`, 117 items, 468 rows, all `status=approved` (batches B01–B08, B10–B16).
-**Re-measured on the Maths_v2 candidate (24 November 2026, I2-A05):** §5 and §6.1–§6.2 now describe Harris's candidate of 20 November 2026 (133 items, 532 rows, 27 misconceptions, batches B01–B08 and B10–B21, PR #92; not externally reviewed). Each says what changed from the 117-item bank. §1, §6.3 and §6.4 are still the 117-item measurements; the seeded replacements for §6.3–§6.4 are `experiments/ADVERSE_CASES.md` and the I2-A05 tuning rerun, and the full rewrite is task I2-D05.
-**Reference code:** `engine_reference/spec_v2_reference.py` (engine), `spec_v2_report.py` (every measurement below), `spec_v2_tuning.py` (threshold trade-off). Raw outputs are saved next to them as `spec_v2_report_output.txt` and `spec_v2_tuning_output.txt`. **These scripts and outputs are not in this repository (checked 11 October 2026), so the measurements below cannot be re-run from the repository as it stands.**
+**Data this spec is measured on:** the Maths_v2 **candidate** of 24 November 2026 (Harris, PR #92; the 20 November candidate with distinct stems for the seven T2 conversion checks): `bank/items.csv`, 133 items, 532 rows, all `status=approved`, batches B01–B08 and B10–B21, 27 misconceptions; LF SHA-256 `1124496b…9858` (items; `b168a664…ff73` on 20 November) and `ebe0571b…20b0` (topics). It is **not externally reviewed** (I2-H07). Iteration 2 re-measured every section on it (24 November 2026, I2-A05/I2-D05); where the 117-item bank of the Mid-1 evaluation behaved differently, the section says so.
+**Reference code:** the engine is `sonder_engine/`, the pack loader `sonder_pack/`, and every measurement is a test or a command in this repository (§9). The earlier reference scripts (`engine_reference/spec_v2_*.py`) were never committed; numbers that came only from them have been replaced by seeded, reproducible runs.
 **Owners (carried over from the draft):** **[Ashher]** priors, likelihoods, posterior update · **[Harris]** EIG selection, Q-matrix content · **[Ahmed]** run loop, stopping/refusal, trace, API, pack loader.
 **Honesty rule:** the dataset is synthetic and no real-student response exists. Every probability and threshold is an **assumed** parameter. Simulated students test the machinery, not the truth about real students. Where I say "measured", it means measured on synthetic students.
 
@@ -25,82 +24,62 @@
 | 9 | Hypotheses with too few trigger items were not flagged | New pack warning W3 and the measured list in §1.5 |
 | 10 | Threshold trade-off not measured | §6.4 measures it. `min_support = 3` halves the random-clicker diagnosis rate |
 | 11 | (Amendment, November 2026, I2-A03.) R4 treated `p(ℓ)/p(C)` as a ceiling, which is true only for identical rows | R4 refuses only when the reachable share `ρ` over the answers left stays below θ (§3.5). Identical rows behave exactly as before |
+| 12 | (Iteration 2, 24 November 2026.) Measurements came from uncommitted reference scripts on the 117-item bank | Every number is re-measured on the 133-item candidate by tests and seeded runs in the repository (§1, §5, §6, §9). The inseparable pairs, the 3-link items and the under-triggered companions of the 117-item bank are gone; the 1965/2039 subset, always-A labelling and random-answer labelling remain |
 
 Two bugs found while building the reference (fixed, so you do not repeat them): the support function must map hypothesis *indices* to names before testing `NONE`/`UNMODELLED`; and the first reference run showed every NONE student as `escalated_exhausted` for exactly that reason.
 
 ---
 
-## 1. Dataset findings (measured on the current bank)
+## 1. Dataset findings (measured on the candidate)
 
 ### 1.1 Structure
-- 117 items × 4 options = 468 rows; all approved.
-- Every item has exactly 4 options, exactly 1 correct, unique option texts, and no link on a correct option (pack rules V1–V4 pass; checked in code).
-- Wrong options by number of linked misconceptions: **0 links: 65, 1 link: 237, 2 links: 48, 3 links: 1.** The single 3-link option is T7-003 A (`24`) → 2271 | 1514 | 1773.
-- Options linked to the same misconception, per item: 1 option on 317 (item, misconception) pairs, 2 options on 5, **3 options on 3** (T6-011B, T6-014B, T6-016B, all MATH-1416).
+- 133 items × 4 options = 532 rows; all approved. The 20 approved batch files equal the bank cell by cell (`python -m validation.content_recheck`).
+- Every item has exactly 4 options, exactly 1 correct, unique option texts, and no link on a correct option (V1–V4; `python -m validation.math_dataset`: 0 structural errors, 0 P1 conflicts).
+- Wrong options by number of linked misconceptions: **0 links: 103, 1 link: 258, 2 links: 37, 3 links: 1** (T7-003 A, `24` → 2271 | 1514 | 1773). 296 of 399 wrong options (74.2%) carry a link.
+- Options linked to the same misconception, per item: 1 option on 325 (item, misconception) pairs, 2 options on 5, **3 options on none**. (117-item bank: 317, 5 and 3; the three were T6-011B, T6-014B, T6-016B, which now link MATH-1416 on one option each.)
 - No item carries probabilities or response counts. Every parameter is assumed.
 
 ### 1.2 Labels, units and placement
-`items.csv` uses 11 distinct topic labels. They map to 7 diagnostic units (§2.1):
+`items.csv` uses 11 topic labels. They map to 7 diagnostic units (`sonder_pack/maths_v2_units.json`):
 
-| Unit | `items.csv` labels included | Items | k | Unlinked wrong options |
+| Unit | `items.csv` labels included | Items (twin groups) | k | Unlinked wrong options |
 |---|---|---|---|---|
-| U1 Rounding | T1 Rounding | 20 | 4 | 8 |
-| U2 Conversion | T2 Fractions, decimals and percentage conversion | 25 | 5 | 10 |
-| U3 Percentage of an amount | T3 Percentage of an amount | 10 | 5 | 3 |
-| U4 Choosing the operation | T4 Choosing the operation; T5 cross-concept (operation version) | 16 | 6 | 10 |
-| U5 Powers and roots | T5 Powers and roots | 10 | 4 | 4 |
-| U6 Time and unit conversion | T6 (seconds and hours); T6 × multiplication/division; T6 × percentage / more / less than (time version) | 17 (12 after twin collapse) | 6 | 11 |
-| U7 Negatives, inverse operations, fraction bar | T7 | 16 | 7 | 16 |
-| **Placed** | | **114** | | **62** |
-| Unplaced | T6 × percentage / more / less than (operation version): T6-019B, T6-020B, T6-021B | 3 | 8 | 3 |
+| U1 Rounding | T1 Rounding | 20 (20) | 4 | 5 |
+| U2 Conversion | T2 Fractions, decimals and percentage conversion | 25 (25) | 5 | 14 |
+| U3 Percentage of an amount | T3 Percentage of an amount | 10 (10) | 4 | 5 |
+| U4 Choosing the operation | T4 Choosing the operation; T5 cross-concept (operation version) | 21 (21) | 6 | 20 |
+| U5 Powers and roots | T5 Powers and roots | 13 (13) | 3 | 7 |
+| U6 Time and unit conversion | T6 (seconds and hours); T6 × multiplication/division; T6 × percentage / more / less than (time version) | 18 (14) after the D-2 skip | 5 | 19 |
+| U7 Negatives, inverse operations, fraction bar | T7 | 20 (20) | 7 | 24 |
+| Unplaced | T6 × percentage / more / less than (operation version): T6-019B, T6-020B, T6-021B | 3 | 8 | |
 
-The 3 unplaced items are the B-versions of the B15 time items. Their links span 8 misconceptions (126, 228, 1514, 1773, 1074, 1651, 2138, 2206) from three topics, so no unit with k ≤ 8 and enough items contains them. They stay in the bank but are not used in Mid-1 sessions. Because they belong to no unit, no session contains them, so they do not block their A-twins T6-019A/020A/021A (which are ordinary U6 items). **Open decision D-4.**
-
-Topic labels in `items.csv` differ from `topics.csv` (for example "T4 Choosing the operation" vs "…(worded problems)"), so the pack builder must map labels to unit IDs explicitly, never by string join.
+The hypothesis lists follow the links: U3 no longer has MATH-1651 (unlinked there on 20 November), U5 no longer has MATH-734 (removed from the catalogue), and U6 drops MATH-1416 under D-2 (§7). The 3 unplaced items link 8 misconceptions from three topics, so no unit with k ≤ 8 and enough items holds them (D-4). In U2 the seven conversion checks T2-005 to T2-010 and T2-019 shared one stem on 20 November and so formed one twin group (19 groups); Harris gave them distinct stems on 24 November, so U2 has 25 independent items. Topic labels differ from `topics.csv`, so the pack builder maps labels to units explicitly, never by string join.
 
 ### 1.3 Cross-topic items
-26 items link at least one misconception from outside their own topic. Linked-topic pattern by batch: B08 (T4 ×5, T7 ×1), B11 (T2+T7 ×3, T4+T7 ×1), B12 (T2+T7 ×1), B13 (T3+T6+T7 ×4, T3+T7 ×2, T3+T6 ×1), B14 (T4 ×3, T7 ×2), B16 (T4 ×2, T3+T6 ×1). Under the earlier draft's V5 (links must lie inside the item's own topic) these would be rejected or excluded. Under units they are valid as long as every link lies inside the unit's hypothesis set (V5').
+34 items link at least one misconception from outside their own topic (26 on the 117-item bank). Under units they are valid as long as every link lies inside the unit's hypothesis list (V5').
 
-### 1.4 Separability (model of §3.1, over each unit's items)
-- **Structurally inseparable** (TV ≤ 0.05 on every item in the unit): **1074/1651** (U3 over 10 items, U6 over 17) and **1514/1773** (U4 over 16, U7 over 16).
-- **Weak:** MATH-414 / MATH-734 are separable by only **3 of 10** items in U5 (they share the same option on 5 items).
-- **MATH-1965 is a subset of MATH-2039.** All 10 options linked to 1965 are also linked to 2039. They separate on 15 of 25 items, but only through *correct* answers on the 15 items where 2039 is linked and 1965 is not. Consequence in §6.3: noisy 2039 students are mislabelled 1965.
-- **MATH-1379 / MATH-1988** are fully separable (20 of 20), though they are never linked to the same option, because an untriggered misconception predicts the correct answer (§3.1).
-- Near-weak pairs: 2093 vs NONE (1 separating item in U4), 2359 vs NONE (2 in U6), 1416 vs NONE (3 in U6), 1514 vs NONE and 1773 vs NONE (1 each in U7). Counted by the W2 rule below (4 or fewer separating items, twin groups collapsed, a group separating if either member does), U7 also has 2271 vs 1514 (4), 2271 vs 1773 (4) and 1715 vs NONE (4); recomputed against the current bank on 11 October 2026.
+### 1.4 Separability (model of §3.1, over each unit's items, twins collapsed)
+- **No structurally inseparable pair** (no W1). On the 117-item bank 1074/1651 (U3, U6) and 1514/1773 (U4, U7) were inseparable. B19 (T4-011, T4-012) and B21 (T7-017 to T7-020) separate 1514/1773, B20 (T6-022, T6-023) separates 1074/1651 in U6, and MATH-1651 is no longer in U3. MATH-414/734 no longer exists as a pair.
+- **Weakly separable (W2, 4 or fewer separating groups):** 1074/NONE 3 (U3); 1514/1773 2 and 2093/NONE 4 (U4); 1074/1651 2 and 2359/NONE 4 (U6); 1514/1773 2, 1773/NONE 3 and 1715/NONE 4 (U7). A session that uses up a pair's separating items can still end in R4 (§3.5, §5 D3).
+- **MATH-1965 is still a subset of MATH-2039.** Every option linked to 1965 is also linked to 2039, so the two separate only through correct answers on the 2039-only items. Consequence: a 2039 holder who answers those items correctly is labelled 1965 (KF-07, §6.3). The new separators create the same structure for two more pairs: every 1773 option is also a 1514 option, and every 1651 option is also a 1074 option. In the U3–U7 tuning run noisy 1514 holders are labelled 1773 and noisy 1074 holders 1651 (KF-16, `experiments/FINDINGS_U3_U7.md`).
+- Every answer sequence of every unit was enumerated (`python -m experiments.enumerate_sequences`): R4 refusals occur in U3, U4, U6 and U7 (1,205 sequences: 193, 235, 306 and 471), none in U1, U2 or U5, and every one is an exact-row refusal. (On the 20 November candidate U2 also had 80, all {1715, NONE} after the 1715 items were used; the distinct T2 stems removed them.)
 
-### 1.5 Trigger items per misconception (twins collapsed; items where the misconception has at least one linked option)
-This is the number of questions that can give evidence for the misconception. A session uses 2–5 of them, so a low number limits both diagnosis and the later verification loop.
-
-| Count | Misconception (unit) |
-|---|---|
-| 1 | 2093 (U4), 1514 (U7), 1773 (U7) |
-| 2 | 2359 (U6) |
-| 3 | 1416 (U6) |
-| 4 | 1715 (U7) |
-| 5 | 1074, 1651 (U3 and U6), 1639 (U7), 2271 (U7) |
-| 6 | 126 (U4), 1416 (U4), 2093 (U7), 2359 (U3) |
-| 7 | 2138, 2359 (U7), 952 (U5) |
-| 8–9 | 414, 734, 1072 (U5), 2206 (U3), 1988 (U1) |
-| 10 | 61, 1965 (U2) |
-| 11–13 | 1379 (U1), 228 (U4), 161, 767 (U6), 1514, 1773 (U4) |
-| 15 | 658, 1715 (U2) |
-| 20–25 | 1248, 2392 (U1: 20), 2039 (U2: 25) |
-
-(Exact counts per unit are in `spec_v2_report_output.txt`.) Targets are different from trigger items: the "5 questions per misconception" target counts items *written for* a misconception, while the engine uses every item that links it. Misconceptions with fewer than 5 are the ones where verification will run out first.
+### 1.5 Trigger groups per misconception, per unit (twins collapsed)
+The number of question groups in a unit that can give evidence for the misconception. A session uses 2–5 of them, so a low number limits both diagnosis and the later verification loop. Fewest per unit: U1 1988 (9), U2 61 and 1965 (10; 1715 has 11), U3 1074 (3), U4 2093 (4), U5 952 (10), U6 2359 (4), U7 1773 (3). No hypothesis has fewer than 3 (no W3; on the 117-item bank 2093 in U4, 2359 in U6 and 1514/1773 in U7 had 1–2). Bank-wide counts per misconception are in `data/Maths_v2/coverage.md`.
 
 ---
 
 ## 2. Concepts
 
 ### 2.1 Diagnostic unit (replaces "topic" as the session scope)
-A **unit** declares: an ordered hypothesis list `m_1 … m_k` (`1 ≤ k ≤ K_MAX = 8`) and the item IDs (or `items.csv` labels) that belong to it. Hypotheses are `ℋ = (m_1, …, m_k, NONE, UNMODELLED)`. The default is one unit per curriculum topic. A unit may add **companion misconceptions** from other topics so that crossing items stay usable (U3 adds 1074, 1651, 2359; U4 adds 2093; U6 adds 1416, 2359; U7 adds 1514, 1773, 1715).
+A **unit** declares: an ordered hypothesis list `m_1 … m_k` (`1 ≤ k ≤ K_MAX = 8`) and the item IDs (or `items.csv` labels) that belong to it. Hypotheses are `ℋ = (m_1, …, m_k, NONE, UNMODELLED)`. The default is one unit per curriculum topic. A unit may add **companion misconceptions** from other topics so that crossing items stay usable (on the candidate: U3 adds 1074 and 2359; U4 adds 2093; U6 adds 2359; U7 adds 1514, 1773 and 1715).
 
 Rule: an item may belong to a unit only if **every misconception linked on it is in that unit's hypothesis list** (V5'). An item may belong to more than one unit.
 
-Unit definitions for the current bank are in `UNITS` in `spec_v2_reference.py`. They are a proposal built from the observed cross-links, not a catalogue change. Units with a companion that has fewer than 3 trigger items (§1.5) are flagged: the companion adds prior mass but can never be diagnosed in that unit. **Recommendation:** drop 2093 from U4, 2359 from U6, and 1514/1773 from U7 together with the items that need them, or accept that those hypotheses only produce `escalated_exhausted`. See D-5.
+Unit definitions are in `sonder_pack/maths_v2_units.json`, built from the observed cross-links, not a catalogue change. The loader flags a companion with fewer than 3 trigger groups (W3): it adds prior mass but can never be diagnosed in that unit. On the 117-item bank that was 2093 in U4, 2359 in U6 and 1514/1773 in U7 (D-5, kept by decision); the candidate's new items give every companion at least 3 trigger groups (§1.5), so D-5 is resolved.
 
 ### 2.2 Twin groups
-Items with identical stems are a **twin group** (14 groups: T5-005/011 … T5-010/016, T6-010/010B, 011/011B, 014/014B, 015/015B, 016/016B, T6-019A/019B, 020A/020B, 021A/021B). After one item of a group is asked, **all other items of the group are ineligible for that session**. Without this rule the same question can be asked twice in a row, and the second answer is not independent evidence. Twin groups are derived from stems at load time and checked for the A/B convention. Twins are also the natural inventory for verification: a diagnosed student can be re-checked with the twin.
+Items with identical stems are a **twin group** (19 groups on the candidate, all A/B pairs: T5-005/011 … T5-010/016, T5-017/020 … T5-019/022, T6-010/010B … T6-016/016B and T6-019A/019B … 021A/021B; the 20 November candidate also had one group of seven T2 conversion checks). After one item of a group is asked, **all other items of the group are ineligible for that session**. Without this rule the same question can be asked twice in a row, and the second answer is not independent evidence. Twin groups are derived from stems at load time and checked for the A/B convention. Twins are also the natural inventory for verification: a diagnosed student can be re-checked with the twin.
 
 ### 2.3 Invariants
 - A session runs on one unit of one frozen pack. All engine functions are pure (no I/O, clock or randomness). Same pack, parameters and answers → identical posteriors, selections and decisions.
@@ -132,7 +111,7 @@ Rows sum to 1 and every entry is positive. Measured: this holds for every item o
 Consequences already visible in the bank:
 - A two-link option gives both misconceptions the same likelihood, so it cannot separate them. EIG naturally prefers other items.
 - An unlinked wrong option gets only off-prediction mass from every catalogued hypothesis and 0.25 from UNMODELLED, so choosing it moves mass to UNMODELLED.
-- **3-option predicted sets** (T6-011B/014B/016B): with `guess = 0.30` each predicted option gets 0.233 and the one unpredicted (correct) option gets 0.300. Picking a predicted option is still evidence for the misconception (a likelihood ratio of 7 against NONE) but the model no longer says a misconception holder prefers their option over the correct one. This is the mathematical reason for a "≤ 2 options" rule. Decision D-2.
+- **3-option predicted sets:** with `guess = 0.30` each predicted option would get 0.233 and the one unpredicted (correct) option 0.300. Picking a predicted option is still evidence for the misconception (a likelihood ratio of 7 against NONE), but the model would no longer say a holder prefers their option over the correct one. This is the mathematical reason for a "≤ 2 options" rule and P1. The 117-item bank had three such items (T6-011B/014B/016B, decision D-2); the candidate has none.
 
 ### 3.2 Prior and update
 `p0(NONE) = 0.25`, `p0(UNMODELLED) = 0.05`, the rest split equally. Bayes update with the observed option; renormalise each step; zero evidence is a hard error. Posteriors are stored unrounded.
@@ -183,14 +162,14 @@ Note that `R` here already excludes twin partners of asked items, which is how a
 | `guess` | 0.30 | same, for states that predict wrong options. 0.30 means a holder applies the misconception about 70% of the time |
 | `π_N`, `π_U` | 0.25, 0.05 | priors |
 | `θ`, `θ_U` | 0.80, 0.50 | `θ + θ_U > 1` |
-| `min_support`, `min_support_none` | 2, 3 | 2 follows the project rule "≥ 2 answers behind a diagnosis". **Recommendation D-3: raise to 3** (§6.4) |
+| `min_support`, `min_support_none` | 2, 3 | 2 follows the project rule "≥ 2 answers behind a diagnosis". Measured alternatives in §6.4 (D-3) |
 | `δ` | 0.05 | separation threshold |
 | `η` | 0.01 bits | EIG floor |
 | `budget` | 8 | questions per session |
 | `K_MAX` | 8 | |
 | `w_S`, `w_T` | 1.0, 0.5 | link weights (§3.3) |
 
-**Validation at load.** P1: `0 < slip < 0.5` and `0 < guess`, and for every (hypothesis, item) with predicted-set size `s`: `(1 − guess)/s > guess/(4 − s)`, i.e. `guess < (4 − s)/4`. That is `< 0.75, < 0.5, < 0.25` for `s = 1, 2, 3`. With `guess = 0.30` the 3 B14 items violate it. P2–P6 as in the earlier draft.
+**Validation at load.** P1: `0 < slip < 0.5` and `0 < guess`, and for every (hypothesis, item) with predicted-set size `s`: `(1 − guess)/s > guess/(4 − s)`, i.e. `guess < (4 − s)/4`. That is `< 0.75, < 0.5, < 0.25` for `s = 1, 2, 3`. With `guess = 0.30` no candidate item violates it (the three B14 items of the 117-item bank did). P2–P6 as in the earlier draft.
 
 ---
 
@@ -210,7 +189,7 @@ Authoring source is `items.csv` (one row per option; `misconceptions` split on `
 
 **Rules (hard, refuse to load):** V1 exactly 4 options · V2 exactly one correct · V3 unique `option_id` and `text` within an item · V4 the correct option has no links · **V5' every linked ID is in the unit's hypothesis list** · V6 unique item IDs, unique hypothesis IDs per unit · V7 `1 ≤ k ≤ 8` · V8 no duplicate ID within one option's links · V9 each unit has at least `budget` approved item groups (twins collapsed), otherwise refuse to load · V10 supported `pack_format` · **V11 a misconception may link at most 3 options of one item, and the predicted-set size must satisfy P1.**
 
-**Warnings (reported by `/engine/health`, never fatal):** W1 structurally inseparable pairs over the unit's items (currently 1074/1651 in U3 and U6, 1514/1773 in U4 and U7) · W2 weakly separable pairs (≤ 4 separating items; currently 414/734 in U5, 2093 vs NONE in U4, 2359 and 1416 vs NONE in U6, and in U7 1514 vs NONE, 1773 vs NONE, 2271 vs 1514, 2271 vs 1773 and 1715 vs NONE) · **W3 a hypothesis with fewer than 3 trigger groups** (currently 2093 in U4, 2359 in U6, 1514/1773 in U7) · W4 items with two or more unlinked wrong options · W5 a misconception linked to 3 options of one item (currently 3 items) · W6 missing `link_grade`.
+**Warnings (reported by `/engine/health`, never fatal):** W1 structurally inseparable pairs over the unit's items (none on the candidate) · W2 weakly separable pairs (≤ 4 separating groups; the eight pairs of §1.4) · **W3 a hypothesis with fewer than 3 trigger groups** (none on the candidate) · W4 items with two or more unlinked wrong options (25 unit items on the candidate, most deliberate: an unlinked option is preferred to a stretch link; whether W4 stays a warning is an open team question, KF-13) · W5 a misconception linked to 3 options of one item (none) · W6 missing `link_grade`.
 
 ---
 
@@ -295,49 +274,47 @@ On the candidate, 16 variants × 41 students = 656 runs: **no outcome changes**.
 
 *Change from the 117-item bank:* 16 variants × 44 students = 704 runs gave **6 outcome changes**, all from `θ`: at θ = 0.64, 1416 in U6 moved from `diagnosed` to `none_detected`; at θ = 0.96, five students (NONE in U4, U6, U7; 2093 in U4; 2359 in U6) moved to `escalated_no_separator`. After D-2 the first of these no longer existed. No other parameter changed any outcome there either.
 
-### 6.3 Noisy students (apply the misconception 50%, 70% or 90% of the time when triggered, 8% slip elsewhere; generation parameters differ from the engine's)
-Per-unit share of runs (720–1,260 runs each):
+### 6.3 Noisy students (seeded and reproducible)
+The earlier figures here came from uncommitted reference scripts. They are replaced by seeded runs in the repository, each generated at a clean commit with its manifest (`experiments/PROTOCOL.md`). A holder applies the misconception on a triggering item with probability 0.5, 0.7 or 0.9 and otherwise answers carefully (slip 0.08); generation parameters differ from the engine's.
 
-| Unit | Correct diagnosis | `none_detected` (missed) | Refusal naming the true misconception | Refusal not naming it | Exhausted | Wrong diagnosis |
-|---|---|---|---|---|---|---|
-| U1 | 79.3% | 18.6% | 0 | 0 | 2.1% | 0 |
-| U2 | 74.3% | 21.6% | 0 | 0 | 0.4% | 3.7% |
-| U3 | 44.0% | 20.3% | 34.7% | 0.1% | 0.9% | 0 |
-| U4 | 34.7% | 23.6% | 26.9% | 1.5% | 13.0% | 0.4% |
-| U5 | 81.5% | 17.1% | 0.3% | 0 | 1.1% | 0 |
-| U6 | 37.2% | 16.8% | 30.0% | 2.3% | 13.2% | 0.5% |
-| U7 | 48.7% | 21.7% | 22.0% | 4.8% | 1.9% | 1.0% |
+Adaptive selection, final candidate content, tuning split (`experiments/results/u1u2-tuning-1124/`, 1,200 runs per cell in U1 and 1,500 in U2):
 
-- The 17–24% "missed" share is expected: a student who applies the misconception only half the time looks like NONE on the items where they answer correctly. It is the price of the multi-answer evidence rule, not a bug.
-- **U2's 3.7% wrong diagnoses are almost all MATH-2039 students labelled MATH-1965** (29 of 33 wrong diagnoses). That is the subset problem in §1.4: when a 2039 student gets 2039-only items right, the evidence favours 1965.
-- U3, U4 and U6 lose roughly 27–35% of these students to refusals because of 1074/1651 and 1514/1773.
+| Unit, apply rate | Correct label | Missed (`none_detected`) | Refused | Wrong label ÷ labelled |
+|---|---|---|---|---|
+| U1, 0.5 / 0.7 / 0.9 | 55.6% / 82.7% / 97.2% | 40.2% / 16.0% / 2.7% | 4.1% / 1.2% / 0.1% | 0.1% / 0.1% / 0.1% |
+| U2, 0.5 / 0.7 / 0.9 | 51.4% / 75.7% / 93.0% | see `metrics.csv` | see `metrics.csv` | 9.0% / 4.9% / 2.0% |
 
-### 6.4 Students with no misconception and random clickers
-Share of 300–400 runs per unit; "random" picks uniformly among the four options on every item.
+- The missed share is expected: a holder who applies the misconception only part of the time looks like NONE on the items they answer correctly (KF-12). It is the price of the multi-answer evidence rule, not a bug.
+- **U2's wrong labels are almost all MATH-2039 holders labelled MATH-1965**, the subset problem of §1.4.
+- The selection comparison (adaptive, fixed, random with equal budgets) and the held-out result are in `experiments/FINDINGS_A05.md` and `experiments/FINDINGS_HELDOUT.md`. On the final content adaptive selection is clearly better in U2 (held-out: 85.7% against 58.7% correct at apply 0.8) because the fixed order never tests MATH-61 or MATH-1965, and the same holds in U4, U6 and U7; in U1, U3 and U5 the methods are equal within their intervals.
+- U3–U7 noisy holders are not yet measured with the protocol; the plan is `experiments/REMAINING_UNITS_PLAN.md`. The seven-unit adverse baseline (§6.4) covers them for adverse cases.
 
-| Unit | NONE student → `none_detected` | NONE student → `diagnosed` (false) | Random clicker → `diagnosed` |
-|---|---|---|---|
-| U1 | 99.3% | 0.3% | 55.2% |
-| U2 | 98.5% | 1.5% | 55.5% |
-| U3 | 96.5% | 1.5% | 22.0% |
-| U4 | 91.0% | 0.0% | 21.5% |
-| U5 | 99.3% | 0.0% | 56.0% |
-| U6 | 82.3% | 0.7% | 32.3% |
-| U7 | 88.0% | 1.8% | 48.0% |
+### 6.4 Students with no misconception, random answering and always-A (seeded)
+All seven units, adverse baseline on the candidate (`experiments/results/adverse-baseline-candidate-2026-11-20/`, 200 runs per unit; details in `experiments/ADVERSE_CASES.md`):
 
-A student who always picks "A" is diagnosed in U1 (2392), U2 (61), U4 (1416), U5 (952), U6 (161) and U7 (2271) in 2–5 answers. This is the reviewer's "24–55% of random clickers get diagnosed" problem and it is real: random answers land on linked options often because 286 of the 351 wrong options (81.5%) carry at least one link. It is a property of the data plus the evidence rule, not a bug.
+| Unit | No misconception (slip 0.08) → `none_detected` | → wrongly labelled | Random answering → labelled | Always-A |
+|---|---|---|---|---|
+| U1 | 200/200 | 0 | 49.5% | MATH-2392 after 6 |
+| U2 | 198/200 | 1 | 49.0% | MATH-61 after 4 |
+| U3 | 195/200 | 3 | 36.0% | exhausted |
+| U4 | 195/200 | 1 | 39.0% | MATH-1416 after 4 |
+| U5 | 199/200 | 1 | 48.0% | MATH-952 after 4 |
+| U6 | 190/200 | 3 | 45.5% | MATH-161 after 2 |
+| U7 | 178/200 | 3 | 46.0% | MATH-2271 after 4 |
+| All | 96.8% | 0.9% | **44.7%** (37.9% on the 117-item bank) | labelled in 6 of 7 units |
 
-Threshold trade-off (pooled over all 7 units; 300 random clickers and 300 NONE students per unit; "deterministic" counts the 37 misconception students, without NONE):
+Random answers often land on linked options (296 of 399 wrong options carry a link), and two such answers satisfy R1 at `min_support = 2`. The candidate's separating items remove refusals that used to stop such sessions, which is why random-answer labelling rose overall even though fewer options are linked.
 
-| Setting | Random clicker diagnosed | NONE student wrongly diagnosed | Deterministic students correct | Noisy students correct | Noisy students wrong |
-|---|---|---|---|---|---|
-| default (`min_support` 2, θ .80) | 39.6% | 0.8% | 27 / 37 | 53.8% | 0.7% |
-| `min_support` 3 | **18.3%** | 0.3% | 27 / 37 | 51.1% | 0.2% |
-| θ 0.90 | 26.9% | 0.7% | 27 / 37 | 54.5% | 0.4% |
-| `min_support` 3 + θ 0.90 | 13.7% | 0.2% | 27 / 37 | 52.3% | 0.3% |
-| `min_support` 3 + θ 0.90 + budget 10 | 16.0% | 0.0% | 27 / 37 | 53.7% | 0.3% |
+Threshold trade-off (U1/U2, adaptive selection, tuning split, final candidate content; `experiments/FINDINGS_A05.md` §0):
 
-Raising `min_support` to 3 halves random-clicker diagnoses and costs about 2.7 percentage points of correct diagnoses on noisy students. Raising θ alone helps less. `min_support = 3` departs from the project's stated "≥ 2 answers" rule, so it needs a team decision (D-3). The `none_detected` share for NONE students falls when θ rises (88.4% at θ 0.90, from 94.5%).
+| Setting | Random answering labelled (U1, U2) | U2 holders correct at apply 0.5 / 0.7 / 0.9 | U2 wrong ÷ labelled at 0.5 | Mean questions, U2 holders at 0.7 |
+|---|---|---|---|---|
+| default (`min_support` 2, θ .80) | 51.0%, 49.3% | 51.4 / 75.7 / 93.0% | 9.0% | 3.36 |
+| `min_support` 3 | 33.7%, 19.7% | 46.0 / 75.1 / 93.2% | 4.3% | 4.95 |
+| θ 0.90 | 39.3%, 36.7% | 56.0 / 85.3 / 98.6% | 7.6% | 4.05 |
+| both | 25.0%, 12.7% | 47.3 / 80.6 / 97.1% | 5.7% | 5.50 |
+
+`min_support = 3` gives the largest cut in random-answer labelling at the cost of more questions and refusals; θ 0.90 costs under one question and finds more U2 misconceptions. No setting stops always-A in U2 or the 1965/2039 confusion. **Team decision (24 November 2026):** θ 0.90 becomes the default with the next content release and its held-out confirmation run; Iteration 2 results are reported at θ 0.80 (D-3/D-6, §7).
 
 ---
 
@@ -345,15 +322,15 @@ Raising `min_support` to 3 halves random-clicker diagnoses and costs about 2.7 p
 
 | # | Item | Recommendation |
 |---|---|---|
-| D-1 | Merge the inseparable catalogue pairs 1514/1773 and 1074/1651; redefine or merge 1965/2039; add separating items for 414/734 | **Merge** 1514/1773 and 1074/1651 now. For 1965/2039, redefine 1965 so it has at least one option that 2039 does not also take, or merge. Do this in the catalogue, not the engine. Needs the owner's approval; I have not changed the catalogue or `items.csv`. |
-| D-2 | The 3 items with 3 options linked to MATH-1416 (T6-011B/014B/016B) | Either rework each so one of the three options is unlinked or linked to a different sound misconception, or keep them and cap `guess` below 0.25 for them. The reworked sheets would be shown to you before anything enters the bank. **Decided 11 October 2026 (Ahmed): skip these three items for U6 at load time, with a warning every time; keep `guess` at 0.30; do not change `items.csv`.** Recorded as a known fault. Side effect, checked against the bank: these three are the only U6 items with an option linked to MATH-1416, so after the skip MATH-1416 has no trigger item in U6 and cannot be diagnosed there (U6 then has 14 items in 12 twin groups, still at least `budget`). Whether to also drop MATH-1416 from U6's hypothesis list is proposed in the engine plan and not yet decided. |
-| D-3 | `min_support` 2 or 3 | 3, from §6.4. It is a departure from the "≥ 2 answers" rule in the project docs, so it is the team's call. **Decided 11 October 2026 (Ahmed): keep 2**, read only from the parameter set so a change to 3 is one line. |
-| D-4 | The 3 unplaced items (T6-019B/020B/021B) | Leave unplaced for Mid-1, or define a k = 8 unit with other items that fit. They block nothing, because no unit contains them. **Decided 11 October 2026 (Ahmed): leave unplaced** and document as a known fault. |
-| D-5 | Companions with fewer than 3 trigger items (2093 in U4, 2359 in U6, 1514/1773 in U7) | Drop them from those units, or write more items that trigger them. They cannot be diagnosed there. **Decided 11 October 2026 (Ahmed): keep them**; the loader reports W3 for each and sessions about them end `escalated_exhausted`, recorded as a known fault. |
-| D-6 | `θ` range | Fix `θ` at 0.80 and treat 0.64–0.96 as untested (§6.2). |
+| D-1 | Inseparable catalogue pairs 1514/1773 and 1074/1651; 1965/2039; 414/734 | **Resolved by content for the pairs** (candidate, 20 November 2026): separating items B19–B21, MATH-1651 unlinked in U3, MATH-734 removed. **Open: 1965/2039** (KF-07): redefine 1965 so it has an option 2039 does not take, or merge. Catalogue owner Harris, with team approval. |
+| D-2 | The 3 items with 3 options linked to MATH-1416 (T6-011B/014B/016B) | Decided 11 October 2026 (Ahmed): skip them for U6 and drop MATH-1416 there. **The content is now fixed** (each links MATH-1416 on one option and passes P1), so the skip and the drop can be removed; that is a unit-table change for Ahmed, after which U6 is re-measured (KF-01, KF-02). |
+| D-3 | `min_support` 2 or 3 | Decided 11 October 2026 (Ahmed): keep 2. Measured on both contents (§6.4, `FINDINGS_A04.md`, `FINDINGS_A05.md`). **Team decision (24 November 2026): θ 0.90 becomes the default with the next content release**, together with that release's held-out confirmation run on new seeds (protocol change log); `min_support` stays 2. Iteration 2 results are reported at θ 0.80. |
+| D-4 | The 3 unplaced items (T6-019B/020B/021B) | Decided (Ahmed): leave unplaced; documented as KF-05. Unchanged. |
+| D-5 | Companions with fewer than 3 trigger items | **Resolved by content:** no hypothesis has fewer than 3 trigger groups on the candidate (§1.5). |
+| D-6 | `θ` range | Keep θ at 0.80 until the team decides D-3; θ 0.90 is measured (§6.4). On the candidate no ×0.8/×1.2 parameter variation changes a deterministic student's outcome (§6.2). |
 | T-1 | Add the `link_grade` column | Needs a pass over the roughly 90 stretch options listed in `Maths_v2/batches/reviews/LINK_AUDIT_SUMMARY.md` and the `linkaudit_*.txt` files. These are agent ratings, not the owner's, so the owner should confirm them. Until then the engine runs with all links at weight 1. |
-| T-2 | More trigger items for misconceptions under 5 (§1.5) | Build B17 (T6-013B, T6-018B, possibly 012B), then a short batch for the 1-and-2-item misconceptions. Drafts first, nothing in the bank without approval. |
-| T-3 | Human review evidence | The review files are AI-agent reports, explicitly labelled "not the owner's approval". For a Mid-1 "reviewed content" claim, a different human should review a sample and record name and date per batch. I cannot supply that. |
+| T-2 | More trigger items for misconceptions under 5 (§1.5) | **Done** in the candidate: B17 (T6-012B, T6-013B), B18 (T5-017 to T5-022), B19–B21 separators. |
+| T-3 | Human review evidence | The batch review files are AI-agent reports, not approvals. Harris approved every item; Ashher's independent technical review of the candidate is `validation/reviews/I2_CONTENT_2026-11-24_ashher.md` (all 91 changed or new items solved). **External Maths-expert acceptance is still outstanding (I2-H07, gate G1).** |
 
 ---
 
@@ -365,15 +342,17 @@ Endpoints: `POST /engine/sessions`, `POST /engine/sessions/{id}/answers`, `GET /
 
 ---
 
-## 9. Reference code and how to reproduce
+## 9. How to reproduce
 
-*As of 11 October 2026 the scripts below are not in this repository, so these commands cannot be run from a checkout. The numbers in §§1, 5 and 6 were measured by them and are cited, not reproducible here, until the scripts or equivalent tests are committed.*
+Every number in this spec comes from a test or a command in this repository (checked 24 November 2026):
 
-```
-cd engine_reference
-python spec_v2_reference.py ../Maths_v2/bank/items.csv          # self-test
-python spec_v2_report.py     ../Maths_v2/bank/items.csv          # §1, §5, §6 numbers
-python spec_v2_tuning.py     ../Maths_v2/bank/items.csv          # §6.4 trade-off table
-```
+| Section | Command |
+|---|---|
+| §1.1–§1.2, §1.4 W1–W3, §4 warnings | `python -m sonder_pack.maths_v2`; `python -m validation.math_dataset`; `python -m validation.content_recheck` |
+| §1.4 R4 refusals | `python -m experiments.enumerate_sequences` |
+| §3 likelihood, P1, exact arithmetic | `python -m unittest discover -s tests -p "test_bayes*.py"`, and `tests/test_selection.py` for EIG |
+| §3.5 R4 reachable share | `tests/test_engine_r4_rows.py`, `tests/test_engine_stopping.py` |
+| §5 D1, D2, D3 and §6.1–§6.2 | `tests/test_engine_stopping.py`, `tests/test_engine_students.py`, `tests/test_engine_r4_rows.py` |
+| §6.3–§6.4 | `python -m experiments.adverse_baseline` (command and folder in `experiments/ADVERSE_CASES.md`); `python -m experiments.evaluate --config experiments/configs/<name>.json`; `python -m experiments.compare <runs>` |
 
-The self-test checks that likelihood rows sum to 1 and are positive for every item of every unit, that V1–V4 hold, that V5' holds for all 7 units, that a NONE student is never diagnosed, and that no session asks two items of one twin group. There is **no pytest suite** yet. The synthetic-student numbers depend on random seeds and run counts, so expect small differences from the percentages above if you re-run with other seeds; the counts for the deterministic students and the worked examples do not depend on seeds.
+The deterministic results (§5, §6.1, §6.2) do not depend on seeds. The seeded runs fix every seed in their configuration, record the generating commit, content hashes and parameters in `manifest.json`. A second run of the adverse baseline gave byte-identical files; the evaluation runner's reproducibility is tested in `tests/test_engine_eval*.py`.
