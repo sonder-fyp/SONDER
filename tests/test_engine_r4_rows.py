@@ -159,9 +159,10 @@ class RealBankRowTests(unittest.TestCase):
 
     def test_a_real_bank_refusal_is_an_exact_row_case(self):
         # On the 117-item bank the spec's D2 (U4 answers D, A) was refused naming 1514 and
-        # 1773; B19 now separates that pair, so D2 is diagnosed. The shortest refusal left
-        # in the 133-item candidate bank (all answer sequences of all units enumerated on
-        # 24 Nov 2026) is this U6 session: T6-010 B (correct), T6-015B A (MATH-2359),
+        # 1773; B19 now separates that pair, so D2 is diagnosed. Enumerating all answer
+        # sequences of all units of the 133-item candidate (24 Nov 2026) gives 1,285 R4
+        # refusals, every one exact-row; the shortest take 4 answers (U4 and U6). This is
+        # the U6 one: T6-010 B (correct), T6-015B A (MATH-2359),
         # T6-012B C (correct), T6-013B B (unlinked). Once the items that separate
         # MATH-2359 from NONE (or their twins) have been asked, the two answer alike on
         # every remaining item: p(C) = .815 >= theta but the reachable share is .7967.
