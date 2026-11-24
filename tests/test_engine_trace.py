@@ -148,13 +148,14 @@ class TraceSchemaTests(SchemaFit, unittest.TestCase):
 
     def test_outcome_candidates(self):
         u1, u4 = self.pack.unit("U1"), self.pack.unit("U4")
-        diagnosed = trace_of(replay(u1, Params(), ["D", "B", "B", "A"])).outcome
+        # T1-001 wins the D1 tie; D4 uses up both new U4 separators.
+        diagnosed = trace_of(replay(u1, Params(), ["B", "B", "A", "B"])).outcome
         self.assertEqual(diagnosed.diagnosis_candidates, ((1, 1), (2, 4)))  # MATH-1379, then NONE
-        refused = trace_of(replay(u4, Params(), ["D", "A"])).outcome
+        refused = trace_of(replay(u4, Params(), ["D", "B", "C", "B"])).outcome  # spec section 5 D4
         self.assertEqual((refused.escalation_leader_slot, refused.escalation_candidates),
-                         (3, ((1, 3), (2, 4))))  # MATH-1514 leads, MATH-1773 tied
-        self.assertAlmostEqual(refused.leader_share, 0.5, places=12)
-        self.assertEqual(refused.reachable_share, refused.leader_share)  # D2 rows are identical
+                         (4, ((1, 4), (2, 3))))  # MATH-1773 leads, MATH-1514 tied
+        self.assertAlmostEqual(refused.leader_share, 0.75, places=4)
+        self.assertEqual(refused.reachable_share, refused.leader_share)  # D4 rows are identical
         self.assertTrue(refused.escalation_reason.startswith("R4: "))
         exhausted = trace_of(run_student(u1, Params(), "NONE", budget=2)).outcome
         self.assertEqual(len(exhausted.escalation_candidates), 2)
@@ -171,7 +172,7 @@ class TraceSchemaTests(SchemaFit, unittest.TestCase):
         self.assertEqual((trace.unit_id, trace.question_budget), ("U1", 8))
 
     def test_json_round_trip_keeps_every_value(self):
-        trace = trace_to_dict(trace_of(replay(self.pack.unit("U4"), Params(), ["D", "A"])))
+        trace = trace_to_dict(trace_of(replay(self.pack.unit("U4"), Params(), ["D", "B", "C", "B"])))  # D4 uses both new separators.
         self.assertEqual(json.loads(json.dumps(trace)), trace)
         self.assertEqual(trace["outcome"]["outcome"], "escalated_no_separator")
         self.assertIsInstance(trace["steps"][0]["posterior"][0], float)

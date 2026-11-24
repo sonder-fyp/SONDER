@@ -1,7 +1,7 @@
 """Checks for the pack loader (spec v2 sections 1, 2 and 4) and the Maths_v2 unit table.
 
 The real-bank expectations were derived independently from items.csv and
-topics.csv and match spec v2 sections 1.2, 1.5 and 2.2 (U6 after decision D-2).
+topics.csv and were re-measured on the 133-item Maths_v2 candidate (PR #92, 24 Nov 2026; U6 after decision D-2).
 Synthetic packs are built in memory; nothing is written anywhere.
 """
 
@@ -84,25 +84,26 @@ class RealBankUnitTests(unittest.TestCase):
 
     def test_items_and_groups_per_unit(self):
         units = {u.unit_id: u for u in self.pack.units}
+        # PR #92 adds items in U4-U7. Seven T2 items share one stem, leaving U2 with 19 groups.
         self.assertEqual({k: len(u.items) for k, u in units.items()},
-                         {"U1": 20, "U2": 25, "U3": 10, "U4": 16, "U5": 10, "U6": 14, "U7": 16})
+                         {"U1": 20, "U2": 25, "U3": 10, "U4": 21, "U5": 13, "U6": 18, "U7": 20})
         groups = {k: len({p.item.twin_group or p.item.item_id for p in u.items}) for k, u in units.items()}
-        self.assertEqual(groups, {"U1": 20, "U2": 25, "U3": 10, "U4": 16, "U5": 10, "U6": 12, "U7": 16})
+        self.assertEqual(groups, {"U1": 20, "U2": 19, "U3": 10, "U4": 21, "U5": 13, "U6": 14, "U7": 20})
 
     def test_every_bank_item_is_placed_skipped_or_unplaced(self):
         placed = sum(len(u.items) for u in self.pack.units)
         self.assertEqual([p.item.item_id for p in self.pack.unplaced], ["T6-019B", "T6-020B", "T6-021B"])
         self.assertEqual(codes(self.pack, "SKIPPED_ITEM", "U6"), ["T6-011B", "T6-014B", "T6-016B"])
-        self.assertEqual(placed + 3 + len(self.pack.unplaced), 117)
+        self.assertEqual(placed + 3 + len(self.pack.unplaced), 133)  # PR #92 adds 16 items.
 
     def test_hypotheses_in_the_agreed_order(self):
         # Own misconceptions in topics.csv order, then companions by number; 1416 dropped from U6.
         self.assertEqual({u.unit_id: u.hyps[:-2] for u in self.pack.units}, {
             "U1": m(1248, 1379, 1988, 2392),
             "U2": m(61, 658, 1715, 1965, 2039),
-            "U3": m(2138, 2206, 1074, 1651, 2359),
+            "U3": m(2138, 2206, 1074, 2359),  # 1651 is no longer linked in U3.
             "U4": m(126, 228, 1416, 1514, 1773, 2093),
-            "U5": m(414, 734, 952, 1072),
+            "U5": m(414, 952, 1072),  # 734 was removed from the catalogue.
             "U6": m(1074, 161, 767, 1651, 2359),
             "U7": m(2359, 1639, 2093, 2271, 1514, 1715, 1773),
         })
@@ -112,57 +113,65 @@ class RealBankUnitTests(unittest.TestCase):
     def test_companions_match_spec_section_2_1(self):
         companions = {u.unit_id: tuple(h.misconception_id for h in u.hypotheses if h.companion)
                       for u in self.pack.units}
-        self.assertEqual(companions, {"U1": (), "U2": (), "U3": m(1074, 1651, 2359), "U4": m(2093),
+        self.assertEqual(companions, {"U1": (), "U2": (), "U3": m(1074, 2359), "U4": m(2093),  # No U3 link to 1651.
                                       "U5": (), "U6": m(2359), "U7": m(1514, 1715, 1773)})
 
     def test_pack_order_is_bank_file_order(self):
         self.assertEqual([p.item.item_id for p in self.pack.unit("U6").items], [
             "T6-010", "T6-011", "T6-012", "T6-013", "T6-014", "T6-015", "T6-016", "T6-017", "T6-018",
-            "T6-010B", "T6-015B", "T6-019A", "T6-020A", "T6-021A"])
+            "T6-010B", "T6-015B", "T6-019A", "T6-020A", "T6-021A",
+            "T6-012B", "T6-013B", "T6-022", "T6-023"])  # Four new U6 items follow T6-021A.
 
-    def test_fourteen_twin_groups_from_identical_stems(self):
+    def test_twenty_twin_groups_from_identical_stems(self):
         bank, _, _ = real_rows()
         groups = {}
         for item_id, group in derive_twin_groups(bank).items():
             groups.setdefault(group, []).append(item_id)
-        expected = [[f"T5-{a:03d}", f"T5-{a + 6:03d}"] for a in range(5, 11)]
-        expected += [[f"T6-{n}", f"T6-{n}B"] for n in ("010", "011", "014", "015", "016")]
+        # Seven distinct T2 questions share "Which of these conversions is correct?".
+        # The identical-stem rule permits at most one of them per session (Harris's Issue 1).
+        expected = [["T2-005", "T2-006", "T2-007", "T2-008", "T2-009", "T2-010", "T2-019"]]
+        expected += [[f"T5-{a:03d}", f"T5-{a + 6:03d}"] for a in range(5, 11)]
+        expected += [["T5-017", "T5-020"], ["T5-018", "T5-021"], ["T5-019", "T5-022"]]
+        expected += [[f"T6-{n}", f"T6-{n}B"] for n in ("010", "011", "012", "013", "014", "015", "016")]
         expected += [[f"T6-{n}A", f"T6-{n}B"] for n in ("019", "020", "021")]
         self.assertEqual(sorted(sorted(g) for g in groups.values()), sorted(expected))
 
     def test_trigger_groups_per_misconception(self):
         expected = {
+            # Updated links and identical stems change the number of independent trigger groups.
             "U1": {1248: 20, 1379: 11, 1988: 9, 2392: 20},
-            "U2": {61: 10, 658: 15, 1715: 15, 1965: 10, 2039: 25},
-            "U3": {2138: 7, 2206: 9, 1074: 5, 1651: 5, 2359: 6},
-            "U4": {126: 6, 228: 12, 1416: 6, 1514: 13, 1773: 13, 2093: 1},
-            "U5": {414: 8, 734: 8, 952: 7, 1072: 8},
-            "U6": {1074: 5, 161: 12, 767: 12, 1651: 5, 2359: 2, 1416: 0},
-            "U7": {2359: 7, 1639: 5, 2093: 6, 2271: 5, 1514: 1, 1715: 4, 1773: 1},
+            "U2": {61: 10, 658: 9, 1715: 5, 1965: 10, 2039: 19},
+            "U3": {2138: 7, 2206: 9, 1074: 3, 2359: 6},
+            "U4": {126: 6, 228: 12, 1416: 6, 1514: 15, 1773: 13, 2093: 4},
+            "U5": {414: 11, 952: 10, 1072: 11},
+            "U6": {1074: 7, 161: 12, 767: 12, 1651: 5, 2359: 4, 1416: 0},
+            "U7": {2359: 7, 1639: 5, 2093: 6, 2271: 5, 1514: 5, 1715: 4, 1773: 3},
         }
         for unit in self.pack.units:
             actual = {n: trigger_groups(unit, f"MATH-{n}") for n in expected[unit.unit_id]}
             self.assertEqual(actual, expected[unit.unit_id], unit.unit_id)
 
     def test_warning_lists(self):
+        # New separating items, unlinked options and shared stems change the candidate warnings.
         p = self.pack
-        self.assertEqual({u: codes(p, "W1", u) for u in ("U3", "U4", "U6", "U7")}, {
-            "U3": ["MATH-1074/MATH-1651"], "U4": ["MATH-1514/MATH-1773"],
-            "U6": ["MATH-1074/MATH-1651"], "U7": ["MATH-1514/MATH-1773"]})
-        self.assertEqual(len(codes(p, "W1")), 4)
+        self.assertEqual(codes(p, "W1"), [])          # KF-06 resolved: no inseparable pair
         self.assertEqual(codes(p, "W2"), [
-            "MATH-2093/NONE", "MATH-414/MATH-734", "MATH-2359/NONE",
-            "MATH-2271/MATH-1514", "MATH-2271/MATH-1773", "MATH-1514/NONE",
-            "MATH-1715/NONE", "MATH-1773/NONE"])
-        self.assertEqual([(w.unit_id, w.subject) for w in p.warnings if w.code == "W3"], [
-            ("U4", "MATH-2093"), ("U6", "MATH-2359"), ("U7", "MATH-1514"), ("U7", "MATH-1773")])
-        self.assertEqual(codes(p, "W4"), ["T5-011", "T5-012", "T5-014", "T5-015", "T6-010B",
-                                          "T6-015B", "T7-003", "T7-008", "T7-013", "T7-014"])
+            "MATH-1074/NONE", "MATH-1514/MATH-1773", "MATH-2093/NONE", "MATH-1074/MATH-1651",
+            "MATH-2359/NONE", "MATH-1514/MATH-1773", "MATH-1715/NONE", "MATH-1773/NONE"])
+        self.assertEqual([(w.unit_id, w.subject) for w in p.warnings if w.code == "W2"][:2],
+                         [("U3", "MATH-1074/NONE"), ("U4", "MATH-1514/MATH-1773")])
+        self.assertEqual(codes(p, "W3"), [])          # KF-04 resolved: every hypothesis has >= 3 trigger groups
+        self.assertEqual(codes(p, "W4"), [
+            "T5-011", "T5-012", "T5-014", "T5-015", "T5-020", "T5-021", "T5-022", "T4-011", "T4-012",
+            "T5-003", "T5-004", "T6-010B", "T6-015B", "T6-012B", "T6-013B", "T6-022", "T6-023",
+            "T7-003", "T7-008", "T7-013", "T7-014", "T7-017", "T7-018", "T7-019", "T7-020"])
         self.assertEqual(codes(p, "W5"), [])
         self.assertEqual(codes(p, "W6"), ["items.csv"])
         self.assertEqual(codes(p, "DROPPED_HYPOTHESIS", "U6"), ["MATH-1416"])
         self.assertEqual(codes(p, "UNPLACED_ITEM"), ["T6-019B", "T6-020B", "T6-021B"])
-        self.assertEqual(codes(p, "TWIN_CROSS_UNIT"), [f"T5-{n:03d}" for n in range(5, 11)])
+        self.assertEqual(codes(p, "TWIN_CROSS_UNIT"),
+                         [f"T5-{n:03d}" for n in range(5, 11)] + ["T5-017", "T5-018", "T5-019"])
+        self.assertEqual(len(p.warnings), 50)
 
     def test_decision_warnings_carry_their_decision_ids(self):
         by_code = {}
@@ -171,7 +180,8 @@ class RealBankUnitTests(unittest.TestCase):
         self.assertEqual(by_code["SKIPPED_ITEM"], {"D-2"})
         self.assertEqual(by_code["DROPPED_HYPOTHESIS"], {"D-2 side effect"})
         self.assertEqual(by_code["UNPLACED_ITEM"], {"D-4"})
-        self.assertEqual(by_code["W3"], {"D-5"})  # all four W3 hypotheses are companions
+        self.assertNotIn("W3", by_code)  # KF-04 resolved: no companion lacks trigger items (was D-5)
+        self.assertEqual(by_code["W6"], {"T-1"})  # items.csv still lacks link grades.
 
     def test_exclusion_warnings_are_reported_on_every_load(self):
         again = load_maths_v2()
@@ -181,8 +191,10 @@ class RealBankUnitTests(unittest.TestCase):
 
     def test_separating_items_count_matches_spec_examples(self):
         params = Params()
-        self.assertEqual(len(separating_items(self.pack.unit("U5"), "MATH-414", "MATH-734", params)), 3)
-        self.assertEqual(separating_items(self.pack.unit("U4"), "MATH-1514", "MATH-1773", params), ())
+        # The former inseparable pairs (KF-06) are now separated by exactly two items each.
+        self.assertEqual(separating_items(self.pack.unit("U4"), "MATH-1514", "MATH-1773", params), ("T4-011", "T4-012"))
+        self.assertEqual(separating_items(self.pack.unit("U7"), "MATH-1514", "MATH-1773", params), ("T7-017", "T7-018"))
+        self.assertEqual(separating_items(self.pack.unit("U6"), "MATH-1074", "MATH-1651", params), ("T6-022", "T6-023"))
         self.assertEqual(len(separating_items(self.pack.unit("U2"), "MATH-1965", "MATH-2039", params)), 15)
 
     def test_every_link_is_sound_without_a_grade_column(self):
@@ -207,21 +219,30 @@ class RealBankUnitTests(unittest.TestCase):
 class DecisionReversalTests(unittest.TestCase):
     """Each decision lives in the unit table or Params, so reversing it needs no code change."""
 
-    def test_removing_the_d2_skip_at_default_guess_is_refused_by_p1(self):
+    def test_removing_the_d2_skip_now_loads_at_the_default_guess(self):
+        # Harris removed MATH-1416 from two of the three options of T6-011B, T6-014B and T6-016B
+        # (18 and 20 Nov 2026), so P1 no longer refuses them at the default guess (KF-01).
         bank, topics, config = real_rows()
-        with self.assertRaises(PackError) as caught:
-            build_pack(bank, topics, without_d2(config), Params())
-        self.assertEqual((caught.exception.code, caught.exception.location), ("V11", "U6"))
+        pack = build_pack(bank, topics, without_d2(config), Params())
+        u6 = pack.unit("U6")
+        self.assertEqual(len(u6.items), 21)
+        self.assertEqual(u6.hyps[:-2], m(1074, 161, 767, 1651, 1416, 2359))
+        self.assertEqual(trigger_groups(u6, "MATH-1416"), 3)
+        self.assertEqual(codes(pack, "W5", "U6"), [])
+        self.assertEqual(codes(pack, "SKIPPED_ITEM"), [])
+        self.assertEqual(codes(pack, "DROPPED_HYPOTHESIS"), [])
 
-    def test_removing_the_d2_skip_with_a_lower_guess_restores_the_original_u6(self):
+    def test_removing_the_d2_skip_no_longer_depends_on_the_guess(self):
+        # Before the content fix this needed guess < 0.25; the result is now the same at 0.24.
         bank, topics, config = real_rows()
         pack = build_pack(bank, topics, without_d2(config), Params(guess=0.24))
         u6 = pack.unit("U6")
-        self.assertEqual(len(u6.items), 17)
+        self.assertEqual(len(u6.items), 21)
         self.assertEqual(u6.hyps[:-2], m(1074, 161, 767, 1651, 1416, 2359))
         self.assertEqual(trigger_groups(u6, "MATH-1416"), 3)
-        self.assertEqual(codes(pack, "W5", "U6"), ["T6-011B", "T6-014B", "T6-016B"])
+        self.assertEqual(codes(pack, "W5", "U6"), [])
         self.assertEqual(codes(pack, "SKIPPED_ITEM"), [])
+        self.assertEqual(codes(pack, "DROPPED_HYPOTHESIS"), [])
 
     def test_keeping_1416_with_the_skip_makes_it_inseparable_from_none(self):
         # The measured reason for the drop (decision Q1): with no trigger item, 1416 answers like NONE.
